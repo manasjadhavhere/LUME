@@ -59,7 +59,7 @@ export default defineConfig({
     // Enable CSS code splitting
     cssCodeSplit: true,
     // Target modern browsers for better optimization
-    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    target: 'esnext',
     // Enable minification
     minify: 'esbuild',
     // Enable gzip compression analysis
