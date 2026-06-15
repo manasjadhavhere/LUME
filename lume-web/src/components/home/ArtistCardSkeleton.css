@@ -1,0 +1,129 @@
+/* ===========================
+   ArtistCardSkeleton Component Styles
+   =========================== */
+
+.artist-card-skeleton {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--rose-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.artist-card-skeleton__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.artist-card-skeleton__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.artist-card-skeleton__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.artist-card-skeleton__name {
+  height: 20px;
+  width: 60%;
+  border-radius: var(--radius-sm);
+}
+
+.artist-card-skeleton__specialties {
+  height: 14px;
+  width: 80%;
+  border-radius: var(--radius-sm);
+}
+
+.artist-card-skeleton__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--rose-pale);
+  gap: var(--spacing-md);
+}
+
+.artist-card-skeleton__rating {
+  height: 14px;
+  width: 100px;
+  border-radius: var(--radius-sm);
+}
+
+.artist-card-skeleton__location {
+  height: 14px;
+  width: 80px;
+  border-radius: var(--radius-sm);
+}
+
+.artist-card-skeleton__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.artist-card-skeleton__price {
+  height: 24px;
+  width: 40%;
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .artist-card-skeleton {
+    margin: 0;
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+  
+  .artist-card-skeleton__avatar {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .artist-card-skeleton__stats {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .artist-card-skeleton {
+    margin: 0;
+  }
+  
+  .artist-card-skeleton__header {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .artist-card-skeleton__avatar {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .artist-card-skeleton__stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+  }
+}
+
+@media (min-width: 769px) {
+  .artist-card-skeleton {
+    margin: 0 auto var(--spacing-md);
+    max-width: 480px;
+  }
+}

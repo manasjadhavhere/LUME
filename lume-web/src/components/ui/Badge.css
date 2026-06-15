@@ -1,0 +1,41 @@
+/* ===========================
+   LUME - Badge Component
+   =========================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-text {
+  line-height: 1;
+}
+
+/* Variants */
+.badge-top-pick {
+  background: rgba(217, 122, 140, 0.15);
+  color: var(--rose-deep);
+}
+
+.badge-new {
+  background: rgba(201, 149, 106, 0.15);
+  color: var(--gold);
+}
+
+.badge-certified {
+  background: rgba(245, 230, 211, 0.5);
+  color: var(--mid);
+}
+
+/* Icon animation on hover (if badge is clickable) */
+.badge:hover svg {
+  animation: wiggle 0.5s ease-in-out;
+}

@@ -1,0 +1,67 @@
+/* ===========================
+   ServiceCardSkeleton Component Styles
+   =========================== */
+
+.service-card-skeleton {
+  flex-shrink: 0;
+  width: 140px;
+  padding: var(--spacing-md);
+  background: var(--white);
+  border: 2px solid var(--rose-light);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  text-align: center;
+  min-height: 140px;
+  box-shadow: var(--shadow-sm);
+}
+
+.service-card-skeleton__icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+}
+
+.service-card-skeleton__name {
+  height: 18px;
+  width: 90%;
+  border-radius: var(--radius-sm);
+}
+
+.service-card-skeleton__price {
+  height: 24px;
+  width: 70%;
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .service-card-skeleton {
+    width: 130px;
+    min-height: 130px;
+    padding: var(--spacing-sm);
+  }
+
+  .service-card-skeleton__icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .service-card-skeleton__name {
+    height: 16px;
+  }
+
+  .service-card-skeleton__price {
+    height: 20px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .service-card-skeleton {
+    width: 150px;
+    min-height: 150px;
+  }
+}

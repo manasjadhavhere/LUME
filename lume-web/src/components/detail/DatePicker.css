@@ -1,0 +1,120 @@
+/* ===========================
+   DatePicker Component Styles
+   =========================== */
+
+.date-picker {
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+}
+
+.date-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  padding: 0 var(--spacing-md);
+}
+
+.date-picker__month-year {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--dark);
+}
+
+.date-picker__arrow {
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.date-picker__arrow:hover {
+  background: var(--cream);
+  color: var(--dark);
+}
+
+.date-picker__scroll {
+  display: flex;
+  gap: var(--spacing-lg);
+  overflow-x: auto;
+  padding: var(--spacing-sm) var(--spacing-md);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.date-picker__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.date-picker__chip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.date-picker__day-name {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date-picker__day-number-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: all var(--transition-base);
+}
+
+.date-picker__day-number {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.date-picker__chip:hover .date-picker__day-number-wrapper {
+  background: var(--rose-pale);
+}
+
+.date-picker__chip--selected .date-picker__day-number-wrapper {
+  background: #C86B7C;
+  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.3);
+}
+
+.date-picker__chip--selected .date-picker__day-name {
+  color: var(--dark);
+}
+
+.date-picker__chip--selected .date-picker__day-number {
+  color: var(--white);
+}
+
+.date-picker__chip:focus-visible {
+  outline: none;
+}
+
+.date-picker__chip:focus-visible .date-picker__day-number-wrapper {
+  outline: 2px solid var(--rose-deep);
+  outline-offset: 2px;
+}

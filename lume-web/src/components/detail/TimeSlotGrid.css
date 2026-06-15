@@ -1,0 +1,89 @@
+/* ===========================
+   TimeSlotGrid Component Styles
+   =========================== */
+
+.time-slot-grid {
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+}
+
+.time-slot-grid__container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+.time-slot-grid__slot {
+  padding: 12px 8px;
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.time-slot-grid__slot:focus-visible {
+  outline: 2px solid var(--rose-deep);
+  outline-offset: 2px;
+}
+
+/* Available slot - default state */
+.time-slot-grid__slot--available {
+  cursor: pointer;
+}
+
+.time-slot-grid__slot--available:active {
+  transform: scale(0.97);
+}
+
+/* Selected slot - available and selected */
+.time-slot-grid__slot--selected {
+  background: #a7828d;
+  color: var(--white);
+  border-color: #a7828d;
+  box-shadow: 0 4px 12px rgba(167, 130, 141, 0.3);
+  font-weight: 600;
+}
+
+/* Taken slot - not available */
+.time-slot-grid__slot--taken {
+  background: var(--cream);
+  color: var(--text-soft);
+  border-color: rgba(0,0,0,0.05);
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+.time-slot-grid__time {
+  /* removed to use parent styles */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .time-slot-grid__container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  .time-slot-grid__slot {
+    padding: 10px 4px;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .time-slot-grid__slot--available:hover:not(.time-slot-grid__slot--selected) {
+    border-color: #a7828d;
+    color: #a7828d;
+  }
+}

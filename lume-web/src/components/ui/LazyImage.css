@@ -1,0 +1,29 @@
+/* ===========================
+   LazyImage Component Styles
+   =========================== */
+
+.lazy-image {
+  transition: opacity 0.3s ease;
+  opacity: 0.7;
+  max-width: 100%;
+  height: auto;
+}
+
+.lazy-image--loaded {
+  opacity: 1;
+}
+
+/* Error state styling */
+.lazy-image:not([src]) {
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--cream) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rose-deep);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+
+.lazy-image:not([src])::before {
+  content: "Image unavailable";
+}

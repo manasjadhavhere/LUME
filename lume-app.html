@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Lume – Book Your Glow</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #F2A4B0;
+    --rose-deep: #D97A8C;
+    --rose-light: #FAD4DC;
+    --rose-pale: #FFF0F3;
+    --rose-blush: #FBDDE4;
+    --champagne: #F5E6D3;
+    --gold: #C9956A;
+    --gold-light: #E8C99A;
+    --cream: #FDF6F0;
+    --dark: #2A1A1F;
+    --mid: #6B3D4A;
+    --text-soft: #9E6B78;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--rose-pale);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Phone Shell ── */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--cream);
+    border-radius: 52px;
+    box-shadow:
+      0 0 0 10px #1a0d10,
+      0 0 0 12px #3a1820,
+      0 40px 100px rgba(42,26,31,0.45),
+      inset 0 0 0 1px rgba(255,255,255,0.15);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* notch */
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 126px; height: 34px;
+    background: #1a0d10;
+    border-radius: 0 0 20px 20px;
+    z-index: 100;
+  }
+
+  /* ── Screen ── */
+  .screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--cream);
+  }
+
+  /* ── Pages ── */
+  .page {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    scrollbar-width: none;
+  }
+  .page::-webkit-scrollbar { display: none; }
+  .page.hidden { opacity: 0; pointer-events: none; transform: translateX(30px); }
+  .page.slide-left { transform: translateX(-30px); }
+
+  /* ═══════════════════════════════════════════
+     SPLASH SCREEN
+  ═══════════════════════════════════════════ */
+  #splash {
+    background: linear-gradient(160deg, #D97A8C 0%, #F2A4B0 40%, #FAD4DC 70%, #FFF0F3 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .splash-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: orbFloat 6s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 260px; height: 260px; background: rgba(255,200,210,0.5); top: -60px; right: -60px; animation-delay: 0s; }
+  .orb2 { width: 200px; height: 200px; background: rgba(201,149,106,0.25); bottom: 100px; left: -60px; animation-delay: -2s; }
+  .orb3 { width: 150px; height: 150px; background: rgba(253,221,228,0.6); top: 250px; right: 20px; animation-delay: -4s; }
+
+  @keyframes orbFloat {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-30px) scale(1.08); }
+  }
+
+  .splash-logo-wrap {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 1s cubic-bezier(0.4,0,0.2,1) 0.3s both;
+  }
+  .splash-icon {
+    width: 90px; height: 90px;
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    border: 1.5px solid rgba(255,255,255,0.6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(217,122,140,0.3);
+    animation: iconPulse 3s ease-in-out infinite;
+  }
+  @keyframes iconPulse {
+    0%,100% { box-shadow: 0 8px 32px rgba(217,122,140,0.3); }
+    50% { box-shadow: 0 8px 48px rgba(217,122,140,0.55), 0 0 0 8px rgba(255,255,255,0.12); }
+  }
+
+  .splash-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 62px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 8px;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(42,26,31,0.2);
+  }
+  .splash-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .splash-tagline {
+    z-index: 2;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 48px;
+    animation: fadeUp 1s cubic-bezier(0.4,0,0.2,1) 0.6s both;
+  }
+
+  .splash-btn {
+    z-index: 2;
+    margin-top: 56px;
+    padding: 18px 56px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--rose-deep);
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(42,26,31,0.2);
+    transition: all 0.3s ease;
+    animation: fadeUp 1s cubic-bezier(0.4,0,0.2,1) 0.9s both;
+  }
+  .splash-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(42,26,31,0.28); }
+  .splash-btn:active { transform: translateY(0); }
+
+  .splash-dots {
+    position: absolute; bottom: 48px; display: flex; gap: 6px; z-index: 2;
+    animation: fadeUp 1s 1.2s both;
+  }
+  .splash-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+  .splash-dots span:first-child { background: #fff; width: 20px; border-radius: 3px; }
+
+  /* ═══════════════════════════════════════════
+     HOME PAGE
+  ═══════════════════════════════════════════ */
+  #home { background: var(--cream); padding-bottom: 90px; }
+
+  .home-header {
+    padding: 54px 24px 20px;
+    background: linear-gradient(180deg, #FFF0F3 0%, var(--cream) 100%);
+  }
+  .home-header-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+  }
+  .greeting { font-size: 13px; color: var(--text-soft); letter-spacing: 0.5px; }
+  .greeting strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--dark); font-weight: 500; }
+  .notif-btn {
+    width: 42px; height: 42px; border-radius: 14px;
+    background: var(--rose-blush); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .notif-btn::after {
+    content: ''; position: absolute; top: 8px; right: 8px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rose-deep); border: 2px solid var(--cream);
+  }
+  .notif-btn:active { transform: scale(0.92); }
+
+  /* search */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border-radius: 16px; padding: 12px 16px;
+    box-shadow: 0 2px 16px rgba(217,122,140,0.1);
+    border: 1.5px solid var(--rose-light);
+  }
+  .search-bar span { font-size: 18px; }
+  .search-bar input {
+    border: none; outline: none; background: transparent;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--dark);
+    flex: 1;
+  }
+  .search-bar input::placeholder { color: #c4a0ab; }
+  .filter-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--rose); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    transition: all 0.2s;
+  }
+  .filter-btn:active { transform: scale(0.9); background: var(--rose-deep); }
+
+  /* hero banner */
+  .hero-banner {
+    margin: 20px 24px 0;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #D97A8C 0%, #F2A4B0 50%, #E8C99A 100%);
+    padding: 24px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(217,122,140,0.35);
+    animation: fadeUp 0.6s 0.2s both;
+  }
+  .hero-banner::before {
+    content: '✦'; position: absolute; right: 20px; top: 14px;
+    font-size: 60px; color: rgba(255,255,255,0.15); line-height: 1;
+  }
+  .hero-banner::after {
+    content: '◌'; position: absolute; right: 50px; bottom: 10px;
+    font-size: 80px; color: rgba(255,255,255,0.08); line-height: 1;
+  }
+  .hero-promo { font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.8); text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 500; color: #fff; line-height: 1.2; margin-bottom: 12px; }
+  .hero-cta {
+    display: inline-block; padding: 10px 22px;
+    background: rgba(255,255,255,0.25); backdrop-filter: blur(4px);
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 30px; font-size: 13px; color: #fff; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hero-cta:active { background: rgba(255,255,255,0.4); transform: scale(0.96); }
+
+  /* categories */
+  .section { padding: 28px 24px 0; }
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--dark); }
+  .see-all { font-size: 13px; color: var(--rose-deep); cursor: pointer; }
+
+  .cats { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .cats::-webkit-scrollbar { display: none; }
+  .cat-chip {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 16px; border-radius: 18px;
+    background: #fff; border: 1.5px solid var(--rose-light);
+    cursor: pointer; transition: all 0.25s;
+    animation: fadeUp 0.5s both;
+  }
+  .cat-chip:nth-child(1) { animation-delay: 0.1s; }
+  .cat-chip:nth-child(2) { animation-delay: 0.15s; }
+  .cat-chip:nth-child(3) { animation-delay: 0.2s; }
+  .cat-chip:nth-child(4) { animation-delay: 0.25s; }
+  .cat-chip:nth-child(5) { animation-delay: 0.3s; }
+  .cat-chip.active { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); border-color: transparent; box-shadow: 0 4px 16px rgba(217,122,140,0.4); }
+  .cat-chip .cat-icon { font-size: 22px; }
+  .cat-chip .cat-label { font-size: 11px; color: var(--mid); white-space: nowrap; }
+  .cat-chip.active .cat-label { color: #fff; }
+  .cat-chip:active { transform: scale(0.93); }
+
+  /* artist cards */
+  .artists { display: flex; flex-direction: column; gap: 16px; }
+
+  .artist-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(42,26,31,0.08);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    animation: fadeUp 0.5s both;
+    display: flex;
+    border: 1px solid rgba(217,122,140,0.1);
+  }
+  .artist-card:nth-child(1) { animation-delay: 0.1s; }
+  .artist-card:nth-child(2) { animation-delay: 0.2s; }
+  .artist-card:nth-child(3) { animation-delay: 0.3s; }
+  .artist-card:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(42,26,31,0.08); }
+
+  .card-img {
+    width: 100px; height: 110px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--rose-light), var(--rose-blush));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; position: relative;
+    overflow: hidden;
+  }
+  .card-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(217,122,140,0.2));
+  }
+
+  .card-body { flex: 1; padding: 14px 14px 14px 16px; }
+  .card-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; color: var(--dark); margin-bottom: 4px; }
+  .card-specialty { font-size: 12px; color: var(--text-soft); margin-bottom: 8px; }
+  .card-meta { display: flex; align-items: center; gap: 10px; }
+  .card-rating { display: flex; align-items: center; gap: 3px; font-size: 12px; color: var(--gold); font-weight: 500; }
+  .card-rating span { color: var(--text-soft); font-weight: 400; }
+  .card-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--rose-light); }
+  .card-dist { font-size: 12px; color: var(--text-soft); }
+  .card-price { margin-top: 10px; font-size: 15px; color: var(--rose-deep); font-weight: 500; }
+  .card-price small { font-size: 11px; color: var(--text-soft); font-weight: 400; }
+
+  .card-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: var(--rose-deep); color: #fff; font-size: 9px;
+    padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════
+     ARTIST DETAIL PAGE
+  ═══════════════════════════════════════════ */
+  #detail { background: var(--cream); padding-bottom: 90px; }
+
+  .detail-hero {
+    height: 300px; position: relative;
+    background: linear-gradient(135deg, #E8899A 0%, #F2A4B0 40%, #FAD4DC 70%, #E8C99A 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 100px; overflow: hidden;
+  }
+  .detail-hero::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to top, var(--cream), transparent);
+  }
+  .detail-back {
+    position: absolute; top: 50px; left: 20px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; z-index: 10; transition: all 0.2s;
+  }
+  .detail-back:active { transform: scale(0.9); }
+  .detail-fav {
+    position: absolute; top: 50px; right: 20px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; z-index: 10; transition: all 0.2s;
+  }
+  .detail-fav:active { transform: scale(0.9); }
+
+  .detail-body { padding: 0 24px; }
+  .detail-name { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--dark); margin-bottom: 4px; }
+  .detail-spec { font-size: 14px; color: var(--text-soft); margin-bottom: 16px; }
+  .detail-stats {
+    display: flex; gap: 0; margin-bottom: 24px;
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(42,26,31,0.06);
+    border: 1px solid rgba(217,122,140,0.1);
+  }
+  .stat-box { flex: 1; padding: 16px 12px; text-align: center; border-right: 1px solid var(--rose-pale); }
+  .stat-box:last-child { border-right: none; }
+  .stat-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--dark); }
+  .stat-lbl { font-size: 10px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .services-scroll { display: flex; gap: 10px; overflow-x: auto; margin: 0 -24px; padding: 0 24px 4px; scrollbar-width: none; margin-bottom: 24px; }
+  .services-scroll::-webkit-scrollbar { display: none; }
+  .svc-card {
+    flex-shrink: 0; background: #fff; border-radius: 16px; padding: 16px;
+    width: 140px; cursor: pointer; transition: all 0.25s;
+    border: 1.5px solid var(--rose-light);
+  }
+  .svc-card.selected { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); border-color: transparent; }
+  .svc-card:active { transform: scale(0.94); }
+  .svc-icon { font-size: 28px; margin-bottom: 8px; }
+  .svc-name { font-size: 13px; font-weight: 500; color: var(--dark); margin-bottom: 2px; }
+  .svc-card.selected .svc-name, .svc-card.selected .svc-price { color: #fff; }
+  .svc-price { font-size: 12px; color: var(--text-soft); }
+
+  .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+  .time-chip {
+    padding: 10px; border-radius: 12px; text-align: center;
+    font-size: 13px; color: var(--mid); background: #fff;
+    border: 1.5px solid var(--rose-light); cursor: pointer; transition: all 0.2s;
+  }
+  .time-chip.selected { background: var(--rose-deep); border-color: transparent; color: #fff; }
+  .time-chip.taken { background: var(--rose-pale); color: #cba8b0; cursor: not-allowed; text-decoration: line-through; }
+  .time-chip:not(.taken):active { transform: scale(0.94); }
+
+  .book-btn {
+    width: 100%; padding: 18px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--rose-deep), #C4667A);
+    border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 500; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(217,122,140,0.45);
+    transition: all 0.3s; letter-spacing: 0.5px;
+  }
+  .book-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(217,122,140,0.55); }
+  .book-btn:active { transform: scale(0.97); }
+
+  /* ═══════════════════════════════════════════
+     BOOKING CONFIRMATION PAGE
+  ═══════════════════════════════════════════ */
+  #confirm {
+    background: linear-gradient(160deg, #D97A8C 0%, #F2A4B0 35%, #FAD4DC 65%, #FFF0F3 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 32px; text-align: center; overflow: hidden;
+  }
+  .confirm-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: rgba(255,255,255,0.3); backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; margin-bottom: 28px;
+    animation: ringPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    box-shadow: 0 0 0 0 rgba(255,255,255,0.4);
+  }
+  @keyframes ringPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .confirm-ring.animate {
+    animation: ringPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both,
+               ringPulse 2s 0.6s ease-in-out infinite;
+  }
+  @keyframes ringPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+  }
+  .confirm-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #fff; margin-bottom: 8px; animation: fadeUp 0.6s 0.3s both; }
+  .confirm-sub { font-size: 15px; color: rgba(255,255,255,0.85); margin-bottom: 36px; line-height: 1.5; animation: fadeUp 0.6s 0.4s both; }
+
+  .confirm-card {
+    background: rgba(255,255,255,0.25); backdrop-filter: blur(16px);
+    border-radius: 24px; padding: 24px; width: 100%;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.5s both;
+  }
+  .confirm-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-row .icon { font-size: 20px; }
+  .confirm-row .label { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .confirm-row .value { font-size: 14px; color: #fff; font-weight: 500; margin-top: 1px; }
+
+  .confirm-done {
+    background: rgba(255,255,255,0.92); border: none; border-radius: 50px;
+    padding: 16px 52px; font-family: 'DM Sans', sans-serif; font-size: 15px;
+    color: var(--rose-deep); font-weight: 500; cursor: pointer;
+    box-shadow: 0 8px 32px rgba(42,26,31,0.2); transition: all 0.3s;
+    animation: fadeUp 0.6s 0.6s both;
+  }
+  .confirm-done:active { transform: scale(0.96); }
+
+  /* ═══════════════════════════════════════════
+     BOTTOM NAV
+  ═══════════════════════════════════════════ */
+  .bottom-nav {
+    height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(217,122,140,0.12);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 8px 8px; z-index: 50; flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; transition: all 0.25s; flex: 1; padding: 8px 4px;
+    border: none; background: none;
+  }
+  .nav-item.active .nav-icon-wrap { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); box-shadow: 0 4px 14px rgba(217,122,140,0.4); }
+  .nav-icon-wrap {
+    width: 44px; height: 32px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: all 0.3s;
+  }
+  .nav-label { font-size: 10px; color: var(--text-soft); }
+  .nav-item.active .nav-label { color: var(--rose-deep); font-weight: 500; }
+  .nav-item:active .nav-icon-wrap { transform: scale(0.88); }
+
+  /* ═══════════════════════════════════════════
+     UTILS
+  ═══════════════════════════════════════════ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, var(--rose-pale) 25%, var(--rose-blush) 50%, var(--rose-pale) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* date strip */
+  .date-strip { display: flex; gap: 8px; overflow-x: auto; margin: 0 -24px; padding: 0 24px 4px; scrollbar-width: none; margin-bottom: 20px; }
+  .date-strip::-webkit-scrollbar { display: none; }
+  .date-chip {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 12px; border-radius: 14px; background: #fff;
+    border: 1.5px solid var(--rose-light); cursor: pointer; transition: all 0.2s; min-width: 50px;
+  }
+  .date-chip.active { background: var(--rose-deep); border-color: transparent; }
+  .date-chip:active { transform: scale(0.92); }
+  .date-day { font-size: 10px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.5px; }
+  .date-num { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--dark); }
+  .date-chip.active .date-day, .date-chip.active .date-num { color: #fff; }
+
+  /* reviews mini */
+  .review-card {
+    background: #fff; border-radius: 16px; padding: 16px;
+    margin-bottom: 12px; border: 1px solid rgba(217,122,140,0.1);
+  }
+  .review-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .review-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--rose-light), var(--rose)); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .review-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .review-stars { font-size: 11px; color: var(--gold); margin-top: 1px; }
+  .review-text { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+
+  /* scrollbar for outer */
+  body::-webkit-scrollbar { display: none; }
+
+  /* background behind phone */
+  .bg-scene {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #f9d4dc 0%, #ffe6eb 40%, #fce8d5 100%);
+    z-index: -1;
+  }
+  .bg-scene::before {
+    content: 'LUME'; position: absolute; font-family: 'Cormorant Garamond', serif;
+    font-size: 220px; color: rgba(217,122,140,0.07); letter-spacing: 30px;
+    top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; font-weight: 300;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene"></div>
+
+<div class="phone">
+  <div class="screen">
+
+    <!-- ═══ SPLASH ═══ -->
+    <div class="page" id="splash">
+      <div class="splash-orb orb1"></div>
+      <div class="splash-orb orb2"></div>
+      <div class="splash-orb orb3"></div>
+      <div class="splash-logo-wrap">
+        <div class="splash-icon">💄</div>
+        <div class="splash-title">LUME</div>
+        <div class="splash-sub">Beauty · Art · Glow</div>
+      </div>
+      <div class="splash-tagline">"Your canvas. Our masterpiece."</div>
+      <button class="splash-btn" onclick="goPage('home')">Explore Artists &rarr;</button>
+      <div class="splash-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- ═══ HOME ═══ -->
+    <div class="page hidden" id="home">
+      <div class="home-header">
+        <div class="home-header-top">
+          <div class="greeting">
+            Good morning,
+            <strong>Priya ✨</strong>
+          </div>
+          <button class="notif-btn">🔔</button>
+        </div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="Search artist, style, occasion…">
+          <button class="filter-btn">⚙</button>
+        </div>
+      </div>
+
+      <!-- hero -->
+      <div class="hero-banner" onclick="goPage('detail')">
+        <div class="hero-promo">✦ Limited Slots Today</div>
+        <div class="hero-title">Bridal & Editorial<br>Looks Near You</div>
+        <div class="hero-cta">Book Now</div>
+      </div>
+
+      <!-- categories -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Services</div>
+          <div class="see-all">See all</div>
+        </div>
+        <div class="cats">
+          <div class="cat-chip active">
+            <span class="cat-icon">💄</span>
+            <span class="cat-label">All</span>
+          </div>
+          <div class="cat-chip" onclick="selectCat(this)">
+            <span class="cat-icon">👰</span>
+            <span class="cat-label">Bridal</span>
+          </div>
+          <div class="cat-chip" onclick="selectCat(this)">
+            <span class="cat-icon">🎭</span>
+            <span class="cat-label">Editorial</span>
+          </div>
+          <div class="cat-chip" onclick="selectCat(this)">
+            <span class="cat-icon">🌙</span>
+            <span class="cat-label">Evening</span>
+          </div>
+          <div class="cat-chip" onclick="selectCat(this)">
+            <span class="cat-icon">🌿</span>
+            <span class="cat-label">Natural</span>
+          </div>
+          <div class="cat-chip" onclick="selectCat(this)">
+            <span class="cat-icon">✨</span>
+            <span class="cat-label">Glam</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- top artists -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Top Artists</div>
+          <div class="see-all">See all</div>
+        </div>
+        <div class="artists">
+          <div class="artist-card" onclick="goPage('detail')">
+            <div class="card-img" style="background: linear-gradient(135deg,#f2c4cc,#e8a0b0);">
+              🎨
+              <span class="card-badge">⭐ Top Pick</span>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Aria Mehra</div>
+              <div class="card-specialty">Bridal · Editorial · Glam</div>
+              <div class="card-meta">
+                <div class="card-rating">⭐ 4.9 <span>(218)</span></div>
+                <div class="card-dot"></div>
+                <div class="card-dist">1.2 km</div>
+              </div>
+              <div class="card-price">₹2,499 <small>/ session</small></div>
+            </div>
+          </div>
+
+          <div class="artist-card" onclick="goPage('detail')">
+            <div class="card-img" style="background: linear-gradient(135deg,#fad4a0,#f5c090);">
+              🌸
+            </div>
+            <div class="card-body">
+              <div class="card-name">Sia Kapoor</div>
+              <div class="card-specialty">Natural · Skincare · Evening</div>
+              <div class="card-meta">
+                <div class="card-rating">⭐ 4.8 <span>(164)</span></div>
+                <div class="card-dot"></div>
+                <div class="card-dist">2.4 km</div>
+              </div>
+              <div class="card-price">₹1,799 <small>/ session</small></div>
+            </div>
+          </div>
+
+          <div class="artist-card" onclick="goPage('detail')">
+            <div class="card-img" style="background: linear-gradient(135deg,#d4c4f2,#c0aae8);">
+              ✨
+              <span class="card-badge">New</span>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Riya Sen</div>
+              <div class="card-specialty">Glam · Fantasy · Bold</div>
+              <div class="card-meta">
+                <div class="card-rating">⭐ 4.7 <span>(89)</span></div>
+                <div class="card-dot"></div>
+                <div class="card-dist">3.1 km</div>
+              </div>
+              <div class="card-price">₹2,999 <small>/ session</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DETAIL ═══ -->
+    <div class="page hidden" id="detail">
+      <div class="detail-hero">
+        🎨
+        <button class="detail-back" onclick="goPage('home')">←</button>
+        <button class="detail-fav" id="favBtn" onclick="toggleFav()">🤍</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-name">Aria Mehra</div>
+        <div class="detail-spec">✦ Certified Makeup Artist · Mumbai</div>
+
+        <div class="detail-stats">
+          <div class="stat-box">
+            <div class="stat-val">4.9</div>
+            <div class="stat-lbl">Rating</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">218</div>
+            <div class="stat-lbl">Reviews</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">6 yr</div>
+            <div class="stat-lbl">Exp.</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">1.2k</div>
+            <div class="stat-lbl">Bookings</div>
+          </div>
+        </div>
+
+        <!-- services -->
+        <div class="section-header" style="padding:0 0 12px">
+          <div class="section-title">Services</div>
+        </div>
+        <div class="services-scroll">
+          <div class="svc-card selected" onclick="selectSvc(this)">
+            <div class="svc-icon">👰</div>
+            <div class="svc-name">Bridal</div>
+            <div class="svc-price">₹5,999</div>
+          </div>
+          <div class="svc-card" onclick="selectSvc(this)">
+            <div class="svc-icon">🎭</div>
+            <div class="svc-name">Editorial</div>
+            <div class="svc-price">₹3,499</div>
+          </div>
+          <div class="svc-card" onclick="selectSvc(this)">
+            <div class="svc-icon">🌙</div>
+            <div class="svc-name">Evening</div>
+            <div class="svc-price">₹2,499</div>
+          </div>
+          <div class="svc-card" onclick="selectSvc(this)">
+            <div class="svc-icon">🌿</div>
+            <div class="svc-name">Natural</div>
+            <div class="svc-price">₹1,799</div>
+          </div>
+        </div>
+
+        <!-- date -->
+        <div class="section-header" style="padding:0 0 12px">
+          <div class="section-title">Pick a Date</div>
+        </div>
+        <div class="date-strip">
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Mon</div><div class="date-num">19</div></div>
+          <div class="date-chip active" onclick="selectDate(this)"><div class="date-day">Tue</div><div class="date-num">20</div></div>
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Wed</div><div class="date-num">21</div></div>
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Thu</div><div class="date-num">22</div></div>
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Fri</div><div class="date-num">23</div></div>
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Sat</div><div class="date-num">24</div></div>
+          <div class="date-chip" onclick="selectDate(this)"><div class="date-day">Sun</div><div class="date-num">25</div></div>
+        </div>
+
+        <!-- times -->
+        <div class="section-header" style="padding:0 0 12px">
+          <div class="section-title">Available Slots</div>
+        </div>
+        <div class="time-grid">
+          <div class="time-chip taken">9:00 AM</div>
+          <div class="time-chip" onclick="selectTime(this)">10:00 AM</div>
+          <div class="time-chip selected" onclick="selectTime(this)">11:30 AM</div>
+          <div class="time-chip" onclick="selectTime(this)">1:00 PM</div>
+          <div class="time-chip taken">2:30 PM</div>
+          <div class="time-chip" onclick="selectTime(this)">4:00 PM</div>
+          <div class="time-chip" onclick="selectTime(this)">5:30 PM</div>
+          <div class="time-chip taken">7:00 PM</div>
+          <div class="time-chip" onclick="selectTime(this)">8:00 PM</div>
+        </div>
+
+        <!-- reviews -->
+        <div class="section-header" style="padding:0 0 12px">
+          <div class="section-title">Reviews</div>
+          <div class="see-all">All 218</div>
+        </div>
+        <div class="review-card">
+          <div class="review-top">
+            <div class="review-avatar">👩</div>
+            <div>
+              <div class="review-name">Priya Sharma</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-text">Absolutely stunning work for my wedding! Aria is a true artist — she understood exactly what I wanted and delivered magic. ✨</div>
+        </div>
+        <div class="review-card">
+          <div class="review-top">
+            <div class="review-avatar">👩‍🦱</div>
+            <div>
+              <div class="review-name">Meera Nair</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-text">Best makeup experience in Mumbai. She uses premium products and the look lasted all day. Highly recommend!</div>
+        </div>
+
+        <button class="book-btn" onclick="goPage('confirm')" style="margin-top:8px;">
+          Confirm Booking · ₹5,999
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ CONFIRM ═══ -->
+    <div class="page hidden" id="confirm">
+      <div class="confirm-ring animate" id="confirmRing">✅</div>
+      <div class="confirm-title">Booking Confirmed!</div>
+      <div class="confirm-sub">Your glow session with Aria Mehra<br>is all set. Get ready to shine! 💄</div>
+
+      <div class="confirm-card">
+        <div class="confirm-row">
+          <span class="icon">🎨</span>
+          <div>
+            <div class="label">Artist</div>
+            <div class="value">Aria Mehra</div>
+          </div>
+        </div>
+        <div class="confirm-row">
+          <span class="icon">💄</span>
+          <div>
+            <div class="label">Service</div>
+            <div class="value">Bridal Makeup</div>
+          </div>
+        </div>
+        <div class="confirm-row">
+          <span class="icon">📅</span>
+          <div>
+            <div class="label">Date & Time</div>
+            <div class="value">Tue, May 20 · 11:30 AM</div>
+          </div>
+        </div>
+        <div class="confirm-row">
+          <span class="icon">📍</span>
+          <div>
+            <div class="label">Location</div>
+            <div class="value">Bandra West, Mumbai</div>
+          </div>
+        </div>
+        <div class="confirm-row">
+          <span class="icon">💳</span>
+          <div>
+            <div class="label">Total Paid</div>
+            <div class="value">₹5,999</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="confirm-done" onclick="goPage('home')">Back to Home</button>
+    </div>
+
+  </div><!-- /screen -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" data-page="home" onclick="navClick(this,'home')">
+      <div class="nav-icon-wrap">🏠</div>
+      <div class="nav-label">Home</div>
+    </button>
+    <button class="nav-item" data-page="search" onclick="navClick(this,'home')">
+      <div class="nav-icon-wrap">🔍</div>
+      <div class="nav-label">Discover</div>
+    </button>
+    <button class="nav-item" data-page="heart" onclick="navClick(this,'home')">
+      <div class="nav-icon-wrap">❤️</div>
+      <div class="nav-label">Saved</div>
+    </button>
+    <button class="nav-item" data-page="profile" onclick="navClick(this,'home')">
+      <div class="nav-icon-wrap">👤</div>
+      <div class="nav-label">Profile</div>
+    </button>
+  </div>
+</div><!-- /phone -->
+
+<script>
+  let currentPage = 'splash';
+
+  function goPage(id) {
+    const prev = document.getElementById(currentPage);
+    const next = document.getElementById(id);
+
+    if (prev) {
+      prev.classList.add('hidden');
+      if (currentPage !== 'splash') prev.classList.add('slide-left');
+    }
+
+    next.classList.remove('hidden', 'slide-left');
+
+    // scroll to top
+    next.scrollTop = 0;
+
+    // show/hide bottom nav
+    const nav = document.getElementById('bottomNav');
+    nav.style.display = (id === 'splash' || id === 'confirm') ? 'none' : 'flex';
+
+    // update nav active state
+    if (id === 'home') setNavActive('home');
+
+    // confirm ring re-animate
+    if (id === 'confirm') {
+      const ring = document.getElementById('confirmRing');
+      ring.classList.remove('animate');
+      void ring.offsetWidth;
+      ring.classList.add('animate');
+    }
+
+    currentPage = id;
+  }
+
+  function navClick(el, page) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    goPage(page);
+  }
+
+  function setNavActive(page) {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.page === page);
+    });
+  }
+
+  function selectCat(el) {
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function selectSvc(el) {
+    document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectTime(el) {
+    if (el.classList.contains('taken')) return;
+    document.querySelectorAll('.time-chip:not(.taken)').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectDate(el) {
+    document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleFav() {
+    const btn = document.getElementById('favBtn');
+    btn.textContent = btn.textContent === '🤍' ? '❤️' : '🤍';
+    btn.style.transform = 'scale(1.3)';
+    setTimeout(() => btn.style.transform = '', 300);
+  }
+
+  // init
+  document.getElementById('bottomNav').style.display = 'none';
+
+  // auto-advance splash for demo feel
+  document.getElementById('splash').addEventListener('click', () => goPage('home'));
+</script>
+</body>
+</html>

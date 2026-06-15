@@ -1,0 +1,399 @@
+/* ===========================
+   Artist Detail Page — Premium Redesign
+   =========================== */
+
+.artist-detail-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.artist-detail-page--error {
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+/* ── Main content wrapper ── */
+.artist-detail-page__content {
+  flex: 1;
+  position: relative;
+  z-index: 5;
+  background: var(--cream);
+  border-radius: 32px 32px 0 0;
+  margin-top: -60px; /* Overlap hero */
+  padding-top: var(--spacing-2xl);
+  padding-bottom: 120px; /* space for sticky booking bar */
+  animation: fadeUp 0.4s ease-out;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+}
+
+/* ── Desktop: two-column layout ── */
+@media (min-width: 1024px) {
+  .artist-detail-page__body {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--spacing-3xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-xl) var(--spacing-2xl);
+    align-items: start;
+  }
+
+  .artist-detail-page__main-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+  }
+
+  .artist-detail-page__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    position: sticky;
+    top: 80px;
+  }
+}
+
+/* ── Mobile/Tablet: single column ── */
+@media (max-width: 1023px) {
+  .artist-detail-page__content {
+    border-radius: 24px 24px 0 0;
+    margin-top: -40px;
+    padding-top: var(--spacing-xl);
+  }
+
+  .artist-detail-page__body {
+    padding: 0 var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .artist-detail-page__main-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .artist-detail-page__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .artist-detail-page__body {
+    padding: 0 var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* ── Section styles ── */
+.artist-detail-page__section {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.artist-detail-page__section--reviews {
+  margin-top: var(--spacing-xl);
+}
+
+.artist-detail-page__reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.artist-detail-page__sort-selector {
+  display: flex;
+  align-items: center;
+}
+
+.artist-detail-page__sort-select {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid rgba(217, 122, 140, 0.3);
+  border-radius: var(--radius-full);
+  background: white;
+  color: var(--dark);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D97A8C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.artist-detail-page__sort-select:focus {
+  outline: none;
+  border-color: var(--rose-deep);
+  box-shadow: 0 0 0 3px rgba(217, 122, 140, 0.15);
+}
+
+.artist-detail-page__reviews {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* ── Help Banner ── */
+.artist-detail-page__help-banner {
+  background: var(--rose-pale);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(217, 122, 140, 0.15);
+  margin-bottom: var(--spacing-md);
+}
+
+.artist-detail-page__help-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.artist-detail-page__help-icon {
+  color: var(--rose-deep);
+  background: white;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(217, 122, 140, 0.1);
+}
+
+.artist-detail-page__help-text h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+}
+
+.artist-detail-page__help-text p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-soft);
+}
+
+@media (max-width: 600px) {
+  .artist-detail-page__help-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}
+
+/* ── Footer Guarantees ── */
+.artist-detail-page__guarantees {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+}
+
+.artist-detail-page__guarantee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .artist-detail-page__guarantees {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    justify-content: center;
+  }
+}
+
+/* ── Sidebar booking card (desktop only) ── */
+.artist-detail-page__sidebar-booking {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: 0 4px 24px rgba(42, 26, 31, 0.04);
+  border: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.artist-detail-page__booking-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 8px 0;
+  font-family: var(--font-body);
+}
+
+.artist-detail-page__booking-label {
+  color: var(--text-soft);
+}
+
+.artist-detail-page__booking-val {
+  color: var(--dark);
+  font-weight: 500;
+}
+
+.artist-detail-page__sidebar-why {
+  background: var(--rose-pale);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid rgba(217, 122, 140, 0.1);
+}
+
+.artist-detail-page__sidebar-why h3 {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  margin: 0 0 var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.why-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.why-item:last-child { margin-bottom: 0; }
+
+.why-icon {
+  color: var(--rose-deep);
+  background: white;
+  padding: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.why-text h4 {
+  margin: 0 0 2px;
+  font-size: 0.8125rem;
+  font-family: var(--font-body);
+}
+
+.why-text p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+/* ── Sticky booking bar ── */
+.artist-detail-page__booking {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  z-index: 30;
+  box-shadow: 0 -4px 24px rgba(42, 26, 31, 0.04);
+  animation: slideUp 0.4s ease-out;
+}
+
+.artist-detail-page__price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.artist-detail-page__price-label {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.artist-detail-page__price {
+  font-size: 1.5rem;
+  font-family: var(--font-display);
+  color: var(--dark);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.artist-detail-page__button {
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .artist-detail-page__booking {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+
+  .artist-detail-page__price-info {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .artist-detail-page__button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .artist-detail-page__booking {
+    max-width: 720px;
+    left: 50%;
+    right: auto;
+    width: 100%;
+    transform: translateX(-50%);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: var(--spacing-lg) var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .artist-detail-page__booking {
+    display: none;
+  }
+  .artist-detail-page__content {
+    padding-bottom: var(--spacing-2xl);
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

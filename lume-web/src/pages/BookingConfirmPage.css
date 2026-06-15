@@ -1,0 +1,209 @@
+/* ===========================
+   Booking Confirm Page — Premium Redesign
+   =========================== */
+
+.booking-confirm-page {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+/* Rich gradient background */
+.booking-confirm-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    145deg,
+    #2a1a1f 0%,
+    #5c2a38 30%,
+    #9e4a60 60%,
+    #d97a8c 85%,
+    #f2a4b0 100%
+  );
+}
+
+/* Decorative noise/texture overlay */
+.booking-confirm-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* Floating orbs */
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  animation: orbFloat 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.floating-orb--1 {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation-delay: 0s;
+}
+
+.floating-orb--2 {
+  width: 240px;
+  height: 240px;
+  bottom: -60px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(242, 164, 176, 0.15) 0%, transparent 70%);
+  animation-delay: -3s;
+}
+
+.floating-orb--3 {
+  width: 160px;
+  height: 160px;
+  top: 40%;
+  left: 10%;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  animation-delay: -6s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, -30px) scale(1.05); }
+  66%       { transform: translate(-15px, 20px) scale(0.96); }
+}
+
+/* Main content */
+.booking-confirm-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+  width: 100%;
+  max-width: 480px;
+  animation: confirmEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes confirmEnter {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Confirmation header */
+.booking-confirm-header {
+  text-align: center;
+  color: var(--white);
+}
+
+.booking-confirm-heading {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: var(--spacing-md) 0 var(--spacing-xs);
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+.booking-confirm-subheading {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+/* Ring */
+.booking-confirm-ring-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* Summary card */
+.booking-confirm-summary-container {
+  width: 100%;
+}
+
+/* Action button */
+.booking-confirm-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.booking-confirm-button {
+  width: 100%;
+  background: var(--white) !important;
+  color: var(--rose-deep) !important;
+  font-weight: 600;
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+}
+
+.booking-confirm-button:hover {
+  background: var(--white) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25) !important;
+}
+
+/* Loading state */
+.booking-confirm-page--loading {
+  background: linear-gradient(
+    145deg,
+    #2a1a1f 0%,
+    #5c2a38 30%,
+    #9e4a60 60%,
+    #d97a8c 100%
+  );
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .booking-confirm-page {
+    padding: var(--spacing-lg) var(--spacing-md);
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+
+  .booking-confirm-heading {
+    font-size: 1.875rem;
+  }
+
+  .booking-confirm-content {
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .booking-confirm-content {
+    max-width: 520px;
+    gap: var(--spacing-2xl);
+  }
+
+  .booking-confirm-heading {
+    font-size: 2.75rem;
+  }
+}

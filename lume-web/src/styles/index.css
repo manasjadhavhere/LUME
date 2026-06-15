@@ -1,0 +1,408 @@
+/* ===========================
+   LUME - Global Styles
+   =========================== */
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--dark);
+  background-color: var(--cream);
+  overflow-x: hidden;
+}
+
+/* CSS Variables - Design System */
+:root {
+  /* Brand Colors */
+  --rose: #F2A4B0;
+  --rose-deep: #D97A8C;
+  --rose-light: #FAD4DC;
+  --rose-pale: #FFF0F3;
+  --rose-blush: #FBDDE4;
+  
+  --champagne: #F5E6D3;
+  --gold: #C9956A;
+  --gold-light: #E8C99A;
+  
+  --cream: #FDF6F0;
+  
+  /* Text Colors - Enhanced for accessibility */
+  --dark: #2A1A1F;
+  --mid: #6B3D4A;
+  --text-soft: #8B5A67;  /* Darkened from #9E6B78 for better contrast */
+  --white: #FFFFFF;
+  
+  /* Typography */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'DM Sans', sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(42, 26, 31, 0.06);
+  --shadow-md: 0 4px 6px rgba(42, 26, 31, 0.08);
+  --shadow-lg: 0 10px 15px rgba(42, 26, 31, 0.1);
+  --shadow-xl: 0 20px 25px rgba(42, 26, 31, 0.12);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Z-index */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal: 40;
+  --z-popover: 50;
+  --z-tooltip: 60;
+}
+
+/* Typography Styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--dark);
+}
+
+h1 {
+  font-size: 2.5rem; /* 40px */
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 2rem; /* 32px */
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1.5rem; /* 24px */
+}
+
+h4 {
+  font-size: 1.25rem; /* 20px */
+}
+
+h5 {
+  font-size: 1.125rem; /* 18px */
+}
+
+h6 {
+  font-size: 1rem; /* 16px */
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--rose-deep);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--rose);
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  border: none;
+  outline: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utility Classes */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Responsive container utility */
+.container-responsive {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 480px) {
+  .container-responsive {
+    max-width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+  
+  /* Mobile typography adjustments */
+  h1 {
+    font-size: 2rem; /* 32px */
+  }
+  
+  h2 {
+    font-size: 1.75rem; /* 28px */
+  }
+  
+  h3 {
+    font-size: 1.375rem; /* 22px */
+  }
+  
+  h4 {
+    font-size: 1.125rem; /* 18px */
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container-responsive {
+    max-width: 720px;
+    padding: 0 var(--spacing-lg);
+  }
+  
+  /* Tablet typography adjustments */
+  h1 {
+    font-size: 2.75rem; /* 44px */
+  }
+  
+  h2 {
+    font-size: 2.25rem; /* 36px */
+  }
+}
+
+@media (min-width: 769px) {
+  .container-responsive {
+    max-width: 1200px;
+    padding: 0 var(--spacing-xl);
+  }
+  
+  /* Desktop layout - full width website */
+  .app-shell {
+    background: var(--cream);
+    min-height: 100vh;
+  }
+  
+  .app-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: transparent;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Gradient Utilities */
+.gradient-rose {
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-deep) 100%);
+}
+
+.gradient-champagne {
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--gold-light) 100%);
+}
+
+.gradient-overlay {
+  background: linear-gradient(180deg, 
+    rgba(42, 26, 31, 0) 0%, 
+    rgba(42, 26, 31, 0.3) 50%, 
+    rgba(42, 26, 31, 0.7) 100%
+  );
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(42, 26, 31, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px 0 rgba(42, 26, 31, 0.07);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--rose-pale);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rose-light);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rose);
+}
+
+/* Focus Visible (Accessibility) */
+*:focus-visible {
+  outline: 2px solid var(--rose-deep);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--rose-light);
+  color: var(--dark);
+}
+
+/* Responsive Grid Utilities */
+.grid {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Responsive grid classes */
+@media (max-width: 480px) {
+  .sm-grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .sm-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .md-grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .md-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .md-grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 769px) {
+  .lg-grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .lg-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .lg-grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .lg-grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Responsive spacing utilities */
+.spacing-responsive {
+  padding: var(--spacing-md);
+}
+
+@media (max-width: 480px) {
+  .spacing-responsive {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .spacing-responsive {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 769px) {
+  .spacing-responsive {
+    padding: var(--spacing-lg);
+  }
+}
