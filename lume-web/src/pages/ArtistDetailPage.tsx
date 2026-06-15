@@ -29,7 +29,7 @@ const ArtistDetailPage: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [reviewSortBy, setReviewSortBy] = useState<SortOption>('date');
+  const [reviewSortBy, _setReviewSortBy] = useState<SortOption>('date');
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const isArtistFavorite = artist ? isFavorite(artist.id) : false;
