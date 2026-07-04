@@ -32,12 +32,10 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
     }
   };
 
-  // Generate a placeholder image based on artist ID for premium look
-  const placeholderImg = `https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80`;
-  const imgUrl = artist.id === '1' ? 'https://images.unsplash.com/photo-1522337360788-8b13fee7a344?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' : 
-                 artist.id === '2' ? 'https://images.unsplash.com/photo-1512496015851-a908f2604245?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' :
-                 artist.id === '3' ? 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' :
-                 placeholderImg;
+  // Use artist.avatar from demoData (Unsplash URLs per artist)
+  const [imgError, setImgError] = React.useState(false);
+  const fallbackImg = `https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80`;
+  const imgUrl = !imgError && artist.avatar ? artist.avatar : fallbackImg;
 
   return (
     <div
@@ -49,7 +47,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
       aria-label={`View ${artist.name}'s profile`}
     >
       <div className="artist-card__image-wrapper">
-        <img src={imgUrl} alt={artist.name} className="artist-card__image" />
+        <img src={imgUrl} alt={artist.name} className="artist-card__image" onError={() => setImgError(true)} />
         {artist.badge && (
           <div className="artist-card__badge">
             <Badge variant={getBadgeVariant(artist.badge)} text={artist.badge} />

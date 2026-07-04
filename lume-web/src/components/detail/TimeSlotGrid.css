@@ -15,8 +15,10 @@
 
 .time-slot-grid__slot {
   padding: 12px 8px;
-  background: var(--white);
-  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
@@ -28,6 +30,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--dark);
+  box-shadow: 0 2px 8px rgba(42, 26, 31, 0.04);
 }
 
 .time-slot-grid__slot:focus-visible {

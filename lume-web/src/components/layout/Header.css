@@ -4,13 +4,16 @@
 
 .global-header {
   width: 100%;
-  background: var(--cream);
-  backdrop-filter: blur(10px);
+  background: rgba(253, 246, 240, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--dark);
   z-index: var(--z-fixed, 100);
-  position: relative;
+  position: sticky;
+  top: 0;
   font-family: var(--font-body, system-ui, sans-serif);
-  border-bottom: 1px solid rgba(242, 164, 176, 0.2);
+  border-bottom: 1px solid rgba(242, 164, 176, 0.25);
+  box-shadow: 0 2px 20px rgba(42, 26, 31, 0.06);
 }
 
 .global-header__top-banner {

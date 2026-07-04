@@ -18,17 +18,20 @@
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--white);
-  border: 1px solid var(--rose-light);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-lg);
   padding: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(42, 26, 31, 0.06);
   transition: all var(--transition-fast);
 }
 
 .search-bar__input-wrapper:focus-within {
-  border-color: var(--rose);
-  box-shadow: 0 0 0 3px rgba(242, 164, 176, 0.1);
+  border-color: rgba(242, 164, 176, 0.6);
+  box-shadow: 0 4px 20px rgba(217, 122, 140, 0.12), 0 0 0 3px rgba(242, 164, 176, 0.15);
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .search-bar__icon {
@@ -57,14 +60,15 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: var(--white);
-  border: 1px solid var(--rose-light);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-md);
   color: var(--rose-deep);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(42, 26, 31, 0.06);
   transition: all var(--transition-fast);
   cursor: pointer;
-  /* Ensure minimum touch target */
   min-width: 44px;
   min-height: 44px;
 }

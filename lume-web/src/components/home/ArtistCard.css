@@ -1,45 +1,62 @@
 /* ===========================
-   ArtistCard Premium Styles
+   ArtistCard — Glassmorphism Premium
    =========================== */
 
 .artist-card {
   position: relative;
-  background: #fff;
-  border: 1px solid #eaeaea;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
+  box-shadow: 0 4px 24px rgba(42, 26, 31, 0.07), 0 1px 4px rgba(42, 26, 31, 0.04);
 }
 
 .artist-card:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(217, 122, 140, 0.18), 0 4px 12px rgba(42, 26, 31, 0.08);
+  border-color: rgba(242, 164, 176, 0.5);
 }
 
 .artist-card__image-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 125%; /* 4:5 Aspect Ratio for premium look */
-  background: #f4f4f4;
+  padding-top: 120%; /* 5:6 ratio */
+  background: linear-gradient(135deg, var(--rose-pale) 0%, var(--champagne) 100%);
   overflow: hidden;
 }
 
 .artist-card__image {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .artist-card:hover .artist-card__image {
-  transform: scale(1.05);
+  transform: scale(1.07);
+}
+
+/* Gradient overlay at bottom of image */
+.artist-card__image-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(to top, rgba(42, 26, 31, 0.45) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .artist-card__badge {
@@ -50,42 +67,45 @@
 }
 
 .artist-card__content {
-  padding: 16px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 10px;
 }
 
 .artist-card__header {
-  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .artist-card__name {
-  font-family: var(--font-body, system-ui, sans-serif);
+  font-family: var(--font-display);
   font-size: 1.1rem;
-  font-weight: 700;
-  color: #000;
-  margin: 0 0 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.artist-card__specialties {
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 0.85rem;
-  color: #666;
+  font-weight: 600;
+  color: var(--dark);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.artist-card__specialties {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 .artist-card__stats {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .artist-card__rating {
@@ -95,53 +115,61 @@
 }
 
 .artist-card__star {
-  color: #f43397;
-  fill: #f43397;
+  color: var(--gold);
+  fill: var(--gold);
 }
 
 .artist-card__rating-value {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #000;
+  color: var(--dark);
 }
 
 .artist-card__reviews {
-  font-size: 0.85rem;
-  color: #888;
+  font-size: 0.78rem;
+  color: var(--text-soft);
 }
 
 .artist-card__location {
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: #888;
+  gap: 3px;
+  color: var(--text-soft);
+}
+
+.artist-card__location-icon {
+  color: var(--rose-deep);
+  flex-shrink: 0;
 }
 
 .artist-card__distance {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .artist-card__footer {
   margin-top: auto;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 12px;
+  border-top: 1px solid rgba(242, 164, 176, 0.2);
+  padding-top: 10px;
 }
 
 .artist-card__price {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 
 .artist-card__price-value {
-  font-family: var(--font-body, system-ui, sans-serif);
+  font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
-  color: #000;
+  color: var(--dark);
 }
 
 .artist-card__price-label {
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 0.72rem;
+  color: var(--text-soft);
   text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
 }

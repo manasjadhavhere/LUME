@@ -155,13 +155,15 @@
 
 /* ── Help Banner ── */
 .artist-detail-page__help-banner {
-  background: var(--rose-pale);
+  background: rgba(255, 240, 243, 0.68);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg) var(--spacing-xl);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid rgba(217, 122, 140, 0.15);
+  border: 1px solid rgba(242, 164, 176, 0.25);
   margin-bottom: var(--spacing-md);
 }
 
@@ -231,11 +233,13 @@
 
 /* ── Sidebar booking card (desktop only) ── */
 .artist-detail-page__sidebar-booking {
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
-  box-shadow: 0 4px 24px rgba(42, 26, 31, 0.04);
-  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 8px 32px rgba(42, 26, 31, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -259,10 +263,12 @@
 }
 
 .artist-detail-page__sidebar-why {
-  background: var(--rose-pale);
+  background: rgba(255, 240, 243, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  border: 1px solid rgba(217, 122, 140, 0.1);
+  border: 1px solid rgba(242, 164, 176, 0.25);
 }
 
 .artist-detail-page__sidebar-why h3 {
@@ -308,16 +314,17 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(0,0,0,0.05);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(242, 164, 176, 0.25);
   padding: var(--spacing-md) var(--spacing-xl);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-lg);
   z-index: 30;
-  box-shadow: 0 -4px 24px rgba(42, 26, 31, 0.04);
+  box-shadow: 0 -4px 24px rgba(42, 26, 31, 0.06);
   animation: slideUp 0.4s ease-out;
 }
 
