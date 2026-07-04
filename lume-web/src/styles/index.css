@@ -16,7 +16,108 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
+  cursor: none; /* hide default cursor globally for custom cursor */
 }
+
+/* ── Custom Cursor ── */
+.lume-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 12px; height: 12px;
+  background: var(--rose-deep, #D97A8C);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease, width 0.25s ease, height 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+  mix-blend-mode: multiply;
+}
+
+.lume-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 40px; height: 40px;
+  border: 1.5px solid var(--rose-deep, #D97A8C);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  opacity: 0.6;
+}
+
+.lume-cursor.hover {
+  width: 20px; height: 20px;
+  background: var(--rose, #F2A4B0);
+}
+
+.lume-cursor-ring.hover {
+  width: 60px; height: 60px;
+  opacity: 0.3;
+}
+
+.lume-cursor.click {
+  transform: translate(-50%, -50%) scale(0.7);
+}
+
+/* On touch devices, show default cursor */
+@media (hover: none) {
+  html { cursor: auto; }
+  .lume-cursor, .lume-cursor-ring { display: none; }
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.88);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* staggered children */
+.stagger > *:nth-child(1) { transition-delay: 0s; }
+.stagger > *:nth-child(2) { transition-delay: 0.1s; }
+.stagger > *:nth-child(3) { transition-delay: 0.2s; }
+.stagger > *:nth-child(4) { transition-delay: 0.3s; }
+.stagger > *:nth-child(5) { transition-delay: 0.4s; }
+.stagger > *:nth-child(6) { transition-delay: 0.5s; }
 
 body {
   margin: 0;
@@ -418,4 +519,34 @@ img {
   .spacing-responsive {
     padding: var(--spacing-lg);
   }
+}
+
+/* ── App Layout ── */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Landing page: no top padding — hero is fullscreen behind fixed header */
+.website-main {
+  flex: 1;
+  /* no padding-top: hero intentionally starts at 0 behind transparent header */
+}
+
+/* App pages: offset for fixed header */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 72px; /* header height */
+}
+
+.app-main {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .app-layout { padding-top: 64px; }
+}
+
+/* cursor: none for all interactive elements — custom cursor takes over */
+a, button, [role="button"], input, select, textarea {
+  cursor: none;
 }

@@ -1,91 +1,90 @@
 import React from 'react';
-import { Sparkles, Mail, Phone, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
 import './Footer.css';
 
 const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="site-footer">
-      <div className="site-footer__container">
-        {/* Top Section */}
-        <div className="site-footer__top">
-          {/* Brand Column */}
-          <div className="site-footer__column site-footer__column--brand">
-            <div className="site-footer__logo">
-              <Sparkles size={32} />
-              <span className="site-footer__logo-text">LUME</span>
-            </div>
-            <p className="site-footer__tagline">
-              Your canvas. Our masterpiece.
+    <footer className="lume-footer">
+      <div className="lume-footer__top">
+        <div className="lume-footer__container">
+
+          {/* Brand */}
+          <div className="lume-footer__brand">
+            <button className="lume-footer__logo" onClick={() => navigate('/')} aria-label="Lume Home">
+              <Sparkles size={20} />
+              <span>LUME</span>
+            </button>
+            <p className="lume-footer__tagline">Your canvas. Our masterpiece.</p>
+            <p className="lume-footer__desc">
+              India's finest beauty artists, one booking away.
             </p>
-            <p className="site-footer__description">
-              Discover and book the finest beauty artists for your perfect look.
-            </p>
-            
-            {/* Social Links */}
-            <div className="site-footer__social">
-              <a href="#" className="site-footer__social-link" aria-label="Instagram">IG</a>
-              <a href="#" className="site-footer__social-link" aria-label="Facebook">FB</a>
-              <a href="#" className="site-footer__social-link" aria-label="Twitter">X</a>
+            <div className="lume-footer__social">
+              {['IG', 'TW', 'YT'].map((label) => (
+                <a key={label} href="#" className="lume-footer__social-btn" aria-label={label}>
+                  <ExternalLink size={14} />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="site-footer__column">
-            <h3 className="site-footer__heading">Quick Links</h3>
-            <ul className="site-footer__links">
-              <li><a href="/home">Home</a></li>
-              <li><a href="/discover">Discover Artists</a></li>
-              <li><a href="/saved">Saved Artists</a></li>
-              <li><a href="/profile">My Profile</a></li>
-            </ul>
+          <div className="lume-footer__col">
+            <h4 className="lume-footer__heading">Explore</h4>
+            <nav>
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'Discover Artists', path: '/discover' },
+                { label: 'Saved', path: '/saved' },
+                { label: 'My Profile', path: '/profile' },
+              ].map(({ label, path }) => (
+                <button key={label} className="lume-footer__link" onClick={() => navigate(path)}>
+                  {label}
+                </button>
+              ))}
+            </nav>
           </div>
 
           {/* Services */}
-          <div className="site-footer__column">
-            <h3 className="site-footer__heading">Services</h3>
-            <ul className="site-footer__links">
-              <li><a href="/discover?category=Bridal">Bridal Makeup</a></li>
-              <li><a href="/discover?category=Editorial">Editorial Looks</a></li>
-              <li><a href="/discover?category=Evening">Evening Glam</a></li>
-              <li><a href="/discover?category=Natural">Natural Beauty</a></li>
-            </ul>
+          <div className="lume-footer__col">
+            <h4 className="lume-footer__heading">Services</h4>
+            <nav>
+              {['Bridal Makeup', 'Editorial Looks', 'Evening Glam', 'Natural Beauty', 'Fantasy & Bold'].map(s => (
+                <button key={s} className="lume-footer__link" onClick={() => navigate('/discover')}>
+                  {s}
+                </button>
+              ))}
+            </nav>
           </div>
 
           {/* Contact */}
-          <div className="site-footer__column">
-            <h3 className="site-footer__heading">Contact Us</h3>
-            <ul className="site-footer__contact">
-              <li>
-                <Mail size={16} />
-                <a href="mailto:hello@lume.beauty">hello@lume.beauty</a>
-              </li>
-              <li>
-                <Phone size={16} />
-                <a href="tel:+911234567890">+91 123 456 7890</a>
-              </li>
-              <li>
-                <MapPin size={16} />
-                <span>Mumbai, India</span>
-              </li>
-            </ul>
+          <div className="lume-footer__col">
+            <h4 className="lume-footer__heading">Get in Touch</h4>
+            <div className="lume-footer__contact">
+              <a href="mailto:hello@lume.beauty" className="lume-footer__contact-item">
+                <Mail size={14} /> hello@lume.beauty
+              </a>
+              <a href="tel:+911234567890" className="lume-footer__contact-item">
+                <Phone size={14} /> +91 123 456 7890
+              </a>
+              <span className="lume-footer__contact-item">
+                <MapPin size={14} /> Mumbai, India
+              </span>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Bottom Section */}
-        <div className="site-footer__bottom">
-          <div className="site-footer__bottom-content">
-            <p className="site-footer__copyright">
-              © {currentYear} Lume. All rights reserved.
-            </p>
-            <div className="site-footer__legal">
-              <a href="#privacy">Privacy Policy</a>
-              <span className="site-footer__separator">•</span>
-              <a href="#terms">Terms of Service</a>
-              <span className="site-footer__separator">•</span>
-              <a href="#cookies">Cookie Policy</a>
-            </div>
+      <div className="lume-footer__bottom">
+        <div className="lume-footer__container lume-footer__bottom-inner">
+          <p>© {year} Lume. All rights reserved.</p>
+          <div className="lume-footer__legal">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Policy</a>
           </div>
         </div>
       </div>

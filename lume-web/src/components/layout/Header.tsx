@@ -1,89 +1,87 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Heart, ShoppingBag, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X, Sparkles } from 'lucide-react';
 import './Header.css';
 
-const CATEGORIES = [
-  'Brands',
-  'Bridal',
-  'Editorial',
-  'Evening',
-  'Natural',
-  'Glam',
-  'Jewellery',
-  'Accessories'
+const NAV_LINKS = [
+  { label: 'Home', path: '/' },
+  { label: 'Artists', path: '/discover' },
+  { label: 'Services', path: '/discover' },
+  { label: 'Saved', path: '/saved' },
+  { label: 'Profile', path: '/profile' },
 ];
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Logic for search execution
-    }
-  };
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close menu on route change
+  useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  const isLanding = location.pathname === '/';
+  const isDark = isLanding && !scrolled;
 
   return (
-    <header className="global-header">
-      {/* Top Banner (Optional Promos) */}
-      <div className="global-header__top-banner">
-        <span>Premium Beauty Services - Secure Payments & Verified Professionals</span>
-      </div>
+    <header className={`lume-header ${scrolled ? 'lume-header--scrolled' : ''} ${isDark ? 'lume-header--dark' : ''}`}>
+      <div className="lume-header__inner">
+        {/* Logo */}
+        <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home">
+          <Sparkles size={18} className="lume-header__logo-icon" />
+          <span className="lume-header__logo-text">LUME</span>
+        </button>
 
-      {/* Main Header Row */}
-      <div className="global-header__main">
-        <div className="global-header__container">
-          {/* Logo */}
-          <button 
-            className="global-header__logo"
-            onClick={() => navigate('/home')}
-            aria-label="Lume - Go to home"
-          >
-            <span className="global-header__logo-text">LUME</span>
+        {/* Desktop Nav */}
+        <nav className="lume-header__nav" aria-label="Main navigation">
+          {NAV_LINKS.map((link) => (
+            <button
+              key={link.label}
+              className={`lume-header__nav-link ${location.pathname === link.path ? 'active' : ''}`}
+              onClick={() => navigate(link.path)}
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* CTA */}
+        <div className="lume-header__cta-wrap">
+          <button className="lume-header__cta" onClick={() => navigate('/home')}>
+            Book Now
           </button>
-
-          {/* Search Bar */}
-          <div className="global-header__search-container">
-            <form className="global-header__search-form" onSubmit={handleSearchSubmit}>
-              <Search className="global-header__search-icon" size={20} />
-              <input 
-                type="text" 
-                placeholder="Search for Brands, Categories and more..." 
-                className="global-header__search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
-          </div>
-
-          {/* Right Actions */}
-          <div className="global-header__actions">
-            <button className="global-header__icon-btn" aria-label="Wishlist">
-              <Heart size={24} />
-            </button>
-            <button className="global-header__icon-btn" aria-label="Cart">
-              <ShoppingBag size={24} />
-            </button>
-            <button className="global-header__icon-btn" aria-label="Profile">
-              <User size={24} />
-            </button>
-          </div>
+          {/* Hamburger */}
+          <button
+            className="lume-header__hamburger"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </div>
 
-      {/* Secondary Navigation Row (Categories) */}
-      <div className="global-header__nav-row">
-        <div className="global-header__container">
-          <nav className="global-header__nav">
-            {CATEGORIES.map((category) => (
-              <button key={category} className="global-header__nav-item">
-                {category}
-              </button>
-            ))}
-          </nav>
-        </div>
+      {/* Mobile drawer */}
+      <div className={`lume-header__drawer ${menuOpen ? 'lume-header__drawer--open' : ''}`}>
+        {NAV_LINKS.map((link) => (
+          <button
+            key={link.label}
+            className="lume-header__drawer-link"
+            onClick={() => navigate(link.path)}
+          >
+            {link.label}
+          </button>
+        ))}
+        <button className="lume-header__drawer-cta" onClick={() => navigate('/home')}>
+          Book Now →
+        </button>
       </div>
     </header>
   );
