@@ -1,53 +1,20 @@
-/* App.css */
+/* App.css — Shell layout overrides */
 .app {
-  min-height: 100vh;
-  background: var(--color-cream);
-  color: var(--color-text-primary);
+  position: relative;
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .app-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  flex: 1;
+  min-height: 100svh;
 }
 
 .app-main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 80px; /* Space for bottom nav on mobile */
-  overflow-x: hidden;
+  padding-top: 72px;
 }
 
-/* Website layout (landing page) */
-.website-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Smooth page transitions */
-.app * {
-  box-sizing: border-box;
-}
-
-/* Desktop adjustments */
-@media (min-width: 769px) {
-  .app {
-    max-width: 100%;
-    margin: 0;
-    box-shadow: none;
-  }
-  
-  .app-layout {
-    padding-top: 0;
-  }
-  
-  .app-main {
-    padding-bottom: 0; /* No bottom nav on desktop */
-  }
+@media (max-width: 480px) {
+  .app-main { padding-top: 64px; }
 }

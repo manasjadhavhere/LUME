@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 
 export const useCursor = () => {
   useEffect(() => {
-    // Don't run on touch devices
-    if (window.matchMedia('(hover: none)').matches) return;
+    // Only run on true pointer devices (mouse/trackpad), not touch
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     const dot = document.createElement('div');
     dot.className = 'lume-cursor';
@@ -15,31 +15,47 @@ export const useCursor = () => {
     let mouseX = 0, mouseY = 0;
     let ringX = 0, ringY = 0;
     let raf: number;
+    let started = false;
 
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      // Snap dot immediately
       dot.style.left = mouseX + 'px';
       dot.style.top = mouseY + 'px';
+      if (!started) {
+        // Init ring to same position on first move (prevents jump from 0,0)
+        ringX = mouseX;
+        ringY = mouseY;
+        started = true;
+      }
     };
 
     const animateRing = () => {
-      ringX += (mouseX - ringX) * 0.12;
-      ringY += (mouseY - ringY) * 0.12;
+      // Lag factor — ring chases dot
+      ringX += (mouseX - ringX) * 0.1;
+      ringY += (mouseY - ringY) * 0.1;
       ring.style.left = ringX + 'px';
       ring.style.top = ringY + 'px';
       raf = requestAnimationFrame(animateRing);
     };
     raf = requestAnimationFrame(animateRing);
 
-    const onEnter = () => { dot.classList.add('hover'); ring.classList.add('hover'); };
-    const onLeave = () => { dot.classList.remove('hover'); ring.classList.remove('hover'); };
-    const onDown = () => dot.classList.add('click');
-    const onUp = () => dot.classList.remove('click');
+    const onEnter = () => {
+      dot.classList.add('cursor-hover');
+      ring.classList.add('cursor-hover');
+    };
+    const onLeave = () => {
+      dot.classList.remove('cursor-hover');
+      ring.classList.remove('cursor-hover');
+    };
+    const onDown = () => dot.classList.add('cursor-click');
+    const onUp = () => dot.classList.remove('cursor-click');
 
-    const addListeners = () => {
-      document.querySelectorAll('a, button, [role="button"], input, select, textarea, [data-cursor]')
-        .forEach(el => {
+    // Attach hover listeners to interactive elements
+    const attachHover = () => {
+      document.querySelectorAll('a, button, [role="button"], [data-hover]')
+        .forEach((el) => {
           el.addEventListener('mouseenter', onEnter);
           el.addEventListener('mouseleave', onLeave);
         });
@@ -48,14 +64,14 @@ export const useCursor = () => {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mousedown', onDown);
     document.addEventListener('mouseup', onUp);
-    addListeners();
+    attachHover();
 
-    // Re-scan for new elements periodically
-    const interval = setInterval(addListeners, 2000);
+    // Re-attach every 1.5s to catch dynamically mounted elements
+    const scanInterval = setInterval(attachHover, 1500);
 
     return () => {
       cancelAnimationFrame(raf);
-      clearInterval(interval);
+      clearInterval(scanInterval);
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('mouseup', onUp);

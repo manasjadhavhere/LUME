@@ -1,0 +1,100 @@
+/* ==============================
+   PRELOADER — LUME Cinema Style
+   ============================== */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+.preloader--fade {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preloader__backdrop {
+  position: absolute;
+  inset: 0;
+  background: #1a0d11;
+}
+
+.preloader__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.preloader__logo-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d97a8c 0%, #c86b7c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(217, 122, 140, 0.5);
+  animation: preloaderPulse 1.5s ease-in-out infinite;
+}
+
+.preloader__logo-icon {
+  color: white;
+}
+
+.preloader__brand {
+  font-family: 'DM Serif Display', 'Georgia', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  color: white;
+  animation: preloaderFadeIn 0.8s ease both;
+}
+
+.preloader__spinner {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin-top: 8px;
+}
+
+.preloader__spinner-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-top-color: #d97a8c;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.preloader__spinner-ring::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid transparent;
+  border-top-color: rgba(217, 122, 140, 0.4);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+@keyframes preloaderPulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(217, 122, 140, 0.4); transform: scale(1); }
+  50%       { box-shadow: 0 0 60px rgba(217, 122, 140, 0.7); transform: scale(1.04); }
+}
+
+@keyframes preloaderFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

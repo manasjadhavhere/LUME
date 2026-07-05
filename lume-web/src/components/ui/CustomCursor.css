@@ -1,0 +1,63 @@
+/* ==============================
+   CUSTOM CURSOR — Evenzax Feel
+   ============================== */
+
+/* Hide native cursor everywhere */
+*, *::before, *::after { cursor: none !important; }
+
+.cursor-inner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--rose-deep, #d97a8c);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+  transition: opacity 0.2s ease;
+  mix-blend-mode: normal;
+}
+
+.cursor-inner.cursor-inner--click {
+  transform: scale(0.6) !important;
+  opacity: 0.7;
+}
+
+.cursor-outer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--rose-deep, #d97a8c);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  will-change: transform;
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease, opacity 0.2s ease;
+  opacity: 0.65;
+}
+
+.cursor-outer--expand {
+  width: 60px;
+  height: 60px;
+  opacity: 0.4;
+  background: rgba(217, 122, 140, 0.08);
+  border-color: rgba(217, 122, 140, 0.5);
+}
+
+.cursor-outer--click {
+  width: 34px;
+  height: 34px;
+  opacity: 0.8;
+  background: rgba(217, 122, 140, 0.15);
+}
+
+/* Hide cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-inner,
+  .cursor-outer { display: none; }
+  *, *::before, *::after { cursor: auto !important; }
+}

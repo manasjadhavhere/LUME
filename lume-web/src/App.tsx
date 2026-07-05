@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
-import SplashPage from './pages/SplashPage';
+import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import BookingConfirmPage from './pages/BookingConfirmPage';
@@ -11,9 +11,11 @@ import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFound from './components/layout/NotFound';
 import BottomNav from './components/layout/BottomNav';
-
 import Footer from './components/layout/Footer';
 import Header from './components/layout/Header';
+import CustomCursor from './components/ui/CustomCursor';
+import Preloader from './components/ui/Preloader';
+import './App.css';
 
 const AppLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -28,14 +30,29 @@ const AppLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   );
 };
 
+/* Landing page has its own header/footer baked in */
+const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="app-layout">
+      <Header isLanding />
+      <main style={{ paddingTop: 0 }}>
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <Router>
         <ToastProvider>
           <div className="app">
+            <Preloader />
+            <CustomCursor />
             <Routes>
-              <Route path="/" element={<SplashPage />} />
+              <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
               <Route path="/home" element={<AppLayoutWrapper><HomePage /></AppLayoutWrapper>} />
               <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
               <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />

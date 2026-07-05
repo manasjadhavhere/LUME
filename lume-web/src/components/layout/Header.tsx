@@ -1,37 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Sparkles, Search } from 'lucide-react';
 import './Header.css';
 
 const NAV_LINKS = [
-  { label: 'Home', path: '/' },
-  { label: 'Artists', path: '/discover' },
-  { label: 'Services', path: '/discover' },
-  { label: 'Saved', path: '/saved' },
-  { label: 'Profile', path: '/profile' },
+  { label: 'Artists',    path: '/#artists' },
+  { label: 'About',      path: '/#about' },
+  { label: 'Categories', path: '/#categories' },
+  { label: 'Partner',    path: '/#partner' },
+  { label: 'Contact',    path: '/#contact' },
 ];
 
-const Header: React.FC = () => {
+const APP_NAV = [
+  { label: 'Home',     path: '/home' },
+  { label: 'Discover', path: '/discover' },
+  { label: 'Saved',    path: '/saved' },
+  { label: 'Profile',  path: '/profile' },
+];
+
+interface HeaderProps {
+  isLanding?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  const isLanding = location.pathname === '/';
   const isDark = isLanding && !scrolled;
+
+  const handleHashLink = (path: string) => {
+    if (path.startsWith('/#')) {
+      const id = path.slice(2);
+      if (location.pathname === '/') {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        navigate('/');
+        setTimeout(() => {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+      }
+    } else {
+      navigate(path);
+    }
+    setMenuOpen(false);
+  };
+
+  const links = isLanding ? NAV_LINKS : APP_NAV;
 
   return (
     <header className={`lume-header ${scrolled ? 'lume-header--scrolled' : ''} ${isDark ? 'lume-header--dark' : ''}`}>
       <div className="lume-header__inner">
+
         {/* Logo */}
         <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home">
           <Sparkles size={18} className="lume-header__logo-icon" />
@@ -40,23 +72,25 @@ const Header: React.FC = () => {
 
         {/* Desktop Nav */}
         <nav className="lume-header__nav" aria-label="Main navigation">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <button
               key={link.label}
               className={`lume-header__nav-link ${location.pathname === link.path ? 'active' : ''}`}
-              onClick={() => navigate(link.path)}
+              onClick={() => handleHashLink(link.path)}
             >
               {link.label}
             </button>
           ))}
         </nav>
 
-        {/* CTA */}
+        {/* Right actions */}
         <div className="lume-header__cta-wrap">
-          <button className="lume-header__cta" onClick={() => navigate('/home')}>
-            Book Now
+          <button className="lume-header__search" aria-label="Search artists" onClick={() => navigate('/discover')}>
+            <Search size={18} />
           </button>
-          {/* Hamburger */}
+          <button className="lume-header__cta" onClick={() => navigate('/home')}>
+            Book Now ↗
+          </button>
           <button
             className="lume-header__hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -69,12 +103,12 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile drawer */}
-      <div className={`lume-header__drawer ${menuOpen ? 'lume-header__drawer--open' : ''}`}>
-        {NAV_LINKS.map((link) => (
+      <div className={`lume-header__drawer ${menuOpen ? 'lume-header__drawer--open' : ''}`} aria-hidden={!menuOpen}>
+        {links.map((link) => (
           <button
             key={link.label}
             className="lume-header__drawer-link"
-            onClick={() => navigate(link.path)}
+            onClick={() => handleHashLink(link.path)}
           >
             {link.label}
           </button>
