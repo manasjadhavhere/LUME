@@ -8,48 +8,59 @@
   left: 0;
   right: 0;
   z-index: var(--z-fixed, 100);
-  transition: background 0.5s ease, backdrop-filter 0.5s ease,
-              box-shadow 0.5s ease, padding 0.4s ease;
+  /* Always visible — rich frosted glass background */
+  background: rgba(253, 246, 240, 0.88);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-bottom: 1px solid rgba(242, 164, 176, 0.2);
+  box-shadow: 0 2px 20px rgba(42, 26, 31, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
 }
 
-/* ── Dark / Hero mode ── */
+/* ── Dark / Hero mode — no longer transparent, keep light theme ── */
 .lume-header--dark {
-  background: transparent;
+  background: rgba(253, 246, 240, 0.88);
 }
 
-.lume-header--dark .lume-header__logo-text,
+.lume-header--dark .lume-header__logo-text {
+  background: linear-gradient(135deg, var(--rose-deep, #d97a8c) 0%, var(--rose, #f2a4b0) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .lume-header--dark .lume-header__logo-icon {
-  color: white;
-  -webkit-text-fill-color: white;
-  background: none;
+  color: var(--rose-deep, #d97a8c);
 }
 
 .lume-header--dark .lume-header__nav-link {
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--dark, #2a1a1f);
 }
-.lume-header--dark .lume-header__nav-link:hover { color: white; }
+.lume-header--dark .lume-header__nav-link:hover { color: var(--rose-deep, #d97a8c); }
 
 .lume-header--dark .lume-header__cta {
-  border-color: rgba(255, 255, 255, 0.5);
-  color: white;
+  border-color: var(--rose-deep, #d97a8c);
+  color: var(--rose-deep, #d97a8c);
 }
 .lume-header--dark .lume-header__cta:hover {
-  background: white;
-  color: var(--dark, #2a1a1f);
+  background: var(--rose-deep, #d97a8c);
+  color: white;
 }
 
 .lume-header--dark .lume-header__search,
 .lume-header--dark .lume-header__hamburger {
-  color: rgba(255,255,255,0.85);
+  color: var(--dark, #2a1a1f);
 }
 
-/* ── Scrolled / glass state ── */
+/* ── Scrolled state — deeper glass ── */
 .lume-header--scrolled {
-  background: rgba(253, 246, 240, 0.90);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(242, 164, 176, 0.18);
-  box-shadow: 0 2px 24px rgba(42, 26, 31, 0.06);
+  background: rgba(253, 246, 240, 0.95);
+  backdrop-filter: blur(32px) saturate(220%);
+  -webkit-backdrop-filter: blur(32px) saturate(220%);
+  border-bottom: 1px solid rgba(242, 164, 176, 0.25);
+  box-shadow: 0 4px 32px rgba(42, 26, 31, 0.09),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* ── Inner layout ── */

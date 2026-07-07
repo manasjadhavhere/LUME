@@ -41,23 +41,23 @@ const HERO_SLIDES = [
 
 /* ── Categories ── */
 const CATEGORIES = [
-  { name: 'Bridal',       image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', count: '120+ Artists', wide: true },
-  { name: 'Editorial',    image: 'https://images.unsplash.com/photo-1515688594390-b649af70d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '85+ Artists' },
+  { name: 'Bridal', image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', count: '120+ Artists', wide: true },
+  { name: 'Editorial', image: 'https://images.unsplash.com/photo-1515688594390-b649af70d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '85+ Artists' },
   { name: 'Evening Glam', image: 'https://images.unsplash.com/photo-1566977755106-4b9ee5625c50?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '95+ Artists' },
-  { name: 'Natural',      image: 'https://images.unsplash.com/photo-1512413914583-11bf279a016f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '110+ Artists' },
-  { name: 'Fantasy',      image: 'https://images.unsplash.com/photo-1516975080661-460d3d256877?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '45+ Artists' },
+  { name: 'Natural', image: 'https://images.unsplash.com/photo-1512413914583-11bf279a016f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '110+ Artists' },
+  { name: 'Fantasy', image: 'https://images.unsplash.com/photo-1516975080661-460d3d256877?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '45+ Artists' },
 ];
 
 /* ── Marquee ── */
 const MARQUEE = ['Bridal Artistry', '✦', 'Editorial Glam', '✦', 'Natural Beauty', '✦', 'Evening Looks', '✦', 'Premium Artists', '✦', 'Verified & Trusted', '✦'];
 
 /* ── Stats ── */
-const STATS = [
+/* const STATS = [
   { n: '500+', l: 'Expert Artists' },
   { n: '15+',  l: 'Cities Covered' },
   { n: '50K+', l: 'Happy Clients' },
   { n: '4.9★', l: 'Avg. Rating' },
-];
+]; */
 
 /* ══════════════════════════════════════
    Scroll Reveal Hook
@@ -93,6 +93,117 @@ const HeroLights: React.FC = () => (
     <div className="lp-hero__light lp-hero__light--3" />
     <div className="lp-hero__light lp-hero__light--4" />
   </div>
+);
+
+/* ══════════════════════════════════════
+   Lume Intro Component
+══════════════════════════════════════ */
+const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ onBook, onExplore }) => (
+  <section className="lp-intro" id="intro" aria-label="About Lume">
+    {/* Animated background orbs */}
+    <div className="lp-intro__orb lp-intro__orb--1" aria-hidden="true" />
+    <div className="lp-intro__orb lp-intro__orb--2" aria-hidden="true" />
+    <div className="lp-intro__orb lp-intro__orb--3" aria-hidden="true" />
+
+    {/* Floating sparkle particles */}
+    <div className="lp-intro__spark lp-intro__spark--1" aria-hidden="true" />
+    <div className="lp-intro__spark lp-intro__spark--2" aria-hidden="true" />
+    <div className="lp-intro__spark lp-intro__spark--3" aria-hidden="true" />
+    <div className="lp-intro__spark lp-intro__spark--4" aria-hidden="true" />
+
+    <div className="lp-intro__inner">
+      {/* Left: Text */}
+      <div className="lp-intro__text reveal-left">
+        {/* <div className="lp-intro__badge">
+          <span className="lp-intro__badge-dot" />
+          Redefining Beauty in India
+        </div> */}
+
+        <h2 className="lp-intro__heading">
+          Where Every Look<br />
+          Becomes a <em>Masterpiece.</em>
+        </h2>
+
+        <p className="lp-intro__tagline">
+          Lume is India's most curated beauty platform — connecting visionaries
+          with <strong>verified, award-winning makeup artists</strong> for bridal
+          ceremonies, editorial shoots, and everyday transformations.
+          Not just a booking. A&nbsp;<strong>luminous experience.</strong>
+        </p>
+
+        <div className="lp-intro__divider">
+          <div className="lp-intro__divider-line" />
+          <span className="lp-intro__divider-icon"><Sparkles size={16} /></span>
+          <div className="lp-intro__divider-line" />
+        </div>
+
+        <div className="lp-intro__micro-stats">
+          <div className="lp-intro__micro-stat">
+            <strong>500+</strong>
+            <span>Expert Artists</span>
+          </div>
+          <div className="lp-intro__micro-stat">
+            <strong>50K+</strong>
+            <span>Happy Clients</span>
+          </div>
+          <div className="lp-intro__micro-stat">
+            <strong>4.9★</strong>
+            <span>Avg. Rating</span>
+          </div>
+          <div className="lp-intro__micro-stat">
+            <strong>15+</strong>
+            <span>Cities</span>
+          </div>
+        </div>
+
+        <div className="lp-intro__cta">
+          <button className="lp-btn lp-btn--primary" onClick={onBook}>
+            Book an Artist <ArrowRight size={16} />
+          </button>
+          <button className="lp-btn lp-btn--ghost-dark" onClick={onExplore}>
+            <Play size={13} fill="currentColor" /> Explore Gallery
+          </button>
+        </div>
+      </div>
+
+      {/* Right: Visual */}
+      <div className="lp-intro__visual reveal-right">
+        <div className="lp-intro__glass-main">
+          <img
+            src="https://images.unsplash.com/photo-1522337360788-8b13fee7a344?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80"
+            alt="Lume beauty artistry — a bride in premium makeup"
+            className="lp-intro__img"
+            loading="lazy"
+          />
+        </div>
+
+        {/* Floating glass card 1 */}
+        <div className="lp-intro__float-card lp-intro__float-card--1">
+          <div className="lp-intro__float-icon">
+            <Heart size={20} fill="white" />
+          </div>
+          <div className="lp-intro__float-text">
+            <strong>50K+</strong>
+            <span>Happy Clients</span>
+          </div>
+        </div>
+
+        {/* Floating glass card 2 */}
+        <div className="lp-intro__float-card lp-intro__float-card--2">
+          <div className="lp-intro__float-icon">
+            <Sparkles size={16} />
+          </div>
+          <div className="lp-intro__float-text">
+            <strong>4.9★</strong>
+            <span>Avg. Rating</span>
+          </div>
+        </div>
+
+        {/* Decorative spinning ring */}
+        <div className="lp-intro__deco-ring" aria-hidden="true" />
+      </div>
+    </div>
+  </section>
 );
 
 /* ══════════════════════════════════════
@@ -188,6 +299,7 @@ const LandingPage: React.FC = () => {
 
         {/* Hero Content */}
         <div className="lp-hero__content">
+          {/* Animated text — re-mounts on slide change */}
           <div key={activeSlide} className="lp-hero__content-inner lp-hero__content--animate">
             <span className="lp-hero__tag">{HERO_SLIDES[activeSlide].tag}</span>
             <span className="lp-hero__eyebrow">{HERO_SLIDES[activeSlide].eyebrow}</span>
@@ -196,14 +308,16 @@ const LandingPage: React.FC = () => {
               <em className="lp-hero__title-accent">{HERO_SLIDES[activeSlide].titleAccent}</em>
             </h1>
             <p className="lp-hero__sub">{HERO_SLIDES[activeSlide].sub}</p>
-            <div className="lp-hero__cta">
-              <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
-                Book an Artist <ArrowRight size={16} />
-              </button>
-              <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
-                <Play size={14} fill="currentColor" /> Watch Reel
-              </button>
-            </div>
+          </div>
+
+          {/* Stable CTA — never re-mounts, stays put on every slide */}
+          <div className="lp-hero__cta">
+            <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
+              Book an Artist <ArrowRight size={16} />
+            </button>
+            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
+              <Play size={14} fill="currentColor" /> Watch Reel
+            </button>
           </div>
         </div>
 
@@ -254,19 +368,10 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ══════════════════════════════
-          STATS BAR
-      ══════════════════════════════ */}
-      <div className="lp-stats-bar">
-        <div className="lp-container lp-stats-bar__inner stagger">
-          {STATS.map((s) => (
-            <div key={s.l} className="lp-stats-bar__item reveal">
-              <strong>{s.n}</strong>
-              <span>{s.l}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ════════════════════════════
+          LUME INTRO
+      ════════════════════════════ */}
+      <LumeIntro onBook={() => navigate('/home')} onExplore={() => navigate('/discover')} />
 
       {/* ══════════════════════════════
           2. OUR ARTISTS
@@ -379,10 +484,10 @@ const LandingPage: React.FC = () => {
 
             <div className="lp-about__trust stagger">
               {[
-                { icon: Shield,       text: '100% Verified Artists' },
-                { icon: Heart,        text: 'Personalized Matching' },
-                { icon: Clock,        text: 'Instant Confirmation' },
-                { icon: CheckCircle,  text: 'Secure Payments' },
+                { icon: Shield, text: '100% Verified Artists' },
+                { icon: Heart, text: 'Personalized Matching' },
+                { icon: Clock, text: 'Instant Confirmation' },
+                { icon: CheckCircle, text: 'Secure Payments' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="lp-about__trust-item reveal">
                   <div className="lp-about__trust-icon"><Icon size={15} /></div>
@@ -461,10 +566,10 @@ const LandingPage: React.FC = () => {
             </p>
             <div className="lp-partner__perks stagger">
               {[
-                { icon: Sparkles,     text: 'Free Profile Listing' },
-                { icon: CheckCircle,  text: 'Verified Artist Badge' },
-                { icon: Heart,        text: 'Dedicated Support' },
-                { icon: Shield,       text: 'Secure Payments' },
+                { icon: Sparkles, text: 'Free Profile Listing' },
+                { icon: CheckCircle, text: 'Verified Artist Badge' },
+                { icon: Heart, text: 'Dedicated Support' },
+                { icon: Shield, text: 'Secure Payments' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="lp-partner__perk reveal">
                   <div className="lp-partner__perk-icon"><Icon size={16} /></div>
@@ -472,7 +577,7 @@ const LandingPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <button className="lp-btn lp-btn--light lp-partner__cta reveal" onClick={() => navigate('/home')}>
+            <button className="lp-btn lp-btn--primary lp-partner__cta reveal" onClick={() => navigate('/home')}>
               Apply to Join <ArrowRight size={16} />
             </button>
           </div>
@@ -535,9 +640,9 @@ const LandingPage: React.FC = () => {
 
             <div className="lp-contact__social stagger">
               {[
-                { Icon: Share2,         label: 'Instagram' },
-                { Icon: MessageCircle,  label: 'Twitter' },
-                { Icon: Video,          label: 'YouTube' },
+                { Icon: Share2, label: 'Instagram' },
+                { Icon: MessageCircle, label: 'Twitter' },
+                { Icon: Video, label: 'YouTube' },
               ].map(({ Icon, label }) => (
                 <a key={label} href="#" className="lp-contact__social-btn reveal" aria-label={label}>
                   <Icon size={17} />

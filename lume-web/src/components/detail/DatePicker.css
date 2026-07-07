@@ -1,9 +1,9 @@
 /* ===========================
-   DatePicker Component Styles
+   DatePicker — Professional Calendar Strip
    =========================== */
 
 .date-picker {
-  margin: var(--spacing-sm) 0 0;
+  margin: 0;
   padding: 0;
 }
 
@@ -11,40 +11,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
-  padding: 0 var(--spacing-md);
+  margin-bottom: 14px;
+  padding: 0;
 }
 
 .date-picker__month-year {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--dark);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1a1114;
+  letter-spacing: -0.01em;
 }
 
 .date-picker__arrow {
-  background: none;
-  border: none;
-  color: var(--text-soft);
+  background: white;
+  border: 1px solid #e8e2de;
+  color: #1a1114;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
 .date-picker__arrow:hover {
-  background: var(--cream);
-  color: var(--dark);
+  background: #f8f6f5;
+  color: #28141b;
+  border-color: #28141b;
 }
 
 .date-picker__scroll {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: 10px;
   overflow-x: auto;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 4px 0 8px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -59,62 +62,71 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  background: none;
-  border: none;
-  padding: 0;
+  gap: 4px;
+  background: #ffffff;
+  border: 1px solid #e8e2de;
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 58px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.date-picker__chip:hover {
+  background: #faf8f7;
+  border-color: #28141b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 20, 27, 0.08);
 }
 
 .date-picker__day-name {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-soft);
+  color: #8c7a80;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease;
 }
 
 .date-picker__day-number-wrapper {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  transition: all var(--transition-base);
 }
 
 .date-picker__day-number {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--dark);
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1114;
+  transition: color 0.2s ease;
 }
 
-.date-picker__chip:hover .date-picker__day-number-wrapper {
-  background: var(--rose-pale);
+.date-picker__chip--selected {
+  background: #28141b;
+  border-color: #28141b;
+  box-shadow: 0 4px 14px rgba(40, 20, 27, 0.22);
+  transform: translateY(-1px);
 }
 
 .date-picker__chip--selected .date-picker__day-number-wrapper {
-  background: #C86B7C;
-  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.3);
+  background: transparent;
 }
 
 .date-picker__chip--selected .date-picker__day-name {
-  color: var(--dark);
+  color: rgba(255, 255, 255, 0.75) !important;
 }
 
 .date-picker__chip--selected .date-picker__day-number {
-  color: var(--white);
+  color: #ffffff !important;
 }
 
 .date-picker__chip:focus-visible {
-  outline: none;
-}
-
-.date-picker__chip:focus-visible .date-picker__day-number-wrapper {
-  outline: 2px solid var(--rose-deep);
+  outline: 2px solid #28141b;
   outline-offset: 2px;
 }

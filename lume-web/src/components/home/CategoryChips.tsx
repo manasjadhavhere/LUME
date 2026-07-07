@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ServiceCategory } from '../../data/types';
+import CategoryIcon from '../ui/CategoryIcon';
 import './CategoryChips.css';
 
 interface Category {
@@ -38,7 +39,7 @@ const CategoryChips: React.FC<CategoryChipsProps> = ({
               {category.image ? (
                 <img src={category.image} alt={category.label} className="category-circle-img" />
               ) : (
-                <span className="category-circle-icon">{category.icon}</span>
+                <CategoryIcon icon={category.icon} name={category.label} size={32} className="category-circle-icon" />
               )}
             </div>
             <span className="category-circle-label">{category.label}</span>

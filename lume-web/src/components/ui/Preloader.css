@@ -1,17 +1,21 @@
-/* ==============================
-   PRELOADER — LUME Cinema Style
-   ============================== */
+/* ============================================================
+   PRELOADER — LUME Luxury Haute-Couture Intro
+   Rich Warm Blush Rose Theme & Professional Architectural Layout
+   ============================================================ */
 
 .preloader {
   position: fixed;
   inset: 0;
-  z-index: 99990;
+  z-index: 100000; /* Higher than --z-cursor (99998) to prevent center circle borders */
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: all;
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  background: #ebd0d7; /* Rich, darker warm blush rose as requested */
+  color: #7d2a3a; /* Deep luxury wine-rose brand tone */
 }
 
 .preloader--fade {
@@ -19,82 +23,427 @@
   pointer-events: none;
 }
 
+.preloader--fade .preloader__content {
+  transform: scale(1.05);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+}
+
+/* ── Rich Warm Blush Rose Multi-Layered Backdrop ── */
 .preloader__backdrop {
   position: absolute;
   inset: 0;
-  background: #1a0d11;
+  background: 
+    radial-gradient(circle at 50% 45%, rgba(255, 245, 248, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 15% 25%, rgba(245, 196, 208, 0.6) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(224, 160, 175, 0.5) 0%, transparent 55%),
+    linear-gradient(135deg, #f2dce1 0%, #ebd0d7 50%, #dfbacc 100%);
+  animation: backdropBreathe 7s ease-in-out infinite alternate;
 }
 
+@keyframes backdropBreathe {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.03); }
+}
+
+/* Central Soft Rose Glowing Orb */
+.preloader__glow-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50vw;
+  height: 50vw;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(204, 92, 116, 0.48) 0%, rgba(217, 122, 140, 0.25) 45%, transparent 70%);
+  filter: blur(65px);
+  pointer-events: none;
+  animation: orbPulse 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes orbPulse {
+  0%   { transform: translate(-50%, -50%) scale(0.92); opacity: 0.75; }
+  100% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+}
+
+/* Secondary Ambient Glows */
+.preloader__ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.preloader__ambient-glow--1 {
+  width: 35vw;
+  height: 35vw;
+  top: -10vw;
+  left: -5vw;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.65) 0%, transparent 70%);
+}
+
+.preloader__ambient-glow--2 {
+  width: 40vw;
+  height: 40vw;
+  bottom: -10vw;
+  right: -5vw;
+  background: radial-gradient(circle, rgba(204, 92, 116, 0.35) 0%, transparent 70%);
+}
+
+/* ── Floating Background Sparkles ── */
+.preloader__floating-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.preloader__sparkle-float {
+  position: absolute;
+  color: #7d2a3a;
+  opacity: 0;
+  animation: sparkleFloatIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.preloader__sparkle-float--tr {
+  top: 22%;
+  right: 18%;
+  width: 34px;
+  height: 34px;
+  animation-delay: 0.2s;
+  filter: drop-shadow(0 2px 8px rgba(125, 42, 58, 0.25));
+}
+
+.preloader__sparkle-float--br {
+  bottom: 24%;
+  right: 22%;
+  width: 26px;
+  height: 26px;
+  animation-delay: 0.4s;
+  filter: drop-shadow(0 2px 8px rgba(125, 42, 58, 0.2));
+}
+
+.preloader__sparkle-float--tl-dot {
+  top: 32%;
+  left: 20%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7d2a3a;
+  animation-delay: 0.3s;
+  box-shadow: 0 0 10px rgba(125, 42, 58, 0.4);
+}
+
+@keyframes sparkleFloatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.5) rotate(-15deg);
+  }
+  100% {
+    opacity: 0.65;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+/* ── Main Content Area ── */
 .preloader__content {
   position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.preloader__logo-wrap {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d97a8c 0%, #c86b7c 100%);
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 40px rgba(217, 122, 140, 0.5);
-  animation: preloaderPulse 1.5s ease-in-out infinite;
+  width: 100%;
+  max-width: 1200px;
+  padding: 32px;
 }
 
-.preloader__logo-icon {
-  color: white;
-}
-
-.preloader__brand {
-  font-family: 'DM Serif Display', 'Georgia', serif;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.35em;
-  color: white;
-  animation: preloaderFadeIn 0.8s ease both;
-}
-
-.preloader__spinner {
+/* Architectural Showcase Container */
+.preloader__showcase {
   position: relative;
-  width: 48px;
-  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 40px;
+}
+
+/* Horizontal Brand Row [Star Emblem + LUME] */
+.preloader__brand-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* ── Metallic Shine Beam Sweep ── */
+.preloader__shimmer-sweep {
+  position: absolute;
+  top: -60%;
+  left: -130%;
+  width: 60%;
+  height: 240%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 30%,
+    rgba(255, 255, 255, 0.98) 50%,
+    rgba(255, 240, 245, 0.85) 65%,
+    transparent 100%
+  );
+  transform: rotate(22deg);
+  pointer-events: none;
+  z-index: 20;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.95));
+  animation: shimmerSweep 1.3s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    left: -140%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 160%;
+    opacity: 0;
+  }
+}
+
+/* ── Emblem Wrapper & SVG Star ── */
+.preloader__emblem-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 125px;
+  height: 125px;
+  flex-shrink: 0;
+  animation: emblemReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.02s both;
+}
+
+@keyframes emblemReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) rotate(-8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.preloader__star-svg {
+  width: 100%;
+  height: 100%;
+  color: #7d2a3a;
+  filter: drop-shadow(0 4px 16px rgba(125, 42, 58, 0.25));
+  animation: emblemGentleFloat 4s ease-in-out infinite alternate;
+}
+
+@keyframes emblemGentleFloat {
+  0%   { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.03); }
+}
+
+/* Individual SVG parts animation for micro-delight */
+.preloader__path-star {
+  transform-origin: center;
+  animation: starPulse 3s ease-in-out infinite alternate;
+}
+
+.preloader__path-plus {
+  transform-origin: 88px 24px;
+  animation: plusTwinkle 2.5s ease-in-out infinite alternate;
+}
+
+.preloader__path-dot {
+  animation: dotPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes starPulse {
+  0%   { stroke-width: 2.6px; }
+  100% { stroke-width: 2.9px; }
+}
+
+@keyframes plusTwinkle {
+  0%   { transform: scale(0.9) rotate(0deg); opacity: 0.8; }
+  100% { transform: scale(1.15) rotate(15deg); opacity: 1; }
+}
+
+@keyframes dotPulse {
+  0%   { transform: scale(0.9); opacity: 0.75; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ── Brand Typography "LUME" ── */
+.preloader__brand-title {
+  font-family: var(--font-display, 'DM Serif Display', 'Georgia', serif);
+  font-size: 7.2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.28em;
+  margin: 0;
+  margin-right: -0.28em; /* Balance trailing letter spacing */
+  color: #7d2a3a;
+  background: linear-gradient(135deg, #6e2030 0%, #8a3345 35%, #a14558 65%, #6e2030 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(125, 42, 58, 0.3));
+  animation: brandTitleReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both, textGradientShimmer 5s ease infinite;
+}
+
+@keyframes brandTitleReveal {
+  0% {
+    opacity: 0;
+    transform: translateX(15px) scale(0.97);
+    letter-spacing: 0.18em;
+    margin-right: -0.18em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    letter-spacing: 0.28em;
+    margin-right: -0.28em;
+  }
+}
+
+@keyframes textGradientShimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Institutional Brand Subtitle ── */
+.preloader__subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 520px;
   margin-top: 8px;
+  opacity: 0;
+  animation: subtitleReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
 }
 
-.preloader__spinner-ring {
-  position: absolute;
-  inset: 0;
-  border: 2px solid transparent;
-  border-top-color: #d97a8c;
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+.preloader__subtitle-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(125, 42, 58, 0.4), transparent);
 }
 
-.preloader__spinner-ring::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1px solid transparent;
-  border-top-color: rgba(217, 122, 140, 0.4);
-  border-radius: 50%;
-  animation: spin 1.5s linear infinite reverse;
+.preloader__subtitle-text {
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  color: #7d2a3a;
+  text-transform: uppercase;
+  margin: 0;
+  margin-right: -0.38em;
+  opacity: 0.9;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
-@keyframes preloaderPulse {
-  0%, 100% { box-shadow: 0 0 40px rgba(217, 122, 140, 0.4); transform: scale(1); }
-  50%       { box-shadow: 0 0 60px rgba(217, 122, 140, 0.7); transform: scale(1.04); }
+@keyframes subtitleReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    letter-spacing: 0.25em;
+    margin-right: -0.25em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.38em;
+    margin-right: -0.38em;
+  }
 }
 
-@keyframes preloaderFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ── Responsive Adaptation for Tablets & Mobile ── */
+@media (max-width: 1024px) {
+  .preloader__brand-title {
+    font-size: 5.5rem;
+    letter-spacing: 0.24em;
+    margin-right: -0.24em;
+  }
+  
+  .preloader__emblem-wrapper {
+    width: 95px;
+    height: 95px;
+  }
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@media (max-width: 768px) {
+  .preloader__brand-title {
+    font-size: 4.2rem;
+    letter-spacing: 0.22em;
+    margin-right: -0.22em;
+  }
+  
+  .preloader__emblem-wrapper {
+    width: 76px;
+    height: 76px;
+  }
+  
+  .preloader__brand-row {
+    gap: 16px;
+  }
+  
+  .preloader__subtitle-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    margin-right: -0.3em;
+  }
+}
+
+@media (max-width: 480px) {
+  .preloader__brand-title {
+    font-size: 3.2rem;
+    letter-spacing: 0.18em;
+    margin-right: -0.18em;
+  }
+  
+  .preloader__emblem-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .preloader__brand-row {
+    gap: 12px;
+  }
+  
+  .preloader__showcase {
+    padding: 10px 15px;
+  }
+  
+  .preloader__subtitle-text {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    margin-right: -0.25em;
+  }
+  
+  .preloader__sparkle-float--tr {
+    top: 18%;
+    right: 12%;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .preloader__sparkle-float--br {
+    bottom: 20%;
+    right: 15%;
+    width: 20px;
+    height: 20px;
+  }
 }

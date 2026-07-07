@@ -1,5 +1,6 @@
 import { Calendar, MapPin, CreditCard, User } from 'lucide-react';
 import { Booking } from '../../data/types';
+import CategoryIcon from '../ui/CategoryIcon';
 import './BookingSummary.css';
 
 interface BookingSummaryProps {
@@ -41,7 +42,7 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
 
         <div className="booking-row">
           <div className="booking-icon">
-            <CreditCard size={20} />
+            <CategoryIcon name={booking.service} size={20} />
           </div>
           <div className="booking-info">
             <span className="booking-label">Service</span>

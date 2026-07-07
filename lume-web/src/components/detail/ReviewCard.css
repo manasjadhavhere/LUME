@@ -1,43 +1,53 @@
 /* ===========================
-   ReviewCard Component Styles
+   ReviewCard — Clean Professional Testimonials
    =========================== */
 
 .review-card {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  box-shadow: 0 4px 16px rgba(42, 26, 31, 0.05);
-  animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  background: #fdf6f0;
+  border: 1px solid #f0ebe8;
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+  animation: reviewFadeIn 0.5s ease backwards;
+}
+
+.review-card:hover {
+  background: white;
+  border-color: #e8ddd6;
+  box-shadow: 0 6px 24px rgba(42, 26, 31, 0.06);
+  transform: translateY(-2px);
 }
 
 .review-card__header {
   display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  align-items: flex-start;
+  gap: 14px;
+  align-items: center;
 }
 
 .review-card__avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--rose-light) 0%, var(--champagne) 100%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--rose-light);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .review-card__image {
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-full);
+  border-radius: 50%;
   object-fit: cover;
+}
+
+.review-card__user-icon {
+  color: var(--rose-deep);
 }
 
 .review-card__info {
@@ -47,16 +57,16 @@
 
 .review-card__name {
   font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 0.98rem;
+  font-weight: 700;
   color: var(--dark);
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 2px;
   line-height: 1.3;
 }
 
 .review-card__date {
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: 0.78rem;
   color: var(--text-soft);
   margin: 0;
 }
@@ -64,12 +74,11 @@
 .review-card__rating {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-md);
+  gap: 3px;
 }
 
 .review-card__star {
-  color: var(--gold-light);
+  color: #e8ddd6;
 }
 
 .review-card__star--filled {
@@ -83,20 +92,21 @@
 }
 
 .review-card__star--empty {
-  color: var(--gold-light);
+  color: #e8ddd6;
 }
 
 .review-card__rating-value {
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-soft);
-  margin-left: var(--spacing-xs);
+  margin-left: 6px;
 }
 
 .review-card__text {
   font-family: var(--font-body);
-  font-size: 0.9375rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.65;
   color: var(--mid);
   margin: 0;
   word-wrap: break-word;
@@ -110,42 +120,33 @@
 .review-card.stagger-item:nth-child(4) { animation-delay: 0.2s; }
 .review-card.stagger-item:nth-child(5) { animation-delay: 0.25s; }
 
-/* Responsive Design */
+@keyframes reviewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (max-width: 480px) {
   .review-card {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    border-radius: 12px;
   }
 
   .review-card__avatar {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .review-card__name {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
   }
 
   .review-card__text {
-    font-size: 0.875rem;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .review-card {
-    margin-bottom: var(--spacing-md);
-  }
-}
-
-@media (min-width: 769px) {
-  .review-card {
-    transition: all var(--transition-base);
-  }
-
-  .review-card:hover {
-    border-color: var(--rose);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    font-size: 0.85rem;
   }
 }

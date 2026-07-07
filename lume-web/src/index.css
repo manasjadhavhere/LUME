@@ -71,9 +71,17 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-html { scroll-behavior: smooth; }
+::selection {
+  background: var(--rose-light);
+  color: #1a1114;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 body {
   margin: 0;
@@ -102,7 +110,7 @@ a {
 
 button {
   font-family: var(--font-body);
-  cursor: none;
+  cursor: pointer;
   border: none;
   background: none;
   padding: 0;
@@ -138,7 +146,7 @@ button {
 .reveal-right,
 .reveal-scale {
   opacity: 0;
-  transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
   will-change: opacity, transform;
 }
 

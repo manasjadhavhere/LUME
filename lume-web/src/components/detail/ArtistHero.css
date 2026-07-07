@@ -1,59 +1,71 @@
+/* ===========================
+   ArtistHero Component Styles — Haute-Couture Luxury Redesign
+   =========================== */
+
 .artist-hero {
   position: relative;
-  min-height: 400px;
+  min-height: 440px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: 60px; /* Overlap space */
+  padding-bottom: 70px; /* Overlap space for content card */
 }
 
+/* Rich Burgundy & Luminous Rose Backdrop */
 .artist-hero__background {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(135deg, #a7828d 0%, #76565e 50%, #523a41 100%);
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(255, 218, 228, 0.35) 0%, transparent 60%),
+    radial-gradient(circle at 15% 85%, rgba(217, 122, 140, 0.45) 0%, transparent 60%),
+    linear-gradient(135deg, #28141b 0%, #46202c 50%, var(--rose-deep) 100%);
 }
 
 .artist-hero__background::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at right center, rgba(255,255,255,0.1) 0%, transparent 60%);
+  background: radial-gradient(circle at right center, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
 }
 
 .artist-hero__controls {
   position: relative;
   z-index: 4;
   display: flex;
-  padding: var(--spacing-xl) 0;
-  max-width: 1200px;
+  padding: var(--spacing-xl) var(--spacing-xl);
+  max-width: 1240px;
   margin: 0 auto;
   width: 100%;
 }
 
 .artist-hero__button {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .artist-hero__button:hover {
   background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .artist-hero__button--favorite-active {
   color: #ff8fa3;
-  background: rgba(255, 143, 163, 0.2);
-  border-color: rgba(255, 143, 163, 0.4);
+  background: rgba(255, 143, 163, 0.22);
+  border-color: rgba(255, 143, 163, 0.45);
 }
 
 .artist-hero__content-wrapper {
@@ -63,28 +75,43 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-3xl);
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
   margin-bottom: var(--spacing-xl);
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--spacing-xl);
+  width: 100%;
 }
 
+/* Glassmorphic Profile Showcase Panel */
 .artist-hero__profile {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-2xl);
   color: white;
-  flex: 1;
+  flex: 1.2;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 28px 36px;
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
 .artist-hero__avatar-wrapper {
   position: relative;
+  flex-shrink: 0;
 }
 
 .artist-hero__avatar {
-  width: 160px;
-  height: 160px;
+  width: 164px;
+  height: 164px;
   border-radius: 50%;
-  padding: 4px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.2));
+  padding: 5px;
+  background: linear-gradient(135deg, #ffd1dc 0%, #d97a8c 50%, rgba(255, 255, 255, 0.2) 100%);
+  box-shadow: 0 12px 32px rgba(217, 122, 140, 0.45);
 }
 
 .artist-hero__image {
@@ -97,15 +124,15 @@
 .artist-hero__verified-badge {
   position: absolute;
   bottom: 8px;
-  right: 16px;
+  right: 12px;
   background: white;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .artist-hero__details {
@@ -114,68 +141,79 @@
 }
 
 .artist-hero__name {
-  font-size: 2.75rem;
-  margin: 0 0 var(--spacing-xs);
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 6px;
   color: white;
   font-family: var(--font-display);
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .artist-hero__certification {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin: 0 0 var(--spacing-xs);
+  font-size: 1.05rem;
+  opacity: 0.92;
+  margin: 0 0 8px;
+  color: #fad4dc;
+  font-weight: 500;
 }
 
 .artist-hero__location {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.875rem;
-  opacity: 0.8;
-  margin: 0 0 var(--spacing-md);
+  gap: 8px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin: 0 0 16px;
 }
 
 .artist-hero__tags {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .artist-hero__tag {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.1);
-  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.75rem;
-  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.3px;
 }
 
 .artist-hero__bio {
-  font-size: 0.875rem;
-  opacity: 0.85;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  opacity: 0.9;
+  line-height: 1.6;
   margin: 0;
-  max-width: 400px;
+  max-width: 440px;
 }
 
 .artist-hero__stats-col {
-  flex: 1;
-  max-width: 450px;
+  flex: 0.9;
+  width: 100%;
 }
 
 @media (max-width: 1023px) {
   .artist-hero__content-wrapper {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--spacing-xl);
+    padding: 0 var(--spacing-md);
   }
   
   .artist-hero__profile {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 24px;
   }
   
   .artist-hero__tags {
@@ -186,8 +224,17 @@
     justify-content: center;
   }
   
-  .artist-hero__stats-col {
-    max-width: 100%;
-    width: 100%;
+  .artist-hero__name {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .artist-hero__avatar {
+    width: 130px;
+    height: 130px;
+  }
+  .artist-hero__name {
+    font-size: 1.85rem;
   }
 }

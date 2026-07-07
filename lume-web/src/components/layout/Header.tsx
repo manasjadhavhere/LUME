@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
   const handleHashLink = (path: string) => {
     if (path.startsWith('/#')) {
       const id = path.slice(2);
-      if (location.pathname === '/') {
+      if (location.pathname === '/' || location.pathname === '/home') {
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {

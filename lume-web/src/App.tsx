@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
 import LandingPage from './pages/LandingPage';
-import HomePage from './pages/HomePage';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import BookingConfirmPage from './pages/BookingConfirmPage';
 import DiscoverPage from './pages/DiscoverPage';
@@ -53,7 +52,7 @@ const App: React.FC = () => {
             <CustomCursor />
             <Routes>
               <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
-              <Route path="/home" element={<AppLayoutWrapper><HomePage /></AppLayoutWrapper>} />
+              <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
               <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
               <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
               <Route path="/profile" element={<AppLayoutWrapper><ProfilePage /></AppLayoutWrapper>} />

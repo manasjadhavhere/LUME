@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import type { Service } from '../../data/types';
+import CategoryIcon from '../ui/CategoryIcon';
 import './ServiceSelector.css';
 
 interface ServiceSelectorProps {
@@ -50,13 +51,17 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
             onClick={() => onServiceSelect(service.id)}
             role="option"
             aria-selected={selectedService === service.id}
-            aria-label={`${service.name} - ₹${service.price}`}
-            title={`${service.name} - ₹${service.price}`}
+            aria-label={`${service.name} - ₹${service.price.toLocaleString()}`}
+            title={`${service.name} - ₹${service.price.toLocaleString()}`}
           >
-            <div className="service-selector__icon" role="img" aria-hidden="true">
-              {service.icon}
+            <div className="service-selector__icon-wrapper">
+              <CategoryIcon icon={service.icon} name={service.name} size={22} className="service-selector__icon" />
             </div>
-            <div className="service-selector__name">{service.name}</div>
+            
+            <div className="service-selector__info">
+              <div className="service-selector__name">{service.name}</div>
+              <div className="service-selector__price">₹{service.price.toLocaleString()}</div>
+            </div>
             
             {selectedService === service.id && (
               <div className="service-selector__check">

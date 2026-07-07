@@ -1,406 +1,1384 @@
-/* ===========================
-   Artist Detail Page — Premium Redesign
-   =========================== */
+/* ============================================================
+   Artist Detail Page — WedMeGood-Inspired Professional Revamp
+   Uses LUME brand colors: rose-deep, rose, burgundy, cream, gold
+   ============================================================ */
 
-.artist-detail-page {
+/* ── Base ── */
+.adp {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  background: var(--cream);
   min-height: 100vh;
+  background: #faf8f6;
+  position: relative;
 }
 
 .artist-detail-page--error {
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.5rem;
+  padding: 4rem 1.5rem;
   text-align: center;
   gap: 1.5rem;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── Main content wrapper ── */
-.artist-detail-page__content {
-  flex: 1;
+/* ══════════════════════════════════════
+   PHOTO GALLERY HERO
+   ══════════════════════════════════════ */
+.adp-gallery {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.adp-gallery__grid {
   position: relative;
-  z-index: 5;
-  background: var(--cream);
-  border-radius: 32px 32px 0 0;
-  margin-top: -60px; /* Overlap hero */
-  padding-top: var(--spacing-2xl);
-  padding-bottom: 120px; /* space for sticky booking bar */
-  animation: fadeUp 0.4s ease-out;
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 6px;
+  border-radius: 16px;
+  overflow: hidden;
+  max-height: 480px;
 }
 
-/* ── Desktop: two-column layout ── */
-@media (min-width: 1024px) {
-  .artist-detail-page__body {
+.adp-gallery__main {
+  position: relative;
+  overflow: hidden;
+}
+
+.adp-gallery__main .adp-gallery__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adp-gallery__main:hover .adp-gallery__img {
+  transform: scale(1.03);
+}
+
+.adp-gallery__side {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+}
+
+.adp-gallery__side-img {
+  overflow: hidden;
+  position: relative;
+}
+
+.adp-gallery__side-img .adp-gallery__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adp-gallery__side-img:hover .adp-gallery__img {
+  transform: scale(1.05);
+}
+
+/* Gallery Overlay Actions */
+.adp-gallery__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.adp-gallery__action-btn {
+  pointer-events: auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.adp-gallery__action-btn:hover {
+  background: white;
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.adp-gallery__action-btn--active {
+  color: #e74c6f;
+}
+
+.adp-gallery__action-btn--photos {
+  width: auto;
+  border-radius: 24px;
+  padding: 0 16px;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+.adp-gallery__action-group {
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .adp-gallery {
+    padding: 0;
+  }
+  .adp-gallery__grid {
+    grid-template-columns: 1fr;
+    max-height: 320px;
+    border-radius: 0;
+  }
+  .adp-gallery__side {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════
+   VENDOR PROFILE INFO BAR
+   ══════════════════════════════════════ */
+.adp-profile {
+  background: white;
+  border-bottom: 1px solid #f0ebe8;
+  padding: 28px 0;
+}
+
+.adp-profile__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.adp-profile__info {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.adp-profile__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.adp-profile__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 4px 20px rgba(42, 26, 31, 0.12);
+}
+
+.adp-profile__verified {
+  position: absolute;
+  bottom: 0;
+  right: -2px;
+  background: var(--rose-deep);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.adp-profile__details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.adp-profile__name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adp-profile__name {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.adp-profile__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+}
+
+.adp-profile__certification {
+  font-size: 0.88rem;
+  color: var(--mid);
+  margin: 0;
+  font-weight: 500;
+}
+
+.adp-profile__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.adp-profile__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.adp-profile__meta-item--rating {
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.adp-profile__meta-count {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.adp-profile__meta-divider {
+  color: #d4cfc9;
+  font-size: 0.6rem;
+}
+
+.adp-profile__specialties {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.adp-profile__specialty-tag {
+  background: var(--rose-light);
+  color: #8b3a50;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+}
+
+.adp-profile__specialty-tag:hover {
+  background: var(--rose);
+  color: white;
+}
+
+.adp-profile__cta-group {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.adp-profile__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  border: none;
+}
+
+.adp-profile__cta--primary {
+  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.3);
+}
+
+.adp-profile__cta--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.4);
+}
+
+.adp-profile__cta--secondary {
+  background: white;
+  color: var(--dark);
+  border: 1.5px solid #e8e0dc;
+}
+
+.adp-profile__cta--secondary:hover {
+  border-color: var(--rose-deep);
+  color: var(--rose-deep);
+  background: var(--rose-light);
+}
+
+@media (max-width: 768px) {
+  .adp-profile__container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .adp-profile__avatar {
+    width: 64px;
+    height: 64px;
+  }
+  .adp-profile__name {
+    font-size: 1.4rem;
+  }
+  .adp-profile__cta-group {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: var(--spacing-3xl);
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-xl) var(--spacing-2xl);
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
   }
-
-  .artist-detail-page__main-col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2xl);
-  }
-
-  .artist-detail-page__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
-    position: sticky;
-    top: 80px;
+  .adp-profile__cta {
+    justify-content: center;
+    padding: 10px 16px;
   }
 }
 
-/* ── Mobile/Tablet: single column ── */
+/* ══════════════════════════════════════
+   STICKY TAB NAVIGATION
+   ══════════════════════════════════════ */
+.adp-tabs-wrapper {
+  background: white;
+  border-bottom: 1px solid #f0ebe8;
+  position: relative;
+  z-index: 50;
+  transition: box-shadow 0.3s ease;
+}
+
+.adp-tabs-wrapper--sticky {
+  position: sticky;
+  top: 72px;
+  box-shadow: 0 4px 20px rgba(42, 26, 31, 0.06);
+}
+
+.adp-tabs {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+}
+
+.adp-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--text-soft);
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.adp-tabs__tab:hover {
+  color: var(--dark);
+  background: rgba(253, 246, 240, 0.6);
+}
+
+.adp-tabs__tab--active {
+  color: var(--rose-deep);
+  border-bottom-color: var(--rose-deep);
+}
+
+.adp-tabs__tab--active svg {
+  color: var(--rose-deep);
+}
+
+@media (max-width: 600px) {
+  .adp-tabs__tab {
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    gap: 5px;
+  }
+  .adp-tabs__tab svg {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════
+   MAIN CONTENT LAYOUT
+   ══════════════════════════════════════ */
+.adp-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 120px;
+  width: 100%;
+}
+
+.adp-body {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 36px;
+  align-items: start;
+}
+
+.adp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.adp-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 140px;
+}
+
 @media (max-width: 1023px) {
-  .artist-detail-page__content {
-    border-radius: 24px 24px 0 0;
-    margin-top: -40px;
-    padding-top: var(--spacing-xl);
+  .adp-body {
+    grid-template-columns: 1fr;
   }
-
-  .artist-detail-page__body {
-    padding: 0 var(--spacing-md) var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2xl);
-    max-width: 720px;
-    margin: 0 auto;
-    width: 100%;
+  .adp-sidebar {
+    position: static;
   }
-
-  .artist-detail-page__main-col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xl);
-  }
-
-  .artist-detail-page__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
+  .adp-sidebar__booking {
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .artist-detail-page__body {
-    padding: 0 var(--spacing-sm) var(--spacing-md);
+  .adp-content {
+    padding: 20px 16px 120px;
   }
 }
 
-/* ── Section styles ── */
-.artist-detail-page__section {
-  display: flex;
-  flex-direction: column;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-.artist-detail-page__section--reviews {
-  margin-top: var(--spacing-xl);
-}
-
-.artist-detail-page__reviews-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: var(--spacing-md);
-}
-
-.artist-detail-page__sort-selector {
-  display: flex;
-  align-items: center;
-}
-
-.artist-detail-page__sort-select {
-  padding: 0.5rem 0.875rem;
-  border: 1px solid rgba(217, 122, 140, 0.3);
-  border-radius: var(--radius-full);
+/* ══════════════════════════════════════
+   SECTIONS
+   ══════════════════════════════════════ */
+.adp-section {
   background: white;
-  color: var(--dark);
+  border: 1px solid #f0ebe8;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: box-shadow 0.3s ease;
+  animation: fadeInUp 0.5s ease backwards;
+}
+
+.adp-section:hover {
+  box-shadow: 0 8px 32px rgba(42, 26, 31, 0.06);
+}
+
+.adp-section__title {
   font-family: var(--font-body);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.02em;
+}
+
+.adp-section__title svg {
+  color: var(--rose-deep);
+  flex-shrink: 0;
+}
+
+.adp-section__count {
+  background: var(--rose-light);
+  color: var(--rose-deep);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-left: 4px;
+}
+
+@media (max-width: 600px) {
+  .adp-section {
+    padding: 24px 18px;
+    border-radius: 14px;
+  }
+  .adp-section__title {
+    font-size: 1.2rem;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── About Section ── */
+.adp-about__bio {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+
+.adp-about__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.adp-about__stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e8e2de;
   transition: all 0.2s ease;
-  appearance: none;
-  padding-right: 2rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D97A8C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
 }
 
-.artist-detail-page__sort-select:focus {
-  outline: none;
-  border-color: var(--rose-deep);
-  box-shadow: 0 0 0 3px rgba(217, 122, 140, 0.15);
+.adp-about__stat:hover {
+  background: #faf8f7;
+  border-color: #28141b;
+  transform: translateY(-2px);
 }
 
-.artist-detail-page__reviews {
+.adp-about__stat svg {
+  color: var(--rose-deep);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.adp-about__stat-value {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+  display: block;
+  line-height: 1.2;
+}
+
+.adp-about__stat-label {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .adp-about__stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .adp-about__stat {
+    padding: 12px;
+  }
+}
+
+/* ── Booking Section ── */
+.adp-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+  padding: 0 0 24px;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid #e8e2de;
+}
+
+.adp-progress__step {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-/* ── Help Banner ── */
-.artist-detail-page__help-banner {
-  background: rgba(255, 240, 243, 0.68);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg) var(--spacing-xl);
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  border: 1px solid rgba(242, 164, 176, 0.25);
-  margin-bottom: var(--spacing-md);
+  gap: 6px;
+  position: relative;
 }
 
-.artist-detail-page__help-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.artist-detail-page__help-icon {
-  color: var(--rose-deep);
-  background: white;
-  padding: 8px;
+.adp-progress__circle {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(217, 122, 140, 0.1);
-}
-
-.artist-detail-page__help-text h3 {
-  margin: 0 0 4px;
-  font-size: 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   font-family: var(--font-body);
-}
-
-.artist-detail-page__help-text p {
-  margin: 0;
-  font-size: 0.875rem;
+  background: white;
   color: var(--text-soft);
+  border: 2px solid #e4ddd8;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 600px) {
-  .artist-detail-page__help-banner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-  }
+.adp-progress__step--current .adp-progress__circle {
+  border-color: var(--rose-deep);
+  color: var(--rose-deep);
+  box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15);
+  animation: pulse-ring 2s infinite;
 }
 
-/* ── Footer Guarantees ── */
-.artist-detail-page__guarantees {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid rgba(0,0,0,0.05);
-  padding-top: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
+.adp-progress__step--done .adp-progress__circle {
+  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%);
+  color: white;
+  border-color: #d97a8c;
+  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.3);
 }
 
-.artist-detail-page__guarantee {
+.adp-progress__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adp-progress__step--done .adp-progress__label,
+.adp-progress__step--current .adp-progress__label {
+  color: var(--rose-deep);
+}
+
+.adp-progress__line {
+  width: 60px;
+  height: 2px;
+  background: #e4ddd8;
+  margin: 0 12px;
+  margin-bottom: 22px;
+  border-radius: 2px;
+  transition: background 0.35s ease;
+}
+
+.adp-progress__line--done {
+  background: linear-gradient(90deg, #d97a8c, #b85d6d);
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15); }
+  50% { box-shadow: 0 0 0 8px rgba(217, 122, 140, 0.08); }
+  100% { box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15); }
+}
+
+/* Steps */
+.adp-step {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #f5f0ed;
+}
+
+.adp-step:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.adp-step__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  color: var(--text-soft);
-  font-weight: 500;
-}
-
-@media (max-width: 768px) {
-  .artist-detail-page__guarantees {
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-    justify-content: center;
-  }
-}
-
-/* ── Sidebar booking card (desktop only) ── */
-.artist-detail-page__sidebar-booking {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  box-shadow: 0 8px 32px rgba(42, 26, 31, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.artist-detail-page__booking-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  padding: 8px 0;
-  font-family: var(--font-body);
-}
-
-.artist-detail-page__booking-label {
-  color: var(--text-soft);
-}
-
-.artist-detail-page__booking-val {
-  color: var(--dark);
-  font-weight: 500;
-}
-
-.artist-detail-page__sidebar-why {
-  background: rgba(255, 240, 243, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  border: 1px solid rgba(242, 164, 176, 0.25);
-}
-
-.artist-detail-page__sidebar-why h3 {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  margin: 0 0 var(--spacing-lg);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.why-item {
-  display: flex;
-  align-items: flex-start;
   gap: 12px;
   margin-bottom: 16px;
 }
-.why-item:last-child { margin-bottom: 0; }
 
-.why-icon {
-  color: var(--rose-deep);
-  background: white;
-  padding: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.why-text h4 {
-  margin: 0 0 2px;
-  font-size: 0.8125rem;
+.adp-step__number {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: #8c7a80;
   font-family: var(--font-body);
-}
-
-.why-text p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--text-soft);
-}
-
-/* ── Sticky booking bar ── */
-.artist-detail-page__booking {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid rgba(242, 164, 176, 0.25);
-  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-lg);
-  z-index: 30;
-  box-shadow: 0 -4px 24px rgba(42, 26, 31, 0.06);
-  animation: slideUp 0.4s ease-out;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
-.artist-detail-page__price-info {
+.adp-step__title {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── Portfolio Section ── */
+.adp-portfolio__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.adp-portfolio__item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  animation: fadeInUp 0.5s ease backwards;
+}
+
+.adp-portfolio__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adp-portfolio__hover {
+  position: absolute;
+  inset: 0;
+  background: rgba(42, 26, 31, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.adp-portfolio__item:hover .adp-portfolio__img {
+  transform: scale(1.08);
+}
+
+.adp-portfolio__item:hover .adp-portfolio__hover {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .adp-portfolio__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ── Reviews Section ── */
+.adp-reviews__summary {
+  display: flex;
+  gap: 32px;
+  padding: 24px;
+  background: #fdfbfb;
+  border-radius: 14px;
+  border: 1px solid #f0ecea;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.adp-reviews__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.adp-reviews__score-value {
+  font-family: var(--font-body);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1;
+}
+
+.adp-reviews__score-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.adp-reviews__score-count {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.adp-reviews__distribution {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adp-reviews__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adp-reviews__bar-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  min-width: 28px;
+  justify-content: flex-end;
+}
+
+.adp-reviews__bar-track {
+  flex: 1;
+  height: 8px;
+  background: #ebe5e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.adp-reviews__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #d4a556);
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 2px;
+}
+
+.adp-reviews__bar-count {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  min-width: 18px;
+  text-align: right;
+}
+
+.adp-reviews__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adp-reviews__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: none;
+  border: 1.5px solid #e4ddd8;
+  border-radius: 12px;
+  color: var(--rose-deep);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.adp-reviews__toggle:hover {
+  background: var(--rose-light);
+  border-color: var(--rose-deep);
+}
+
+.adp-reviews__toggle-icon--up {
+  transform: rotate(-90deg);
+}
+
+@media (max-width: 600px) {
+  .adp-reviews__summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 20px;
+  }
+  .adp-reviews__score {
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+  }
+  .adp-reviews__score-value {
+    font-size: 2.2rem;
+  }
+}
+
+/* ══════════════════════════════════════
+   SIDEBAR CARDS
+   ══════════════════════════════════════ */
+
+/* Booking Header Top (Price & Demand inside Booking Card) */
+.adp-sidebar__booking-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0ebe8;
+}
+
+.adp-sidebar__price-main {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.artist-detail-page__price-label {
+.adp-sidebar__price-label {
   font-size: 0.75rem;
-  color: var(--text-soft);
-  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  color: #8c7a80;
+  font-weight: 700;
 }
 
-.artist-detail-page__price {
-  font-size: 1.5rem;
-  font-family: var(--font-display);
-  color: var(--dark);
+.adp-sidebar__price-value {
+  font-family: var(--font-body);
+  font-size: 2.1rem;
   font-weight: 700;
   line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #1a1114;
 }
 
-.artist-detail-page__button {
-  min-width: 200px;
+.adp-sidebar__price-per {
+  font-size: 0.8rem;
+  color: #8c7a80;
+  font-weight: 500;
+}
+
+.adp-sidebar__demand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fff8eb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #92400e;
+  height: fit-content;
+  margin-bottom: 4px;
+}
+
+.adp-sidebar__demand svg {
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+/* Booking Summary Card */
+.adp-sidebar__booking {
+  background: white;
+  border: 1px solid #f0ebe8;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.adp-sidebar__booking-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f5f0ed;
+}
+
+.adp-sidebar__booking-header svg {
+  color: var(--rose-deep);
+}
+
+.adp-sidebar__booking-header h3 {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.adp-sidebar__booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adp-sidebar__booking-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.adp-sidebar__booking-label {
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+.adp-sidebar__booking-val {
+  font-weight: 600;
+  color: var(--dark);
+  text-align: right;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adp-sidebar__booking-val--artist {
+  color: var(--rose-deep);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.adp-sidebar__booking-val--free {
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.adp-sidebar__booking-empty {
+  color: #c5b8b3;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.adp-sidebar__booking-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e4ddd8, transparent);
+  margin: 6px 0;
+}
+
+.adp-sidebar__booking-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 2px dashed #e4ddd8;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.adp-sidebar__booking-total-price {
+  font-size: 1.6rem;
+  color: var(--rose-deep);
+  letter-spacing: -0.5px;
+}
+
+.adp-sidebar__booking-btn {
+  width: 100% !important;
+  margin-top: 20px !important;
+  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 16px !important;
+  border-radius: 14px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.adp-sidebar__booking-btn:hover:not(:disabled) {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(217, 122, 140, 0.45) !important;
+}
+
+.adp-sidebar__booking-btn:disabled {
+  background: #d5c8cc !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+}
+
+.adp-sidebar__booking-secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+.adp-sidebar__booking-secure svg {
+  color: var(--rose-deep);
+}
+
+/* Why Book Card */
+.adp-sidebar__why {
+  background: white;
+  border: 1px solid #f0ebe8;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.adp-sidebar__why-title {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.01em;
+}
+
+.adp-sidebar__why-title svg {
+  color: var(--rose-deep);
+}
+
+.adp-sidebar__why-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adp-sidebar__why-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.adp-sidebar__why-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--rose-light);
+  color: var(--rose-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.adp-sidebar__why-item:hover .adp-sidebar__why-icon {
+  background: linear-gradient(135deg, #d97a8c, #b85d6d);
+  color: white;
+  transform: scale(1.05);
+}
+
+.adp-sidebar__why-item h4 {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 2px;
+}
+
+.adp-sidebar__why-item p {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Help Banner */
+.adp-sidebar__help {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px dashed #ded6d2;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.adp-sidebar__help:hover {
+  border-color: #28141b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.adp-sidebar__help > svg {
+  color: var(--rose-deep);
   flex-shrink: 0;
 }
 
-@media (max-width: 480px) {
-  .artist-detail-page__booking {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-  }
+.adp-sidebar__help h4 {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 2px;
+}
 
-  .artist-detail-page__price-info {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
+.adp-sidebar__help p {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.35;
+}
 
-  .artist-detail-page__button {
-    width: 100%;
+.adp-sidebar__help-btn {
+  margin-left: auto;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #d97a8c, #b85d6d);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.3);
+}
+
+.adp-sidebar__help-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(217, 122, 140, 0.4);
+}
+
+/* ══════════════════════════════════════
+   TRUST BADGES
+   ══════════════════════════════════════ */
+.adp-trust {
+  background: white;
+  border-top: 1px solid #f0ebe8;
+  padding: 28px 24px;
+}
+
+.adp-trust__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.adp-trust__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--mid);
+}
+
+.adp-trust__item svg {
+  color: var(--rose-deep);
+}
+
+@media (max-width: 600px) {
+  .adp-trust__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .adp-trust__item {
+    font-size: 0.82rem;
   }
 }
 
-@media (min-width: 769px) and (max-width: 1023px) {
-  .artist-detail-page__booking {
-    max-width: 720px;
-    left: 50%;
-    right: auto;
-    width: 100%;
-    transform: translateX(-50%);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    padding: var(--spacing-lg) var(--spacing-xl);
+/* ══════════════════════════════════════
+   MOBILE STICKY BAR
+   ══════════════════════════════════════ */
+.adp-mobile-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid #f0ebe8;
+  padding: 14px 20px;
+  box-shadow: 0 -6px 24px rgba(42, 26, 31, 0.08);
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (max-width: 1023px) {
+  .adp-mobile-bar {
+    display: flex;
   }
 }
 
-@media (min-width: 1024px) {
-  .artist-detail-page__booking {
-    display: none;
-  }
-  .artist-detail-page__content {
-    padding-bottom: var(--spacing-2xl);
-  }
+.adp-mobile-bar__info {
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+.adp-mobile-bar__label {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+.adp-mobile-bar__price {
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--rose-deep);
+}
+
+.adp-mobile-bar__btn {
+  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 14px 28px !important;
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 18px rgba(217, 122, 140, 0.3) !important;
+}
+
+/* ══════════════════════════════════════
+   SCROLL SMOOTH OFFSET FOR STICKY NAV
+   ══════════════════════════════════════ */
+#services, #portfolio, #reviews {
+  scroll-margin-top: 160px;
 }

@@ -123,7 +123,9 @@
    2. ARTISTS SECTION
 ══════════════════════════════ */
 .home-artists {
-  background: var(--cream);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fff8f9 0%, #fdf3f5 50%, #fff0f2 100%);
 }
 
 .home-artists__filter {
@@ -176,8 +178,9 @@
    3. ABOUT US
 ══════════════════════════════ */
 .home-about {
-  background: white;
+  position: relative;
   overflow: hidden;
+  background: linear-gradient(145deg, #fff8f9 0%, #fce8ec 35%, #fff5f6 65%, #fdf3f5 100%);
 }
 
 .home-about__grid {
@@ -295,7 +298,9 @@
    4. CATEGORIES
 ══════════════════════════════ */
 .home-categories {
-  background: var(--cream);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fce8ec 0%, #fff5f6 40%, #fdf0f2 70%, #fce8ec 100%);
 }
 
 .home-cat-grid {
@@ -326,7 +331,12 @@
 .home-cat-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(42,26,31,0.75) 0%, transparent 55%);
+  background: linear-gradient(
+    to top,
+    rgba(200, 107, 124, 0.65) 0%,
+    rgba(242, 164, 176, 0.15) 55%,
+    transparent 100%
+  );
 }
 
 .home-cat-card__info {
@@ -406,15 +416,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   font-size: 0.875rem;
   font-weight: 600;
   padding: 10px 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: background 0.3s ease, transform 0.3s ease;
 }
-.home-partner__perk svg { color: var(--rose-light); }
+.home-partner__perk:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
 
 .home-partner__cta { align-self: flex-start; }
 
@@ -435,6 +452,13 @@
   padding: 18px 24px;
   border-radius: var(--radius-xl);
   text-align: center;
+  /* Deep glass */
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 48px rgba(217, 122, 140, 0.16),
+              inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 .home-partner__stat strong {
   display: block;

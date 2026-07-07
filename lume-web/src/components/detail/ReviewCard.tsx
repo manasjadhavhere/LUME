@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { Star, User } from 'lucide-react';
 import type { Review } from '../../data/types';
 import './ReviewCard.css';
 
@@ -21,7 +21,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
     <div className="review-card stagger-item">
       <div className="review-card__header">
         <div className="review-card__avatar">
-          <img src={review.avatar} alt={review.userName} className="review-card__image" />
+          {review.avatar && (review.avatar.startsWith('http') || review.avatar.startsWith('/')) ? (
+            <img src={review.avatar} alt={review.userName} className="review-card__image" />
+          ) : (
+            <User size={22} className="review-card__user-icon" />
+          )}
         </div>
         
         <div className="review-card__info">

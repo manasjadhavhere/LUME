@@ -1,11 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#F2A4B0"/>
-      <stop offset="50%" style="stop-color:#D97A8C"/>
-      <stop offset="100%" style="stop-color:#F5E6D3"/>
+    <!-- Main rose gradient -->
+    <radialGradient id="bgGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#fce8ec"/>
+      <stop offset="55%" style="stop-color:#f2a4b0"/>
+      <stop offset="100%" style="stop-color:#d97a8c"/>
+    </radialGradient>
+    <!-- Gold shimmer for petals -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8cfa0"/>
+      <stop offset="100%" style="stop-color:#c9a96e"/>
     </linearGradient>
+    <!-- Inner glow -->
+    <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#fce8ec;stop-opacity:0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <circle cx="16" cy="16" r="15" fill="url(#gradient)" stroke="#D97A8C" stroke-width="2"/>
-  <text x="16" y="20" text-anchor="middle" font-family="serif" font-size="16" fill="white" font-weight="bold">L</text>
+
+  <!-- Outer circle background -->
+  <circle cx="32" cy="32" r="31" fill="url(#bgGrad)" stroke="rgba(217,122,140,0.4)" stroke-width="1"/>
+
+  <!-- Subtle inner light -->
+  <circle cx="32" cy="32" r="26" fill="url(#innerGlow)"/>
+
+  <!-- 8 light-burst petal shapes (like a radiant spark/lotus) -->
+  <g transform="translate(32,32)" filter="url(#glow)">
+    <!-- Long petals -->
+    <ellipse rx="2.5" ry="11" fill="white" opacity="0.95"/>
+    <ellipse rx="2.5" ry="11" fill="white" opacity="0.95" transform="rotate(45)"/>
+    <ellipse rx="2.5" ry="11" fill="white" opacity="0.95" transform="rotate(90)"/>
+    <ellipse rx="2.5" ry="11" fill="white" opacity="0.95" transform="rotate(135)"/>
+    <!-- Short petals between -->
+    <ellipse rx="1.5" ry="7" fill="url(#goldGrad)" opacity="0.8" transform="rotate(22.5)"/>
+    <ellipse rx="1.5" ry="7" fill="url(#goldGrad)" opacity="0.8" transform="rotate(67.5)"/>
+    <ellipse rx="1.5" ry="7" fill="url(#goldGrad)" opacity="0.8" transform="rotate(112.5)"/>
+    <ellipse rx="1.5" ry="7" fill="url(#goldGrad)" opacity="0.8" transform="rotate(157.5)"/>
+  </g>
+
+  <!-- Central jewel circle -->
+  <circle cx="32" cy="32" r="7" fill="#d97a8c" stroke="white" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="4.5" fill="white" opacity="0.9"/>
+  <!-- Tiny gold dot at center -->
+  <circle cx="32" cy="32" r="2" fill="url(#goldGrad)"/>
 </svg>
