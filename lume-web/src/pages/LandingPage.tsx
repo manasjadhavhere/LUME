@@ -8,6 +8,24 @@ import {
 import { demoArtists } from '../data/demoData';
 import './LandingPage.css';
 
+import img1 from '../assets/images/1.png';
+import img2 from '../assets/images/2.png';
+import img3 from '../assets/images/3.png';
+import img4 from '../assets/images/4.png';
+import img5 from '../assets/images/5.png';
+import img6 from '../assets/images/6.png';
+import img7 from '../assets/images/7.png';
+
+const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
+
+const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, index = 0) => {
+  const target = e.currentTarget;
+  const fallback = ASSET_IMAGES[index % ASSET_IMAGES.length];
+  if (target.src !== fallback) {
+    target.src = fallback;
+  }
+};
+
 /* ── Hero slides ── */
 const HERO_SLIDES = [
   {
@@ -21,7 +39,8 @@ const HERO_SLIDES = [
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1512496015851-a908f2604245?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    // image: 'https://images.unsplash.com/photo-1512496015851-a908f2604245?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: img4,
     eyebrow: 'Award-Winning Artists',
     title: 'Bridal Beauty,',
     titleAccent: 'Redefined.',
@@ -41,11 +60,10 @@ const HERO_SLIDES = [
 
 /* ── Categories ── */
 const CATEGORIES = [
-  { name: 'Bridal', image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', count: '120+ Artists', wide: true },
-  { name: 'Editorial', image: 'https://images.unsplash.com/photo-1515688594390-b649af70d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '85+ Artists' },
-  { name: 'Evening Glam', image: 'https://images.unsplash.com/photo-1566977755106-4b9ee5625c50?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '95+ Artists' },
-  { name: 'Natural', image: 'https://images.unsplash.com/photo-1512413914583-11bf279a016f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '110+ Artists' },
-  { name: 'Fantasy', image: 'https://images.unsplash.com/photo-1516975080661-460d3d256877?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', count: '45+ Artists' },
+  { name: 'Bridal', image: img1, count: '120+ Artists', wide: true },
+  { name: 'Editorial', image: img2, count: '95+ Artists' },
+  { name: 'Natural', image: img4, count: '110+ Artists' },
+  { name: 'Fantasy', image: img6, count: '45+ Artists' },
 ];
 
 /* ── Marquee ── */
@@ -170,7 +188,7 @@ const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ on
       <div className="lp-intro__visual reveal-right">
         <div className="lp-intro__glass-main">
           <img
-            src="https://images.unsplash.com/photo-1522337360788-8b13fee7a344?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80"
+            src={img3}
             alt="Lume beauty artistry — a bride in premium makeup"
             className="lp-intro__img"
             loading="lazy"
@@ -309,16 +327,6 @@ const LandingPage: React.FC = () => {
             </h1>
             <p className="lp-hero__sub">{HERO_SLIDES[activeSlide].sub}</p>
           </div>
-
-          {/* Stable CTA — never re-mounts, stays put on every slide */}
-          <div className="lp-hero__cta">
-            <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
-              Book an Artist <ArrowRight size={16} />
-            </button>
-            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
-              <Play size={14} fill="currentColor" /> Watch Reel
-            </button>
-          </div>
         </div>
 
         {/* Arrows */}
@@ -329,18 +337,29 @@ const LandingPage: React.FC = () => {
           <ChevronRight size={22} />
         </button>
 
-        {/* Dots */}
-        <div className="lp-hero__dots" role="tablist" aria-label="Slide navigation">
-          {HERO_SLIDES.map((_, i) => (
-            <button
-              key={i}
-              role="tab"
-              aria-selected={i === activeSlide}
-              className={`lp-hero__dot ${i === activeSlide ? 'active' : ''}`}
-              onClick={() => goTo(i)}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
+        {/* Unified Bottom Controls — Buttons sitting exactly above slideshow dots */}
+        <div className="lp-hero__bottom-controls">
+          <div className="lp-hero__cta">
+            <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
+              Book an Artist <ArrowRight size={16} />
+            </button>
+            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
+              <Play size={14} fill="currentColor" /> Watch Reel
+            </button>
+          </div>
+
+          <div className="lp-hero__dots" role="tablist" aria-label="Slide navigation">
+            {HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                role="tab"
+                aria-selected={i === activeSlide}
+                className={`lp-hero__dot ${i === activeSlide ? 'active' : ''}`}
+                onClick={() => goTo(i)}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Scroll hint */}
@@ -350,11 +369,11 @@ const LandingPage: React.FC = () => {
         </div>
 
         {/* Trust badges */}
-        <div className="lp-hero__trust" aria-hidden="true">
+        {/* <div className="lp-hero__trust" aria-hidden="true">
           <div className="lp-hero__trust-item"><Shield size={13} /> 100% Verified</div>
           <div className="lp-hero__trust-item"><Star size={13} fill="currentColor" /> 4.9 Rating</div>
           <div className="lp-hero__trust-item"><CheckCircle size={13} /> Instant Booking</div>
-        </div>
+        </div> */}
       </section>
 
       {/* ══════════════════════════════
@@ -400,7 +419,7 @@ const LandingPage: React.FC = () => {
                 onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
               >
                 <div className="lp-artist-card__img-wrap">
-                  <img src={artist.avatar} alt={artist.name} className="lp-artist-card__img" loading="lazy" />
+                  <img src={artist.avatar} alt={artist.name} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
                   <div className="lp-artist-card__overlay">
                     <button className="lp-artist-card__view" onClick={() => navigate(`/artist/${artist.id}`)}>
                       View Profile <ArrowRight size={14} />
@@ -447,13 +466,13 @@ const LandingPage: React.FC = () => {
           <div className="lp-about__visual reveal-left">
             <div className="lp-about__img-stack">
               <img
-                src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=700&q=80"
+                src={img5}
                 alt="Beauty artist at work"
                 className="lp-about__img lp-about__img--main"
                 loading="lazy"
               />
               <img
-                src="https://images.unsplash.com/photo-1508214751196-bfd140925c41?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                src={img3}
                 alt="Makeup artistry detail"
                 className="lp-about__img lp-about__img--accent"
                 loading="lazy"

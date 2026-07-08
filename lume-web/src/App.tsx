@@ -2,6 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
+import { AuthProvider } from './context/AuthContext';
+
+// Public & Client Pages
 import LandingPage from './pages/LandingPage';
 import ArtistDetailPage from './pages/ArtistDetailPage';
 import BookingConfirmPage from './pages/BookingConfirmPage';
@@ -9,6 +12,19 @@ import DiscoverPage from './pages/DiscoverPage';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFound from './components/layout/NotFound';
+
+// Auth Pages
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+
+// Artist Dashboard Pages
+import ArtistDashboardLayout from './pages/artist/ArtistDashboardLayout';
+import ArtistDashboard from './pages/artist/ArtistDashboard';
+import ArtistProfile from './pages/artist/ArtistProfile';
+import ArtistCalendar from './pages/artist/ArtistCalendar';
+import ArtistRatings from './pages/artist/ArtistRatings';
+
+// Layout components
 import BottomNav from './components/layout/BottomNav';
 import Footer from './components/layout/Footer';
 import Header from './components/layout/Header';
@@ -45,24 +61,42 @@ const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <Router>
-        <ToastProvider>
-          <div className="app">
-            <Preloader />
-            <CustomCursor />
-            <Routes>
-              <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
-              <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
-              <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
-              <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
-              <Route path="/profile" element={<AppLayoutWrapper><ProfilePage /></AppLayoutWrapper>} />
-              <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />
-              <Route path="/booking/confirm" element={<AppLayoutWrapper><BookingConfirmPage /></AppLayoutWrapper>} />
-              <Route path="*" element={<AppLayoutWrapper><NotFound /></AppLayoutWrapper>} />
-            </Routes>
-          </div>
-        </ToastProvider>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <ToastProvider>
+            <div className="app">
+              <Preloader />
+              <CustomCursor />
+              <Routes>
+                {/* Auth Routes (Fullscreen) */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+
+                {/* Client & Public Routes */}
+                <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
+                <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
+                <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
+                <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
+                <Route path="/profile" element={<AppLayoutWrapper><ProfilePage /></AppLayoutWrapper>} />
+                <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />
+                <Route path="/booking/confirm" element={<AppLayoutWrapper><BookingConfirmPage /></AppLayoutWrapper>} />
+
+                {/* Artist Portal Routes */}
+                <Route path="/artist-dashboard" element={<ArtistDashboardLayout />}>
+                  <Route index element={<ArtistDashboard />} />
+                  <Route path="profile" element={<ArtistProfile />} />
+                  <Route path="calendar" element={<ArtistCalendar />} />
+                  <Route path="ratings" element={<ArtistRatings />} />
+                  <Route path="settings" element={<ArtistProfile />} />
+                </Route>
+
+                {/* 404 */}
+                <Route path="*" element={<AppLayoutWrapper><NotFound /></AppLayoutWrapper>} />
+              </Routes>
+            </div>
+          </ToastProvider>
+        </Router>
+      </AuthProvider>
     </ErrorBoundary>
   );
 };

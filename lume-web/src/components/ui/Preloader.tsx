@@ -6,10 +6,13 @@ const Preloader: React.FC = () => {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    // Start fade transition at 2.4s for luxurious intro duration
-    const fadeTimer = setTimeout(() => setFading(true), 2400);
-    // Remove from DOM at 3.2s after smooth exit transition
-    const goneTimer = setTimeout(() => setGone(true), 3200);
+    if (sessionStorage.getItem('lume_preloaded')) {
+      setGone(true);
+      return;
+    }
+    sessionStorage.setItem('lume_preloaded', 'true');
+    const fadeTimer = setTimeout(() => setFading(true), 900);
+    const goneTimer = setTimeout(() => setGone(true), 1300);
 
     return () => {
       clearTimeout(fadeTimer);

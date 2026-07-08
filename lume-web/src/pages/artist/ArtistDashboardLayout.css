@@ -1,0 +1,449 @@
+/* ============================================================
+   LUME — Artist Studio Layout & Navigation CSS
+   Glassmorphism Liquid UI + Premium Responsive Workspace
+   ============================================================ */
+
+.artist-layout {
+  display: flex;
+  min-height: 100svh;
+  background: var(--cream, #fdf6f0);
+  font-family: var(--font-body);
+  color: var(--dark);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Ambient Liquid Glass Glow Spheres (Background) ── */
+.artist-ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.artist-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  animation: artistOrbFloat 12s ease-in-out infinite alternate;
+}
+
+.artist-ambient-orb--1 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(242, 164, 176, 0.45) 0%, transparent 70%);
+  top: -120px;
+  right: 5%;
+}
+
+.artist-ambient-orb--2 {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(201, 169, 110, 0.35) 0%, transparent 70%);
+  bottom: 5%;
+  left: 20%;
+  animation-delay: -4s;
+}
+
+@keyframes artistOrbFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-30px, 20px) scale(1.06);
+  }
+  100% {
+    transform: translate(20px, -15px) scale(0.96);
+  }
+}
+
+/* ── Editorial Ivory/Cream Glass Sidebar ── */
+.artist-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: rgba(251, 245, 239, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100svh;
+  z-index: 50;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 4px 0 30px rgba(42, 26, 31, 0.03);
+  transition: transform 0.28s var(--ease-out);
+}
+
+.artist-sidebar__header {
+  padding: 24px 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(42, 26, 31, 0.06);
+}
+
+.artist-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+}
+
+.artist-sidebar__logo-icon {
+  color: var(--rose-deep);
+}
+
+.artist-sidebar__logo-badge {
+  font-size: 0.65rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  color: #a37d36;
+  border: 1px solid rgba(201, 169, 110, 0.45);
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+
+/* ── Artist Profile Identification Glass Card ── */
+.artist-sidebar__profile {
+  margin: 18px 16px 8px;
+  padding: 13px 14px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 16px rgba(42, 26, 31, 0.035), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.22s var(--ease-out);
+}
+
+.artist-sidebar__profile:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 24px rgba(42, 26, 31, 0.06);
+}
+
+.artist-sidebar__profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose-deep), #e49aa7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(217, 122, 140, 0.3);
+}
+
+.artist-sidebar__profile-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  background: #16a34a;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.artist-sidebar__profile-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.artist-sidebar__profile-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist-sidebar__profile-status {
+  font-size: 0.74rem;
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1px;
+}
+
+/* ── Navigation List ── */
+.artist-sidebar__nav {
+  flex: 1;
+  padding: 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+.artist-sidebar__nav-section {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 14px 10px 6px;
+}
+
+.artist-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: var(--mid);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s var(--ease-out);
+  position: relative;
+}
+
+.artist-sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--dark);
+  transform: translateX(3px);
+}
+
+.artist-sidebar__link--active {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--dark);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 16px rgba(42, 26, 31, 0.045);
+}
+
+.artist-sidebar__link--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: var(--rose-deep);
+}
+
+.artist-sidebar__link--active svg {
+  color: var(--rose-deep);
+}
+
+/* ── Footer Actions ── */
+.artist-sidebar__footer {
+  padding: 16px;
+  border-top: 1px solid rgba(42, 26, 31, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+.artist-sidebar__action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--mid);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.18s;
+}
+
+.artist-sidebar__action-btn:hover {
+  background: #ffffff;
+  color: var(--dark);
+  box-shadow: 0 2px 8px rgba(42, 26, 31, 0.04);
+}
+
+.artist-sidebar__action-btn--logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ── Main Workspace Area ── */
+.artist-main {
+  margin-left: 260px;
+  flex: 1;
+  min-width: 0;
+  width: calc(100% - 260px);
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+}
+
+/* ── Sleek Liquid Glass Top Navigation Bar ── */
+.artist-topbar {
+  height: 68px;
+  background: rgba(253, 246, 240, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(42, 26, 31, 0.08);
+  box-shadow: 0 4px 20px rgba(42, 26, 31, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 4vw, 36px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.artist-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.artist-topbar__title {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-weight: 700;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist-topbar__status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(240, 253, 244, 0.85);
+  border: 1px solid rgba(187, 247, 208, 0.8);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.08);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #15803d;
+  white-space: nowrap;
+}
+
+.artist-topbar__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 6px #16a34a;
+}
+
+.artist-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.artist-topbar__client-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(42, 26, 31, 0.12);
+  color: var(--dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(42, 26, 31, 0.04);
+  transition: all 0.2s var(--ease-out);
+  white-space: nowrap;
+}
+
+.artist-topbar__client-btn:hover {
+  background: #ffffff;
+  border-color: var(--rose-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(42, 26, 31, 0.08);
+}
+
+/* ── Mobile Toggle & Overlay ── */
+.artist-sidebar__toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--dark);
+  color: #ffffff;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.artist-sidebar__overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 26, 31, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 45;
+}
+
+@media (max-width: 900px) {
+  .artist-sidebar {
+    transform: translateX(-100%);
+  }
+  .artist-sidebar--open {
+    transform: translateX(0);
+    box-shadow: 10px 0 35px rgba(42, 26, 31, 0.18);
+  }
+  .artist-main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100vw;
+  }
+  .artist-sidebar__toggle {
+    display: flex;
+  }
+  .artist-topbar {
+    padding: 0 16px;
+  }
+  .artist-sidebar__overlay--visible {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .artist-topbar__status-pill {
+    display: none;
+  }
+}

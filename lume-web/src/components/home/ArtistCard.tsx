@@ -54,7 +54,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
           </div>
         )}
       </div>
-      
+
       <div className="artist-card__content">
         <div className="artist-card__header">
           <h3 className="artist-card__name">{artist.name}</h3>
@@ -62,20 +62,20 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
             {artist.specialties.join(' · ')}
           </p>
         </div>
-        
+
         <div className="artist-card__stats">
           <div className="artist-card__rating">
             <Star className="artist-card__star" size={14} />
             <span className="artist-card__rating-value">{artist.rating}</span>
             <span className="artist-card__reviews">({artist.reviewCount})</span>
           </div>
-          
+
           <div className="artist-card__location">
             <MapPin className="artist-card__location-icon" size={14} />
             <span className="artist-card__distance">{artist.distance} km</span>
           </div>
         </div>
-        
+
         <div className="artist-card__footer">
           <div className="artist-card__price">
             <span className="artist-card__price-value">₹{artist.startingPrice.toLocaleString()}</span>

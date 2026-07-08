@@ -10,6 +10,10 @@
   min-height: 100vh;
   background: #faf8f6;
   position: relative;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .artist-detail-page--error {
@@ -445,8 +449,9 @@
 .adp-content {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 24px 120px;
+  padding: 32px clamp(16px, 4vw, 24px) 120px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .adp-body {
@@ -454,12 +459,16 @@
   grid-template-columns: 1fr 380px;
   gap: 36px;
   align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .adp-main {
   display: flex;
   flex-direction: column;
   gap: 0;
+  min-width: 0;
+  width: 100%;
 }
 
 .adp-sidebar {
@@ -468,9 +477,11 @@
   gap: 20px;
   position: sticky;
   top: 140px;
+  min-width: 0;
+  width: 100%;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
   .adp-body {
     grid-template-columns: 1fr;
   }
@@ -484,7 +495,7 @@
 
 @media (max-width: 480px) {
   .adp-content {
-    padding: 20px 16px 120px;
+    padding: 20px 14px 120px;
   }
 }
 

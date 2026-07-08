@@ -19,14 +19,14 @@ const CustomCursor: React.FC = () => {
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      inner.style.transform = `translate(${mouseX - 5}px, ${mouseY - 5}px)`;
+      inner.style.transform = `translate3d(${mouseX - 5}px, ${mouseY - 5}px, 0)`;
     };
 
     // Smooth outer ring with lerp
     const loop = () => {
-      outerX += (mouseX - outerX) * 0.12;
-      outerY += (mouseY - outerY) * 0.12;
-      outer.style.transform = `translate(${outerX - 20}px, ${outerY - 20}px)`;
+      outerX += (mouseX - outerX) * 0.18;
+      outerY += (mouseY - outerY) * 0.18;
+      outer.style.transform = `translate3d(${outerX - 20}px, ${outerY - 20}px, 0)`;
       rafId = requestAnimationFrame(loop);
     };
     rafId = requestAnimationFrame(loop);

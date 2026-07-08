@@ -1,0 +1,267 @@
+/* ============================================================
+   LUME — Editorial Authentication Pages CSS
+   Luxury Editorial Styling Matching LUME Landing
+   ============================================================ */
+
+.auth-page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf6f0;
+  padding: 32px 20px;
+  position: relative;
+  font-family: var(--font-body);
+}
+
+.auth-page__container {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  z-index: 2;
+}
+
+.auth-page__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  color: var(--dark);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.auth-page__logo svg {
+  color: var(--rose-deep);
+}
+
+.auth-page__card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(42, 26, 31, 0.09);
+  box-shadow: 0 10px 40px rgba(42, 26, 31, 0.05);
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 500px) {
+  .auth-page__card {
+    padding: 24px 22px;
+  }
+}
+
+/* ── Role Tab Switcher ── */
+.auth-page__role-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f7f3ef;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 26, 31, 0.06);
+}
+
+.auth-page__role-tab {
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mid);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s var(--ease-out);
+}
+
+.auth-page__role-tab--active {
+  background: #ffffff;
+  color: var(--dark);
+  box-shadow: 0 2px 8px rgba(42, 26, 31, 0.07);
+}
+
+.auth-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.auth-page__title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  color: var(--dark);
+}
+
+.auth-page__subtitle {
+  font-size: 0.88rem;
+  color: var(--mid);
+}
+
+/* ── Error Banner ── */
+.auth-page__error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* ── Form Inputs ── */
+.auth-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-page__label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dark);
+}
+
+.auth-page__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-page__input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(42, 26, 31, 0.18);
+  background: #ffffff;
+  font-size: 0.94rem;
+  font-family: var(--font-body);
+  color: var(--dark);
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+
+.auth-page__input:focus {
+  border-color: var(--rose-deep);
+  box-shadow: 0 0 0 3px rgba(217, 122, 140, 0.15);
+}
+
+.auth-page__toggle-pw {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Primary Submit Button ── */
+.auth-page__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  background: var(--dark);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.auth-page__submit:hover:not(:disabled) {
+  background: #180e11;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(42, 26, 31, 0.22);
+}
+
+.auth-page__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── Demo Switcher Banner ── */
+.auth-page__demo-strip {
+  padding-top: 18px;
+  border-top: 1px solid rgba(42, 26, 31, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-page__demo-label {
+  font-size: 0.74rem;
+  color: var(--text-soft);
+  text-align: center;
+  font-weight: 500;
+}
+
+.auth-page__demo-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.auth-page__demo-btn {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fdfaf7;
+  border: 1px solid rgba(42, 26, 31, 0.12);
+  color: var(--dark);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.auth-page__demo-btn:hover {
+  background: #f7ede3;
+  border-color: var(--rose-deep);
+}
+
+/* ── Footer Switch Link ── */
+.auth-page__switch {
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--mid);
+}
+
+.auth-page__link {
+  color: var(--rose-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+.auth-page__link:hover {
+  text-decoration: underline;
+}
