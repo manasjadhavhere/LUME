@@ -30,7 +30,7 @@ const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, i
 const HERO_SLIDES = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13fee7a344?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: img1,
     eyebrow: "India's #1 Beauty Platform",
     title: 'Your Canvas.',
     titleAccent: 'Our Masterpiece.',
@@ -39,7 +39,6 @@ const HERO_SLIDES = [
   },
   {
     id: 2,
-    // image: 'https://images.unsplash.com/photo-1512496015851-a908f2604245?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
     image: img4,
     eyebrow: 'Award-Winning Artists',
     title: 'Bridal Beauty,',
@@ -49,7 +48,7 @@ const HERO_SLIDES = [
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: img5,
     eyebrow: 'Editorial Excellence',
     title: 'Bold Looks.',
     titleAccent: 'Lasting Impressions.',
@@ -343,7 +342,7 @@ const LandingPage: React.FC = () => {
             <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
               Book an Artist <ArrowRight size={16} />
             </button>
-            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
+            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/reels')}>
               <Play size={14} fill="currentColor" /> Watch Reel
             </button>
           </div>

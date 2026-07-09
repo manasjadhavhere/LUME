@@ -8,18 +8,15 @@ const NotFound: React.FC = () => {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    if (countdown <= 0) {
+      navigate('/');
+      return;
+    }
     const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          navigate('/');
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => prev - 1);
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, [countdown, navigate]);
 
   const handleBackHome = () => {
     navigate('/');

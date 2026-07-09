@@ -6,6 +6,7 @@ import './Header.css';
 
 const NAV_LINKS = [
   { label: 'Artists',    path: '/#artists' },
+  { label: 'Reels',      path: '/reels' },
   { label: 'About',      path: '/#about' },
   { label: 'Categories', path: '/#categories' },
   { label: 'Partner',    path: '/#partner' },
@@ -15,6 +16,7 @@ const NAV_LINKS = [
 const APP_NAV = [
   { label: 'Home',     path: '/home' },
   { label: 'Discover', path: '/discover' },
+  { label: 'Reels',    path: '/reels' },
   { label: 'Saved',    path: '/saved' },
   { label: 'Profile',  path: '/profile' },
 ];

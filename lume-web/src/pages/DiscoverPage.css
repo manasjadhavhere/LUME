@@ -85,8 +85,8 @@
 
 @media (max-width: 560px) {
   .discover-page__artists-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 

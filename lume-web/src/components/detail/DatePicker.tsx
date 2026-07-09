@@ -21,20 +21,28 @@ const DatePicker: React.FC<DatePickerProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to selected date on mount/change
+  // Scroll to selected date horizontally without affecting window vertical scroll
   useEffect(() => {
     if (!scrollRef.current || !selectedDate) return;
 
+    const container = scrollRef.current;
     const dateString = selectedDate.toISOString().split('T')[0];
-    const selectedElement = scrollRef.current.querySelector(
+    const selectedElement = container.querySelector(
       `[data-date="${dateString}"]`
-    );
+    ) as HTMLElement | null;
 
     if (selectedElement) {
-      selectedElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
+      const containerRect = container.getBoundingClientRect();
+      const elementRect = selectedElement.getBoundingClientRect();
+      const scrollLeft =
+        container.scrollLeft +
+        (elementRect.left - containerRect.left) -
+        containerRect.width / 2 +
+        elementRect.width / 2;
+
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
       });
     }
   }, [selectedDate]);

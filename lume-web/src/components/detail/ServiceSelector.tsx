@@ -16,19 +16,27 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to selected service on mount/change
+  // Scroll to selected service horizontally without affecting window vertical scroll
   useEffect(() => {
     if (!scrollRef.current || !selectedService) return;
 
-    const selectedElement = scrollRef.current.querySelector(
+    const container = scrollRef.current;
+    const selectedElement = container.querySelector(
       `[data-service-id="${selectedService}"]`
-    );
+    ) as HTMLElement | null;
 
-    if (selectedElement && typeof (selectedElement as any).scrollIntoView === 'function') {
-      (selectedElement as any).scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
+    if (selectedElement) {
+      const containerRect = container.getBoundingClientRect();
+      const elementRect = selectedElement.getBoundingClientRect();
+      const scrollLeft =
+        container.scrollLeft +
+        (elementRect.left - containerRect.left) -
+        containerRect.width / 2 +
+        elementRect.width / 2;
+
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
       });
     }
   }, [selectedService]);

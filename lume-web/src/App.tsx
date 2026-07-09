@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 // Public & Client Pages
 import LandingPage from './pages/LandingPage';
@@ -11,6 +12,7 @@ import BookingConfirmPage from './pages/BookingConfirmPage';
 import DiscoverPage from './pages/DiscoverPage';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
+import ReelsPage from './pages/ReelsPage';
 import NotFound from './components/layout/NotFound';
 
 // Auth Pages
@@ -63,6 +65,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <ToastProvider>
             <div className="app">
               <Preloader />
@@ -76,6 +79,7 @@ const App: React.FC = () => {
                 <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
+                <Route path="/reels" element={<AppLayoutWrapper><ReelsPage /></AppLayoutWrapper>} />
                 <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
                 <Route path="/profile" element={<AppLayoutWrapper><ProfilePage /></AppLayoutWrapper>} />
                 <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />

@@ -39,6 +39,15 @@ const ArtistDetailPage: React.FC = () => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const isArtistFavorite = artist ? isFavorite(artist.id) : false;
 
+  const [isMobileView, setIsMobileView] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const handleResize = () => setIsMobileView(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [id]);
+
   const tabNavRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
   const portfolioRef = useRef<HTMLElement>(null);
@@ -98,8 +107,9 @@ const ArtistDetailPage: React.FC = () => {
     return () => { observer.disconnect(); sentinel.remove(); };
   }, []);
 
-  // Scroll-spy for tabs
+  // Scroll-spy for tabs (only on desktop view)
   useEffect(() => {
+    if (isMobileView) return;
     const handleScroll = () => {
       const offset = 200;
       const sections = [
@@ -117,12 +127,16 @@ const ArtistDetailPage: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobileView]);
 
   const scrollToSection = useCallback((tab: TabId) => {
     setActiveTab(tab);
-    const refs = { services: servicesRef, portfolio: portfolioRef, reviews: reviewsRef };
-    refs[tab].current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.innerWidth <= 768) {
+      tabNavRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      const refs = { services: servicesRef, portfolio: portfolioRef, reviews: reviewsRef };
+      refs[tab].current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, []);
 
   // Rating distribution
@@ -305,12 +319,14 @@ const ArtistDetailPage: React.FC = () => {
           {/* ── LEFT / MAIN COLUMN ── */}
           <div className="adp-main">
 
-            {/* About Section */}
-            <section className="adp-section adp-about">
-              <h2 className="adp-section__title">
-                <Users size={20} />
-                About {artist.name}
-              </h2>
+            {(!isMobileView || activeTab === 'services') && (
+              <>
+                {/* About Section */}
+                <section className="adp-section adp-about">
+                  <h2 className="adp-section__title">
+                    <Users size={20} />
+                    About {artist.name}
+                  </h2>
               <p className="adp-about__bio">
                 Specializing in {artist.specialties.slice(0, 2).map(s => s.toLowerCase()).join(', ')} & luxury makeup.
                 With over {artist.experience} years of experience and {artist.bookingCount}+ successful bookings,
@@ -412,9 +428,11 @@ const ArtistDetailPage: React.FC = () => {
                 />
               </div>
             </section>
+              </>
+            )}
 
-            {/* Portfolio Section */}
-            <section className="adp-section adp-portfolio" ref={portfolioRef} id="portfolio">
+            {(!isMobileView || activeTab === 'portfolio') && (
+            <section className="adp-section adp-portfolio adp-tab-pane" ref={portfolioRef} id="portfolio">
               <h2 className="adp-section__title">
                 <Camera size={20} />
                 Portfolio
@@ -431,9 +449,10 @@ const ArtistDetailPage: React.FC = () => {
                 ))}
               </div>
             </section>
+            )}
 
-            {/* Reviews Section */}
-            <section className="adp-section adp-reviews" ref={reviewsRef} id="reviews">
+            {(!isMobileView || activeTab === 'reviews') && (
+            <section className="adp-section adp-reviews adp-tab-pane" ref={reviewsRef} id="reviews">
               <h2 className="adp-section__title">
                 <Star size={20} />
                 Reviews & Ratings
@@ -481,6 +500,7 @@ const ArtistDetailPage: React.FC = () => {
                 </button>
               )}
             </section>
+            )}
           </div>
 
           {/* ── RIGHT / SIDEBAR ── */}
