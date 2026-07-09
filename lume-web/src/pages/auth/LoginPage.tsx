@@ -158,23 +158,26 @@ const LoginPage: React.FC = () => {
 
           {/* Quick Demo Credentials Strip */}
           <div className="auth-page__demo-strip">
-            <span className="auth-page__demo-label">Testing locally? Fill demo credentials instantly:</span>
+            <span className="auth-page__demo-label">Try the demo — no backend needed:</span>
             <div className="auth-page__demo-buttons">
               <button
                 type="button"
                 className="auth-page__demo-btn"
                 onClick={() => handleFillDemo('CLIENT')}
               >
-                <User size={13} /> Demo Client
+                <User size={13} /> Client: priya@demo.com
               </button>
               <button
                 type="button"
                 className="auth-page__demo-btn"
                 onClick={() => handleFillDemo('ARTIST')}
               >
-                <Palette size={13} /> Demo Artist
+                <Palette size={13} /> Artist: aria@lume.in
               </button>
             </div>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)', marginTop: 4 }}>
+              Password: <code style={{ fontSize: '0.7rem' }}>password123</code>
+            </span>
           </div>
 
           {/* Switch to Register */}

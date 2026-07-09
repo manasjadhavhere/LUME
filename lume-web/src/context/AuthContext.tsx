@@ -68,6 +68,53 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+// ─────────────────────────────────────────────────────────────
+// DEMO MODE — active when VITE_DEMO_MODE=true (no backend yet)
+// Set VITE_DEMO_MODE=false once your backend is deployed.
+// ─────────────────────────────────────────────────────────────
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
+
+const DEMO_USERS: Record<string, { password: string; user: AuthUser; token: string }> = {
+  'priya@demo.com': {
+    password: 'password123',
+    token: 'demo-client-token',
+    user: {
+      id: 'demo-client-1',
+      email: 'priya@demo.com',
+      name: 'Priya Sharma',
+      role: 'CLIENT',
+      phone: '+91 98765 43210',
+      clientProfile: { location: 'Mumbai' },
+    },
+  },
+  'aria@lume.in': {
+    password: 'password123',
+    token: 'demo-artist-token',
+    user: {
+      id: 'demo-artist-1',
+      email: 'aria@lume.in',
+      name: 'Aria Mehra',
+      role: 'ARTIST',
+      artistProfile: {
+        id: 'demo-artist-1',
+        bio: 'Award-winning bridal & editorial makeup artist based in Mumbai.',
+        location: 'Bandra, Mumbai',
+        experience: 8,
+        certification: 'Certified Makeup Artist',
+        isVerified: true,
+        isAvailable: true,
+        rating: 4.9,
+        reviewCount: 218,
+        bookingCount: 450,
+        totalEarnings: 0,
+        specialties: ['Bridal', 'Editorial', 'Glam'],
+        startingPrice: 2499,
+        services: [],
+      },
+    },
+  },
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -96,6 +143,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const fetchMe = async (authToken: string) => {
+    // Skip network check in demo mode — token is always valid
+    if (IS_DEMO) return;
+
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
@@ -123,6 +173,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, password: string): Promise<{ role: UserRole }> => {
+    // ── Demo mode (no backend) ──────────────────────────────
+    if (IS_DEMO) {
+      await new Promise(r => setTimeout(r, 600)); // fake latency
+      const demo = DEMO_USERS[email.toLowerCase()];
+      if (!demo || demo.password !== password) {
+        throw new Error('Invalid credentials. Try: priya@demo.com / aria@lume.in with password123');
+      }
+      saveSession(demo.token, demo.user);
+      return { role: demo.user.role };
+    }
+    // ── Real API ────────────────────────────────────────────
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -140,6 +201,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (registerData: RegisterData): Promise<{ role: UserRole }> => {
+    // ── Demo mode (no backend) ──────────────────────────────
+    if (IS_DEMO) {
+      await new Promise(r => setTimeout(r, 800));
+      const demoUser: AuthUser = {
+        id: `demo-${Date.now()}`,
+        email: registerData.email,
+        name: registerData.name,
+        role: registerData.role,
+        phone: registerData.phone,
+        ...(registerData.role === 'CLIENT'
+          ? { clientProfile: { location: registerData.location } }
+          : {
+              artistProfile: {
+                id: `demo-${Date.now()}`,
+                bio: registerData.bio,
+                location: registerData.location || 'Mumbai',
+                experience: registerData.experience || 0,
+                isVerified: false,
+                isAvailable: true,
+                rating: 0,
+                reviewCount: 0,
+                bookingCount: 0,
+                totalEarnings: 0,
+                specialties: registerData.specialties || [],
+                startingPrice: 0,
+                services: [],
+              },
+            }),
+      };
+      saveSession(`demo-token-${Date.now()}`, demoUser);
+      return { role: demoUser.role };
+    }
+    // ── Real API ────────────────────────────────────────────
     const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
