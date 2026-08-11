@@ -5,11 +5,16 @@ export type UserRole = 'CLIENT' | 'ARTIST' | 'ADMIN';
 export interface ArtistProfile {
   id: string;
   bio?: string;
+  gender?: string;
+  dob?: string;
   location: string;
   experience: number;
   certification?: string;
+  certificationFiles?: string[];
+  profileImageUrl?: string;
   badge?: string;
   isVerified: boolean;
+  verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
   isAvailable: boolean;
   rating: number;
   reviewCount: number;
@@ -17,6 +22,11 @@ export interface ArtistProfile {
   totalEarnings: number;
   specialties: string[];
   startingPrice: number;
+  weddingPrice?: number;
+  occasionPrice?: number;
+  hourlyPrice?: number;
+  portfolioUrls?: string[];
+  instagramUrl?: string;
   services: ServiceItem[];
 }
 
@@ -30,15 +40,25 @@ export interface ServiceItem {
   isActive: boolean;
 }
 
+export interface ClientProfile {
+  id?: string;
+  location?: string;
+  mobileNumber?: string;
+  dob?: string;
+  bio?: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
   role: UserRole;
   phone?: string;
+  gender?: string;
+  dob?: string;
   avatarUrl?: string;
   artistProfile?: ArtistProfile;
-  clientProfile?: { location?: string };
+  clientProfile?: ClientProfile;
 }
 
 interface AuthContextType {
@@ -49,7 +69,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ role: UserRole }>;
   register: (data: RegisterData) => Promise<{ role: UserRole }>;
   logout: () => void;
-  updateUser: (updates: Partial<AuthUser>) => void;
+  updateUser: (updates: Partial<AuthUser> | AuthUser) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export interface RegisterData {
@@ -58,6 +79,9 @@ export interface RegisterData {
   name: string;
   role: UserRole;
   phone?: string;
+  gender?: string;
+  dob?: string;
+  mobileNumber?: string;
   location?: string;
   bio?: string;
   specialties?: string[];
@@ -66,61 +90,13 @@ export interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-// ─────────────────────────────────────────────────────────────
-// DEMO MODE — active when VITE_DEMO_MODE=true (no backend yet)
-// Set VITE_DEMO_MODE=false once your backend is deployed.
-// ─────────────────────────────────────────────────────────────
-const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
-
-const DEMO_USERS: Record<string, { password: string; user: AuthUser; token: string }> = {
-  'priya@demo.com': {
-    password: 'password123',
-    token: 'demo-client-token',
-    user: {
-      id: 'demo-client-1',
-      email: 'priya@demo.com',
-      name: 'Priya Sharma',
-      role: 'CLIENT',
-      phone: '+91 98765 43210',
-      clientProfile: { location: 'Mumbai' },
-    },
-  },
-  'aria@lume.in': {
-    password: 'password123',
-    token: 'demo-artist-token',
-    user: {
-      id: 'demo-artist-1',
-      email: 'aria@lume.in',
-      name: 'Aria Mehra',
-      role: 'ARTIST',
-      artistProfile: {
-        id: 'demo-artist-1',
-        bio: 'Award-winning bridal & editorial makeup artist based in Mumbai.',
-        location: 'Bandra, Mumbai',
-        experience: 8,
-        certification: 'Certified Makeup Artist',
-        isVerified: true,
-        isAvailable: true,
-        rating: 4.9,
-        reviewCount: 218,
-        bookingCount: 450,
-        totalEarnings: 0,
-        specialties: ['Bridal', 'Editorial', 'Glam'],
-        startingPrice: 2499,
-        services: [],
-      },
-    },
-  },
-};
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('lume_token');
     const storedUser = localStorage.getItem('lume_user');
@@ -129,33 +105,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-        // Silently refresh user data
-        fetchMe(storedToken).catch(() => {
-          // Token expired — clear session
-          clearSession();
-        });
+        fetchMe(storedToken).catch(() => clearSession());
       } catch {
         clearSession();
       }
     }
-
     setIsLoading(false);
   }, []);
 
   const fetchMe = async (authToken: string) => {
-    // Skip network check in demo mode — token is always valid
-    if (IS_DEMO) return;
-
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
-
     if (!res.ok) throw new Error('Session expired');
-
     const data = await res.json();
     const freshUser = data.data;
     setUser(freshUser);
     localStorage.setItem('lume_user', JSON.stringify(freshUser));
+  };
+
+  const refreshUser = async () => {
+    if (token) await fetchMe(token);
   };
 
   const saveSession = (authToken: string, authUser: AuthUser) => {
@@ -173,88 +143,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, password: string): Promise<{ role: UserRole }> => {
-    // ── Demo mode (no backend) ──────────────────────────────
-    if (IS_DEMO) {
-      await new Promise(r => setTimeout(r, 600)); // fake latency
-      const demo = DEMO_USERS[email.toLowerCase()];
-      if (!demo || demo.password !== password) {
-        throw new Error('Invalid credentials. Try: priya@demo.com / aria@lume.in with password123');
-      }
-      saveSession(demo.token, demo.user);
-      return { role: demo.user.role };
-    }
-    // ── Real API ────────────────────────────────────────────
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-
     const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Login failed');
-    }
-
+    if (!res.ok) throw new Error(data.message || 'Login failed');
     saveSession(data.data.token, data.data.user);
     return { role: data.data.user.role };
   };
 
   const register = async (registerData: RegisterData): Promise<{ role: UserRole }> => {
-    // ── Demo mode (no backend) ──────────────────────────────
-    if (IS_DEMO) {
-      await new Promise(r => setTimeout(r, 800));
-      const demoUser: AuthUser = {
-        id: `demo-${Date.now()}`,
-        email: registerData.email,
-        name: registerData.name,
-        role: registerData.role,
-        phone: registerData.phone,
-        ...(registerData.role === 'CLIENT'
-          ? { clientProfile: { location: registerData.location } }
-          : {
-              artistProfile: {
-                id: `demo-${Date.now()}`,
-                bio: registerData.bio,
-                location: registerData.location || 'Mumbai',
-                experience: registerData.experience || 0,
-                isVerified: false,
-                isAvailable: true,
-                rating: 0,
-                reviewCount: 0,
-                bookingCount: 0,
-                totalEarnings: 0,
-                specialties: registerData.specialties || [],
-                startingPrice: 0,
-                services: [],
-              },
-            }),
-      };
-      saveSession(`demo-token-${Date.now()}`, demoUser);
-      return { role: demoUser.role };
-    }
-    // ── Real API ────────────────────────────────────────────
     const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(registerData),
     });
-
     const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || 'Registration failed');
-    }
-
+    if (!res.ok) throw new Error(data.message || 'Registration failed');
     saveSession(data.data.token, data.data.user);
     return { role: data.data.user.role };
   };
 
-  const logout = () => {
-    clearSession();
-  };
+  const logout = () => clearSession();
 
-  const updateUser = (updates: Partial<AuthUser>) => {
+  const updateUser = (updates: Partial<AuthUser> | AuthUser) => {
     if (!user) return;
     const updated = { ...user, ...updates };
     setUser(updated);
@@ -264,14 +178,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider
       value={{
-        user,
-        token,
-        isLoading,
+        user, token, isLoading,
         isAuthenticated: !!user && !!token,
-        login,
-        register,
-        logout,
-        updateUser,
+        login, register, logout, updateUser, refreshUser,
       }}
     >
       {children}
@@ -281,9 +190,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 

@@ -1,20 +1,32 @@
-import { Calendar, MapPin, CreditCard, User } from 'lucide-react';
-import { Booking } from '../../data/types';
-import CategoryIcon from '../ui/CategoryIcon';
+import { Calendar, MapPin, CreditCard, User, Clock, CheckCircle } from 'lucide-react';
 import './BookingSummary.css';
 
+interface BookingData {
+  id: string;
+  artistName: string;
+  artistAvatar: string;
+  priceType: string;
+  date: string;
+  time: string;
+  endTime?: string;
+  totalPaid: number;
+  status: string;
+  address: string;
+  notes?: string;
+}
+
 interface BookingSummaryProps {
-  booking: Booking;
+  booking: BookingData;
 }
 
 export default function BookingSummary({ booking }: BookingSummaryProps) {
-  const formatDate = (date: Date) => {
+  const formatDate = (dateStr: string) => {
     return new Intl.DateTimeFormat('en-IN', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    }).format(date);
+    }).format(new Date(dateStr + 'T00:00:00'));
   };
 
   const formatCurrency = (amount: number) => {
@@ -25,9 +37,18 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
     }).format(amount);
   };
 
+  const getPriceTypeLabel = (type: string) => {
+    switch (type) {
+      case 'WEDDING': return '💍 Wedding';
+      case 'OCCASION': return '🎉 Occasion';
+      case 'HOURLY': return '⏱ Hourly';
+      default: return type;
+    }
+  };
+
   return (
     <div className="booking-summary glass-panel">
-      <h3 className="booking-summary-title">Booking Confirmed</h3>
+      <h3 className="booking-summary-title">Booking Details</h3>
       
       <div className="booking-details">
         <div className="booking-row">
@@ -42,11 +63,11 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
 
         <div className="booking-row">
           <div className="booking-icon">
-            <CategoryIcon name={booking.service} size={20} />
+            <CheckCircle size={20} />
           </div>
           <div className="booking-info">
             <span className="booking-label">Service</span>
-            <span className="booking-value">{booking.service}</span>
+            <span className="booking-value">{getPriceTypeLabel(booking.priceType)}</span>
           </div>
         </div>
 
@@ -55,9 +76,20 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
             <Calendar size={20} />
           </div>
           <div className="booking-info">
-            <span className="booking-label">Date & Time</span>
+            <span className="booking-label">Date</span>
             <span className="booking-value">{formatDate(booking.date)}</span>
-            <span className="booking-time">{booking.time}</span>
+          </div>
+        </div>
+
+        <div className="booking-row">
+          <div className="booking-icon">
+            <Clock size={20} />
+          </div>
+          <div className="booking-info">
+            <span className="booking-label">Time</span>
+            <span className="booking-value">
+              {booking.time} {booking.endTime ? `– ${booking.endTime}` : ''}
+            </span>
           </div>
         </div>
 
@@ -67,7 +99,7 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
           </div>
           <div className="booking-info">
             <span className="booking-label">Location</span>
-            <span className="booking-value">{booking.location}</span>
+            <span className="booking-value">{booking.address || 'Not provided'}</span>
           </div>
         </div>
 
@@ -76,8 +108,9 @@ export default function BookingSummary({ booking }: BookingSummaryProps) {
             <CreditCard size={20} />
           </div>
           <div className="booking-info">
-            <span className="booking-label">Total Paid</span>
+            <span className="booking-label">Estimated Total</span>
             <span className="booking-value booking-amount">{formatCurrency(booking.totalPaid)}</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)', marginTop: '2px', display: 'block' }}>Payment after service</span>
           </div>
         </div>
       </div>

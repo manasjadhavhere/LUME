@@ -1,24 +1,26 @@
 /* ===========================
-   Discover Page — Glassmorphism UI
+   Discover Page
    =========================== */
 
 .discover-page {
   min-height: 100vh;
   background: transparent;
-  padding: var(--spacing-xl) var(--spacing-md) 7rem;
-  max-width: 1400px;
+  padding: clamp(24px, 5vw, 48px) var(--container-pad) clamp(80px, 12vh, 120px);
+  max-width: var(--container-max);
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Header */
 .discover-page__header {
   text-align: center;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: clamp(20px, 4vw, 36px);
 }
 
 .discover-page__title {
   font-family: var(--font-display);
-  font-size: 2.25rem;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
   font-weight: 600;
   color: var(--dark);
   margin: 0 0 var(--spacing-xs);
@@ -26,7 +28,7 @@
 }
 
 .discover-page__subtitle {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1rem);
   color: var(--text-soft);
   margin: 0;
 }
@@ -49,68 +51,61 @@
   text-align: center;
 }
 
-/* Grid */
+/* Grid — mobile first */
 .discover-page__artists-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+  gap: clamp(10px, 2vw, 20px);
   margin-top: var(--spacing-md);
 }
 
-@media (min-width: 481px) and (max-width: 768px) {
-  .discover-page {
-    padding: var(--spacing-xl) var(--spacing-lg) 7rem;
-  }
-
+/* 3 cols at tablet */
+@media (min-width: 640px) {
   .discover-page__artists-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (min-width: 769px) {
-  .discover-page {
-    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-3xl);
-  }
-
-  .discover-page__title {
-    font-size: 2.75rem;
-  }
-
+/* 4 cols at desktop */
+@media (min-width: 1024px) {
   .discover-page__artists-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-xl);
   }
 }
 
-@media (max-width: 560px) {
+/* Extra small mobile — keep 2 cols but tighter */
+@media (max-width: 360px) {
+  .discover-page {
+    padding: 20px 12px clamp(80px, 12vh, 120px);
+  }
   .discover-page__artists-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 }
 
 /* Empty state */
 .discover-page__empty-state {
   text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-lg);
+  padding: clamp(40px, 8vw, 80px) var(--spacing-lg);
   margin: var(--spacing-xl) 0;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: var(--shadow-sm);
 }
 
 .discover-page__empty-icon {
   font-size: 48px;
   margin-bottom: var(--spacing-md);
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .discover-page__empty-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
   font-weight: 600;
   color: var(--dark);
   margin: 0 0 var(--spacing-sm);
@@ -120,6 +115,7 @@
   color: var(--text-soft);
   margin: 0 0 var(--spacing-xl);
   line-height: 1.7;
+  font-size: 0.95rem;
 }
 
 .discover-page__reset-btn {

@@ -1,5 +1,5 @@
 import React, { ReactNode, ErrorInfo } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { AlertCircle, RotateCcw, Home } from 'lucide-react';
 import '../layout/ErrorBoundary.css';
 
@@ -52,11 +52,8 @@ interface ErrorFallbackProps {
 }
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRefresh }) => {
-  const navigate = useNavigate();
-
   const handleBackHome = () => {
-    navigate('/');
-    onRefresh();
+    window.location.href = '/';
   };
 
   return (

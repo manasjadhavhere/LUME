@@ -16,18 +16,6 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleFillDemo = (role: UserRole) => {
-    setSelectedRole(role);
-    setError('');
-    if (role === 'ARTIST') {
-      setEmail('aria@lume.in');
-      setPassword('password123');
-    } else {
-      setEmail('priya@demo.com');
-      setPassword('password123');
-    }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
@@ -44,7 +32,9 @@ const LoginPage: React.FC = () => {
         );
       }
 
-      if (role === 'ARTIST') {
+      if (role === 'ADMIN') {
+        navigate('/admin');
+      } else if (role === 'ARTIST') {
         navigate('/artist-dashboard');
       } else {
         navigate('/home');
@@ -115,7 +105,7 @@ const LoginPage: React.FC = () => {
               <input
                 type="email"
                 className="auth-page__input"
-                placeholder={selectedRole === 'ARTIST' ? 'aria@lume.in' : 'priya@demo.com'}
+              placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -156,29 +146,6 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Demo Credentials Strip */}
-          <div className="auth-page__demo-strip">
-            <span className="auth-page__demo-label">Try the demo — no backend needed:</span>
-            <div className="auth-page__demo-buttons">
-              <button
-                type="button"
-                className="auth-page__demo-btn"
-                onClick={() => handleFillDemo('CLIENT')}
-              >
-                <User size={13} /> Client: priya@demo.com
-              </button>
-              <button
-                type="button"
-                className="auth-page__demo-btn"
-                onClick={() => handleFillDemo('ARTIST')}
-              >
-                <Palette size={13} /> Artist: aria@lume.in
-              </button>
-            </div>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-soft)', marginTop: 4 }}>
-              Password: <code style={{ fontSize: '0.7rem' }}>password123</code>
-            </span>
-          </div>
 
           {/* Switch to Register */}
           <p className="auth-page__switch">

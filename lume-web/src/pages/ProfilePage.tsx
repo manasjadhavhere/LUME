@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Calendar,
@@ -12,43 +12,55 @@ import {
   Palette,
   LogIn,
   UserPlus,
+  Globe,
+  Star,
+  Heart,
+  Camera
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, API_BASE } from '../context/AuthContext';
 import './ProfilePage.css';
 
 interface MenuItem {
   id: string;
   icon: React.ReactNode;
   label: string;
-  onClick: () => void;
 }
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, token, isAuthenticated, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<string>('bookings');
+  
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
 
-  const handleMenuItemClick = (itemId: string) => {
-    switch (itemId) {
-      case 'bookings':
-        alert('My Bookings — You can view your upcoming bookings here!');
-        break;
-      case 'payments':
-        alert('Payment Methods — Managed securely via Stripe / UPI.');
-        break;
-      case 'settings':
-        alert('Settings — Account preferences.');
-        break;
-      case 'help':
-        alert('Help & Support — Contact team@lume.in for 24/7 support.');
-        break;
-      case 'logout':
-        if (window.confirm('Are you sure you want to logout?')) {
-          logout();
-          navigate('/');
-        }
-        break;
-      default:
-        break;
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchBookings();
+    }
+  }, [isAuthenticated, token]);
+
+  const fetchBookings = async () => {
+    setIsLoadingBookings(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/bookings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBookings(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      logout();
+      navigate('/');
     }
   };
 
@@ -57,37 +69,32 @@ const ProfilePage: React.FC = () => {
       id: 'bookings',
       icon: <Calendar size={20} />,
       label: 'My Bookings',
-      onClick: () => handleMenuItemClick('bookings'),
     },
     {
       id: 'payments',
       icon: <CreditCard size={20} />,
       label: 'Payment Methods',
-      onClick: () => handleMenuItemClick('payments'),
     },
     {
       id: 'settings',
       icon: <Settings size={20} />,
       label: 'Settings',
-      onClick: () => handleMenuItemClick('settings'),
     },
     {
       id: 'help',
       icon: <HelpCircle size={20} />,
       label: 'Help & Support',
-      onClick: () => handleMenuItemClick('help'),
     },
     {
       id: 'logout',
       icon: <LogOut size={20} />,
       label: 'Logout',
-      onClick: () => handleMenuItemClick('logout'),
     },
   ];
 
   if (!isAuthenticated) {
     return (
-      <div className="profile-page" style={{ padding: '48px 20px', textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
+      <div className="profile-page--unauth">
         <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--rose-light)', color: 'var(--rose-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
           <Sparkles size={28} />
         </div>
@@ -138,111 +145,217 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  // Profile Data mapping
+  const profileImage = user?.avatarUrl || user?.artistProfile?.profileImageUrl || 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=400&q=80';
+  const location = user?.artistProfile?.location || user?.clientProfile?.location || 'Location not set';
+  const bio = user?.artistProfile?.bio || user?.clientProfile?.bio || 'No bio provided.';
+  
+  // Stats mapping
+  const totalBookings = user?.role === 'ARTIST' ? (user?.artistProfile?.bookingCount || 0) : bookings.length;
+  const totalReviews = user?.role === 'ARTIST' ? (user?.artistProfile?.reviewCount || 0) : 0;
+  
+  // Format Date for display
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <div className="profile-page">
-      {/* Profile Header */}
-      <div className="profile-page__header">
-        <div className="profile-page__user-info">
-          <div className="profile-page__avatar">
-            <span className="profile-page__avatar-emoji">👩‍🦱</span>
+    <div className="profile-dashboard">
+      {/* Top Banner */}
+      <div className="profile-dashboard__banner">
+        <div className="profile-dashboard__user">
+          <div className="profile-dashboard__avatar-wrapper">
+            <img 
+              src={profileImage} 
+              alt={user?.name} 
+              className="profile-dashboard__avatar-img" 
+            />
+            <button className="profile-dashboard__avatar-edit">
+              <Camera size={14} />
+            </button>
           </div>
-          <div className="profile-page__user-details">
-            <h1 className="profile-page__name">{user?.name || 'Priya Sharma'}</h1>
-            <div className="profile-page__location">
+          
+          <div className="profile-dashboard__user-details">
+            <h1 className="profile-dashboard__name">{user?.name}</h1>
+            <div className="profile-dashboard__location">
               <MapPin size={16} />
-              <span>{user?.clientProfile?.location || 'Mumbai, India'}</span>
+              <span>{location}</span>
             </div>
+            <p className="profile-dashboard__bio">
+              "{bio}"
+            </p>
+            <div className="profile-dashboard__social">
+              {user?.artistProfile?.instagramUrl && (
+                <a href={user.artistProfile.instagramUrl} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Camera size={18} /></a>
+              )}
+              {user?.artistProfile?.portfolioUrls && user.artistProfile.portfolioUrls.length > 0 && (
+                <a href={user.artistProfile.portfolioUrls[0]} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Globe size={18} /></a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-dashboard__stats-card">
+          <div className="profile-dashboard__stat">
+            <div className="profile-dashboard__stat-icon">
+              <Calendar size={18} />
+            </div>
+            <span className="profile-dashboard__stat-value">{totalBookings}</span>
+            <span className="profile-dashboard__stat-label">Bookings</span>
+          </div>
+          
+          {user?.role === 'ARTIST' && (
+            <>
+              <div className="profile-dashboard__stat-divider" />
+              <div className="profile-dashboard__stat">
+                <div className="profile-dashboard__stat-icon profile-dashboard__stat-icon--red">
+                  <Star size={18} />
+                </div>
+                <span className="profile-dashboard__stat-value">{totalReviews}</span>
+                <span className="profile-dashboard__stat-label">Reviews</span>
+              </div>
+            </>
+          )}
+
+          <div className="profile-dashboard__stat-divider" />
+          <div className="profile-dashboard__stat">
+            <div className="profile-dashboard__stat-icon profile-dashboard__stat-icon--heart">
+              <Heart size={18} />
+            </div>
+            <span className="profile-dashboard__stat-value">0</span>
+            <span className="profile-dashboard__stat-label">Favorites</span>
           </div>
         </div>
       </div>
 
-      {/* Artist Portal Switcher Banner (if user is Artist or wants to switch) */}
-      {user?.role === 'ARTIST' ? (
-        <div
-          style={{
-            margin: '0 20px 20px',
-            padding: '16px',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, var(--dark), #402931)',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 8px 24px rgba(42,26,31,0.15)',
-          }}
-        >
+      {/* Artist Portal Switcher Banner */}
+      {user?.role === 'ARTIST' && (
+        <div className="profile-dashboard__artist-banner">
           <div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 600, fontFamily: 'var(--font-display)' }}>
+            <div className="profile-dashboard__artist-title">
               Artist Mode Active ✨
             </div>
-            <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)' }}>
+            <div className="profile-dashboard__artist-desc">
               Manage your bookings, availability, and portfolio
             </div>
           </div>
           <button
             onClick={() => navigate('/artist-dashboard')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--gold)',
-              color: 'white',
-              fontWeight: 600,
-              fontSize: '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className="profile-dashboard__artist-btn"
           >
             <Palette size={14} /> Open Dashboard
           </button>
         </div>
-      ) : null}
+      )}
 
-      {/* Profile Stats */}
-      <div className="profile-page__stats">
-        <div className="profile-page__stat">
-          <span className="profile-page__stat-value">12</span>
-          <span className="profile-page__stat-label">Bookings</span>
+      {/* Main Content Area */}
+      <div className="profile-dashboard__content">
+        
+        {/* Sidebar */}
+        <div className="profile-dashboard__sidebar">
+          <h2 className="profile-dashboard__sidebar-title">ACCOUNT</h2>
+          <div className="profile-dashboard__menu">
+            {menuItems.map((item) => {
+              const isActive = activeTab === item.id;
+              const isLogout = item.id === 'logout';
+              
+              return (
+                <button
+                  key={item.id}
+                  className={`profile-dashboard__menu-item ${isActive ? 'active' : ''} ${isLogout ? 'logout' : ''}`}
+                  onClick={() => {
+                    if (isLogout) {
+                      handleLogout();
+                    } else {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                >
+                  <span className="profile-dashboard__menu-icon">{item.icon}</span>
+                  <span className="profile-dashboard__menu-label">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="profile-page__stat">
-          <span className="profile-page__stat-value">8</span>
-          <span className="profile-page__stat-label">Reviews</span>
-        </div>
-        <div className="profile-page__stat">
-          <span className="profile-page__stat-value">3</span>
-          <span className="profile-page__stat-label">Favorites</span>
-        </div>
-      </div>
 
-      {/* Menu Items */}
-      <div className="profile-page__menu">
-        <h2 className="profile-page__menu-title">Account</h2>
-        <div className="profile-page__menu-list">
-          {menuItems.map((item, index) => (
-            <button
-              key={item.id}
-              className={`profile-page__menu-item ${
-                item.id === 'logout' ? 'profile-page__menu-item--danger' : ''
-              }`}
-              onClick={item.onClick}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="profile-page__menu-item-content">
-                <div className="profile-page__menu-item-left">
-                  <span className="profile-page__menu-item-icon">{item.icon}</span>
-                  <span className="profile-page__menu-item-label">{item.label}</span>
-                </div>
-                <ChevronRight size={16} className="profile-page__menu-item-arrow" />
+        {/* Dynamic Content pane */}
+        <div className="profile-dashboard__main">
+          {activeTab === 'bookings' && (
+            <div className="profile-bookings">
+              <div className="profile-bookings__header">
+                <h2 className="profile-bookings__title">My Bookings</h2>
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
+              
+              {isLoadingBookings ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                  Loading bookings...
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="profile-dashboard__placeholder">
+                  <h3>No bookings found</h3>
+                  <p>You don't have any past or upcoming bookings yet.</p>
+                </div>
+              ) : (
+                <div className="profile-bookings__list">
+                  {bookings.map((booking: any) => {
+                    const title = booking.service?.name || 'Custom Booking';
+                    // If client, show artist avatar. If artist, show client avatar.
+                    const image = user?.role === 'CLIENT' 
+                      ? booking.artist?.user?.avatarUrl 
+                      : booking.client?.avatarUrl;
+                    const displayImage = image || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=80';
+                    const displayLocation = booking.address || 'Location not set';
+                    
+                    return (
+                      <div key={booking.id} className="profile-booking-card">
+                        <img src={displayImage} alt={title} className="profile-booking-card__image" />
+                        <div className="profile-booking-card__details">
+                          <h3 className="profile-booking-card__title">{title}</h3>
+                          <div className="profile-booking-card__time">
+                            {formatDate(booking.date)} • {booking.time}
+                          </div>
+                          <div className="profile-booking-card__location">
+                            <MapPin size={14} />
+                            <span>{displayLocation}</span>
+                          </div>
+                        </div>
+                        <div className="profile-booking-card__actions">
+                          <div className={`profile-booking-card__status status--${booking.status.toLowerCase()}`}>
+                            {booking.status}
+                          </div>
+                          <ChevronRight size={18} className="profile-booking-card__arrow" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
-      {/* App Info */}
-      <div className="profile-page__app-info">
-        <p className="profile-page__app-version">Lume v1.0.0</p>
-        <p className="profile-page__app-tagline">Your canvas. Our masterpiece.</p>
+          {activeTab === 'payments' && (
+            <div className="profile-dashboard__placeholder">
+              <h3>Payment Methods</h3>
+              <p>Manage your saved cards and payment preferences here.</p>
+            </div>
+          )}
+          
+          {activeTab === 'settings' && (
+            <div className="profile-dashboard__placeholder">
+              <h3>Account Settings</h3>
+              <p>Update your personal information and preferences.</p>
+            </div>
+          )}
+          
+          {activeTab === 'help' && (
+            <div className="profile-dashboard__placeholder">
+              <h3>Help & Support</h3>
+              <p>Contact our support team for any issues or queries.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

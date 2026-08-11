@@ -39,25 +39,10 @@ const ArtistRatings: React.FC = () => {
   }, [user]);
 
   const profile = user?.artistProfile;
-  const reviews = data?.reviews || [
-    {
-      id: 'rev-1',
-      rating: 5,
-      text: 'Aria did my bridal makeup for my wedding in Bandra and she was absolutely phenomenonal! Long lasting and looked stunning in photos.',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      client: { id: 'c-1', name: 'Rhea Kapoor' },
-    },
-    {
-      id: 'rev-2',
-      rating: 5,
-      text: 'Super professional, punctual, and very attentive to skincare prep before glam. Highly recommended!',
-      createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-      client: { id: 'c-2', name: 'Simran Mehta' },
-    },
-  ];
+  const reviews = data?.reviews || [];
 
-  const distribution = data?.distribution || { 5: 110, 4: 14, 3: 2, 2: 1, 1: 0 };
-  const totalReviews = Object.values(distribution).reduce((a, b) => a + b, 0) || 127;
+  const distribution = data?.distribution || {};
+  const totalReviews = Object.values(distribution).reduce((a, b) => a + b, 0) || 0;
 
   return (
     <div className="artist-page">
@@ -73,7 +58,7 @@ const ArtistRatings: React.FC = () => {
         <div className="artist-stat-card" style={{ '--gradient': 'linear-gradient(90deg, var(--gold), var(--gold-light))', '--icon-bg': 'rgba(201,149,106,0.15)', '--icon-color': 'var(--gold)' } as React.CSSProperties}>
           <div className="artist-stat-card__icon"><Star size={18} /></div>
           <div className="artist-stat-card__label">Overall Rating</div>
-          <div className="artist-stat-card__value">{profile?.rating ? profile.rating.toFixed(1) : '4.9'}</div>
+          <div className="artist-stat-card__value">{profile?.rating ? profile.rating.toFixed(1) : '0.0'}</div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>Based on {profile?.reviewCount || totalReviews} reviews</span>
         </div>
 
@@ -137,7 +122,7 @@ const ArtistRatings: React.FC = () => {
                 <div key={r.id} style={{ padding: '16px 0', borderBottom: '1px solid rgba(42,26,31,0.06)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--dark)' }}>
-                      {r.client.name}
+                      {r.client?.name || 'Client'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       {Array.from({ length: r.rating }).map((_, i) => (
@@ -201,7 +186,7 @@ const ArtistRatings: React.FC = () => {
 
             <div style={{ padding: '14px', background: 'rgba(201,149,106,0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(201,149,106,0.2)' }}>
               <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                💡 Pro Tip
+                Pro Tip
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--dark)', marginTop: 4 }}>
                 Ask your clients to leave a review after their wedding or event! Verified booking reviews carry 2x weight on Lume.

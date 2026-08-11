@@ -1,11 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 import SearchBar from '../components/home/SearchBar';
 import CategoryChips from '../components/home/CategoryChips';
 import ArtistCard from '../components/home/ArtistCard';
 import ArtistCardSkeleton from '../components/home/ArtistCardSkeleton';
 import useFilterState from '../hooks/useFilterState';
-import { filterArtistsByCategory } from '../data/demoData';
+import { API_BASE } from '../context/AuthContext';
 import type { ServiceCategory } from '../data/types';
 import './DiscoverPage.css';
 
@@ -20,35 +21,27 @@ const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon: string; label: str
 
 const DiscoverPage: React.FC = () => {
   const navigate = useNavigate();
+  const [artists, setArtists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate data loading with a delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [error, setError] = useState('');
   
-  // Use persistent filter state (shared with HomePage)
   const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, clearFilterState } = useFilterState();
 
-  // Combined filtering logic: category first, then search
-  const filteredArtists = useMemo(() => {
-    // First apply category filter
-    const categoryFiltered = filterArtistsByCategory(activeCategory);
-    
-    // Then apply search filter
-    if (!searchQuery.trim()) {
-      return categoryFiltered;
-    }
-    
-    const lowerQuery = searchQuery.toLowerCase().trim();
-    return categoryFiltered.filter(artist =>
-      artist.name.toLowerCase().includes(lowerQuery) ||
-      artist.specialties.some(s => s.toLowerCase().includes(lowerQuery)) ||
-      artist.location.toLowerCase().includes(lowerQuery)
-    );
+  useEffect(() => {
+    setIsLoading(true);
+    setError('');
+    const queryParams = new URLSearchParams();
+    if (activeCategory !== 'All') queryParams.append('specialty', activeCategory);
+    if (searchQuery.trim()) queryParams.append('search', searchQuery.trim());
+
+    fetch(`${API_BASE}/api/artists?${queryParams.toString()}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setArtists(data.data.artists);
+        else setError(data.message || 'Failed to load artists');
+      })
+      .catch(() => setError('Network error. Please try again later.'))
+      .finally(() => setIsLoading(false));
   }, [activeCategory, searchQuery]);
 
   const handleArtistClick = (id: string) => {
@@ -56,7 +49,6 @@ const DiscoverPage: React.FC = () => {
   };
 
   const handleFilter = () => {
-    // Placeholder for advanced filter functionality
     console.log('Advanced filters - coming soon!');
   };
 
@@ -90,9 +82,17 @@ const DiscoverPage: React.FC = () => {
       {/* Results Count */}
       <div className="discover-page__results-info">
         <p className="discover-page__results-count">
-          {isLoading ? 'Loading...' : `${filteredArtists.length} ${filteredArtists.length === 1 ? 'artist' : 'artists'} found`}
+          {isLoading ? 'Loading...' : `${artists.length} ${artists.length === 1 ? 'artist' : 'artists'} found`}
         </p>
       </div>
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div style={{ padding: '16px', background: 'rgba(239,68,68,0.1)', color: '#dc2626', borderRadius: 12, display: 'flex', gap: 8, alignItems: 'center', marginBottom: 24 }}>
+          <AlertCircle size={20} />
+          <span style={{ fontWeight: 600 }}>{error}</span>
+        </div>
+      )}
 
       {/* Artists Grid */}
       {isLoading ? (
@@ -101,9 +101,9 @@ const DiscoverPage: React.FC = () => {
             <ArtistCardSkeleton key={`skeleton-${index}`} />
           ))}
         </div>
-      ) : filteredArtists.length > 0 ? (
+      ) : artists.length > 0 ? (
         <div className="discover-page__artists-grid">
-          {filteredArtists.map((artist) => (
+          {artists.map((artist) => (
             <ArtistCard
               key={artist.id}
               artist={artist}
@@ -111,7 +111,7 @@ const DiscoverPage: React.FC = () => {
             />
           ))}
         </div>
-      ) : (
+      ) : !error ? (
         <div className="discover-page__empty-state">
           <div className="discover-page__empty-icon">🔍</div>
           <h3 className="discover-page__empty-title">No Artists Found</h3>
@@ -126,7 +126,7 @@ const DiscoverPage: React.FC = () => {
             Reset Filters
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

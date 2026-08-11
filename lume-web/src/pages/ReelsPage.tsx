@@ -218,9 +218,9 @@ const ReelsPage: React.FC = () => {
     const newReel: ReelItem = {
       id: `custom-${Date.now()}`,
       title: title.trim(),
-      desc: desc.trim() || 'Showcasing master artistry and signature beauty look.',
+      desc: desc.trim() || '',
       category,
-      artistName: artistName.trim() || 'Lume Artist',
+      artistName: artistName.trim() || '',
       artistRole: 'Verified Beauty Artist',
       artistAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
       embedUrl: finalEmbedUrl,

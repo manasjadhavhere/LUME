@@ -1,8 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ScrollToTop from './components/layout/ScrollToTop';
 
 // Public & Client Pages
@@ -26,6 +26,9 @@ import ArtistProfile from './pages/artist/ArtistProfile';
 import ArtistCalendar from './pages/artist/ArtistCalendar';
 import ArtistRatings from './pages/artist/ArtistRatings';
 
+// Admin
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 // Layout components
 import BottomNav from './components/layout/BottomNav';
 import Footer from './components/layout/Footer';
@@ -45,6 +48,16 @@ const AppLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       <BottomNav />
     </div>
   );
+};
+
+/**
+ * AdminGuard — only allows ADMIN users. Redirects everyone else to home.
+ */
+const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null; // Wait for auth to resolve
+  if (!user || user.role !== 'ADMIN') return <Navigate to="/" replace />;
+  return <>{children}</>;
 };
 
 /* Landing page has its own header/footer baked in */
@@ -93,6 +106,9 @@ const App: React.FC = () => {
                   <Route path="ratings" element={<ArtistRatings />} />
                   <Route path="settings" element={<ArtistProfile />} />
                 </Route>
+
+                {/* Admin Portal — protected, ADMIN role required */}
+                <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
 
                 {/* 404 */}
                 <Route path="*" element={<AppLayoutWrapper><NotFound /></AppLayoutWrapper>} />

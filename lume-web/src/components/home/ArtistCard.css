@@ -1,10 +1,11 @@
 /* ===========================
    ArtistCard — Glassmorphism Premium
+   Fluid, touch-aware responsive
    =========================== */
 
 .artist-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.60);
+  background: rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -22,19 +23,25 @@
               inset 0 -1px 0 rgba(217, 122, 140, 0.06);
 }
 
-.artist-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 56px rgba(217, 122, 140, 0.22),
-              0 4px 12px rgba(42, 26, 31, 0.06),
-              inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  border-color: rgba(242, 164, 176, 0.55);
+/* Only lift on pointer devices (not touch) */
+@media (hover: hover) and (pointer: fine) {
+  .artist-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 56px rgba(217, 122, 140, 0.22),
+                0 4px 12px rgba(42, 26, 31, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    border-color: rgba(242, 164, 176, 0.55);
+  }
+  .artist-card:hover .artist-card__image {
+    transform: scale(1.07);
+  }
 }
 
 .artist-card__image-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 120%; /* 5:6 ratio */
-  background: linear-gradient(135deg, var(--rose-pale) 0%, var(--champagne) 100%);
+  padding-top: 120%;
+  background: linear-gradient(135deg, var(--rose-pale) 0%, #f5e6d3 100%);
   overflow: hidden;
 }
 
@@ -47,11 +54,6 @@
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.artist-card:hover .artist-card__image {
-  transform: scale(1.07);
-}
-
-/* Gradient overlay at bottom of image */
 .artist-card__image-wrapper::after {
   content: '';
   position: absolute;
@@ -66,23 +68,22 @@
     transparent 100%
   );
   pointer-events: none;
-  backdrop-filter: blur(0px);
 }
 
 .artist-card__badge {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 10px;
+  left: 10px;
   z-index: 2;
 }
 
 .artist-card__content {
-  padding: 14px 16px 16px;
+  padding: clamp(10px, 2vw, 16px);
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.75);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -95,7 +96,7 @@
 
 .artist-card__name {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: clamp(0.92rem, 1.8vw, 1.08rem);
   font-weight: 600;
   color: var(--dark);
   margin: 0;
@@ -106,7 +107,7 @@
 }
 
 .artist-card__specialties {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 1.3vw, 0.8rem);
   color: var(--text-soft);
   margin: 0;
   white-space: nowrap;
@@ -119,6 +120,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 4px;
 }
 
 .artist-card__rating {
@@ -133,13 +135,13 @@
 }
 
 .artist-card__rating-value {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--dark);
 }
 
 .artist-card__reviews {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--text-soft);
 }
 
@@ -148,6 +150,7 @@
   align-items: center;
   gap: 3px;
   color: var(--text-soft);
+  min-width: 0;
 }
 
 .artist-card__location-icon {
@@ -156,16 +159,17 @@
 }
 
 .artist-card__distance {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .artist-card__footer {
   margin-top: auto;
   border-top: 1px solid rgba(242, 164, 176, 0.18);
-  padding-top: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding-top: 8px;
 }
 
 .artist-card__price {
@@ -176,15 +180,21 @@
 
 .artist-card__price-value {
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
   font-weight: 700;
   color: var(--dark);
 }
 
 .artist-card__price-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--text-soft);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   font-weight: 500;
+}
+
+/* Extra small phone — ultra compact */
+@media (max-width: 380px) {
+  .artist-card__content { padding: 9px 9px 11px; gap: 6px; }
+  .artist-card__image-wrapper { padding-top: 105%; }
 }

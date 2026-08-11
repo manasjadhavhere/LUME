@@ -5,7 +5,7 @@ import {
   Sparkles, Heart, Shield, Clock, CheckCircle, Mail, Phone,
   ArrowUpRight, Play, Share2, MessageCircle, Video
 } from 'lucide-react';
-import { demoArtists } from '../data/demoData';
+import { API_BASE } from '../context/AuthContext';
 import './LandingPage.css';
 
 import img1 from '../assets/images/1.png';
@@ -59,22 +59,16 @@ const HERO_SLIDES = [
 
 /* ── Categories ── */
 const CATEGORIES = [
-  { name: 'Bridal', image: img1, count: '120+ Artists', wide: true },
-  { name: 'Editorial', image: img2, count: '95+ Artists' },
-  { name: 'Natural', image: img4, count: '110+ Artists' },
-  { name: 'Fantasy', image: img6, count: '45+ Artists' },
+  { name: 'Bridal', image: img1, wide: true },
+  { name: 'Editorial', image: img2 },
+  { name: 'Natural', image: img4 },
+  { name: 'Fantasy', image: img6 },
 ];
 
 /* ── Marquee ── */
 const MARQUEE = ['Bridal Artistry', '✦', 'Editorial Glam', '✦', 'Natural Beauty', '✦', 'Evening Looks', '✦', 'Premium Artists', '✦', 'Verified & Trusted', '✦'];
 
-/* ── Stats ── */
-/* const STATS = [
-  { n: '500+', l: 'Expert Artists' },
-  { n: '15+',  l: 'Cities Covered' },
-  { n: '50K+', l: 'Happy Clients' },
-  { n: '4.9★', l: 'Avg. Rating' },
-]; */
+
 
 /* ══════════════════════════════════════
    Scroll Reveal Hook
@@ -156,20 +150,20 @@ const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ on
 
         <div className="lp-intro__micro-stats">
           <div className="lp-intro__micro-stat">
-            <strong>500+</strong>
+            <strong>Verified</strong>
             <span>Expert Artists</span>
           </div>
           <div className="lp-intro__micro-stat">
-            <strong>50K+</strong>
-            <span>Happy Clients</span>
+            <strong>Trusted</strong>
+            <span>By Clients</span>
           </div>
           <div className="lp-intro__micro-stat">
-            <strong>4.9★</strong>
-            <span>Avg. Rating</span>
+            <strong>Premium</strong>
+            <span>Quality</span>
           </div>
           <div className="lp-intro__micro-stat">
-            <strong>15+</strong>
-            <span>Cities</span>
+            <strong>Pan-India</strong>
+            <span>Coverage</span>
           </div>
         </div>
 
@@ -200,8 +194,8 @@ const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ on
             <Heart size={20} fill="white" />
           </div>
           <div className="lp-intro__float-text">
-            <strong>50K+</strong>
-            <span>Happy Clients</span>
+            <strong>Trusted</strong>
+            <span>By Clients</span>
           </div>
         </div>
 
@@ -211,8 +205,8 @@ const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ on
             <Sparkles size={16} />
           </div>
           <div className="lp-intro__float-text">
-            <strong>4.9★</strong>
-            <span>Avg. Rating</span>
+            <strong>Premium</strong>
+            <span>Quality</span>
           </div>
         </div>
 
@@ -232,11 +226,23 @@ const LandingPage: React.FC = () => {
   const [prevSlide, setPrevSlide] = useState<number | null>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formSent, setFormSent] = useState(false);
+  const [featured, setFeatured] = useState<any[]>([]);
   const slideTimerRef = useRef<number>(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
   useScrollReveal();
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/artists?limit=4`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setFeatured(data.data.artists);
+        }
+      })
+      .catch(err => console.error('Failed to load featured artists', err));
+  }, []);
 
   /* ── Hero parallax on scroll ── */
   useEffect(() => {
@@ -278,8 +284,6 @@ const LandingPage: React.FC = () => {
     setContactForm({ name: '', email: '', message: '' });
     setTimeout(() => setFormSent(false), 4000);
   };
-
-  const featured = demoArtists.slice(0, 4);
 
   return (
     <div className="lp">
@@ -408,43 +412,49 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="lp-artists__grid stagger">
-            {featured.map((artist) => (
-              <div
-                key={artist.id}
-                className="lp-artist-card reveal-scale"
-                onClick={() => navigate(`/artist/${artist.id}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
-              >
-                <div className="lp-artist-card__img-wrap">
-                  <img src={artist.avatar} alt={artist.name} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
-                  <div className="lp-artist-card__overlay">
-                    <button className="lp-artist-card__view" onClick={() => navigate(`/artist/${artist.id}`)}>
-                      View Profile <ArrowRight size={14} />
-                    </button>
+            {featured.map((artist) => {
+              const rawImg = artist.profileImageUrl || artist.user.avatarUrl;
+              const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
+              return (
+                <div
+                  key={artist.id}
+                  className="lp-artist-card reveal-scale"
+                  onClick={() => navigate(`/artist/${artist.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
+                >
+                  <div className="lp-artist-card__img-wrap">
+                    <img src={imgUrl} alt={artist.user.name} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
+                    <div className="lp-artist-card__overlay">
+                      <button className="lp-artist-card__view" onClick={() => navigate(`/artist/${artist.id}`)}>
+                        View Profile <ArrowRight size={14} />
+                      </button>
+                    </div>
+                    {artist.isVerified && (
+                      <span className="lp-artist-card__badge" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <CheckCircle size={12} /> Verified
+                      </span>
+                    )}
+                    <div className="lp-artist-card__rating-chip">
+                      <Star size={10} fill="currentColor" /> {artist.rating.toFixed(1)}
+                    </div>
                   </div>
-                  {artist.badge && (
-                    <span className="lp-artist-card__badge">{artist.badge}</span>
-                  )}
-                  <div className="lp-artist-card__rating-chip">
-                    <Star size={10} fill="currentColor" /> {artist.rating}
+                  <div className="lp-artist-card__info">
+                    <div className="lp-artist-card__meta">
+                      <h3 className="lp-artist-card__name">{artist.user.name}</h3>
+                    </div>
+                    <p className="lp-artist-card__specialty">{artist.specialties?.length ? artist.specialties.join(' · ') : 'Makeup Artist'}</p>
+                    <div className="lp-artist-card__footer">
+                      <span className="lp-artist-card__location">
+                        <MapPin size={11} /> {artist.location}
+                      </span>
+                      <span className="lp-artist-card__price">from ₹{(artist.startingPrice || 0).toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="lp-artist-card__info">
-                  <div className="lp-artist-card__meta">
-                    <h3 className="lp-artist-card__name">{artist.name}</h3>
-                  </div>
-                  <p className="lp-artist-card__specialty">{artist.specialties.join(' · ')}</p>
-                  <div className="lp-artist-card__footer">
-                    <span className="lp-artist-card__location">
-                      <MapPin size={11} /> {artist.location}
-                    </span>
-                    <span className="lp-artist-card__price">from ₹{artist.startingPrice.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="lp-section__more reveal">
@@ -478,8 +488,8 @@ const LandingPage: React.FC = () => {
               />
               <div className="lp-about__stat-pill reveal">
                 <Sparkles size={16} className="lp-about__stat-pill-icon" />
-                <strong>50K+</strong>
-                <span>Happy Clients</span>
+                <strong>Trusted</strong>
+                <span>By Clients</span>
               </div>
               {/* Decorative ring */}
               <div className="lp-about__deco-ring" aria-hidden="true" />
@@ -554,7 +564,6 @@ const LandingPage: React.FC = () => {
                 <div className="lp-cat-card__overlay" />
                 <div className="lp-cat-card__content">
                   <h3 className="lp-cat-card__name">{cat.name}</h3>
-                  <span className="lp-cat-card__count">{cat.count}</span>
                   <span className="lp-cat-card__arrow"><ArrowUpRight size={18} /></span>
                 </div>
               </div>
@@ -610,13 +619,13 @@ const LandingPage: React.FC = () => {
               />
               <div className="lp-partner__card glass">
                 <Sparkles size={20} className="lp-partner__card-icon" />
-                <strong>500+</strong>
+                <strong>Verified</strong>
                 <span>Artists Already on Lume</span>
               </div>
               <div className="lp-partner__card-2 glass">
                 <Star size={14} fill="currentColor" />
-                <strong>4.9</strong>
-                <span>Average Rating</span>
+                <strong>Premium</strong>
+                <span>Quality Platform</span>
               </div>
             </div>
           </div>

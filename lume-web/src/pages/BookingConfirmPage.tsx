@@ -1,38 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Booking } from '../data/types';
 import ConfirmationRing from '../components/booking/ConfirmationRing';
 import BookingSummary from '../components/booking/BookingSummary';
 import Button from '../components/ui/Button';
 import './BookingConfirmPage.css';
 
+interface BookingData {
+  id: string;
+  artistName: string;
+  artistAvatar: string;
+  priceType: string;
+  date: string;
+  time: string;
+  endTime?: string;
+  totalPaid: number;
+  status: string;
+  address: string;
+  notes?: string;
+}
+
 const BookingConfirmPage: React.FC = () => {
   const navigate = useNavigate();
-  const [booking, setBooking] = useState<Booking | null>(null);
+  const [booking, setBooking] = useState<BookingData | null>(null);
 
   useEffect(() => {
     // Load booking data from sessionStorage
     const bookingDataStr = sessionStorage.getItem('currentBooking');
     if (!bookingDataStr) {
-      // No booking data found, redirect to home
       navigate('/home');
       return;
     }
 
     try {
       const bookingData = JSON.parse(bookingDataStr);
-      const bookingObj: Booking = {
-        id: `booking_${Date.now()}`, // Generate unique ID
-        artistId: bookingData.artistId,
-        artistName: bookingData.artistName,
-        service: bookingData.service,
-        date: new Date(bookingData.date),
-        time: bookingData.time,
-        location: bookingData.location,
-        totalPaid: bookingData.totalPaid,
-        status: 'confirmed'
-      };
-      setBooking(bookingObj);
+      setBooking(bookingData);
     } catch (error) {
       console.error('Error parsing booking data:', error);
       navigate('/home');
@@ -40,9 +41,7 @@ const BookingConfirmPage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToHome = () => {
-    // Clear booking data and reset state
     sessionStorage.removeItem('currentBooking');
-    // Navigate to home
     navigate('/home');
   };
 
@@ -72,8 +71,14 @@ const BookingConfirmPage: React.FC = () => {
 
         {/* Header */}
         <div className="booking-confirm-header">
-          <h1 className="booking-confirm-heading">All Set!</h1>
-          <p className="booking-confirm-subheading">Your appointment has been confirmed</p>
+          <h1 className="booking-confirm-heading">
+            {booking.status === 'PENDING' ? 'Booking Sent!' : 'All Set!'}
+          </h1>
+          <p className="booking-confirm-subheading" style={{ color: booking.status === 'PENDING' ? 'var(--gold)' : 'inherit', fontWeight: 600 }}>
+            {booking.status === 'PENDING' 
+              ? 'Your booking request is pending artist approval.' 
+              : 'Your appointment has been confirmed.'}
+          </p>
         </div>
 
         {/* Booking summary */}

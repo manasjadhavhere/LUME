@@ -43,11 +43,8 @@ const ArtistDashboardLayout: React.FC = () => {
 
   return (
     <div className="artist-layout">
-      {/* ── Ambient Liquid Glass Glow Spheres ── */}
-      <div className="artist-ambient-bg" aria-hidden="true">
-        <div className="artist-ambient-orb artist-ambient-orb--1" />
-        <div className="artist-ambient-orb artist-ambient-orb--2" />
-      </div>
+      {/* ── Subtle Dashboard Background ── */}
+      <div className="artist-ambient-bg" aria-hidden="true" />
 
       {/* Mobile Overlay */}
       <div
@@ -69,11 +66,11 @@ const ArtistDashboardLayout: React.FC = () => {
         {/* Artist Identification Card */}
         <div className="artist-sidebar__profile">
           <div className="artist-sidebar__profile-avatar">
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+            {(user?.name || 'Artist').charAt(0).toUpperCase()}
             <div className="artist-sidebar__profile-dot" title="Live & Taking Bookings" />
           </div>
           <div className="artist-sidebar__profile-info">
-            <div className="artist-sidebar__profile-name">{user?.name || 'Aria Mehra'}</div>
+            <div className="artist-sidebar__profile-name">{user?.name || 'Artist'}</div>
             <div className="artist-sidebar__profile-status">
               <CheckCircle2 size={13} color="#d97a8c" /> Verified Studio
             </div>

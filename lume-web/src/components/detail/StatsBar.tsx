@@ -27,7 +27,7 @@ const StatsBar: React.FC<StatsBarProps> = ({ stats }) => {
       <div className="stat-card glass">
         <Users className="stat-card__icon" size={24} />
         <div className="stat-card__info">
-          <div className="stat-card__value">{(stats.reviewCount / 100).toFixed(1)}K+</div>
+          <div className="stat-card__value">{stats.reviewCount}</div>
           <div className="stat-card__label">Happy Clients</div>
         </div>
       </div>

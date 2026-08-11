@@ -33,13 +33,13 @@
 
 /* ── Page Headers ── */
 .artist-page__header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .artist-page__title {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3vw, 2.3rem);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  font-weight: 600;
   color: var(--dark);
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -47,11 +47,11 @@
 
 .artist-page__subtitle {
   font-family: var(--font-body);
-  font-size: 0.94rem;
-  color: var(--mid);
-  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin-top: 4px;
   max-width: 700px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ── Metrics Strip (Glassmorphism Liquid Cards) ── */
@@ -75,49 +75,23 @@
 }
 
 .artist-metric-card {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 18px;
-  padding: 24px 24px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px 20px;
+  border: 1px solid rgba(42, 26, 31, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  box-shadow: 0 8px 30px rgba(42, 26, 31, 0.045), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: all 0.3s var(--ease-spring);
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(42, 26, 31, 0.04);
+  transition: all 0.2s var(--ease-out);
   position: relative;
   overflow: hidden;
 }
 
-/* Luminous Sheen Animation on Hover */
-.artist-metric-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.45) 50%,
-    transparent 100%
-  );
-  transform: skewX(-20deg);
-  transition: left 0.6s ease;
-  pointer-events: none;
-}
-
-.artist-metric-card:hover::after {
-  left: 140%;
-}
-
 .artist-metric-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 16px 40px rgba(42, 26, 31, 0.08), inset 0 1px 0 #ffffff;
-  border-color: rgba(217, 122, 140, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(42, 26, 31, 0.06);
+  border-color: rgba(42, 26, 31, 0.12);
 }
 
 .artist-metric-card__top {
@@ -128,37 +102,32 @@
 
 .artist-metric-card__label {
   font-family: var(--font-body);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text-soft);
 }
 
 .artist-metric-card__icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  background: var(--icon-bg, #fdf6f0);
-  color: var(--icon-color, var(--rose-deep));
-  transition: transform 0.25s var(--ease-spring);
-}
-
-.artist-metric-card:hover .artist-metric-card__icon {
-  transform: scale(1.1) rotate(-4deg);
+  background: #f8f9fa;
+  color: var(--dark);
+  border: 1px solid rgba(42, 26, 31, 0.06);
 }
 
 .artist-metric-card__value {
   font-family: var(--font-body);
-  font-size: 1.95rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--dark);
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -195,20 +164,18 @@
   }
 }
 
-/* ── Editorial Glassmorphism Panel Container ── */
+/* ── Clean Panel Container ── */
 .artist-panel {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 10px 36px rgba(42, 26, 31, 0.035), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 26, 31, 0.08);
+  box-shadow: 0 2px 6px rgba(42, 26, 31, 0.03);
   overflow: hidden;
-  transition: box-shadow 0.25s var(--ease-out);
+  transition: box-shadow 0.2s var(--ease-out);
 }
 
 .artist-panel:hover {
-  box-shadow: 0 14px 44px rgba(42, 26, 31, 0.06);
+  box-shadow: 0 6px 16px rgba(42, 26, 31, 0.05);
 }
 
 .artist-panel__header {
@@ -271,18 +238,18 @@
 }
 
 .booking-row__avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fce8ec, #fdf6f0);
-  color: var(--rose-deep);
-  font-weight: 700;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: #f1f3f5;
+  color: var(--dark);
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(217, 122, 140, 0.15);
+  border: 1px solid rgba(42, 26, 31, 0.06);
 }
 
 .booking-row__info {
@@ -356,52 +323,43 @@
   color: #b91c1c;
 }
 
-/* ── Quick Actions Checklist ── */
 .artist-quick-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 22px 26px;
+  gap: 8px;
+  padding: 16px 20px;
 }
 
 .artist-quick-action {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 15px 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(42, 26, 31, 0.07);
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(42, 26, 31, 0.08);
   text-decoration: none;
   color: var(--dark);
   font-size: 0.88rem;
-  font-weight: 600;
-  transition: all 0.22s var(--ease-spring);
+  font-weight: 500;
+  transition: all 0.15s var(--ease-out);
 }
 
 .artist-quick-action:hover {
-  background: #ffffff;
-  border-color: var(--rose-deep);
-  transform: translateX(4px);
-  box-shadow: 0 6px 18px rgba(217, 122, 140, 0.12);
+  background: #fafafa;
+  border-color: rgba(42, 26, 31, 0.15);
 }
 
 .artist-quick-action__icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--rose-deep);
+  color: var(--dark);
   border: 1px solid rgba(42, 26, 31, 0.06);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: transform 0.22s var(--ease-spring);
-}
-
-.artist-quick-action:hover .artist-quick-action__icon {
-  transform: scale(1.08) rotate(4deg);
 }
 
 /* ── Empty State ── */
@@ -416,18 +374,9 @@
 }
 
 .artist-empty__icon {
-  font-size: 2.6rem;
-  opacity: 0.8;
-  animation: artistEmptyFloat 4s ease-in-out infinite;
-}
-
-@keyframes artistEmptyFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+  font-size: 2rem;
+  color: var(--text-soft);
+  margin-bottom: 8px;
 }
 
 .artist-empty__text {
@@ -595,4 +544,511 @@
 .service-card__btn--danger:hover {
   background: rgba(239, 68, 68, 0.12);
   color: #dc2626;
+}
+
+/* ── Itinerary Interactive Hover States ── */
+.itinerary-slot-hover:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  transform: translateX(4px);
+  border-color: rgba(217, 122, 140, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(42, 26, 31, 0.04);
+}
+
+.itinerary-booked-hover:hover {
+  transform: translateX(4px) scale(1.01) !important;
+  box-shadow: 0 8px 24px rgba(42, 26, 31, 0.08) !important;
+  border-color: rgba(217, 122, 140, 0.2) !important;
+}
+
+/* ============================================================
+   Calendar Grid & Scheduling Override UI
+   ============================================================ */
+
+.calendar-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .calendar-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calendar-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.calendar-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Weekly Schedule Rows ── */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid rgba(42, 26, 31, 0.06);
+  border-radius: 12px;
+  background: white;
+  transition: all 0.2s var(--ease-out);
+}
+
+.schedule-row--active {
+  border-color: rgba(217, 122, 140, 0.3);
+  background: var(--rose-pale);
+}
+
+.schedule-row__day-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 120px;
+}
+
+.schedule-row__day-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--dark);
+}
+
+.schedule-row__times {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.schedule-row__to {
+  color: var(--mid);
+  font-weight: 500;
+}
+
+.schedule-row__unavailable {
+  color: var(--mid);
+  font-size: 0.9rem;
+  font-style: italic;
+  flex: 1;
+  text-align: right;
+  padding-right: 12px;
+}
+
+.schedule-time-select-wrapper {
+  position: relative;
+}
+
+.schedule-time-select {
+  appearance: none;
+  background: white;
+  border: 1px solid rgba(42, 26, 31, 0.15);
+  border-radius: 8px;
+  padding: 8px 32px 8px 12px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--dark);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-width: 100px;
+}
+
+.schedule-time-select:hover,
+.schedule-time-select:focus {
+  border-color: var(--rose-deep);
+  outline: none;
+}
+
+.schedule-time-select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-30%);
+  border: 4px solid transparent;
+  border-top-color: var(--mid);
+  pointer-events: none;
+}
+
+/* Toggle Switch */
+.schedule-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.schedule-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.schedule-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(42, 26, 31, 0.1);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.schedule-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.schedule-toggle input:checked + .schedule-toggle-slider {
+  background-color: var(--gold);
+}
+
+.schedule-toggle input:checked + .schedule-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* ── Calendar Monthly Grid ── */
+.calendar-panel {
+  background: white;
+  border: none;
+  box-shadow: 0 4px 20px rgba(42, 26, 31, 0.05);
+}
+
+.calendar-header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0 24px;
+}
+
+.calendar-nav-btn {
+  background: white;
+  border: 1px solid rgba(42, 26, 31, 0.1);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--dark);
+}
+
+.calendar-nav-btn:hover {
+  background: var(--rose-pale);
+  border-color: var(--rose-deep);
+  color: var(--rose-deep);
+}
+
+.calendar-month-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--dark);
+  font-family: var(--font-display);
+}
+
+.calendar-grid-wrapper {
+  width: 100%;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.calendar-weekdays div {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.calendar-day--empty {
+  background: transparent;
+  pointer-events: none;
+}
+
+.calendar-day--active {
+  background: #fdfaf9;
+  border-color: rgba(42, 26, 31, 0.04);
+}
+
+.calendar-day--off {
+  background: #fcfcfc;
+  opacity: 0.6;
+}
+
+.calendar-day--past {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.calendar-day-num {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark);
+  z-index: 2;
+}
+
+.calendar-day--today .calendar-day-num {
+  font-weight: 800;
+  color: var(--rose-deep);
+}
+
+.calendar-day:hover:not(.calendar-day--empty):not(.calendar-day--past) {
+  border-color: var(--rose-deep);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(42, 26, 31, 0.06);
+}
+
+.calendar-day--selected {
+  background: var(--rose-deep) !important;
+  border-color: var(--rose-deep) !important;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.4);
+}
+
+.calendar-day--selected .calendar-day-num {
+  color: white;
+}
+
+.calendar-day-indicator {
+  height: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-dot-active {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.calendar-line-off {
+  width: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-soft);
+}
+
+.calendar-day--selected .calendar-dot-active {
+  background: white;
+}
+
+.calendar-day--selected .calendar-line-off {
+  background: rgba(255,255,255,0.5);
+}
+
+.calendar-override-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: var(--rose-deep);
+  border: 2px solid white;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.override-panel {
+  border: 2px solid var(--rose-light);
+  box-shadow: 0 8px 30px rgba(217, 122, 140, 0.15);
+  animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpFade {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════
+   ARTIST PORTAL — RESPONSIVE
+══════════════════════════════════════ */
+
+/* ── Tablet (≤1024px) ── */
+@media (max-width: 1024px) {
+  .artist-stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .calendar-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .artist-form__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 768px) {
+  .artist-page {
+    padding: 16px 14px 56px;
+  }
+
+  .artist-page__title {
+    font-size: 1.4rem;
+  }
+
+  .artist-stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .artist-metric-card {
+    padding: 16px;
+  }
+
+  .artist-metric-card__value {
+    font-size: 1.5rem;
+  }
+
+  .artist-panel__header {
+    padding: 16px 18px;
+  }
+
+  .artist-panel__body {
+    padding: 16px 18px;
+  }
+
+  .booking-row {
+    padding: 14px 18px;
+    gap: 12px;
+  }
+
+  .booking-row__avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.82rem;
+  }
+
+  .service-card {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .service-card__icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .artist-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .artist-quick-actions {
+    padding: 12px 14px;
+  }
+}
+
+/* ── Small Mobile (≤480px) ── */
+@media (max-width: 480px) {
+  .artist-page {
+    padding: 12px 12px 72px;
+  }
+
+  .artist-stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .artist-metric-card {
+    padding: 14px 12px;
+    gap: 8px;
+  }
+
+  .artist-metric-card__value {
+    font-size: 1.35rem;
+  }
+
+  .artist-metric-card__label {
+    font-size: 0.7rem;
+  }
+
+  .booking-row {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .booking-row__right {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Rating stars on mobile */
+  .artist-ratings__summary-score {
+    font-size: 3rem;
+  }
+}
+
+/* ── Extra Small (≤360px) ── */
+@media (max-width: 360px) {
+  .artist-stats-strip {
+    grid-template-columns: 1fr;
+  }
 }
