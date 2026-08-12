@@ -132,30 +132,51 @@ const ArtistProfile: React.FC = () => {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
     setUploadingAvatar(true);
-    const fd = new FormData(); fd.append('avatar', e.target.files[0]);
-    const data = await uploadFile('/api/artists/me/avatar', fd);
-    if (data.success) { setAvatarPreview(data.data.url); await refreshUser(); }
-    setUploadingAvatar(false);
+    try {
+      const fd = new FormData(); fd.append('avatar', e.target.files[0]);
+      const data = await uploadFile('/api/artists/me/avatar', fd);
+      if (data.success) { setAvatarPreview(data.data.url); await refreshUser(); }
+      else { alert(data.message || 'Upload failed'); }
+    } catch (err) {
+      alert('Network or server error during upload.');
+      console.error(err);
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handlePortfolioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     setUploadingPortfolio(true);
-    const fd = new FormData();
-    Array.from(e.target.files).forEach(f => fd.append('photos', f));
-    const data = await uploadFile('/api/artists/me/portfolio', fd);
-    if (data.success) { setPortfolioPhotos(prev => [...prev, ...data.data.urls]); await refreshUser(); }
-    setUploadingPortfolio(false);
+    try {
+      const fd = new FormData();
+      Array.from(e.target.files).forEach(f => fd.append('photos', f));
+      const data = await uploadFile('/api/artists/me/portfolio', fd);
+      if (data.success) { setPortfolioPhotos(prev => [...prev, ...data.data.urls]); await refreshUser(); }
+      else { alert(data.message || 'Upload failed'); }
+    } catch (err) {
+      alert('Network or server error during upload.');
+      console.error(err);
+    } finally {
+      setUploadingPortfolio(false);
+    }
   };
 
   const handleCertChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     setUploadingCert(true);
-    const fd = new FormData();
-    Array.from(e.target.files).forEach(f => fd.append('files', f));
-    const data = await uploadFile('/api/artists/me/certifications', fd);
-    if (data.success) { setCertFiles(prev => [...prev, ...data.data.urls]); await refreshUser(); }
-    setUploadingCert(false);
+    try {
+      const fd = new FormData();
+      Array.from(e.target.files).forEach(f => fd.append('files', f));
+      const data = await uploadFile('/api/artists/me/certifications', fd);
+      if (data.success) { setCertFiles(prev => [...prev, ...data.data.urls]); await refreshUser(); }
+      else { alert(data.message || 'Upload failed'); }
+    } catch (err) {
+      alert('Network or server error during upload.');
+      console.error(err);
+    } finally {
+      setUploadingCert(false);
+    }
   };
 
   const handleRemovePortfolio = async (url: string) => {
