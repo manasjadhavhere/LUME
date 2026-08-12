@@ -132,3 +132,61 @@ export async function getMe(userId: string) {
   const { passwordHash, ...userWithoutPassword } = user;
   return userWithoutPassword;
 }
+
+export const updateMeSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  phone: z.string().optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
+  dob: z.string().optional(),
+  // Profile fields
+  location: z.string().optional(),
+  bio: z.string().optional(),
+});
+
+export type UpdateMeInput = z.infer<typeof updateMeSchema>;
+
+export async function updateMe(userId: string, data: UpdateMeInput) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw createError('User not found', 404);
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name: data.name,
+      phone: data.phone,
+      gender: data.gender as any,
+      dob: data.dob ? new Date(data.dob) : undefined,
+    },
+  });
+
+  if (user.role === 'CLIENT') {
+    await prisma.clientProfile.upsert({
+      where: { userId },
+      update: {
+        location: data.location,
+        bio: data.bio,
+      },
+      create: {
+        userId,
+        location: data.location,
+        bio: data.bio,
+      },
+    });
+  } else if (user.role === 'ARTIST') {
+    await prisma.artistProfile.upsert({
+      where: { userId },
+      update: {
+        location: data.location,
+        bio: data.bio,
+      },
+      create: {
+        userId,
+        location: data.location || 'Mumbai',
+        bio: data.bio,
+        experience: 0,
+      },
+    });
+  }
+
+  return getMe(userId);
+}

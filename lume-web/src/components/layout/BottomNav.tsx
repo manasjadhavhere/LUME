@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Search, Heart, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './BottomNav.css';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     { path: '/home', icon: Home, label: 'Home' },
@@ -15,7 +17,12 @@ const BottomNav: React.FC = () => {
   ];
 
   const handleNavigation = (path: string) => {
-    navigate(path);
+    // If it's the profile path and the user is an artist, route to the dashboard instead
+    if (path === '/profile' && user?.role === 'ARTIST') {
+      navigate('/artist-dashboard');
+    } else {
+      navigate(path);
+    }
   };
 
   return (

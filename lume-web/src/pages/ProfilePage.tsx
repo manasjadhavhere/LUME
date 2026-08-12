@@ -28,17 +28,42 @@ interface MenuItem {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, token, isAuthenticated, logout } = useAuth();
+  const { user, token, isAuthenticated, logout, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('bookings');
   
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+  
+  // Settings Form State
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    location: user?.clientProfile?.location || '',
+    bio: user?.clientProfile?.bio || '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        location: user.clientProfile?.location || '',
+        bio: user.clientProfile?.bio || '',
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (isAuthenticated && token) {
+      if (user?.role === 'ARTIST') {
+        navigate('/artist-dashboard');
+        return;
+      }
       fetchBookings();
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, user, navigate]);
 
   const fetchBookings = async () => {
     setIsLoadingBookings(true);
@@ -54,6 +79,35 @@ const ProfilePage: React.FC = () => {
       console.error('Failed to fetch bookings:', error);
     } finally {
       setIsLoadingBookings(false);
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setSaveSuccess(false);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        await refreshUser();
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        alert('Failed to save settings. Please try again.');
+      }
+    } catch (error) {
+      console.error('Save settings error:', error);
+      alert('An error occurred while saving.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -229,25 +283,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Artist Portal Switcher Banner */}
-      {user?.role === 'ARTIST' && (
-        <div className="profile-dashboard__artist-banner">
-          <div>
-            <div className="profile-dashboard__artist-title">
-              Artist Mode Active ✨
-            </div>
-            <div className="profile-dashboard__artist-desc">
-              Manage your bookings, availability, and portfolio
-            </div>
-          </div>
-          <button
-            onClick={() => navigate('/artist-dashboard')}
-            className="profile-dashboard__artist-btn"
-          >
-            <Palette size={14} /> Open Dashboard
-          </button>
-        </div>
-      )}
+      {/* Artist Portal Switcher Banner has been removed since Artists are redirected to /artist-dashboard */}
 
       {/* Main Content Area */}
       <div className="profile-dashboard__content">
@@ -343,9 +379,70 @@ const ProfilePage: React.FC = () => {
           )}
           
           {activeTab === 'settings' && (
-            <div className="profile-dashboard__placeholder">
-              <h3>Account Settings</h3>
-              <p>Update your personal information and preferences.</p>
+            <div className="profile-settings">
+              <div className="profile-bookings__header">
+                <h2 className="profile-bookings__title">Account Settings</h2>
+              </div>
+              <form onSubmit={handleSaveSettings} className="profile-settings__form" style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Full Name</label>
+                  <input 
+                    type="text" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Phone Number</label>
+                  <input 
+                    type="tel" 
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Location</label>
+                  <input 
+                    type="text" 
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Bio</label>
+                  <textarea 
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    rows={4}
+                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', resize: 'vertical' }}
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={isSaving}
+                  style={{
+                    marginTop: 8,
+                    padding: '14px',
+                    borderRadius: 8,
+                    background: 'var(--rose-deep)',
+                    color: 'white',
+                    fontWeight: 600,
+                    border: 'none',
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    opacity: isSaving ? 0.7 : 1
+                  }}
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+                {saveSuccess && (
+                  <div style={{ padding: 12, background: '#dcfce7', color: '#166534', borderRadius: 8, marginTop: 8, textAlign: 'center', fontSize: '0.9rem' }}>
+                    Settings saved successfully!
+                  </div>
+                )}
+              </form>
             </div>
           )}
           

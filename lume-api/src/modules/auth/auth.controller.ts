@@ -27,3 +27,12 @@ export async function me(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
+export async function updateMe(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await AuthService.updateMe(req.user!.userId, req.body);
+    res.json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+}

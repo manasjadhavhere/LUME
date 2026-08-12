@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { register, login, me } from './auth.controller';
+import { register, login, me, updateMe } from './auth.controller';
 import { validate } from '../../middleware/validate';
 import { authenticate } from '../../middleware/auth';
-import { registerSchema, loginSchema } from './auth.service';
+import { registerSchema, loginSchema, updateMeSchema } from './auth.service';
 
 const router = Router();
 
@@ -14,5 +14,8 @@ router.post('/login', validate(loginSchema), login);
 
 // GET /api/auth/me
 router.get('/me', authenticate, me);
+
+// PUT /api/auth/me
+router.put('/me', authenticate, validate(updateMeSchema), updateMe);
 
 export default router;
