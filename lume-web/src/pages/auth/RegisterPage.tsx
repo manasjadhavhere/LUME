@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Sparkles, User, Palette, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -28,7 +28,7 @@ const RegisterPage: React.FC = () => {
     setIsLoading(true);
     setError('');
     try {
-      await register({
+      const { role } = await register({
         email, password, name, role: selectedRole,
         phone: phone || undefined,
         gender: gender as any || undefined,
@@ -36,8 +36,10 @@ const RegisterPage: React.FC = () => {
         location: location || undefined,
         mobileNumber: mobileNumber || undefined,
       });
-      if (selectedRole === 'ARTIST') {
-        navigate('/artist-dashboard/profile');
+
+      // Use the actual role returned from the server to guarantee correct redirection
+      if (role === 'ARTIST') {
+        navigate('/artist-dashboard');
       } else {
         navigate('/home');
       }
