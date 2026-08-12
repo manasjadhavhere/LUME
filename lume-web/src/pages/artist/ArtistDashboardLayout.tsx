@@ -14,8 +14,7 @@ import {
   Bell,
   CheckCircle2,
 } from 'lucide-react';
-} from 'lucide-react';
-import { useAuth, API_BASE } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import './ArtistDashboardLayout.css';
 
@@ -27,7 +26,7 @@ const navItems = [
 ];
 
 const ArtistDashboardLayout: React.FC = () => {
-  const { user, logout, token } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { execute } = useApi();
@@ -40,8 +39,8 @@ const ArtistDashboardLayout: React.FC = () => {
     const fetchNotifications = async () => {
       try {
         const res = await execute('/api/notifications');
-        if (res && res.data) {
-          setNotifications(res.data);
+        if (res) {
+          setNotifications(res as any[]);
         }
       } catch (e) { console.error('Failed to fetch notifications', e); }
     };

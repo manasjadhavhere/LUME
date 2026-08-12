@@ -91,6 +91,7 @@ model ClientProfile {
   mobileNumber String?
   dob          DateTime?
   bio          String?
+  aadharNumber String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

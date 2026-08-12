@@ -74,8 +74,7 @@ const AdminDashboard: React.FC = () => {
     setActioning(true); setActionMsg('');
     const res = await execute(`/api/admin/artists/${artistId}/verify`, { 
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ remarks })
+      body: { remarks }
     });
     if (res) {
       setActionMsg('✅ Artist verified successfully!');
@@ -93,8 +92,7 @@ const AdminDashboard: React.FC = () => {
     setActioning(true); setActionMsg('');
     const res = await execute(`/api/admin/artists/${artistId}/reject`, { 
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ remarks })
+      body: { remarks }
     });
     if (res) {
       setActionMsg('Artist rejected.');
@@ -114,8 +112,7 @@ const AdminDashboard: React.FC = () => {
     
     const res = await execute(`/api/admin/artists/${selectedArtist.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...editFormData, remarks })
+      body: { ...editFormData, remarks }
     });
     
     if (res) {
@@ -328,49 +325,49 @@ const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <>
+                {selectedArtist.bio && (
+                  <div className="admin-modal__section">
+                    <div className="admin-modal__label">Bio</div>
+                    <p className="admin-modal__text">{selectedArtist.bio}</p>
+                  </div>
+                )}
 
-            {selectedArtist.bio && (
-              <div className="admin-modal__section">
-                <div className="admin-modal__label">Bio</div>
-                <p className="admin-modal__text">{selectedArtist.bio}</p>
-              </div>
-            )}
+                {selectedArtist.specialties.length > 0 && (
+                  <div className="admin-modal__section">
+                    <div className="admin-modal__label">Specialties</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {selectedArtist.specialties.map(s => (
+                        <span key={s} className="admin-tag">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {selectedArtist.specialties.length > 0 && (
-              <div className="admin-modal__section">
-                <div className="admin-modal__label">Specialties</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {selectedArtist.specialties.map(s => (
-                    <span key={s} className="admin-tag">{s}</span>
-                  ))}
-                </div>
-              </div>
-            )}
+                {selectedArtist.portfolioUrls.length > 0 && (
+                  <div className="admin-modal__section">
+                    <div className="admin-modal__label">Portfolio ({selectedArtist.portfolioUrls.length} photos)</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px,1fr))', gap: 6 }}>
+                      {selectedArtist.portfolioUrls.slice(0, 9).map((url, i) => (
+                        <img key={i} src={url.startsWith('/') ? `${API_BASE}${url}` : url} alt={`Portfolio ${i+1}`}
+                          style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(42,26,31,0.1)' }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {selectedArtist.portfolioUrls.length > 0 && (
-              <div className="admin-modal__section">
-                <div className="admin-modal__label">Portfolio ({selectedArtist.portfolioUrls.length} photos)</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px,1fr))', gap: 6 }}>
-                  {selectedArtist.portfolioUrls.slice(0, 9).map((url, i) => (
-                    <img key={i} src={url.startsWith('/') ? `${API_BASE}${url}` : url} alt={`Portfolio ${i+1}`}
-                      style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(42,26,31,0.1)' }} />
-                  ))}
-                </div>
-              </div>
+                {selectedArtist.certificationFiles.length > 0 && (
+                  <div className="admin-modal__section">
+                    <div className="admin-modal__label">Certifications ({selectedArtist.certificationFiles.length} docs)</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {selectedArtist.certificationFiles.map((url, i) => (
+                        <a key={i} href={url.startsWith('/') ? `${API_BASE}${url}` : url} target="_blank" rel="noopener noreferrer"
+                          className="admin-cert-link">📄 Document {i + 1}</a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-
-            {selectedArtist.certificationFiles.length > 0 && !isEditMode && (
-              <div className="admin-modal__section">
-                <div className="admin-modal__label">Certifications ({selectedArtist.certificationFiles.length} docs)</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {selectedArtist.certificationFiles.map((url, i) => (
-                    <a key={i} href={url.startsWith('/') ? `${API_BASE}${url}` : url} target="_blank" rel="noopener noreferrer"
-                      className="admin-cert-link">📄 Document {i + 1}</a>
-                  ))}
-                </div>
-              </div>
-            )}
-            {!isEditMode && </>}
 
             {/* Remarks Input */}
             <div className="admin-modal__section" style={{ marginTop: 16 }}>

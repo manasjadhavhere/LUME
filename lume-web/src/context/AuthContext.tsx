@@ -28,6 +28,7 @@ export interface ArtistProfile {
   portfolioUrls?: string[];
   instagramUrl?: string;
   services: ServiceItem[];
+  verificationRemarks?: string;
 }
 
 export interface ServiceItem {
@@ -46,6 +47,7 @@ export interface ClientProfile {
   mobileNumber?: string;
   dob?: string;
   bio?: string;
+  aadharNumber?: string;
 }
 
 export interface AuthUser {

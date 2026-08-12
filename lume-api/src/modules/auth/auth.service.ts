@@ -135,12 +135,13 @@ export async function getMe(userId: string) {
 
 export const updateMeSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  phone: z.string().optional(),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits').optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
-  dob: z.string().optional(),
+  dob: z.string().optional(), // Should ideally be .date() or proper string, keeping it simple
   // Profile fields
   location: z.string().optional(),
   bio: z.string().optional(),
+  aadharNumber: z.string().regex(/^\d{12}$/, 'Aadhar number must be exactly 12 digits').optional(),
 });
 
 export type UpdateMeInput = z.infer<typeof updateMeSchema>;
@@ -165,11 +166,17 @@ export async function updateMe(userId: string, data: UpdateMeInput) {
       update: {
         location: data.location,
         bio: data.bio,
+        aadharNumber: data.aadharNumber,
+        dob: data.dob ? new Date(data.dob) : undefined,
+        mobileNumber: data.phone,
       },
       create: {
         userId,
         location: data.location,
         bio: data.bio,
+        aadharNumber: data.aadharNumber,
+        dob: data.dob ? new Date(data.dob) : undefined,
+        mobileNumber: data.phone,
       },
     });
   } else if (user.role === 'ARTIST') {

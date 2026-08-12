@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as AuthService from './auth.service';
+import prisma from '../../lib/prisma';
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
@@ -36,3 +37,24 @@ export async function updateMe(req: Request, res: Response, next: NextFunction) 
     next(err);
   }
 }
+
+export async function uploadAvatar(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No image provided' });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user!.userId },
+      data: { avatarUrl: req.file.path },
+    });
+
+    res.json({
+      success: true,
+      data: { avatarUrl: user.avatarUrl },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Calendar,
@@ -33,23 +33,28 @@ const ProfilePage: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
   
-  // Settings Form State
   const [formData, setFormData] = useState({
     name: user?.name || '',
-    phone: user?.phone || '',
+    phone: user?.clientProfile?.mobileNumber || user?.phone || '',
     location: user?.clientProfile?.location || '',
     bio: user?.clientProfile?.bio || '',
+    aadharNumber: user?.clientProfile?.aadharNumber || '',
+    dob: user?.dob ? new Date(user.dob).toISOString().split('T')[0] : '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name || '',
-        phone: user.phone || '',
+        phone: user.clientProfile?.mobileNumber || user.phone || '',
         location: user.clientProfile?.location || '',
         bio: user.clientProfile?.bio || '',
+        aadharNumber: user.clientProfile?.aadharNumber || '',
+        dob: user.dob ? new Date(user.dob).toISOString().split('T')[0] : '',
       });
     }
   }, [user]);
@@ -90,19 +95,49 @@ const ProfilePage: React.FC = () => {
         },
         body: JSON.stringify(formData),
       });
-      if (res.ok) {
-        await res.json();
+      
+      const data = await res.json();
+      if (res.ok && data.success) {
         await refreshUser();
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        alert('Failed to save settings. Please try again.');
+        alert(data.error || 'Failed to save settings. Please try again.');
       }
     } catch (error) {
       console.error('Save settings error:', error);
       alert('An error occurred while saving.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me/avatar`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await refreshUser();
+      } else {
+        alert('Failed to upload avatar.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during upload.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -228,10 +263,22 @@ const ProfilePage: React.FC = () => {
               src={profileImage} 
               alt={user?.name} 
               className="profile-dashboard__avatar-img" 
+              style={{ opacity: isUploading ? 0.5 : 1, transition: 'opacity 0.2s' }}
             />
-            <button className="profile-dashboard__avatar-edit">
+            <button 
+              className="profile-dashboard__avatar-edit" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
               <Camera size={14} />
             </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              accept="image/*" 
+              onChange={handleAvatarUpload}
+            />
           </div>
           
           <div className="profile-dashboard__user-details">
@@ -383,69 +430,130 @@ const ProfilePage: React.FC = () => {
           )}
           
           {activeTab === 'settings' && (
-            <div className="profile-settings">
-              <div className="profile-bookings__header">
-                <h2 className="profile-bookings__title">Account Settings</h2>
+            <div className="profile-settings" style={{ padding: '0' }}>
+              <div className="profile-bookings__header" style={{ marginBottom: 32 }}>
+                <h2 className="profile-bookings__title" style={{ fontSize: '1.5rem', fontWeight: 600 }}>Account Settings</h2>
+                <p style={{ color: 'var(--text-soft)', marginTop: 8, fontSize: '0.95rem' }}>Update your personal information and preferences securely.</p>
               </div>
-              <form onSubmit={handleSaveSettings} className="profile-settings__form" style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Full Name</label>
+              <form onSubmit={handleSaveSettings} className="profile-settings__form" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                
+                {/* Name */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Full Name</label>
                   <input 
                     type="text" 
+                    required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
                   />
                 </div>
+
+                {/* Phone */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Phone Number</label>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone Number</label>
                   <input 
                     type="tel" 
+                    required
+                    maxLength={10}
+                    pattern="\d{10}"
+                    title="Please enter exactly 10 digits"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
                   />
                 </div>
+
+                {/* DOB */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Location</label>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date of Birth</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={formData.dob}
+                    max={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
+                  />
+                </div>
+
+                {/* Aadhar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Aadhar Number</label>
+                  <input 
+                    type="text"
+                    required
+                    maxLength={12}
+                    pattern="\d{12}"
+                    title="Please enter exactly 12 digits"
+                    placeholder="0000 0000 0000"
+                    value={formData.aadharNumber}
+                    onChange={(e) => setFormData({ ...formData, aadharNumber: e.target.value.replace(/\D/g, '') })}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
+                  />
+                </div>
+
+                {/* Location */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</label>
                   <input 
                     type="text" 
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none' }}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
                   />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--dark)' }}>Bio</label>
+
+                {/* Bio */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bio / About</label>
                   <textarea 
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     rows={4}
-                    style={{ padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', resize: 'vertical' }}
+                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', resize: 'vertical', transition: 'all 0.2s', background: 'var(--light)' }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
                   />
                 </div>
-                <button 
-                  type="submit" 
-                  disabled={isSaving}
-                  style={{
-                    marginTop: 8,
-                    padding: '14px',
-                    borderRadius: 8,
-                    background: 'var(--rose-deep)',
-                    color: 'white',
-                    fontWeight: 600,
-                    border: 'none',
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                    opacity: isSaving ? 0.7 : 1
-                  }}
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
-                {saveSuccess && (
-                  <div style={{ padding: 12, background: '#dcfce7', color: '#166534', borderRadius: 8, marginTop: 8, textAlign: 'center', fontSize: '0.9rem' }}>
-                    Settings saved successfully!
-                  </div>
-                )}
+
+                <div style={{ gridColumn: '1 / -1', marginTop: 16 }}>
+                  <button 
+                    type="submit" 
+                    disabled={isSaving}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      borderRadius: 12,
+                      background: 'var(--rose-deep)',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      border: 'none',
+                      cursor: isSaving ? 'not-allowed' : 'pointer',
+                      opacity: isSaving ? 0.7 : 1,
+                      transition: 'all 0.2s',
+                      boxShadow: '0 4px 12px rgba(217, 122, 140, 0.25)'
+                    }}
+                  >
+                    {isSaving ? 'Saving Changes...' : 'Save Changes'}
+                  </button>
+                  {saveSuccess && (
+                    <div style={{ padding: 16, background: '#dcfce7', color: '#166534', borderRadius: 12, marginTop: 16, textAlign: 'center', fontSize: '0.95rem', fontWeight: 500 }}>
+                      Settings saved successfully!
+                    </div>
+                  )}
+                </div>
               </form>
             </div>
           )}
