@@ -32,7 +32,8 @@ app.use(cors({
     if (!origin || allowed.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS: origin '${origin}' not allowed`));
+      console.warn(`[CORS Blocked] Origin '${origin}' is not in the allowed list:`, allowed);
+      callback(null, false); // Return false instead of throwing an Error to prevent 500 Server Error on preflight
     }
   },
   credentials: true,
