@@ -9,7 +9,6 @@ import {
   MapPin,
   ChevronRight,
   Sparkles,
-  Palette,
   LogIn,
   UserPlus,
   Globe,
@@ -96,7 +95,7 @@ const ProfilePage: React.FC = () => {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        const data = await res.json();
+        await res.json();
         await refreshUser();
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
