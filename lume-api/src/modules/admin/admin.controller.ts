@@ -17,15 +17,22 @@ export async function getAllArtists(req: Request, res: Response, next: NextFunct
 
 export async function verifyArtist(req: Request, res: Response, next: NextFunction) {
   try {
-    const artist = await AdminService.verifyArtist(req.params.id as string);
+    const artist = await AdminService.verifyArtist(req.params.id as string, req.body.remarks);
     res.json({ success: true, data: artist, message: 'Artist verified successfully' });
   } catch (err) { next(err); }
 }
 
 export async function rejectArtist(req: Request, res: Response, next: NextFunction) {
   try {
-    const artist = await AdminService.rejectArtist(req.params.id as string, req.body.reason);
+    const artist = await AdminService.rejectArtist(req.params.id as string, req.body.reason || req.body.remarks);
     res.json({ success: true, data: artist, message: 'Artist rejected' });
+  } catch (err) { next(err); }
+}
+
+export async function updateArtistAdmin(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artist = await AdminService.updateArtistAdmin(req.params.id as string, req.body);
+    res.json({ success: true, data: artist, message: 'Artist profile updated successfully' });
   } catch (err) { next(err); }
 }
 

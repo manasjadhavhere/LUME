@@ -15,6 +15,7 @@ import reviewsRouter from './modules/reviews/reviews.router';
 import availabilityRouter from './modules/availability/availability.router';
 import adminRouter from './modules/admin/admin.router';
 import paymentsRouter from './modules/payments/payments.router';
+import notificationsRouter from './modules/notifications/notifications.router';
 
 const app = express();
 
@@ -102,6 +103,7 @@ app.use('/api/bookings', bookingsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/admin', adminLocalhost, adminLimiter, adminRouter);
 app.use('/api/payments', paymentsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Nested availability under artists
 app.use('/api/artists/:artistId/availability', availabilityRouter);

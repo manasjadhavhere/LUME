@@ -18,7 +18,7 @@ interface ServiceItem {
   icon: string; description?: string; isActive: boolean;
 }
 
-const VerificationBanner: React.FC<{ status: string }> = ({ status }) => {
+const VerificationBanner: React.FC<{ status: string, remarks?: string }> = ({ status, remarks }) => {
   if (status === 'VERIFIED') return (
     <div style={{ display:'flex',alignItems:'center',gap:10,padding:'14px 20px',background:'rgba(34,197,94,0.12)',color:'#16a34a',borderRadius:12,marginBottom:24,fontWeight:600 }}>
       <BadgeCheck size={20} /> Your profile is verified! You can now accept bookings.
@@ -30,8 +30,15 @@ const VerificationBanner: React.FC<{ status: string }> = ({ status }) => {
     </div>
   );
   if (status === 'REJECTED') return (
-    <div style={{ display:'flex',alignItems:'center',gap:10,padding:'14px 20px',background:'rgba(239,68,68,0.1)',color:'#dc2626',borderRadius:12,marginBottom:24,fontWeight:600 }}>
-      <ShieldAlert size={20} /> Verification was rejected. Please update your profile and resubmit.
+    <div style={{ padding:'14px 20px',background:'rgba(239,68,68,0.1)',color:'#dc2626',borderRadius:12,marginBottom:24 }}>
+      <div style={{ display:'flex',alignItems:'center',gap:10,fontWeight:600 }}>
+        <ShieldAlert size={20} /> Verification was rejected. Please update your profile and resubmit.
+      </div>
+      {remarks && (
+        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(239,68,68,0.05)', borderRadius: 8, fontSize: '0.9rem', borderLeft: '3px solid #dc2626' }}>
+          <strong>Admin Remarks:</strong> {remarks}
+        </div>
+      )}
     </div>
   );
   return null;
@@ -219,7 +226,7 @@ const ArtistProfile: React.FC = () => {
         <p className="artist-page__subtitle">Set up your profile, pricing, and portfolio to start accepting bookings.</p>
       </div>
 
-      <VerificationBanner status={verStatus} />
+      <VerificationBanner status={verStatus} remarks={profile?.verificationRemarks} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
 

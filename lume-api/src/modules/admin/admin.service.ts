@@ -24,21 +24,33 @@ export async function getAllArtistsAdmin() {
 }
 
 // Approve an artist
-export async function verifyArtist(artistId: string) {
+export async function verifyArtist(artistId: string, remarks?: string) {
   const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
   if (!artist) throw createError('Artist not found', 404);
 
-  return prisma.artistProfile.update({
+  const updatedArtist = await prisma.artistProfile.update({
     where: { id: artistId },
     data: {
       isVerified: true,
       verificationStatus: 'VERIFIED',
       badge: 'VERIFIED',
+      verificationRemarks: remarks || null,
     },
     include: {
       user: { select: { id: true, name: true, email: true } },
     },
   });
+
+  await prisma.notification.create({
+    data: {
+      userId: artist.userId,
+      title: 'Profile Verified',
+      message: 'Congratulations! Your artist profile has been verified.' + (remarks ? ` Admin remarks: ${remarks}` : ''),
+      type: 'VERIFICATION',
+    },
+  });
+
+  return updatedArtist;
 }
 
 // Reject an artist
@@ -46,13 +58,69 @@ export async function rejectArtist(artistId: string, reason?: string) {
   const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
   if (!artist) throw createError('Artist not found', 404);
 
-  return prisma.artistProfile.update({
+  const updatedArtist = await prisma.artistProfile.update({
     where: { id: artistId },
     data: {
       isVerified: false,
       verificationStatus: 'REJECTED',
+      verificationRemarks: reason || null,
     },
   });
+
+  await prisma.notification.create({
+    data: {
+      userId: artist.userId,
+      title: 'Verification Update',
+      message: 'Your verification request requires attention.' + (reason ? ` Admin remarks: ${reason}` : ''),
+      type: 'VERIFICATION',
+    },
+  });
+
+  return updatedArtist;
+}
+
+// Update artist fully (admin edit)
+export async function updateArtistAdmin(artistId: string, data: any) {
+  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId }, include: { user: true } });
+  if (!artist) throw createError('Artist not found', 404);
+
+  const updatedArtist = await prisma.artistProfile.update({
+    where: { id: artistId },
+    data: {
+      bio: data.bio,
+      location: data.location,
+      experience: data.experience,
+      certification: data.certification,
+      badge: data.badge,
+      verificationStatus: data.verificationStatus,
+      isVerified: data.verificationStatus === 'VERIFIED',
+      startingPrice: data.startingPrice,
+      weddingPrice: data.weddingPrice,
+      occasionPrice: data.occasionPrice,
+      hourlyPrice: data.hourlyPrice,
+      verificationRemarks: data.remarks || null,
+    },
+  });
+  
+  if (data.name) {
+    await prisma.user.update({
+      where: { id: artist.userId },
+      data: { name: data.name },
+    });
+  }
+
+  if (data.remarks) {
+    await prisma.notification.create({
+      data: {
+        userId: artist.userId,
+        title: 'Profile Updated by Admin',
+        message: `Your profile has been updated by an admin. Remarks: ${data.remarks}`,
+        type: 'SYSTEM',
+      },
+    });
+  }
+
+  return updatedArtist;
 }
 
 // Admin stats
