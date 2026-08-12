@@ -239,8 +239,26 @@ async function main() {
   });
 
   console.log(`  ✅ Created demo client: ${clientUser.name}`);
+
+  // ── Create an Admin User ─────────────────────────────────────────
+
+  const adminPasswordHash = await bcrypt.hash('password123', 12);
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@lume.in' },
+    update: { role: 'ADMIN' },
+    create: {
+      email: 'admin@lume.in',
+      passwordHash: adminPasswordHash,
+      role: 'ADMIN',
+      name: 'Lume Administrator',
+    },
+  });
+
+  console.log(`  ✅ Created admin user: ${adminUser.name}`);
+
   console.log('\n🎉 Seeding complete!');
   console.log('\n📋 Demo Credentials:');
+  console.log('   Admin:  admin@lume.in / password123');
   console.log('   Client: priya@demo.com / password123');
   console.log('   Artist: aria@lume.in / password123');
 }
