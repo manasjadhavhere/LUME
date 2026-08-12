@@ -44,6 +44,12 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
   const isDark = isLanding && !scrolled;
 
   const handleHashLink = (path: string) => {
+    // Artists clicking on the Profile nav item should go to their dashboard
+    if (path === '/profile' && user?.role === 'ARTIST') {
+      navigate('/artist-dashboard');
+      setMenuOpen(false);
+      return;
+    }
     if (path.startsWith('/#')) {
       const id = path.slice(2);
       if (location.pathname === '/' || location.pathname === '/home') {

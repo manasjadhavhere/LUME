@@ -60,6 +60,27 @@ const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+/**
+ * ClientGuard — redirects artists to their dashboard, non-auth to /login.
+ */
+const ClientGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (isAuthenticated && user?.role === 'ARTIST') return <Navigate to="/artist-dashboard" replace />;
+  return <>{children}</>;
+};
+
+/**
+ * ArtistGuard — only allows ARTIST users. Redirects others to login or home.
+ */
+const ArtistGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'ARTIST') return <Navigate to="/home" replace />;
+  return <>{children}</>;
+};
+
 /* Landing page has its own header/footer baked in */
 const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -94,12 +115,12 @@ const App: React.FC = () => {
                 <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
                 <Route path="/reels" element={<AppLayoutWrapper><ReelsPage /></AppLayoutWrapper>} />
                 <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
-                <Route path="/profile" element={<AppLayoutWrapper><ProfilePage /></AppLayoutWrapper>} />
+                <Route path="/profile" element={<AppLayoutWrapper><ClientGuard><ProfilePage /></ClientGuard></AppLayoutWrapper>} />
                 <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />
                 <Route path="/booking/confirm" element={<AppLayoutWrapper><BookingConfirmPage /></AppLayoutWrapper>} />
 
                 {/* Artist Portal Routes */}
-                <Route path="/artist-dashboard" element={<ArtistDashboardLayout />}>
+                <Route path="/artist-dashboard" element={<ArtistGuard><ArtistDashboardLayout /></ArtistGuard>}>
                   <Route index element={<ArtistDashboard />} />
                   <Route path="profile" element={<ArtistProfile />} />
                   <Route path="calendar" element={<ArtistCalendar />} />
