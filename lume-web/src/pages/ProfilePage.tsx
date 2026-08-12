@@ -27,7 +27,7 @@ interface MenuItem {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, token, isAuthenticated, logout, refreshUser } = useAuth();
+  const { user, token, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('bookings');
   
   const [bookings, setBookings] = useState<any[]>([]);
@@ -55,14 +55,10 @@ const ProfilePage: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      if (user?.role === 'ARTIST') {
-        navigate('/artist-dashboard');
-        return;
-      }
+    if (isAuthenticated && token && user?.role !== 'ARTIST') {
       fetchBookings();
     }
-  }, [isAuthenticated, token, user, navigate]);
+  }, [isAuthenticated, token, user]);
 
   const fetchBookings = async () => {
     setIsLoadingBookings(true);
@@ -144,6 +140,15 @@ const ProfilePage: React.FC = () => {
       label: 'Logout',
     },
   ];
+
+  // While auth is being resolved from localStorage, show nothing to avoid flicker
+  if (isLoading) return null;
+
+  // Artists must never land on the client profile page — hard redirect
+  if (isAuthenticated && user?.role === 'ARTIST') {
+    navigate('/artist-dashboard', { replace: true });
+    return null;
+  }
 
   if (!isAuthenticated) {
     return (
