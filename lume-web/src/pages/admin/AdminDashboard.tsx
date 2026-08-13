@@ -204,13 +204,13 @@ const AdminDashboard: React.FC = () => {
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, padding: '0 24px' }}>
         <button 
           onClick={() => setActiveTab('pending')}
-          style={{ padding: '8px 16px', borderRadius: 8, background: activeTab === 'pending' ? 'var(--dark)' : 'white', color: activeTab === 'pending' ? 'white' : 'var(--dark)', border: '1px solid var(--border)' }}
+          style={{ padding: '8px 16px', borderRadius: '6px', background: activeTab === 'pending' ? '#0f172a' : 'white', color: activeTab === 'pending' ? 'white' : '#475569', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s' }}
         >
           Pending Verifications ({pendingArtists.length})
         </button>
         <button 
           onClick={() => setActiveTab('all')}
-          style={{ padding: '8px 16px', borderRadius: 8, background: activeTab === 'all' ? 'var(--dark)' : 'white', color: activeTab === 'all' ? 'white' : 'var(--dark)', border: '1px solid var(--border)' }}
+          style={{ padding: '8px 16px', borderRadius: '6px', background: activeTab === 'all' ? '#0f172a' : 'white', color: activeTab === 'all' ? 'white' : '#475569', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s' }}
         >
           All Artists ({allArtists.length})
         </button>
