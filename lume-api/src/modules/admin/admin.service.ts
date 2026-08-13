@@ -172,3 +172,58 @@ export async function getAdminStats() {
     verifiedArtists,
   };
 }
+
+export async function deleteUser(userId: string) {
+  return prisma.$transaction(async (tx) => {
+    // 1. Delete notifications related to user
+    await tx.notification.deleteMany({
+      where: { userId },
+    });
+
+    const artistProfile = await tx.artistProfile.findUnique({
+      where: { userId },
+    });
+
+    if (artistProfile) {
+      // Delete bookings associated with artist services (artist is provider)
+      await tx.booking.deleteMany({
+        where: { artistId: artistProfile.id },
+      });
+
+      // Delete services provided by artist
+      await tx.service.deleteMany({
+        where: { artistId: artistProfile.id },
+      });
+
+      // Delete reviews received by artist
+      await tx.review.deleteMany({
+        where: { artistId: artistProfile.id },
+      });
+
+      // Delete artist profile
+      await tx.artistProfile.delete({
+        where: { userId },
+      });
+    }
+
+    // Delete bookings made by the user (as a client)
+    await tx.booking.deleteMany({
+      where: { clientId: userId },
+    });
+
+    // Delete reviews written by the user
+    await tx.review.deleteMany({
+      where: { clientId: userId },
+    });
+
+    // Delete client profile if exists
+    await tx.clientProfile.deleteMany({
+      where: { userId },
+    });
+
+    // Finally delete the user
+    return tx.user.delete({
+      where: { id: userId },
+    });
+  });
+}
