@@ -14,7 +14,11 @@ import {
   Globe,
   Star,
   Heart,
-  Camera
+  Camera,
+  Crown,
+  ShieldCheck,
+  Clock,
+  Headset
 } from 'lucide-react';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import './ProfilePage.css';
@@ -29,6 +33,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('bookings');
+  const [bookingTab, setBookingTab] = useState<string>('All');
   
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
@@ -314,8 +319,8 @@ const ProfilePage: React.FC = () => {
             <>
               <div className="profile-dashboard__stat-divider" />
               <div className="profile-dashboard__stat">
-                <div className="profile-dashboard__stat-icon profile-dashboard__stat-icon--red">
-                  <Star size={18} />
+                <div className="profile-dashboard__stat-icon">
+                  <Star size={20} />
                 </div>
                 <span className="profile-dashboard__stat-value">{totalReviews}</span>
                 <span className="profile-dashboard__stat-label">Reviews</span>
@@ -325,8 +330,8 @@ const ProfilePage: React.FC = () => {
 
           <div className="profile-dashboard__stat-divider" />
           <div className="profile-dashboard__stat">
-            <div className="profile-dashboard__stat-icon profile-dashboard__stat-icon--heart">
-              <Heart size={18} />
+            <div className="profile-dashboard__stat-icon">
+              <Heart size={20} />
             </div>
             <span className="profile-dashboard__stat-value">0</span>
             <span className="profile-dashboard__stat-label">Favorites</span>
@@ -365,14 +370,34 @@ const ProfilePage: React.FC = () => {
               );
             })}
           </div>
+          
+          <div className="profile-premium-card">
+            <div className="profile-premium-card__icon">
+              <Crown size={28} />
+            </div>
+            <h3 className="profile-premium-card__title">Go Premium</h3>
+            <p className="profile-premium-card__desc">Unlock exclusive features and priority support.</p>
+            <button className="profile-premium-card__btn" onClick={() => navigate('/premium')}>Upgrade Now</button>
+          </div>
         </div>
 
         {/* Dynamic Content pane */}
         <div className="profile-dashboard__main">
           {activeTab === 'bookings' && (
             <div className="profile-bookings">
-              <div className="profile-bookings__header">
+              <div className="profile-dashboard__header-row">
                 <h2 className="profile-bookings__title">My Bookings</h2>
+                <div className="profile-bookings__tabs">
+                  {['All', 'Upcoming', 'Past', 'Cancelled'].map(tab => (
+                    <button 
+                      key={tab} 
+                      className={`profile-bookings__tab ${bookingTab === tab ? 'active' : ''}`}
+                      onClick={() => setBookingTab(tab)}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
               </div>
               
               {isLoadingBookings ? (
@@ -380,9 +405,11 @@ const ProfilePage: React.FC = () => {
                   Loading bookings...
                 </div>
               ) : bookings.length === 0 ? (
-                <div className="profile-dashboard__placeholder">
-                  <h3>No bookings found</h3>
-                  <p>You don't have any past or upcoming bookings yet.</p>
+                <div className="profile-dashboard__content-box">
+                  <Calendar size={64} color="var(--rose-deep)" strokeWidth={1.5} className="profile-empty-icon" />
+                  <h3 className="profile-empty-title">No bookings found</h3>
+                  <p className="profile-empty-subtitle">You don't have any past or upcoming bookings yet.</p>
+                  <button className="profile-empty-btn" onClick={() => navigate('/')}>Explore Services</button>
                 </div>
               ) : (
                 <div className="profile-bookings__list">
@@ -559,11 +586,41 @@ const ProfilePage: React.FC = () => {
           )}
           
           {activeTab === 'help' && (
-            <div className="profile-dashboard__placeholder">
-              <h3>Help & Support</h3>
-              <p>Contact our support team for any issues or queries.</p>
+            <div className="profile-dashboard__content-box">
+              <h3 className="profile-empty-title">Help & Support</h3>
+              <p className="profile-empty-subtitle">Contact our support team for any issues or queries.</p>
             </div>
           )}
+
+          <div className="profile-features-grid">
+            <div className="profile-feature-card">
+              <div className="profile-feature-card__icon profile-feature-card__icon--shield">
+                <ShieldCheck size={24} />
+              </div>
+              <div className="profile-feature-card__text">
+                <span className="profile-feature-card__title">Secure & Private</span>
+                <span className="profile-feature-card__desc">Your data is encrypted and completely secure.</span>
+              </div>
+            </div>
+            <div className="profile-feature-card">
+              <div className="profile-feature-card__icon profile-feature-card__icon--clock">
+                <Clock size={24} />
+              </div>
+              <div className="profile-feature-card__text">
+                <span className="profile-feature-card__title">Easy Booking</span>
+                <span className="profile-feature-card__desc">Book and manage appointments seamlessly.</span>
+              </div>
+            </div>
+            <div className="profile-feature-card">
+              <div className="profile-feature-card__icon profile-feature-card__icon--support">
+                <Headset size={24} />
+              </div>
+              <div className="profile-feature-card__text">
+                <span className="profile-feature-card__title">24/7 Support</span>
+                <span className="profile-feature-card__desc">We're here to help you anytime, anywhere.</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
