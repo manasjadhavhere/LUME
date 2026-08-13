@@ -6,7 +6,7 @@
 .artist-layout {
   display: flex;
   min-height: 100svh;
-  background: var(--frost, #fcfcfd);
+  background: var(--frost, #ffffff);
   font-family: var(--font-body);
   color: var(--dark);
   position: relative;
