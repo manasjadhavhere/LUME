@@ -73,7 +73,7 @@ const MARQUEE = ['Bridal Artistry', '✦', 'Editorial Glam', '✦', 'Natural Bea
 /* ══════════════════════════════════════
    Scroll Reveal Hook
 ══════════════════════════════════════ */
-const useScrollReveal = () => {
+const useScrollReveal = (deps: any[] = []) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -91,7 +91,7 @@ const useScrollReveal = () => {
     targets.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, deps);
 };
 
 /* ══════════════════════════════════════
@@ -231,7 +231,7 @@ const LandingPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
-  useScrollReveal();
+  useScrollReveal([featured]);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/artists?limit=4`)
