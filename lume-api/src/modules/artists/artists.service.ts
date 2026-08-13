@@ -43,7 +43,7 @@ export async function getAllArtists(query: {
 }) {
   const { specialty, location, search, page = 1, limit = 20, minPrice, maxPrice } = query;
 
-  const where: any = { isVerified: true };
+  const where: any = {};
 
   if (specialty && specialty !== 'All') {
     where.specialties = { has: specialty };
