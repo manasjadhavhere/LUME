@@ -15,7 +15,7 @@
 
 /* Error state styling */
 .lazy-image:not([src]) {
-  background: linear-gradient(135deg, var(--champagne) 0%, var(--cream) 100%);
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--frost) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

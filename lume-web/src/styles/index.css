@@ -15,7 +15,7 @@
   --gold: #C9956A;
   --gold-light: #E8C99A;
 
-  --cream: #FDF6F0;
+  --frost: #fcfcfd;
 
   /* Text */
   --dark: #2A1A1F;
@@ -86,7 +86,7 @@ body {
   font-size: 16px;
   line-height: 1.6;
   color: var(--dark);
-  background-color: var(--cream);
+  background-color: var(--frost);
   background-image:
     radial-gradient(ellipse at 20% 10%, rgba(242, 164, 176, 0.18) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(245, 230, 211, 0.22) 0%, transparent 50%),

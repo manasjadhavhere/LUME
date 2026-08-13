@@ -39,7 +39,7 @@
 }
 
 .pwa-install-prompt__close:hover {
-  background: var(--cream);
+  background: var(--frost);
   color: var(--text-primary);
 }
 
@@ -77,7 +77,7 @@
   margin: 0 0 16px 0;
   line-height: 1.4;
   font-weight: 500;
-  background: var(--cream);
+  background: var(--frost);
   padding: 12px;
   border-radius: 8px;
   border-left: 3px solid var(--rose-deep);

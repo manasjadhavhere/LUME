@@ -203,7 +203,7 @@ const ArtistDashboard: React.FC = () => {
                         {hour === 9 ? '09:00' : hour === 13 ? '13:00' : '16:00'}
                       </div>
                       <div style={{ position: 'relative', width: 2, background: 'rgba(42, 26, 31, 0.04)', borderRadius: 2 }}>
-                        <div style={{ position: 'absolute', top: 18, left: -4, width: 10, height: 10, borderRadius: '50%', background: '#fdf6f0', border: '2px solid rgba(42, 26, 31, 0.15)' }} />
+                        <div style={{ position: 'absolute', top: 18, left: -4, width: 10, height: 10, borderRadius: '50%', background: '#fcfcfd', border: '2px solid rgba(42, 26, 31, 0.15)' }} />
                       </div>
                       <div style={{ flex: 1, padding: '16px 20px', borderRadius: 14, border: '1px dashed rgba(42, 26, 31, 0.15)', background: 'rgba(255,255,255,0.5)', color: 'var(--mid)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.2s', cursor: 'pointer' }} className="itinerary-slot-hover">
                         <CalendarX size={16} color="var(--text-soft)" />
