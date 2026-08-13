@@ -28,12 +28,24 @@ interface ArtistProfile {
   user: { id: string; name: string; email: string; avatarUrl?: string; createdAt: string; };
 }
 
+interface ClientUser {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  clientProfile?: {
+    location?: string;
+    mobileNumber?: string;
+  };
+}
+
 interface Stats {
   totalUsers: number;
   totalArtists: number;
   pendingVerifications: number;
   totalBookings: number;
   verifiedArtists: number;
+  clients: ClientUser[];
 }
 
 const AdminDashboard: React.FC = () => {
@@ -52,7 +64,7 @@ const AdminDashboard: React.FC = () => {
 
   // We fetch all artists to allow editing any profile
   const [allArtists, setAllArtists] = useState<ArtistProfile[]>([]);
-  const [activeTab, setActiveTab] = useState<'pending' | 'all'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'all' | 'clients'>('pending');
 
   useEffect(() => {
     if (!user || user.role !== 'ADMIN') { navigate('/'); return; }
@@ -142,6 +154,20 @@ const AdminDashboard: React.FC = () => {
     setTimeout(() => setActionMsg(''), 4000);
   };
 
+  const handleDeleteUser = async (userId: string, role: 'artist' | 'client') => {
+    if (!window.confirm(`Are you sure you want to permanently delete this ${role}? This will delete all their bookings and data.`)) return;
+
+    setActioning(true); setActionMsg('');
+    const res = await execute(`/api/admin/users/${userId}`, { method: 'DELETE' });
+    if (res) {
+      setActionMsg(`✅ ${role} deleted successfully!`);
+      setSelectedArtist(null);
+      loadData();
+    }
+    setActioning(false);
+    setTimeout(() => setActionMsg(''), 4000);
+  };
+
   const openArtistModal = (artist: ArtistProfile) => {
     setSelectedArtist(artist);
     setRemarks('');
@@ -214,6 +240,12 @@ const AdminDashboard: React.FC = () => {
         >
           All Artists ({allArtists.length})
         </button>
+        <button 
+          onClick={() => setActiveTab('clients')}
+          style={{ padding: '8px 16px', borderRadius: '6px', background: activeTab === 'clients' ? '#0f172a' : 'white', color: activeTab === 'clients' ? 'white' : '#475569', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s' }}
+        >
+          Clients ({stats?.clients?.length || 0})
+        </button>
       </div>
 
       <div className="admin-section">
@@ -249,7 +281,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
           </>
-        ) : (
+        ) : activeTab === 'all' ? (
           <div className="admin-artists-grid">
             {allArtists.map(artist => (
               <div key={artist.id} className="admin-artist-card" onClick={() => openArtistModal(artist)}>
@@ -268,6 +300,32 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="admin-artist-card__badge">Edit Profile</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="admin-artists-grid">
+            {stats?.clients?.map(client => (
+              <div key={client.id} className="admin-artist-card" style={{ cursor: 'default' }}>
+                <div className="admin-artist-card__avatar">
+                  <span>{client.name[0]}</span>
+                </div>
+                <div className="admin-artist-card__info">
+                  <div className="admin-artist-card__name">{client.name}</div>
+                  <div className="admin-artist-card__email">{client.email}</div>
+                  <div className="admin-artist-card__location">📍 {client.clientProfile?.location || 'Unknown'}</div>
+                  <div className="admin-artist-card__meta">
+                    Joined {new Date(client.createdAt).toLocaleDateString('en-IN')}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleDeleteUser(client.id, 'client')}
+                  className="admin-btn admin-btn--reject" 
+                  style={{ width: '100%', marginTop: 12, padding: '8px', fontSize: '0.85rem' }}
+                  disabled={actioning}
+                >
+                  Delete Client
+                </button>
               </div>
             ))}
           </div>
@@ -425,6 +483,18 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </>
               )}
+              
+              <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                <button 
+                  type="button" 
+                  className="admin-btn admin-btn--reject" 
+                  onClick={() => handleDeleteUser(selectedArtist.user.id, 'artist')} 
+                  disabled={actioning} 
+                  style={{ width: '100%', background: '#fee2e2', color: '#b91c1c' }}
+                >
+                  🗑️ Delete Artist Account (Permanent)
+                </button>
+              </div>
             </div>
           </div>
         </div>

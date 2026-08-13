@@ -49,3 +49,10 @@ export async function getStats(req: Request, res: Response, next: NextFunction) 
     res.json({ success: true, data: stats });
   } catch (err) { next(err); }
 }
+
+export async function deleteUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    await AdminService.deleteUser(req.params.id as string);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) { next(err); }
+}
