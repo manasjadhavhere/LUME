@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Calendar,
-  CreditCard,
   Settings,
   HelpCircle,
   LogOut,
@@ -15,7 +14,6 @@ import {
   Star,
   Heart,
   Camera,
-  Crown,
   ShieldCheck,
   Clock,
   Headset
@@ -160,14 +158,9 @@ const ProfilePage: React.FC = () => {
       label: 'My Bookings',
     },
     {
-      id: 'payments',
-      icon: <CreditCard size={20} />,
-      label: 'Payment Methods',
-    },
-    {
       id: 'settings',
       icon: <Settings size={20} />,
-      label: 'Settings',
+      label: 'Profile Settings',
     },
     {
       id: 'help',
@@ -260,129 +253,117 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="profile-dashboard">
-      {/* Top Banner */}
-      <div className="profile-dashboard__banner">
-        <div className="profile-dashboard__user">
-          <div className="profile-dashboard__avatar-wrapper">
-            <img 
-              src={profileImage} 
-              alt={user?.name} 
-              className="profile-dashboard__avatar-img" 
-              style={{ opacity: isUploading ? 0.5 : 1, transition: 'opacity 0.2s' }}
-            />
-            <button 
-              className="profile-dashboard__avatar-edit" 
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Camera size={14} />
-            </button>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              style={{ display: 'none' }} 
-              accept="image/*" 
-              onChange={handleAvatarUpload}
-            />
-          </div>
-          
-          <div className="profile-dashboard__user-details">
-            <h1 className="profile-dashboard__name">{user?.name}</h1>
-            <div className="profile-dashboard__location">
-              <MapPin size={16} />
-              <span>{location}</span>
-            </div>
-            <p className="profile-dashboard__bio">
-              "{bio}"
-            </p>
-            <div className="profile-dashboard__social">
-              {user?.artistProfile?.instagramUrl && (
-                <a href={user.artistProfile.instagramUrl} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Camera size={18} /></a>
-              )}
-              {user?.artistProfile?.portfolioUrls && user.artistProfile.portfolioUrls.length > 0 && (
-                <a href={user.artistProfile.portfolioUrls[0]} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Globe size={18} /></a>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="profile-dashboard__stats-card">
-          <div className="profile-dashboard__stat">
-            <div className="profile-dashboard__stat-icon">
-              <Calendar size={18} />
-            </div>
-            <span className="profile-dashboard__stat-value">{totalBookings}</span>
-            <span className="profile-dashboard__stat-label">Bookings</span>
-          </div>
-          
-          {user?.role === 'ARTIST' && (
-            <>
-              <div className="profile-dashboard__stat-divider" />
-              <div className="profile-dashboard__stat">
-                <div className="profile-dashboard__stat-icon">
-                  <Star size={20} />
-                </div>
-                <span className="profile-dashboard__stat-value">{totalReviews}</span>
-                <span className="profile-dashboard__stat-label">Reviews</span>
-              </div>
-            </>
-          )}
-
-          <div className="profile-dashboard__stat-divider" />
-          <div className="profile-dashboard__stat">
-            <div className="profile-dashboard__stat-icon">
-              <Heart size={20} />
-            </div>
-            <span className="profile-dashboard__stat-value">0</span>
-            <span className="profile-dashboard__stat-label">Favorites</span>
-          </div>
+      {/* Sidebar - Column 1 */}
+      <div className="profile-dashboard__sidebar">
+        <div className="profile-dashboard__menu">
+          {menuItems.map((item) => {
+            const isActive = activeTab === item.id;
+            const isLogout = item.id === 'logout';
+            
+            return (
+              <button
+                key={item.id}
+                className={`profile-dashboard__menu-item ${isActive ? 'active' : ''} ${isLogout ? 'logout' : ''}`}
+                onClick={() => {
+                  if (isLogout) {
+                    handleLogout();
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                }}
+              >
+                <span className="profile-dashboard__menu-icon">{item.icon}</span>
+                <span className="profile-dashboard__menu-label">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Artist Portal Switcher Banner has been removed since Artists are redirected to /artist-dashboard */}
-
-      {/* Main Content Area */}
-      <div className="profile-dashboard__content">
-        
-        {/* Sidebar */}
-        <div className="profile-dashboard__sidebar">
-          <h2 className="profile-dashboard__sidebar-title">ACCOUNT</h2>
-          <div className="profile-dashboard__menu">
-            {menuItems.map((item) => {
-              const isActive = activeTab === item.id;
-              const isLogout = item.id === 'logout';
-              
-              return (
-                <button
-                  key={item.id}
-                  className={`profile-dashboard__menu-item ${isActive ? 'active' : ''} ${isLogout ? 'logout' : ''}`}
-                  onClick={() => {
-                    if (isLogout) {
-                      handleLogout();
-                    } else {
-                      setActiveTab(item.id);
-                    }
-                  }}
-                >
-                  <span className="profile-dashboard__menu-icon">{item.icon}</span>
-                  <span className="profile-dashboard__menu-label">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-          
-          <div className="profile-premium-card">
-            <div className="profile-premium-card__icon">
-              <Crown size={28} />
+      {/* Main Content - Column 2 */}
+      <div className="profile-dashboard__main">
+        {/* Top Banner */}
+        <div className="profile-dashboard__banner">
+          <div className="profile-dashboard__user">
+            <div className="profile-dashboard__avatar-wrapper">
+              <img 
+                src={profileImage} 
+                alt={user?.name} 
+                className="profile-dashboard__avatar-img" 
+                style={{ opacity: isUploading ? 0.5 : 1, transition: 'opacity 0.2s' }}
+              />
+              <button 
+                className="profile-dashboard__avatar-edit" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                title="Upload new profile picture"
+              >
+                <Camera size={14} />
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                accept="image/*" 
+                onChange={handleAvatarUpload}
+              />
             </div>
-            <h3 className="profile-premium-card__title">Go Premium</h3>
-            <p className="profile-premium-card__desc">Unlock exclusive features and priority support.</p>
-            <button className="profile-premium-card__btn" onClick={() => navigate('/premium')}>Upgrade Now</button>
+            
+            <div className="profile-dashboard__user-details">
+              <h1 className="profile-dashboard__name">{user?.name}</h1>
+              <div className="profile-dashboard__location">
+                <MapPin size={16} />
+                <span>{location}</span>
+              </div>
+              <p className="profile-dashboard__bio">
+                "{bio}"
+              </p>
+              <div className="profile-dashboard__social">
+                {user?.artistProfile?.instagramUrl && (
+                  <a href={user.artistProfile.instagramUrl} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Camera size={18} /></a>
+                )}
+                {user?.artistProfile?.portfolioUrls && user.artistProfile.portfolioUrls.length > 0 && (
+                  <a href={user.artistProfile.portfolioUrls[0]} target="_blank" rel="noopener noreferrer" className="profile-dashboard__social-icon"><Globe size={18} /></a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="profile-dashboard__stats-card">
+            <div className="profile-dashboard__stat">
+              <div className="profile-dashboard__stat-icon">
+                <Calendar size={20} />
+              </div>
+              <span className="profile-dashboard__stat-value">{totalBookings}</span>
+              <span className="profile-dashboard__stat-label">Bookings</span>
+            </div>
+            
+            {user?.role === 'ARTIST' && (
+              <>
+                <div className="profile-dashboard__stat-divider" />
+                <div className="profile-dashboard__stat">
+                  <div className="profile-dashboard__stat-icon">
+                    <Star size={20} />
+                  </div>
+                  <span className="profile-dashboard__stat-value">{totalReviews}</span>
+                  <span className="profile-dashboard__stat-label">Reviews</span>
+                </div>
+              </>
+            )}
+
+            <div className="profile-dashboard__stat-divider" />
+            <div className="profile-dashboard__stat">
+              <div className="profile-dashboard__stat-icon">
+                <Heart size={20} />
+              </div>
+              <span className="profile-dashboard__stat-value">0</span>
+              <span className="profile-dashboard__stat-label">Favorites</span>
+            </div>
           </div>
         </div>
 
         {/* Dynamic Content pane */}
-        <div className="profile-dashboard__main">
+        <div className="profile-dashboard__dynamic-content">
           {activeTab === 'bookings' && (
             <div className="profile-bookings">
               <div className="profile-dashboard__header-row">
@@ -449,13 +430,7 @@ const ProfilePage: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'payments' && (
-            <div className="profile-dashboard__placeholder">
-              <h3>Payment Methods</h3>
-              <p>Manage your saved cards and payment preferences here.</p>
-            </div>
-          )}
-          
+
           {activeTab === 'settings' && (
             <div className="profile-settings" style={{ padding: '0' }}>
               <div className="profile-bookings__header" style={{ marginBottom: 32 }}>
