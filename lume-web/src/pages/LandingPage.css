@@ -910,7 +910,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(253, 246, 240, 0.88);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--rose-deep);

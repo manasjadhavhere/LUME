@@ -420,7 +420,7 @@
 
 .adp-tabs__tab:hover {
   color: var(--dark);
-  background: rgba(253, 246, 240, 0.6);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .adp-tabs__tab--active {

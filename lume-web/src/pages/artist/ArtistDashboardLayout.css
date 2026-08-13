@@ -21,7 +21,7 @@
   height: 120%;
   pointer-events: none;
   z-index: 0;
-  background-color: var(--cream, #fdf6f0);
+  background-color: var(--cream, #ffffff);
   background-image: 
     radial-gradient(circle at 15% 20%, rgba(248, 235, 230, 0.9) 0%, transparent 45%),
     radial-gradient(circle at 85% 15%, rgba(250, 235, 238, 0.8) 0%, transparent 40%),
@@ -284,7 +284,7 @@
 /* ── Sleek Glass Top Navigation Bar ── */
 .artist-topbar {
   height: 64px;
-  background: rgba(253, 246, 240, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(42, 26, 31, 0.08);

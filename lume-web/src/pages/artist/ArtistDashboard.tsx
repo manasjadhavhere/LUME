@@ -226,7 +226,7 @@ const ArtistDashboard: React.FC = () => {
                       </div>
                       <div style={{ flex: 1, padding: '18px 22px', borderRadius: 16, background: '#fff', boxShadow: '0 4px 15px rgba(42, 26, 31, 0.04)', border: '1px solid rgba(42, 26, 31, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'transform 0.2s' }} className="itinerary-booked-hover">
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fdf6f0', color: 'var(--dark)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#ffffff', color: 'var(--dark)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem' }}>
                             {(booking.client?.name || 'Client').charAt(0).toUpperCase()}
                           </div>
                           <div>
