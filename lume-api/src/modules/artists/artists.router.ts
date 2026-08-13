@@ -14,6 +14,7 @@ import {
   updateService,
   deleteService,
   getDashboardStats,
+  requestEdit,
 } from './artists.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
@@ -44,6 +45,7 @@ router.post('/me/certifications', ...artistAuth, uploadCertification.array('file
 
 // Verification
 router.post('/me/submit-verification', ...artistAuth, submitVerification);
+router.post('/me/request-edit', ...artistAuth, requestEdit);
 
 // Services
 router.post('/me/services', ...artistAuth, validate(addServiceSchema), addService);

@@ -4,7 +4,7 @@ import { createError } from '../../middleware/errorHandler';
 // Get artists pending verification
 export async function getPendingArtists() {
   return prisma.artistProfile.findMany({
-    where: { verificationStatus: 'PENDING' },
+    where: { verificationStatus: { in: ['PENDING', 'EDIT_REQUESTED'] } },
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true } },
       services: { where: { isActive: true } },
@@ -72,6 +72,31 @@ export async function rejectArtist(artistId: string, reason?: string) {
       userId: artist.userId,
       title: 'Verification Update',
       message: 'Your verification request requires attention.' + (reason ? ` Admin remarks: ${reason}` : ''),
+      type: 'VERIFICATION',
+    },
+  });
+
+  return updatedArtist;
+}
+
+// Approve an edit request
+export async function approveEditRequest(artistId: string) {
+  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
+  if (!artist) throw createError('Artist not found', 404);
+
+  const updatedArtist = await prisma.artistProfile.update({
+    where: { id: artistId },
+    data: {
+      verificationStatus: 'EDIT_APPROVED',
+      isVerified: false,
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      userId: artist.userId,
+      title: 'Edit Request Approved',
+      message: 'Your request to edit your profile has been approved. You can now make changes and submit for verification again.',
       type: 'VERIFICATION',
     },
   });

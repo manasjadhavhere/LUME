@@ -255,6 +255,35 @@ export async function submitForVerification(userId: string) {
   });
 }
 
+export async function requestEditAccess(userId: string) {
+  const profile = await prisma.artistProfile.findUnique({ where: { userId }, include: { user: true } });
+  if (!profile) throw createError('Artist profile not found', 404);
+
+  if (profile.verificationStatus !== 'VERIFIED') {
+    throw createError('Only verified artists can request edit access', 400);
+  }
+
+  const updated = await prisma.artistProfile.update({
+    where: { userId },
+    data: { verificationStatus: 'EDIT_REQUESTED', verificationSubmittedAt: new Date() },
+  });
+
+  // Notify Admins
+  const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+  if (admins.length > 0) {
+    await prisma.notification.createMany({
+      data: admins.map(a => ({
+        userId: a.id,
+        title: 'Edit Access Requested',
+        message: `Artist ${profile.user.name} has requested permission to edit their verified profile.`,
+        type: 'VERIFICATION',
+      })),
+    });
+  }
+
+  return updated;
+}
+
 export async function updatePricing(userId: string, data: PricingInput) {
   const profile = await prisma.artistProfile.findUnique({ where: { userId } });
   if (!profile) throw createError('Artist profile not found', 404);

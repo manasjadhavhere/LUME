@@ -29,6 +29,13 @@ export async function rejectArtist(req: Request, res: Response, next: NextFuncti
   } catch (err) { next(err); }
 }
 
+export async function approveEditRequest(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artist = await AdminService.approveEditRequest(req.params.id as string);
+    res.json({ success: true, data: artist, message: 'Edit request approved' });
+  } catch (err) { next(err); }
+}
+
 export async function updateArtistAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     const artist = await AdminService.updateArtistAdmin(req.params.id as string, req.body);

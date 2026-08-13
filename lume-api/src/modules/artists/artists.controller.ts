@@ -86,6 +86,13 @@ export async function submitVerification(req: Request, res: Response, next: Next
   } catch (err) { next(err); }
 }
 
+export async function requestEdit(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artist = await ArtistsService.requestEditAccess(req.user!.userId);
+    res.json({ success: true, data: artist, message: 'Edit request submitted' });
+  } catch (err) { next(err); }
+}
+
 export async function updatePricing(req: Request, res: Response, next: NextFunction) {
   try {
     const artist = await ArtistsService.updatePricing(req.user!.userId, req.body);

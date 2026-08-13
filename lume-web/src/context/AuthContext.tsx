@@ -14,7 +14,7 @@ export interface ArtistProfile {
   profileImageUrl?: string;
   badge?: string;
   isVerified: boolean;
-  verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
+  verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | 'EDIT_REQUESTED' | 'EDIT_APPROVED';
   isAvailable: boolean;
   rating: number;
   reviewCount: number;

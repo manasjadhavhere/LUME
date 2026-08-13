@@ -203,6 +203,18 @@ const ArtistProfile: React.FC = () => {
     setSubmitting(false);
   };
 
+  const handleRequestEdit = async () => {
+    setSubmitting(true); setVerifyMsg('');
+    try {
+      await apiExecute('/api/artists/me/request-edit', { method: 'POST' });
+      setVerifyMsg('Edit request submitted. Please wait for admin approval.');
+      await refreshUser();
+    } catch (err) {
+      setVerifyMsg(err instanceof Error ? err.message : 'Request failed');
+    }
+    setSubmitting(false);
+  };
+
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault(); if (!newServiceName || !newServicePrice) return;
     const created = await apiExecute('/api/artists/me/services', {
@@ -218,7 +230,7 @@ const ArtistProfile: React.FC = () => {
   };
 
   const verStatus = profile?.verificationStatus || 'NOT_SUBMITTED';
-  const isLocked = verStatus === 'VERIFIED';
+  const isLocked = verStatus === 'VERIFIED' || verStatus === 'EDIT_REQUESTED';
 
   return (
     <div className="artist-page">
@@ -363,10 +375,12 @@ const ArtistProfile: React.FC = () => {
               {portfolioPhotos.map((url, idx) => (
                 <div key={idx} style={{ position:'relative',borderRadius:'var(--radius-md)',overflow:'hidden',aspectRatio:'1',background:'#eee',border:'1px solid rgba(42,26,31,0.08)' }}>
                   <img src={url.startsWith('/') ? `${API_BASE}${url}` : url} alt="Portfolio" style={{ width:'100%',height:'100%',objectFit:'cover' }} />
-                  <button type="button" onClick={() => handleRemovePortfolio(url)}
-                    style={{ position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',background:'rgba(42,26,31,0.7)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer' }}>
-                    <Trash2 size={14} />
-                  </button>
+                  {!isLocked && (
+                    <button type="button" onClick={() => handleRemovePortfolio(url)}
+                      style={{ position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',background:'rgba(42,26,31,0.7)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer' }}>
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               ))}
               {portfolioPhotos.length === 0 && (
@@ -383,7 +397,7 @@ const ArtistProfile: React.FC = () => {
           <div className="artist-panel__header">
             <h2 className="artist-panel__title">Certifications & Documents</h2>
             <button type="button" className="artist-save-btn" style={{ padding:'8px 14px' }}
-              onClick={() => certInputRef.current?.click()} disabled={uploadingCert}>
+              onClick={() => certInputRef.current?.click()} disabled={uploadingCert || isLocked}>
               <Upload size={14} style={{ marginRight:6 }} />{uploadingCert ? 'Uploading...' : 'Upload Certificate'}
             </button>
           </div>
@@ -393,15 +407,8 @@ const ArtistProfile: React.FC = () => {
             <div style={{ display:'flex',flexWrap:'wrap',gap:10 }}>
               {certFiles.map((url, idx) => {
                 const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
-                // Inject fl_attachment:false to force Cloudinary to display in browser
-                let viewUrl = finalUrl;
-                if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/upload/')) {
-                  viewUrl = finalUrl.replace('/upload/', '/upload/fl_attachment:false/');
-                  if (!viewUrl.match(/\.(pdf|jpg|jpeg|png|webp|gif)$/i)) viewUrl += '.pdf';
-                }
-
                 return (
-                  <a key={idx} href={viewUrl} target="_blank" rel="noopener noreferrer"
+                  <a key={idx} href={finalUrl} target="_blank" rel="noopener noreferrer"
                     style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--rose-pale)',borderRadius:8,fontSize:'0.82rem',fontWeight:600,color:'var(--rose-deep)',border:'1px solid var(--rose-light)',textDecoration:'none' }}>
                     📄 Document {idx + 1}
                   </a>
@@ -461,28 +468,48 @@ const ArtistProfile: React.FC = () => {
         </div>
 
         {/* Submit for Verification */}
-        {verStatus !== 'VERIFIED' && (
-          <div className="artist-panel" style={{ background:'linear-gradient(135deg,#fff0f3,#fce8ec)',border:'1px solid var(--rose-light)' }}>
-            <div className="artist-panel__header"><h2 className="artist-panel__title">Submit for Verification</h2></div>
-            <div className="artist-panel__body">
-              <p style={{ fontSize:'0.9rem',color:'var(--mid)',marginBottom:16,lineHeight:1.6 }}>
-                Once you're happy with your profile, portfolio, and certifications, submit for review.
-                Our admin team will verify your profile, and you'll receive a <strong>green verified badge</strong> once approved — after which you can start accepting bookings.
-              </p>
-              {verifyMsg && (
-                <div style={{ padding:12,borderRadius:8,marginBottom:12,background: verifyMsg.includes('failed') ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)',color: verifyMsg.includes('failed') ? '#dc2626' : '#16a34a',fontSize:'0.88rem',fontWeight:500 }}>
-                  {verifyMsg}
-                </div>
+        {/* Verification & Edit Requests */}
+        <div className="artist-panel" style={{ background:'linear-gradient(135deg,#fff0f3,#fce8ec)',border:'1px solid var(--rose-light)' }}>
+          <div className="artist-panel__header"><h2 className="artist-panel__title">{verStatus === 'VERIFIED' || verStatus === 'EDIT_REQUESTED' ? 'Edit Request' : 'Submit for Verification'}</h2></div>
+          <div className="artist-panel__body">
+            <p style={{ fontSize:'0.9rem',color:'var(--mid)',marginBottom:16,lineHeight:1.6 }}>
+              {verStatus === 'VERIFIED' ? (
+                'Your profile is verified and locked to maintain authenticity. If you need to update your general information, portfolio, or documents, please request edit access.'
+              ) : verStatus === 'EDIT_REQUESTED' ? (
+                'Your edit request is pending admin approval. Once approved, you will be able to edit your profile and submit it for verification again.'
+              ) : (
+                'Once you\'re happy with your profile, portfolio, and certifications, submit for review. Our admin team will verify your profile, and you\'ll receive a green verified badge once approved.'
               )}
+            </p>
+            {verifyMsg && (
+              <div style={{ padding:12,borderRadius:8,marginBottom:12,background: verifyMsg.includes('failed') ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)',color: verifyMsg.includes('failed') ? '#dc2626' : '#16a34a',fontSize:'0.88rem',fontWeight:500 }}>
+                {verifyMsg}
+              </div>
+            )}
+            
+            {verStatus === 'VERIFIED' ? (
+              <button type="button" className="artist-save-btn"
+                style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'12px 24px',fontSize:'0.92rem' }}
+                onClick={handleRequestEdit}
+                disabled={submitting}>
+                {submitting ? 'Requesting...' : <><ShieldCheck size={16} /> Request Edit Access</>}
+              </button>
+            ) : verStatus === 'EDIT_REQUESTED' ? (
+              <button type="button" className="artist-save-btn"
+                style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'12px 24px',fontSize:'0.92rem', opacity: 0.7 }}
+                disabled>
+                <ShieldCheck size={16} /> Edit Request Pending
+              </button>
+            ) : (
               <button type="button" className="artist-save-btn"
                 style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'12px 24px',fontSize:'0.92rem' }}
                 onClick={handleSubmitVerification}
                 disabled={submitting || verStatus === 'PENDING'}>
                 {submitting ? 'Submitting...' : verStatus === 'PENDING' ? <><ShieldCheck size={16} /> Submitted — Awaiting Review</> : <><Send size={16} /> Send for Verification</>}
               </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

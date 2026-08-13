@@ -106,6 +106,22 @@ const AdminDashboard: React.FC = () => {
     setTimeout(() => setActionMsg(''), 4000);
   };
 
+  const handleApproveEdit = async (artistId: string) => {
+    setActioning(true); setActionMsg('');
+    const res = await execute(`/api/admin/artists/${artistId}/approve-edit`, { 
+      method: 'PATCH'
+    });
+    if (res) {
+      setActionMsg('✅ Edit request approved!');
+      setPendingArtists(prev => prev.filter(a => a.id !== artistId));
+      setSelectedArtist(null);
+      setStats(prev => prev ? { ...prev, pendingVerifications: prev.pendingVerifications - 1, verifiedArtists: prev.verifiedArtists - 1 } : prev);
+      loadData();
+    }
+    setActioning(false);
+    setTimeout(() => setActionMsg(''), 4000);
+  };
+
   const handleSaveEdit = async () => {
     if (!selectedArtist) return;
     setActioning(true); setActionMsg('');
@@ -361,13 +377,8 @@ const AdminDashboard: React.FC = () => {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {selectedArtist.certificationFiles.map((url, i) => {
                         const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
-                        let viewUrl = finalUrl;
-                        if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/upload/')) {
-                          viewUrl = finalUrl.replace('/upload/', '/upload/fl_attachment:false/');
-                          if (!viewUrl.match(/\.(pdf|jpg|jpeg|png|webp|gif)$/i)) viewUrl += '.pdf';
-                        }
                         return (
-                          <a key={i} href={viewUrl} target="_blank" rel="noopener noreferrer"
+                          <a key={i} href={finalUrl} target="_blank" rel="noopener noreferrer"
                             className="admin-cert-link" style={{ padding: '8px 12px', background: 'var(--rose-pale)', borderRadius: 6, color: 'var(--rose-deep)', fontWeight: 600, textDecoration: 'none', border: '1px solid var(--rose-light)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                             📄 Document {i + 1}
                           </a>
@@ -398,12 +409,20 @@ const AdminDashboard: React.FC = () => {
                 </button>
               ) : (
                 <>
-                  <button type="button" className="admin-btn admin-btn--reject" onClick={() => handleReject(selectedArtist.id)} disabled={actioning}>
-                    <ShieldAlert size={16} /> Reject
-                  </button>
-                  <button type="button" className="admin-btn admin-btn--verify" onClick={() => handleVerify(selectedArtist.id)} disabled={actioning}>
-                    <ShieldCheck size={16} /> {actioning ? 'Processing...' : '✅ Verify Artist'}
-                  </button>
+                  {selectedArtist.verificationStatus === 'EDIT_REQUESTED' ? (
+                    <button type="button" className="admin-btn admin-btn--verify" onClick={() => handleApproveEdit(selectedArtist.id)} disabled={actioning} style={{ width: '100%' }}>
+                      <ShieldCheck size={16} /> {actioning ? 'Processing...' : '✅ Approve Edit Request'}
+                    </button>
+                  ) : (
+                    <>
+                      <button type="button" className="admin-btn admin-btn--reject" onClick={() => handleReject(selectedArtist.id)} disabled={actioning}>
+                        <ShieldAlert size={16} /> Reject
+                      </button>
+                      <button type="button" className="admin-btn admin-btn--verify" onClick={() => handleVerify(selectedArtist.id)} disabled={actioning}>
+                        <ShieldCheck size={16} /> {actioning ? 'Processing...' : '✅ Verify Artist'}
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>

@@ -54,6 +54,8 @@ enum VerificationStatus {
   PENDING
   VERIFIED
   REJECTED
+  EDIT_REQUESTED
+  EDIT_APPROVED
 }
 
 // ── Users ────────────────────────────────────────────────────
