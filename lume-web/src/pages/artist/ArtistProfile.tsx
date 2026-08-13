@@ -218,6 +218,7 @@ const ArtistProfile: React.FC = () => {
   };
 
   const verStatus = profile?.verificationStatus || 'NOT_SUBMITTED';
+  const isLocked = verStatus === 'VERIFIED';
 
   return (
     <div className="artist-page">
@@ -234,20 +235,22 @@ const ArtistProfile: React.FC = () => {
         <div className="artist-panel">
           <div className="artist-panel__header"><h2 className="artist-panel__title">Profile Photo</h2></div>
           <div className="artist-panel__body" style={{ display:'flex',alignItems:'center',gap:24 }}>
-            <div style={{ position:'relative',width:96,height:96,borderRadius:'50%',overflow:'hidden',background:'var(--rose-pale)',border:'2px solid var(--rose-light)',cursor:'pointer' }}
-              onClick={() => avatarInputRef.current?.click()}>
+            <div style={{ position:'relative',width:96,height:96,borderRadius:'50%',overflow:'hidden',background:'var(--rose-pale)',border:'2px solid var(--rose-light)',cursor: isLocked ? 'default' : 'pointer', opacity: isLocked ? 0.7 : 1 }}
+              onClick={() => !isLocked && avatarInputRef.current?.click()}>
               {avatarPreview
                 ? <img src={avatarPreview.startsWith('/') ? `${API_BASE}${avatarPreview}` : avatarPreview} alt="Profile" style={{ width:'100%',height:'100%',objectFit:'cover' }} />
                 : <Camera size={32} style={{ position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',color:'var(--rose-deep)' }} />
               }
-              <div style={{ position:'absolute',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity .2s' }}
-                onMouseEnter={e => (e.currentTarget.style.opacity='1')} onMouseLeave={e => (e.currentTarget.style.opacity='0')}>
-                <Camera size={20} color="white" />
-              </div>
+              {!isLocked && (
+                <div style={{ position:'absolute',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity .2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity='1')} onMouseLeave={e => (e.currentTarget.style.opacity='0')}>
+                  <Camera size={20} color="white" />
+                </div>
+              )}
             </div>
             <div>
               <p style={{ fontSize:'0.88rem',color:'var(--mid)',marginBottom:8 }}>Upload a clear, professional photo of yourself.</p>
-              <button type="button" className="artist-save-btn" style={{ padding:'8px 16px' }} onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>
+              <button type="button" className="artist-save-btn" style={{ padding:'8px 16px' }} onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar || isLocked}>
                 <Camera size={14} style={{ marginRight:6 }} />{uploadingAvatar ? 'Uploading...' : 'Change Photo'}
               </button>
             </div>
@@ -265,18 +268,18 @@ const ArtistProfile: React.FC = () => {
             <div className="artist-form__row">
               <div className="artist-field">
                 <label className="artist-label">Location</label>
-                <input type="text" className="artist-input" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Bandra, Mumbai" required />
+                <input type="text" className="artist-input" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Bandra, Mumbai" required disabled={isLocked} />
               </div>
               <div className="artist-field">
                 <label className="artist-label">Years of Experience</label>
-                <input type="number" className="artist-input" value={experience} onChange={e => setExperience(e.target.value)} min="0" max="50" />
+                <input type="number" className="artist-input" value={experience} onChange={e => setExperience(e.target.value)} min="0" max="50" disabled={isLocked} />
               </div>
             </div>
 
             <div className="artist-form__row">
               <div className="artist-field">
                 <label className="artist-label">Gender</label>
-                <select className="artist-input" value={gender} onChange={e => setGender(e.target.value)}>
+                <select className="artist-input" value={gender} onChange={e => setGender(e.target.value)} disabled={isLocked}>
                   <option value="">Prefer not to say</option>
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
@@ -285,24 +288,25 @@ const ArtistProfile: React.FC = () => {
               </div>
               <div className="artist-field">
                 <label className="artist-label">Certification / Academy</label>
-                <input type="text" className="artist-input" value={certification} onChange={e => setCertification(e.target.value)} placeholder="e.g. Certified Makeup Artist — VLCC" />
+                <input type="text" className="artist-input" value={certification} onChange={e => setCertification(e.target.value)} placeholder="e.g. Certified Makeup Artist — VLCC" disabled={isLocked} />
               </div>
             </div>
 
             <div className="artist-field">
               <label className="artist-label">Artist Bio</label>
-              <textarea className="artist-textarea" value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell clients about your style, experience, and beauty philosophy..." rows={4} />
+              <textarea className="artist-textarea" value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell clients about your style, experience, and beauty philosophy..." rows={4} disabled={isLocked} />
             </div>
 
             <div className="artist-field">
               <label className="artist-label">Specialties</label>
               <div style={{ display:'flex',flexWrap:'wrap',gap:8,marginTop:6 }}>
                 {SPECIALTIES_LIST.map(s => (
-                  <button key={s} type="button" onClick={() => toggleSpecialty(s)}
-                    style={{ padding:'6px 14px',borderRadius:'999px',fontSize:'0.8rem',fontWeight:600,cursor:'pointer',border:'1.5px solid',
+                  <button key={s} type="button" onClick={() => !isLocked && toggleSpecialty(s)} disabled={isLocked}
+                    style={{ padding:'6px 14px',borderRadius:'999px',fontSize:'0.8rem',fontWeight:600,cursor: isLocked ? 'default' : 'pointer',border:'1.5px solid',
                       borderColor: specialties.includes(s) ? 'var(--rose-deep)' : 'rgba(42,26,31,0.12)',
                       background: specialties.includes(s) ? 'var(--rose-light)' : 'white',
-                      color: specialties.includes(s) ? 'var(--rose-deep)' : 'var(--mid)' }}>
+                      color: specialties.includes(s) ? 'var(--rose-deep)' : 'var(--mid)',
+                      opacity: isLocked ? 0.8 : 1 }}>
                     {s}
                   </button>
                 ))}
@@ -310,8 +314,8 @@ const ArtistProfile: React.FC = () => {
             </div>
 
             <div style={{ display:'flex',justifyContent:'flex-end',marginTop:8 }}>
-              <button type="submit" className="artist-save-btn" disabled={loading}>
-                {loading ? 'Saving...' : 'Save Changes'}
+              <button type="submit" className="artist-save-btn" disabled={loading || isLocked}>
+                {loading ? 'Saving...' : (isLocked ? 'Locked (Verified)' : 'Save Changes')}
               </button>
             </div>
           </form>
@@ -387,12 +391,22 @@ const ArtistProfile: React.FC = () => {
             <p style={{ fontSize:'0.85rem',color:'var(--mid)',marginBottom:12 }}>Upload certificates, diplomas, or other credentials. These are reviewed by our admin team for verification.</p>
             <input ref={certInputRef} type="file" accept="image/*,.pdf" multiple hidden onChange={handleCertChange} />
             <div style={{ display:'flex',flexWrap:'wrap',gap:10 }}>
-              {certFiles.map((url, idx) => (
-                <a key={idx} href={url.startsWith('/') ? `${API_BASE}${url}` : url} target="_blank" rel="noopener noreferrer"
-                  style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--rose-pale)',borderRadius:8,fontSize:'0.82rem',fontWeight:600,color:'var(--rose-deep)',border:'1px solid var(--rose-light)',textDecoration:'none' }}>
-                  Document {idx + 1}
-                </a>
-              ))}
+              {certFiles.map((url, idx) => {
+                const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                // Inject fl_attachment:false to force Cloudinary to display in browser
+                let viewUrl = finalUrl;
+                if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/upload/')) {
+                  viewUrl = finalUrl.replace('/upload/', '/upload/fl_attachment:false/');
+                  if (!viewUrl.match(/\.(pdf|jpg|jpeg|png|webp|gif)$/i)) viewUrl += '.pdf';
+                }
+
+                return (
+                  <a key={idx} href={viewUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--rose-pale)',borderRadius:8,fontSize:'0.82rem',fontWeight:600,color:'var(--rose-deep)',border:'1px solid var(--rose-light)',textDecoration:'none' }}>
+                    📄 Document {idx + 1}
+                  </a>
+                );
+              })}
               {certFiles.length === 0 && <p style={{ color:'var(--mid)',fontSize:'0.85rem' }}>No documents uploaded yet.</p>}
             </div>
           </div>

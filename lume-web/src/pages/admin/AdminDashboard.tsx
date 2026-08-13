@@ -359,10 +359,20 @@ const AdminDashboard: React.FC = () => {
                   <div className="admin-modal__section">
                     <div className="admin-modal__label">Certifications ({selectedArtist.certificationFiles.length} docs)</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {selectedArtist.certificationFiles.map((url, i) => (
-                        <a key={i} href={url.startsWith('/') ? `${API_BASE}${url}` : url} target="_blank" rel="noopener noreferrer"
-                          className="admin-cert-link">📄 Document {i + 1}</a>
-                      ))}
+                      {selectedArtist.certificationFiles.map((url, i) => {
+                        const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                        let viewUrl = finalUrl;
+                        if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/upload/')) {
+                          viewUrl = finalUrl.replace('/upload/', '/upload/fl_attachment:false/');
+                          if (!viewUrl.match(/\.(pdf|jpg|jpeg|png|webp|gif)$/i)) viewUrl += '.pdf';
+                        }
+                        return (
+                          <a key={i} href={viewUrl} target="_blank" rel="noopener noreferrer"
+                            className="admin-cert-link" style={{ padding: '8px 12px', background: 'var(--rose-pale)', borderRadius: 6, color: 'var(--rose-deep)', fontWeight: 600, textDecoration: 'none', border: '1px solid var(--rose-light)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            📄 Document {i + 1}
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
