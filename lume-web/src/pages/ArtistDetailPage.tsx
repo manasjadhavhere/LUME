@@ -736,6 +736,7 @@ const ArtistDetailPage: React.FC = () => {
                 onClick={handleBookingConfirm}
                 disabled={!isBookingReady || bookingLoading || showSuccessModal}
                 className="booking-sidebar__submit-btn"
+                style={{ width: '100%' }}
               >
                 {bookingLoading ? (
                   <Loader2 className="spinner" size={20} />

@@ -42,6 +42,11 @@ const ArtistBookings: React.FC = () => {
       }) as any;
       if (res.success) {
         execute('/api/artists/me/bookings');
+        if (newStatus === 'ACCEPTED' || newStatus === 'CONFIRMED') {
+          setActiveTab('UPCOMING');
+        } else if (newStatus === 'CANCELLED' || newStatus === 'COMPLETED') {
+          setActiveTab('PAST');
+        }
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to update booking status');
