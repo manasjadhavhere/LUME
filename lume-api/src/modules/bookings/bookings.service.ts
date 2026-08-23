@@ -47,6 +47,7 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
       artistId: data.artistId,
       date: new Date(data.date),
       time: data.time,
+      status: 'PENDING',
       createdAt: { gte: fiveMinutesAgo }
     }
   });
