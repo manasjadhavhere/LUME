@@ -6,7 +6,6 @@ import {
   HelpCircle,
   LogOut,
   MapPin,
-  ChevronRight,
   Sparkles,
   LogIn,
   UserPlus,
@@ -16,7 +15,8 @@ import {
   Camera,
   ShieldCheck,
   Clock,
-  Headset
+  Headset,
+  Loader2
 } from 'lucide-react';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import './ProfilePage.css';
@@ -27,6 +27,17 @@ interface MenuItem {
   label: string;
 }
 
+// Helper to dynamically load the Razorpay script
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
@@ -35,6 +46,7 @@ const ProfilePage: React.FC = () => {
   
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+  const [payingBookingId, setPayingBookingId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -82,6 +94,78 @@ const ProfilePage: React.FC = () => {
       console.error('Failed to fetch bookings:', error);
     } finally {
       setIsLoadingBookings(false);
+    }
+  };
+
+  const handlePayNow = async (booking: any) => {
+    if (!user) return;
+    setPayingBookingId(booking.id);
+    
+    try {
+      const resLoad = await loadRazorpayScript();
+      if (!resLoad) throw new Error('Razorpay SDK failed to load. Are you online?');
+
+      const orderRes = await fetch(`${API_BASE}/api/payments/pay-booking`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ bookingId: booking.id }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderData.success) throw new Error(orderData.message || 'Failed to create order');
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', 
+        amount: orderData.data.amount,
+        currency: orderData.data.currency,
+        name: 'LUME',
+        description: `Booking Payment`,
+        image: 'https://i.imgur.com/K3VqQ5n.png', 
+        order_id: orderData.data.id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await fetch(`${API_BASE}/api/payments/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                bookingId: booking.id
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyData.success) throw new Error('Payment verification failed');
+            
+            // Refresh bookings
+            fetchBookings();
+            alert('Payment successful! Your booking is now confirmed.');
+          } catch (err) {
+            console.error(err);
+            alert('Payment verification failed.');
+          } finally {
+            setPayingBookingId(null);
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: {
+          color: '#e11d48',
+        },
+        modal: {
+          ondismiss: function () {
+            setPayingBookingId(null);
+          }
+        }
+      };
+      
+      const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.open();
+
+    } catch (err: any) {
+      alert(err.message || 'Payment initiation failed.');
+      setPayingBookingId(null);
     }
   };
 
@@ -403,6 +487,15 @@ const ProfilePage: React.FC = () => {
                     const displayImage = image || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=80';
                     const displayLocation = booking.address || 'Location not set';
                     
+                    const isPending = booking.status === 'PENDING';
+                    const isAccepted = booking.status === 'ACCEPTED';
+                    const isConfirmed = booking.status === 'CONFIRMED';
+                    
+                    let displayStatus = booking.status;
+                    if (isPending) displayStatus = 'Request sent';
+                    if (isAccepted) displayStatus = 'Pending Payment';
+                    if (isConfirmed) displayStatus = 'Booking Done';
+
                     return (
                       <div key={booking.id} className="profile-booking-card">
                         <img src={displayImage} alt={title} className="profile-booking-card__image" />
@@ -416,11 +509,21 @@ const ProfilePage: React.FC = () => {
                             <span>{displayLocation}</span>
                           </div>
                         </div>
-                        <div className="profile-booking-card__actions">
+                        <div className="profile-booking-card__actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                           <div className={`profile-booking-card__status status--${booking.status.toLowerCase()}`}>
-                            {booking.status}
+                            {displayStatus}
                           </div>
-                          <ChevronRight size={18} className="profile-booking-card__arrow" />
+                          
+                          {isAccepted && user?.role === 'CLIENT' && (
+                            <button 
+                              onClick={() => handlePayNow(booking)}
+                              disabled={payingBookingId === booking.id}
+                              style={{ padding: '6px 16px', background: 'var(--dark)', color: '#fff', border: 'none', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            >
+                              {payingBookingId === booking.id ? <Loader2 size={14} className="spinner" /> : null}
+                              Pay Now (₹{booking.totalPaid})
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

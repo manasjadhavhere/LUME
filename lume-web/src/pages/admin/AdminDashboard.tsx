@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar, BarChart2, BadgeCheck, Clock, X, Home, Briefcase, User as UserIcon, ExternalLink } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, ExternalLink, Settings, MapPin, Star } from 'lucide-react';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
-import { API_BASE } from '../../context/AuthContext';
 import './AdminDashboard.css';
 
 interface ArtistProfile {
@@ -201,400 +200,423 @@ const AdminDashboard: React.FC = () => {
     <div className="admin-layout">
       {/* Sidebar */}
       <aside className="admin-sidebar">
-        <div className="admin-sidebar-header">
-          <Link to="/" className="admin-sidebar-logo">
-            <ShieldCheck size={24} color="#3b82f6" /> LUME Admin
+        <div className="admin-sidebar__header">
+          <Link to="/" className="admin-sidebar__brand">
+            <div className="admin-sidebar__brand-dot"></div>
+            LUME
           </Link>
         </div>
-        <div className="admin-sidebar-menu">
-          <button className={`admin-menu-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <Home size={18} /> Dashboard Overview
+        <nav className="admin-sidebar__nav">
+          <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+            <BarChart2 size={18} />
+            <span>Overview</span>
           </button>
-          <button className={`admin-menu-item ${activeTab === 'artists' ? 'active' : ''}`} onClick={() => setActiveTab('artists')}>
-            <Briefcase size={18} /> Artist Directory
-            {pendingArtists.length > 0 && <span className="admin-menu-badge">{pendingArtists.length}</span>}
+          <button className={`admin-nav-item ${activeTab === 'artists' ? 'active' : ''}`} onClick={() => setActiveTab('artists')}>
+            <Briefcase size={18} />
+            <span>Artists</span>
+            {pendingArtists.length > 0 && (
+              <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem' }}>
+                {pendingArtists.length}
+              </span>
+            )}
           </button>
-          <button className={`admin-menu-item ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => setActiveTab('clients')}>
-            <UserIcon size={18} /> Client Directory
+          <button className={`admin-nav-item ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => setActiveTab('clients')}>
+            <Users size={18} />
+            <span>Clients</span>
+          </button>
+        </nav>
+        <div className="admin-sidebar__footer">
+          <button className="admin-nav-item" onClick={() => navigate('/profile')}>
+            <Home size={18} />
+            <span>Exit Admin</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Area */}
+      {/* Main Content */}
       <main className="admin-main">
-        {/* Topbar */}
-        <header className="admin-topbar">
-          <div className="admin-topbar-title">
+        <header className="admin-header">
+          <h1 className="admin-header__title">
             {activeTab === 'dashboard' && 'Dashboard Overview'}
-            {activeTab === 'artists' && 'Artist Directory'}
+            {activeTab === 'artists' && 'Artist Management'}
             {activeTab === 'clients' && 'Client Directory'}
-          </div>
-          <div className="admin-topbar-right">
+          </h1>
+          <div className="admin-header__actions">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8fafc', padding: '6px 16px', borderRadius: 99, border: '1px solid #e2e8f0' }}>
+              <ShieldCheck size={16} color="#10b981" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>Admin Portal</span>
+            </div>
             {actionMsg && (
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: actionMsg.startsWith('✅') ? '#059669' : '#dc2626' }}>
+              <div style={{ background: '#10b981', color: '#fff', padding: '6px 16px', borderRadius: 99, fontSize: '0.85rem', fontWeight: 600, animation: 'fadeIn 0.3s' }}>
                 {actionMsg}
-              </span>
+              </div>
             )}
-            <div className="admin-user-info">Signed in as <strong>{user?.email}</strong></div>
-            <button onClick={() => navigate('/')} className="admin-back-btn">
-              <ExternalLink size={16} /> Back to Site
-            </button>
           </div>
         </header>
 
-        {/* Content Area */}
         <div className="admin-content">
-          {activeTab === 'dashboard' && stats && (
+          {!stats ? (
+            <div className="admin-loading">
+              <Clock size={32} className="spinner" />
+              <span>Loading workspace data...</span>
+            </div>
+          ) : activeTab === 'dashboard' ? (
             <>
-              <div className="admin-stats-grid">
-                {[
-                  { label: 'Total Clients', value: stats.totalUsers, icon: <Users size={20} />, color: '#6366f1' },
-                  { label: 'Total Artists', value: stats.totalArtists, icon: <BarChart2 size={20} />, color: '#f59e0b' },
-                  { label: 'Verified Artists', value: stats.verifiedArtists, icon: <BadgeCheck size={20} />, color: '#10b981' },
-                  { label: 'Pending Reviews', value: stats.pendingVerifications, icon: <Clock size={20} />, color: '#ef4444' },
-                  { label: 'Total Bookings', value: stats.totalBookings, icon: <Calendar size={20} />, color: '#8b5cf6' },
-                ].map(s => (
-                  <div key={s.label} className="admin-stat-card">
-                    <div className="admin-stat-card-header">
-                      <div className="admin-stat-icon" style={{ background: `${s.color}18`, color: s.color }}>{s.icon}</div>
-                    </div>
-                    <div className="admin-stat-value">{s.value}</div>
-                    <div className="admin-stat-label">{s.label}</div>
+              {/* KPIs */}
+              <div className="admin-kpi-grid">
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                    <Users size={24} />
                   </div>
-                ))}
-              </div>
-
-              {stats.charts && (
-                <div className="admin-charts-grid">
-                  <div className="admin-chart-card">
-                    <h3 className="admin-chart-title">User Growth (Last 6 Months)</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={stats.charts.userGrowth}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
-                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                        <Legend iconType="circle" wrapperStyle={{paddingTop: 20}} />
-                        <Line type="monotone" dataKey="clients" name="New Clients" stroke="#6366f1" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
-                        <Line type="monotone" dataKey="artists" name="New Artists" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <div className="admin-chart-card">
-                    <h3 className="admin-chart-title">Booking Trends (Last 6 Months)</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={stats.charts.bookingTrends}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
-                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} cursor={{fill: '#f1f5f9'}} />
-                        <Legend iconType="circle" wrapperStyle={{paddingTop: 20}} />
-                        <Bar dataKey="completed" name="Completed" stackId="a" fill="#10b981" radius={[0,0,4,4]} />
-                        <Bar dataKey="cancelled" name="Cancelled" stackId="a" fill="#ef4444" />
-                        <Bar dataKey="other" name="Other/Pending" stackId="a" fill="#94a3b8" radius={[4,4,0,0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <div className="admin-chart-card">
-                    <h3 className="admin-chart-title">Artist Verification Distribution</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={stats.charts.verificationDist}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={80}
-                          outerRadius={110}
-                          paddingAngle={2}
-                          dataKey="value"
-                        >
-                          {stats.charts.verificationDist.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
-                        <Legend iconType="circle" layout="vertical" verticalAlign="middle" align="right" />
-                      </PieChart>
-                    </ResponsiveContainer>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Total Users</div>
+                    <div className="admin-kpi-value">{stats.totalUsers}</div>
                   </div>
                 </div>
-              )}
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>
+                    <Briefcase size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Total Artists</div>
+                    <div className="admin-kpi-value">{stats.totalArtists}</div>
+                  </div>
+                </div>
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#fffbeb', color: '#f59e0b' }}>
+                    <Clock size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Pending Verifications</div>
+                    <div className="admin-kpi-value">{stats.pendingVerifications}</div>
+                  </div>
+                </div>
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#f0fdf4', color: '#22c55e' }}>
+                    <Calendar size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Total Bookings</div>
+                    <div className="admin-kpi-value">{stats.totalBookings}</div>
+                  </div>
+                </div>
+              </div>
 
-              {pendingArtists.length > 0 && (
-                <div>
-                  <h3 style={{ marginBottom: 16, color: '#0f172a' }}>Pending Verifications</h3>
-                  <div className="admin-table-container">
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Artist</th>
-                          <th>Location</th>
-                          <th>Status</th>
-                          <th>Submitted</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pendingArtists.map(artist => (
-                          <tr key={artist.id}>
-                            <td>
-                              <div className="admin-table-user">
-                                <div className="admin-table-avatar">
-                                  {artist.profileImageUrl ? <img src={`${API_BASE}${artist.profileImageUrl}`} alt={artist.user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : artist.user.name[0]}
-                                </div>
-                                <div>
-                                  <div className="admin-table-name">{artist.user.name}</div>
-                                  <div className="admin-table-email">{artist.user.email}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>{artist.location || '-'}</td>
-                            <td><span className="admin-badge pending">PENDING</span></td>
-                            <td>{artist.verificationSubmittedAt ? new Date(artist.verificationSubmittedAt).toLocaleDateString() : '-'}</td>
-                            <td>
-                              <button className="admin-btn" onClick={() => openArtistModal(artist)}>Review</button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+              {/* Charts */}
+              {stats.charts && (
+                <div className="admin-charts-grid">
+                  {/* User Growth Chart */}
+                  <div className="admin-chart-card">
+                    <div className="admin-chart-header">
+                      <h3 className="admin-chart-title">User Growth</h3>
+                    </div>
+                    <div style={{ width: '100%', height: 300 }}>
+                      <ResponsiveContainer>
+                        <LineChart data={stats.charts.userGrowth} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                          <RechartsTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+                          <Legend wrapperStyle={{ paddingTop: 20 }} />
+                          <Line type="monotone" name="Clients" dataKey="clients" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                          <Line type="monotone" name="Artists" dataKey="artists" stroke="#e11d48" strokeWidth={3} dot={{ r: 4, fill: '#e11d48', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Verification Distribution */}
+                  <div className="admin-chart-card">
+                    <div className="admin-chart-header">
+                      <h3 className="admin-chart-title">Artist Status</h3>
+                    </div>
+                    <div style={{ width: '100%', height: 300 }}>
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <Pie
+                            data={stats.charts.verificationDist}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={100}
+                            paddingAngle={5}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            {stats.charts.verificationDist.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+                          <Legend wrapperStyle={{ paddingTop: 20 }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
               )}
             </>
-          )}
-
-          {activeTab === 'artists' && (
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Artist</th>
-                    <th>Status</th>
-                    <th>Taking Bookings? (Admin Override)</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allArtists.length === 0 && (
+          ) : activeTab === 'artists' ? (
+            <div className="admin-table-card">
+              <div className="admin-table-header">
+                <h3 className="admin-table-title">Registered Artists</h3>
+              </div>
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
                     <tr>
-                      <td colSpan={4}>
-                        <div className="admin-empty-state">
-                          <Users size={40} />
-                          <h3>No artists found</h3>
-                        </div>
-                      </td>
+                      <th>Artist</th>
+                      <th>Status</th>
+                      <th>Location</th>
+                      <th>Rating</th>
+                      <th>Bookings Toggle</th>
+                      <th>Actions</th>
                     </tr>
-                  )}
-                  {allArtists.map(artist => (
-                    <tr key={artist.id}>
-                      <td>
-                        <div className="admin-table-user">
-                          <div className="admin-table-avatar">
-                            {artist.profileImageUrl ? <img src={`${API_BASE}${artist.profileImageUrl}`} alt={artist.user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : artist.user.name[0]}
+                  </thead>
+                  <tbody>
+                    {allArtists.map(a => (
+                      <tr key={a.id}>
+                        <td>
+                          <div className="admin-user-cell">
+                            {a.profileImageUrl || a.user.avatarUrl ? (
+                              <img src={a.profileImageUrl || a.user.avatarUrl} alt={a.user.name} className="admin-user-avatar" />
+                            ) : (
+                              <div className="admin-user-avatar">{a.user.name.charAt(0)}</div>
+                            )}
+                            <div className="admin-user-details">
+                              <span className="admin-user-name">{a.user.name}</span>
+                              <span className="admin-user-email">{a.user.email}</span>
+                            </div>
                           </div>
-                          <div>
-                            <div className="admin-table-name">{artist.user.name}</div>
-                            <div className="admin-table-email">{artist.user.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`admin-badge ${artist.verificationStatus.toLowerCase()}`}>
-                          {artist.verificationStatus}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <button 
-                            className="admin-toggle-switch" 
-                            style={{ background: artist.isTakingBookings ? '#10b981' : '#cbd5e1' }}
-                            onClick={() => toggleBookingStatusAdmin(artist.id, !!artist.isTakingBookings)}
-                            disabled={actioning}
-                          >
-                            <div className="dot" style={{ left: artist.isTakingBookings ? '22px' : '2px' }} />
-                          </button>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                            {artist.isTakingBookings ? 'ON' : 'OFF'}
+                        </td>
+                        <td>
+                          <span className={`admin-badge admin-badge--${a.verificationStatus === 'VERIFIED' ? 'success' : a.verificationStatus === 'PENDING' ? 'warning' : 'danger'}`}>
+                            {a.verificationStatus}
                           </span>
-                        </div>
-                      </td>
-                      <td>
-                        <button className="admin-btn outline" onClick={() => openArtistModal(artist)}>Manage</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {activeTab === 'clients' && (
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Client</th>
-                    <th>Joined Date</th>
-                    <th>Location</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.length === 0 && (
-                    <tr>
-                      <td colSpan={4}>
-                        <div className="admin-empty-state">
-                          <Users size={40} />
-                          <h3>No clients found</h3>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  {clients.map(client => (
-                    <tr key={client.id}>
-                      <td>
-                        <div className="admin-table-user">
-                          <div className="admin-table-avatar">{client.name[0]}</div>
-                          <div>
-                            <div className="admin-table-name">{client.name}</div>
-                            <div className="admin-table-email">{client.email}</div>
+                        </td>
+                        <td>{a.location || 'N/A'}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#f59e0b' }}>
+                            <Star size={14} fill="currentColor" />
+                            <span style={{ color: '#334155', fontWeight: 600 }}>{a.rating.toFixed(1)}</span>
                           </div>
-                        </div>
-                      </td>
-                      <td>{new Date(client.createdAt).toLocaleDateString()}</td>
-                      <td>{client.clientProfile?.location || '-'}</td>
-                      <td>
-                        <button className="admin-btn danger" onClick={() => handleDeleteUser(client.id, 'client')} disabled={actioning}>
-                          Delete Account
-                        </button>
-                      </td>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <label className="admin-switch">
+                              <input 
+                                type="checkbox" 
+                                checked={a.isTakingBookings}
+                                disabled={actioning}
+                                onChange={() => toggleBookingStatusAdmin(a.id, !!a.isTakingBookings)}
+                              />
+                              <span className="admin-switch-slider"></span>
+                            </label>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{a.isTakingBookings ? 'ON' : 'OFF'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <button className="admin-btn-icon" onClick={() => openArtistModal(a)} title="Manage Artist">
+                            <Settings size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {allArtists.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No artists found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="admin-table-card">
+              <div className="admin-table-header">
+                <h3 className="admin-table-title">Registered Clients</h3>
+              </div>
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Joined</th>
+                      <th>Location</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {clients.map(c => (
+                      <tr key={c.id}>
+                        <td>
+                          <div className="admin-user-cell">
+                            <div className="admin-user-avatar">{c.name.charAt(0)}</div>
+                            <div className="admin-user-details">
+                              <span className="admin-user-name">{c.name}</span>
+                              <span className="admin-user-email">{c.email}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td>{c.clientProfile?.location || 'N/A'}</td>
+                        <td>
+                          <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => handleDeleteUser(c.id, 'client')} title="Delete User">
+                            <X size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {clients.length === 0 && (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No clients found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
       </main>
 
-      {/* Artist Detail Modal */}
+      {/* Artist Management Modal */}
       {selectedArtist && (
-        <div className="admin-modal-overlay" onClick={() => setSelectedArtist(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <button className="admin-modal__close" onClick={() => setSelectedArtist(null)} style={{ position: 'absolute', top: 24, right: 24, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={24} /></button>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 800, padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Manage Artist: {selectedArtist.user.name}</h2>
+              <button className="admin-btn-icon" onClick={() => setSelectedArtist(null)}><X size={20} /></button>
+            </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
-              <div className="admin-table-avatar" style={{ width: 80, height: 80, fontSize: '2rem' }}>
-                {selectedArtist.profileImageUrl ? <img src={`${API_BASE}${selectedArtist.profileImageUrl}`} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : selectedArtist.user.name[0]}
-              </div>
-              <div>
-                <h2 style={{ margin: '0 0 4px', fontSize: '1.5rem', color: '#0f172a' }}>{selectedArtist.user.name}</h2>
-                <div style={{ color: '#64748b', fontSize: '0.9rem' }}>{selectedArtist.user.email} | {selectedArtist.location}</div>
-                <div style={{ marginTop: 8 }}>
-                  <span className={`admin-badge ${selectedArtist.verificationStatus.toLowerCase()}`}>{selectedArtist.verificationStatus}</span>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: 12, marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid #e2e8f0' }}>
-              <button className="admin-btn outline" onClick={() => setIsEditMode(!isEditMode)}>
-                {isEditMode ? 'Cancel Edit' : 'Edit Profile'}
-              </button>
-              <button className="admin-btn danger" onClick={() => handleDeleteUser(selectedArtist.id, 'artist')}>
-                Delete Artist
-              </button>
-            </div>
-
-            {isEditMode ? (
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 6 }}>Verification Status</label>
-                  <select style={{ width: '100%', padding: '10px', borderRadius: 6, border: '1px solid #cbd5e1' }} value={editFormData.verificationStatus} onChange={e => setEditFormData({...editFormData, verificationStatus: e.target.value})}>
-                    <option value="NOT_SUBMITTED">Not Submitted</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="VERIFIED">Verified</option>
-                    <option value="REJECTED">Rejected</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: 6 }}>Bio</label>
-                  <textarea style={{ width: '100%', padding: '10px', borderRadius: 6, border: '1px solid #cbd5e1' }} rows={4} value={editFormData.bio} onChange={e => setEditFormData({...editFormData, bio: e.target.value})} />
-                </div>
-                <button className="admin-btn success" onClick={handleSaveEdit} disabled={actioning}>Save Changes</button>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gap: 24 }}>
-                {/* Admin Booking Override */}
-                <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                  <h4 style={{ margin: '0 0 12px', color: '#0f172a' }}>Admin Booking Status Override</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <button 
-                      className="admin-toggle-switch" 
-                      style={{ background: selectedArtist.isTakingBookings ? '#10b981' : '#cbd5e1' }}
-                      onClick={() => toggleBookingStatusAdmin(selectedArtist.id, !!selectedArtist.isTakingBookings)}
-                      disabled={actioning}
-                    >
-                      <div className="dot" style={{ left: selectedArtist.isTakingBookings ? '22px' : '2px' }} />
-                    </button>
-                    <span style={{ fontSize: '0.9rem', color: '#475569' }}>
-                      {selectedArtist.isTakingBookings ? 'Currently TAKING BOOKINGS' : 'Currently NOT TAKING BOOKINGS'}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '8px 0 0' }}>This overrides the status instantly, ignoring the 48-hour artist cooldown.</p>
-                </div>
-
-                {selectedArtist.verificationStatus === 'PENDING' && (
-                  <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px dashed #cbd5e1' }}>
-                    <h4 style={{ margin: '0 0 12px', color: '#0f172a' }}>Verification Actions</h4>
-                    <textarea 
-                      placeholder="Admin remarks (optional, sent to artist)..." 
-                      style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #cbd5e1', marginBottom: 12 }} 
-                      rows={3} 
-                      value={remarks} 
-                      onChange={e => setRemarks(e.target.value)} 
-                    />
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <button className="admin-btn success" onClick={() => handleVerify(selectedArtist.id)} disabled={actioning}>Approve</button>
-                      <button className="admin-btn danger" onClick={() => handleReject(selectedArtist.id)} disabled={actioning}>Reject</button>
+            <div style={{ padding: '32px', maxHeight: '70vh', overflowY: 'auto' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                
+                {/* Left Col */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Profile Info</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {isEditMode ? (
+                        <>
+                          <input type="text" value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} placeholder="Name" style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none' }} />
+                          <input type="text" value={editFormData.location} onChange={e => setEditFormData({...editFormData, location: e.target.value})} placeholder="Location" style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none' }} />
+                          <textarea value={editFormData.bio} onChange={e => setEditFormData({...editFormData, bio: e.target.value})} placeholder="Bio" style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', minHeight: 80 }} />
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: '1rem', fontWeight: 600 }}>{selectedArtist.user.name}</div>
+                          <div style={{ fontSize: '0.875rem', color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14}/> {selectedArtist.location || 'No location'}</div>
+                          <div style={{ fontSize: '0.875rem', color: '#475569' }}>{selectedArtist.bio || 'No bio provided'}</div>
+                        </>
+                      )}
                     </div>
                   </div>
-                )}
-                
-                {selectedArtist.verificationStatus === 'EDIT_REQUESTED' && (
-                  <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px dashed #cbd5e1' }}>
-                     <h4 style={{ margin: '0 0 12px', color: '#0f172a' }}>Edit Requested</h4>
-                     <button className="admin-btn success" onClick={() => handleApproveEdit(selectedArtist.id)} disabled={actioning}>Approve Edit Request</button>
-                  </div>
-                )}
-
-                {selectedArtist.portfolioUrls.length > 0 && (
+                  
                   <div>
-                    <h4 style={{ margin: '0 0 12px', color: '#0f172a' }}>Portfolio</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 8 }}>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Documents & Links</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {selectedArtist.portfolioUrls.map((url, i) => (
-                        <img key={i} src={url.startsWith('/') ? `${API_BASE}${url}` : url} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8 }} alt="Portfolio" />
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                          <ExternalLink size={14} /> Portfolio Link {i+1}
+                        </a>
                       ))}
-                    </div>
-                  </div>
-                )}
-                
-                {selectedArtist.certificationFiles.length > 0 && (
-                  <div>
-                    <h4 style={{ margin: '0 0 12px', color: '#0f172a' }}>Certifications</h4>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {selectedArtist.certificationFiles.map((url, i) => (
-                        <a key={i} href={url.startsWith('/') ? `${API_BASE}${url}` : url} target="_blank" rel="noreferrer" style={{ padding: '8px 12px', background: '#f1f5f9', color: '#0f172a', textDecoration: 'none', borderRadius: 6, fontSize: '0.85rem', fontWeight: 500 }}>
-                          Document {i+1} ↗
+                      {selectedArtist.certificationFiles.map((file, i) => (
+                        <a key={i} href={file} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                          <ExternalLink size={14} /> Certificate {i+1}
                         </a>
                       ))}
                     </div>
                   </div>
-                )}
+                </div>
+
+                {/* Right Col */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Status & Settings</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: 8 }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Verification</span>
+                        {isEditMode ? (
+                          <select value={editFormData.verificationStatus} onChange={e => setEditFormData({...editFormData, verificationStatus: e.target.value})} style={{ padding: '6px', borderRadius: 4, border: '1px solid #e2e8f0' }}>
+                            <option value="PENDING">Pending</option>
+                            <option value="VERIFIED">Verified</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="EDIT_REQUESTED">Edit Requested</option>
+                          </select>
+                        ) : (
+                          <span className={`admin-badge admin-badge--${selectedArtist.verificationStatus === 'VERIFIED' ? 'success' : 'warning'}`}>
+                            {selectedArtist.verificationStatus}
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: 8 }}>
+                        <div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Taking Bookings</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Admin Override</div>
+                        </div>
+                        <label className="admin-switch">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedArtist.isTakingBookings}
+                            disabled={actioning}
+                            onChange={() => toggleBookingStatusAdmin(selectedArtist.id, !!selectedArtist.isTakingBookings)}
+                          />
+                          <span className="admin-switch-slider"></span>
+                        </label>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Admin Actions</h3>
+                    
+                    {selectedArtist.verificationStatus === 'PENDING' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                        <textarea 
+                          placeholder="Optional remarks for verification..." 
+                          value={remarks} 
+                          onChange={(e) => setRemarks(e.target.value)} 
+                          style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', fontSize: '0.875rem' }} 
+                        />
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button onClick={() => handleVerify(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Verify Artist</button>
+                          <button onClick={() => handleReject(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Reject</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedArtist.verificationStatus === 'EDIT_REQUESTED' && (
+                      <button onClick={() => handleApproveEdit(selectedArtist.id)} disabled={actioning} style={{ width: '100%', padding: '10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginBottom: 16 }}>
+                        Approve Edit Request
+                      </button>
+                    )}
+
+                    {isEditMode ? (
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <button onClick={handleSaveEdit} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
+                        <button onClick={() => setIsEditMode(false)} style={{ padding: '10px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setIsEditMode(true)} style={{ width: '100%', padding: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#0f172a', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
+                        Edit Profile Details
+                      </button>
+                    )}
+
+                    <button 
+                      onClick={() => handleDeleteUser(selectedArtist.user.id, 'artist')} 
+                      disabled={actioning} 
+                      style={{ width: '100%', padding: '10px', background: 'transparent', color: '#ef4444', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                    >
+                      <X size={16} /> Delete Artist
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

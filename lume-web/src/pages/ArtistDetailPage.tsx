@@ -62,16 +62,7 @@ const PRICE_TYPE_LABELS: Record<PriceType, string> = {
   HOURLY: '⏱ Hourly',
 };
 
-// Helper to dynamically load the Razorpay script
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
+// loadRazorpayScript removed as it is now in ProfilePage
 
 const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -92,6 +83,7 @@ const ArtistDetailPage: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState<TabId>('services');
   const [isTabSticky, setIsTabSticky] = useState(false);
@@ -218,98 +210,28 @@ const ArtistDetailPage: React.FC = () => {
     setBookingError('');
 
     try {
-      // 1. Load Razorpay script
-      const resLoad = await loadRazorpayScript();
-      if (!resLoad) throw new Error('Razorpay SDK failed to load. Are you online?');
-
-      // 2. Create Order on Backend
-      const orderRes = await fetch(`${API_BASE}/api/payments/create-order`, {
+      // Create the Booking (Status: PENDING)
+      const bookingRes = await fetch(`${API_BASE}/api/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amount: calculatedPrice, receiptId: `rcpt_${Date.now()}` }),
+        body: JSON.stringify({
+          artistId: artist.id,
+          serviceId: selectedServiceId || undefined,
+          date: selectedDate,
+          time: selectedTimeSlots.join(', '),
+          priceType: selectedPriceType,
+          notes,
+          address,
+        }),
       });
-      const orderData = await orderRes.json();
-      if (!orderData.success) throw new Error(orderData.message || 'Failed to create order');
+      const bookingData = await bookingRes.json();
+      if (!bookingRes.ok) throw new Error(bookingData.message || 'Booking failed');
 
-      // 3. Open Razorpay Checkout Modal
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', // Needs to be added in frontend .env
-        amount: orderData.data.amount,
-        currency: orderData.data.currency,
-        name: 'LUME',
-        description: `Booking for ${artist.user.name}`,
-        image: 'https://i.imgur.com/K3VqQ5n.png', // Optional LUME logo
-        order_id: orderData.data.id,
-        handler: async function (response: any) {
-          try {
-            // 4. Verify Payment on Backend
-            const verifyRes = await fetch(`${API_BASE}/api/payments/verify`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (!verifyData.success) throw new Error('Payment verification failed');
-
-            // 5. If successful, create the Booking
-            const bookingRes = await fetch(`${API_BASE}/api/bookings`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              body: JSON.stringify({
-                artistId: artist.id,
-                serviceId: selectedServiceId || undefined,
-                date: selectedDate,
-                time: selectedTimeSlots.join(', '),
-                priceType: selectedPriceType,
-                notes,
-                address,
-              }),
-            });
-            const bookingData = await bookingRes.json();
-            if (!bookingRes.ok) throw new Error(bookingData.message || 'Booking failed');
-
-            // Store minimal booking summary for confirm page
-            sessionStorage.setItem('currentBooking', JSON.stringify({
-              id: bookingData.data.id,
-              artistName: artist.user.name,
-              artistAvatar: artist.profileImageUrl || artist.user.avatarUrl,
-              priceType: selectedPriceType,
-              date: selectedDate,
-              time: selectedTimeSlots.join(', '),
-              totalPaid: calculatedPrice,
-              status: bookingData.data.status,
-              address,
-              notes,
-            }));
-            navigate('/booking/confirm');
-          } catch (err) {
-            setBookingError(err instanceof Error ? err.message : 'Payment or Booking failed.');
-            setBookingLoading(false);
-          }
-        },
-        prefill: {
-          name: artist.user.name, // Will ideally be the client's name from context
-          email: artist.user.email,
-        },
-        theme: {
-          color: '#e11d48', // Lume's rose-deep color
-        },
-        modal: {
-          ondismiss: function () {
-            setBookingLoading(false);
-          }
-        }
-      };
-
-      const paymentObject = new (window as any).Razorpay(options);
-      paymentObject.open();
-
+      // Show success modal instead of navigating to confirm page
+      setShowSuccessModal(true);
     } catch (err) {
-      setBookingError(err instanceof Error ? err.message : 'Payment initiation failed. Please try again.');
+      setBookingError(err instanceof Error ? err.message : 'Booking failed.');
+    } finally {
       setBookingLoading(false);
     }
   };
@@ -803,18 +725,23 @@ const ArtistDetailPage: React.FC = () => {
               </div>
 
               {bookingError && (
-                <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: 8, color: '#dc2626', fontSize: '0.82rem', fontWeight: 600, display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8 }}>
-                  <AlertCircle size={14} /> {bookingError}
+                <div className="booking-sidebar__error">
+                  <AlertCircle size={14} />
+                  <span>{bookingError}</span>
                 </div>
               )}
 
-              <Button variant="primary" size="lg" onClick={handleBookingConfirm}
-                disabled={!isBookingReady || bookingLoading || artist.isTakingBookings === false}
-                className="adp-sidebar__booking-btn">
-                {bookingLoading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Processing...</>
-                  : artist.isTakingBookings === false ? <><Lock size={16} /> Not Taking Bookings</>
-                    : !isAuthenticated ? <><Lock size={16} /> Sign In to Book</>
-                    : <><Lock size={16} /> Confirm Booking</>}
+              <Button
+                variant="primary"
+                onClick={handleBookingConfirm}
+                disabled={!isBookingReady || bookingLoading}
+                className="booking-sidebar__submit-btn"
+              >
+                {bookingLoading ? (
+                  <Loader2 className="spinner" size={20} />
+                ) : (
+                  'Book'
+                )}
               </Button>
 
               <span className="adp-sidebar__booking-secure">
@@ -858,6 +785,29 @@ const ArtistDetailPage: React.FC = () => {
           {bookingLoading ? 'Processing...' : artist.isTakingBookings === false ? 'Not Taking Bookings' : isAuthenticated ? 'Confirm Booking' : 'Sign In to Book'}
         </Button>
       </div>
+
+      {/* SUCCESS MODAL */}
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content success-modal">
+            <CheckCircle2 size={48} className="success-icon" style={{ color: 'var(--success-color, #10b981)', marginBottom: '16px' }} />
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Booking Requested</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', textAlign: 'center' }}>
+              Your booking request has been sent to the artist. We'll get back to you shortly!
+            </p>
+            <Button 
+              variant="primary" 
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate('/profile');
+              }}
+              style={{ width: '100%' }}
+            >
+              View My Bookings
+            </Button>
+          </div>
+        </div>
+      )}
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>

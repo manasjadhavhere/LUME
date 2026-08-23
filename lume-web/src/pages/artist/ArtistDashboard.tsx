@@ -8,7 +8,7 @@ import {
   TrendingUp,
   CalendarX,
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, API_BASE } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import './ArtistPages.css';
 
@@ -177,7 +177,11 @@ const ArtistDashboard: React.FC = () => {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {stats.upcomingBookings.map((booking) => (
+                {stats.upcomingBookings.map((booking) => {
+                  const isPending = booking.status === 'PENDING';
+                  const displayStatus = isPending ? 'Approval Pending' : booking.status === 'ACCEPTED' ? 'Awaiting Payment' : booking.status === 'CONFIRMED' ? 'Booking Done' : booking.status;
+                  
+                  return (
                   <div key={booking.id} style={{ display: 'flex', gap: 16, alignItems: 'stretch' }}>
                     <div style={{ width: 45, fontSize: '0.75rem', fontWeight: 700, color: 'var(--dark)', textAlign: 'right', paddingTop: 14 }}>
                       {booking.time}
@@ -195,6 +199,41 @@ const ArtistDashboard: React.FC = () => {
                           <div style={{ fontSize: '0.75rem', color: 'var(--mid)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                             <span>{booking.service.icon}</span> {booking.service.name}
                           </div>
+                          {isPending && (
+                            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                              <button 
+                                onClick={async () => {
+                                  try {
+                                    const res = await fetch(`${API_BASE}/api/bookings/${booking.id}/status`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+                                      body: JSON.stringify({ status: 'ACCEPTED' })
+                                    });
+                                    if(res.ok) execute('/api/artists/me/stats');
+                                  } catch (e) { console.error(e); }
+                                }}
+                                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 600, background: 'var(--success-color, #10b981)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                              >
+                                Accept
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if (!window.confirm('Are you sure you want to decline this booking?')) return;
+                                  try {
+                                    const res = await fetch(`${API_BASE}/api/bookings/${booking.id}/status`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+                                      body: JSON.stringify({ status: 'CANCELLED' })
+                                    });
+                                    if(res.ok) execute('/api/artists/me/stats');
+                                  } catch (e) { console.error(e); }
+                                }}
+                                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 600, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer' }}
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -203,13 +242,13 @@ const ArtistDashboard: React.FC = () => {
                         </div>
                         <div style={{ marginTop: 4 }}>
                           <span className={`status-badge ${getStatusBadgeClass(booking.status)}`} style={{ padding: '3px 8px', fontSize: '0.65rem' }}>
-                            {booking.status}
+                            {displayStatus}
                           </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>
