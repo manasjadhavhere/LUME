@@ -204,7 +204,7 @@ const ArtistDetailPage: React.FC = () => {
 
   const handleBookingConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
-    if (!isBookingReady || !artist) return;
+    if (!isBookingReady || !artist || bookingLoading || showSuccessModal) return;
     
     setBookingLoading(true); 
     setBookingError('');

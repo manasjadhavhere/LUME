@@ -100,10 +100,10 @@ const ArtistBookings: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                     <div style={{ width: 56, height: 56, borderRadius: 14, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--dark)' }}>
-                      {booking.client?.name.charAt(0).toUpperCase()}
+                      {booking.client?.name?.charAt(0)?.toUpperCase() || 'C'}
                     </div>
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--dark)' }}>{booking.client?.name}</h3>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--dark)' }}>{booking.client?.name || 'Client'}</h3>
                       <p style={{ fontSize: '0.85rem', color: 'var(--mid)', marginTop: 2 }}>{booking.client?.email} {booking.client?.phone ? `• ${booking.client.phone}` : ''}</p>
                     </div>
                   </div>
@@ -117,7 +117,7 @@ const ArtistBookings: React.FC = () => {
                   <div>
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Service</span>
                     <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--dark)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span>{booking.service.icon}</span> {booking.service.name}
+                      <span>{booking.service?.icon}</span> {booking.service?.name || 'Custom Service'}
                     </div>
                   </div>
                   <div>

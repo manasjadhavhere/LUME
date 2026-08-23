@@ -40,7 +40,11 @@ const ArtistDashboard: React.FC = () => {
 
   useEffect(() => {
     execute('/api/artists/me/stats');
-  }, []);
+    const interval = setInterval(() => {
+      execute('/api/artists/me/stats');
+    }, 15000); // poll every 15 seconds
+    return () => clearInterval(interval);
+  }, [execute]);
 
   const stats = data?.stats;
   const profile = user?.artistProfile;
@@ -213,7 +217,7 @@ const ArtistDashboard: React.FC = () => {
                         <div>
                           <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--dark)' }}>{booking.client?.name || 'Client'}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--mid)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <span>{booking.service.icon}</span> {booking.service.name}
+                            <span>{booking.service?.icon}</span> {booking.service?.name || 'Custom Booking'}
                           </div>
                         </div>
                       </div>

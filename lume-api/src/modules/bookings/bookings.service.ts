@@ -39,6 +39,22 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
     if (service) totalPaid = service.price;
   }
 
+  // Idempotency / duplicate check (prevent multiple clicks)
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  const existingBooking = await prisma.booking.findFirst({
+    where: {
+      clientId,
+      artistId: data.artistId,
+      date: new Date(data.date),
+      time: data.time,
+      createdAt: { gte: fiveMinutesAgo }
+    }
+  });
+
+  if (existingBooking) {
+    return existingBooking; // return the existing one instead of failing or duplicating
+  }
+
   const booking = await prisma.booking.create({
     data: {
       clientId,
