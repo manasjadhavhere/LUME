@@ -16,6 +16,7 @@ export interface ArtistProfile {
   isVerified: boolean;
   verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | 'EDIT_REQUESTED' | 'EDIT_APPROVED';
   isAvailable: boolean;
+  isTakingBookings?: boolean;
   rating: number;
   reviewCount: number;
   bookingCount: number;

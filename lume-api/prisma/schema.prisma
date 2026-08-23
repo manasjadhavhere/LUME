@@ -119,6 +119,8 @@ model ArtistProfile {
   verificationSubmittedAt DateTime?
   verificationRemarks     String?
   isAvailable             Boolean            @default(true)
+  isTakingBookings        Boolean            @default(true)
+  lastBookingStatusChange DateTime?
   rating                  Float              @default(0.0)
   reviewCount             Int                @default(0)
   bookingCount            Int                @default(0)

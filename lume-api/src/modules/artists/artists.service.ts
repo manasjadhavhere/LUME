@@ -360,3 +360,30 @@ export async function getArtistStats(userId: string) {
     },
   };
 }
+
+export async function updateBookingStatus(userId: string, isTakingBookings: boolean) {
+  const profile = await prisma.artistProfile.findUnique({ where: { userId } });
+  if (!profile) throw createError('Artist profile not found', 404);
+
+  const now = new Date();
+  
+  if (profile.lastBookingStatusChange) {
+    const hoursSinceLastChange = Math.abs(now.getTime() - profile.lastBookingStatusChange.getTime()) / 3600000;
+    if (hoursSinceLastChange < 48) {
+      const remainingHours = Math.ceil(48 - hoursSinceLastChange);
+      throw createError(`You can only change this setting once every 48 hours. Please try again in ${remainingHours} hours.`, 400);
+    }
+  }
+
+  return prisma.artistProfile.update({
+    where: { userId },
+    data: {
+      isTakingBookings,
+      lastBookingStatusChange: now,
+    },
+    include: {
+      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      services: { where: { isActive: true } },
+    }
+  });
+}

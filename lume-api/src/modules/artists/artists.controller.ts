@@ -127,3 +127,11 @@ export async function getDashboardStats(req: Request, res: Response, next: NextF
     res.json({ success: true, data: stats });
   } catch (err) { next(err); }
 }
+
+export async function updateBookingStatus(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { isTakingBookings } = req.body;
+    const artist = await ArtistsService.updateBookingStatus(req.user!.userId, !!isTakingBookings);
+    res.json({ success: true, data: artist, message: 'Booking status updated successfully' });
+  } catch (err) { next(err); }
+}

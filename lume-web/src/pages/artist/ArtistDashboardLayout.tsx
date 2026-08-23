@@ -75,6 +75,36 @@ const ArtistDashboardLayout: React.FC = () => {
     n.end ? location.pathname === n.to : location.pathname.startsWith(n.to)
   );
 
+  const [isTakingBookings, setIsTakingBookings] = useState(
+    user?.artistProfile?.isTakingBookings ?? true
+  );
+  const [statusUpdating, setStatusUpdating] = useState(false);
+
+  useEffect(() => {
+    if (user?.artistProfile) {
+      setIsTakingBookings(user.artistProfile.isTakingBookings ?? true);
+    }
+  }, [user]);
+
+  const toggleBookingStatus = async () => {
+    if (statusUpdating) return;
+    setStatusUpdating(true);
+    try {
+      const res = await execute('/api/artists/me/booking-status', {
+        method: 'PATCH',
+        body: { isTakingBookings: !isTakingBookings }
+      });
+      if (res) {
+        setIsTakingBookings(!isTakingBookings);
+        alert('Booking status updated successfully.');
+      }
+    } catch (e: any) {
+      alert(e.message || 'Failed to update booking status.');
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
   return (
     <div className="artist-layout">
       {/* ── Subtle Dashboard Background ── */}
@@ -101,7 +131,11 @@ const ArtistDashboardLayout: React.FC = () => {
         <div className="artist-sidebar__profile">
           <div className="artist-sidebar__profile-avatar">
             {(user?.name || 'Artist').charAt(0).toUpperCase()}
-            <div className="artist-sidebar__profile-dot" title="Live & Taking Bookings" />
+            <div 
+              className="artist-sidebar__profile-dot" 
+              title={isTakingBookings ? "Live & Taking Bookings" : "Not Taking Bookings"}
+              style={{ background: isTakingBookings ? '#10b981' : '#ef4444' }}
+            />
           </div>
           <div className="artist-sidebar__profile-info">
             <div className="artist-sidebar__profile-name">{user?.name || 'Artist'}</div>
@@ -171,10 +205,24 @@ const ArtistDashboardLayout: React.FC = () => {
             <span className="artist-topbar__title">
               {currentNav?.label || 'Studio Overview'}
             </span>
-            <div className="artist-topbar__status-pill">
-              <span className="artist-topbar__status-dot" />
-              <span>Taking Bookings</span>
-            </div>
+            <button 
+              type="button"
+              onClick={toggleBookingStatus}
+              disabled={statusUpdating}
+              className="artist-topbar__status-pill"
+              style={{ 
+                cursor: statusUpdating ? 'wait' : 'pointer',
+                background: isTakingBookings ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: isTakingBookings ? '#065f46' : '#991b1b',
+                border: 'none',
+                opacity: statusUpdating ? 0.7 : 1,
+                transition: 'all 0.2s',
+              }}
+              title="Click to toggle availability. Note: Changing this has a 48-hour lock."
+            >
+              <span className="artist-topbar__status-dot" style={{ background: isTakingBookings ? '#10b981' : '#ef4444' }} />
+              <span>{isTakingBookings ? 'Taking Bookings' : 'Not Taking Bookings'}</span>
+            </button>
           </div>
 
           <div className="artist-topbar__right">
