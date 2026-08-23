@@ -36,7 +36,7 @@ const ArtistBookings: React.FC = () => {
     try {
       const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: newStatus }),
+        body: { status: newStatus },
       }) as any;
       if (res.success) {
         execute('/api/artists/me/bookings');
