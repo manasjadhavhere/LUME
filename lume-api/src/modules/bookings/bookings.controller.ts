@@ -5,8 +5,9 @@ export async function createBooking(req: Request, res: Response, next: NextFunct
   try {
     const booking = await BookingsService.createBooking(req.user!.userId, req.body);
     res.status(201).json({ success: true, data: booking });
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    console.error('Booking Create Error:', err);
+    res.status(err.statusCode || 500).json({ success: false, message: err.message || 'Internal Server Error' });
   }
 }
 

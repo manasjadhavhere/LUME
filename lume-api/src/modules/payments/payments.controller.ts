@@ -12,12 +12,28 @@ export async function createPaymentOrder(req: Request, res: Response, next: Next
 
     // Default receipt ID if not provided
     const receipt = receiptId || `rcpt_${Date.now()}`;
+    
+    // MOCK RAZORPAY FOR DEV/TESTING IF DUMMY KEYS ARE USED
+    if (process.env.RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') {
+      console.log('Using mock Razorpay order because dummy keys are present');
+      return res.json({
+        success: true,
+        data: {
+          id: `order_mock_${Date.now()}`,
+          amount: Math.round(amount * 100),
+          currency: 'INR',
+          receipt,
+          status: 'created'
+        }
+      });
+    }
+
     const order = await PaymentService.createOrder(amount, receipt);
     
     res.json({ success: true, data: order });
-  } catch (err) { 
+  } catch (err: any) { 
     console.error('Razorpay Create Order Error:', err);
-    next(err); 
+    res.status(500).json({ success: false, message: err.error?.description || err.message || 'Razorpay order creation failed' });
   }
 }
 
