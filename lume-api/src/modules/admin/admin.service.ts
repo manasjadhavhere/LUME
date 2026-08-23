@@ -237,3 +237,17 @@ export async function deleteUser(userId: string) {
     });
   });
 }
+
+// Update booking status directly (admin override, ignores 48h limit)
+export async function updateBookingStatusAdmin(artistId: string, isTakingBookings: boolean) {
+  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
+  if (!artist) throw createError('Artist not found', 404);
+
+  return prisma.artistProfile.update({
+    where: { id: artistId },
+    data: {
+      isTakingBookings,
+      lastBookingStatusChange: new Date(), // Optionally update the timer so artists are locked for 48h from admin's change
+    },
+  });
+}
