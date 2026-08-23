@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as PaymentService from './payments.service';
 import { prisma } from '../../lib/prisma';
-import { createError } from '../auth/auth.service';
+import { createError } from '../../middleware/errorHandler';
 
 export async function payBooking(req: Request, res: Response, next: NextFunction) {
   try {
