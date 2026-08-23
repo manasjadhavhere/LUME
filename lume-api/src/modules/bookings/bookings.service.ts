@@ -27,11 +27,10 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
     totalPaid = artist.weddingPrice || 0;
   } else if (data.priceType === 'OCCASION') {
     totalPaid = artist.occasionPrice || 0;
-  } else if (data.priceType === 'HOURLY' && data.time && data.endTime) {
-    // Calculate hours between time and endTime
-    const [startH] = data.time.split(':').map(Number);
-    const [endH] = data.endTime.split(':').map(Number);
-    const hours = Math.max(1, endH - startH);
+  } else if (data.priceType === 'HOURLY' && data.time) {
+    // Calculate hours based on number of selected slots
+    const slots = data.time.split(',').map(s => s.trim()).filter(Boolean);
+    const hours = Math.max(1, slots.length);
     totalPaid = (artist.hourlyPrice || 0) * hours;
   } else if (data.serviceId) {
     const service = await prisma.service.findFirst({

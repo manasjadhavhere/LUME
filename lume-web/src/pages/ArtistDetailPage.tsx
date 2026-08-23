@@ -87,8 +87,7 @@ const ArtistDetailPage: React.FC = () => {
   const [selectedPriceType, setSelectedPriceType] = useState<PriceType>('OCCASION');
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // YYYY-MM-DD
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedEndTime, setSelectedEndTime] = useState<string | null>(null);
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -203,16 +202,13 @@ const ArtistDetailPage: React.FC = () => {
     if (!artist) return 0;
     if (selectedPriceType === 'WEDDING') return artist.weddingPrice || 0;
     if (selectedPriceType === 'OCCASION') return artist.occasionPrice || 0;
-    if (selectedPriceType === 'HOURLY' && selectedTime && selectedEndTime) {
-      const [startH] = selectedTime.split(':').map(Number);
-      const [endH] = selectedEndTime.split(':').map(Number);
-      const hours = Math.max(1, endH - startH);
-      return (artist.hourlyPrice || 0) * hours;
+    if (selectedPriceType === 'HOURLY' && selectedTimeSlots.length > 0) {
+      return (artist.hourlyPrice || 0) * selectedTimeSlots.length;
     }
     return artist.startingPrice || 0;
-  }, [artist, selectedPriceType, selectedTime, selectedEndTime]);
+  }, [artist, selectedPriceType, selectedTimeSlots]);
 
-  const isBookingReady = selectedDate && selectedTime && (selectedPriceType !== 'HOURLY' || selectedEndTime);
+  const isBookingReady = selectedDate && selectedTimeSlots.length > 0;
 
   const handleBookingConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
@@ -267,8 +263,7 @@ const ArtistDetailPage: React.FC = () => {
                 artistId: artist.id,
                 serviceId: selectedServiceId || undefined,
                 date: selectedDate,
-                time: selectedTime,
-                endTime: selectedEndTime || undefined,
+                time: selectedTimeSlots.join(', '),
                 priceType: selectedPriceType,
                 notes,
                 address,
@@ -284,8 +279,7 @@ const ArtistDetailPage: React.FC = () => {
               artistAvatar: artist.profileImageUrl || artist.user.avatarUrl,
               priceType: selectedPriceType,
               date: selectedDate,
-              time: selectedTime,
-              endTime: selectedEndTime,
+              time: selectedTimeSlots.join(', '),
               totalPaid: calculatedPrice,
               status: bookingData.data.status,
               address,
@@ -360,7 +354,7 @@ const ArtistDetailPage: React.FC = () => {
   const completedSteps = [
     availPriceTypes.length === 0 || selectedPriceType,
     selectedDate,
-    selectedTime,
+    selectedTimeSlots.length > 0,
   ].filter(Boolean).length;
 
   return (
@@ -542,28 +536,9 @@ const ArtistDetailPage: React.FC = () => {
                         })}
                       </div>
                       {selectedPriceType === 'HOURLY' && (
-                        <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                          <div>
-                            <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--mid)', display: 'block', marginBottom: 4 }}>Start Time</label>
-                            <select style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid rgba(42,26,31,0.12)', fontSize: '0.9rem' }}
-                              value={selectedTime || ''} onChange={e => setSelectedTime(e.target.value)}>
-                              <option value="">Select</option>
-                              {availableSlots.map(h => <option key={h} value={h}>{h}</option>)}
-                            </select>
-                          </div>
-                          <div>
-                            <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--mid)', display: 'block', marginBottom: 4 }}>End Time</label>
-                            <select style={{ padding: '10px 14px', borderRadius: 8, border: '1.5px solid rgba(42,26,31,0.12)', fontSize: '0.9rem' }}
-                              value={selectedEndTime || ''} onChange={e => setSelectedEndTime(e.target.value)}>
-                              <option value="">Select</option>
-                              {availableSlots.filter(h => !selectedTime || h > selectedTime).map(h => <option key={h} value={h}>{h}</option>)}
-                            </select>
-                          </div>
-                          {selectedTime && selectedEndTime && (
-                            <div style={{ padding: '10px 16px', background: 'var(--rose-pale)', borderRadius: 8, fontSize: '0.85rem', fontWeight: 700, color: 'var(--rose-deep)' }}>
-                              Total: ₹{calculatedPrice.toLocaleString()}
-                            </div>
-                          )}
+                        <div style={{ marginTop: 12, padding: '10px 16px', background: 'var(--rose-pale)', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--rose-deep)' }}>
+                          Tip: Select multiple time slots in Step 3 to book several hours.
+                          {selectedTimeSlots.length > 0 && <span style={{display: 'block', marginTop: 4, fontWeight: 700}}>Total: ₹{calculatedPrice.toLocaleString()}</span>}
                         </div>
                       )}
                       {/* Optional: link to a specific service */}
@@ -629,7 +604,7 @@ const ArtistDetailPage: React.FC = () => {
                         })();
                         return (
                           <button key={dateStr} type="button" disabled={!!isBlocked || slots === 0}
-                            onClick={() => { setSelectedDate(dateStr); setSelectedTime(null); setSelectedEndTime(null); }}
+                            onClick={() => { setSelectedDate(dateStr); setSelectedTimeSlots([]); }}
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '10px 14px', borderRadius: 12, minWidth: 64,
                               border: selectedDate === dateStr ? '2px solid var(--rose-deep)' : '1px solid rgba(42,26,31,0.12)',
@@ -652,7 +627,7 @@ const ArtistDetailPage: React.FC = () => {
                   </div>
 
                   {/* Step 3 – Time */}
-                  {selectedDate && selectedPriceType !== 'HOURLY' && (
+                  {selectedDate && (
                     <div className="adp-step">
                       <div className="adp-step__header"><span className="adp-step__number">STEP 03</span><h3 className="adp-step__title">Select Time Slot</h3></div>
                       {availableSlots.length === 0 ? (
@@ -661,18 +636,30 @@ const ArtistDetailPage: React.FC = () => {
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                          {availableSlots.map(slot => (
-                            <button key={slot} type="button"
-                              onClick={() => setSelectedTime(selectedTime === slot ? null : slot)}
-                              style={{
-                                padding: '8px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-                                border: selectedTime === slot ? '2px solid var(--rose-deep)' : '1px solid rgba(42,26,31,0.12)',
-                                background: selectedTime === slot ? 'var(--rose-deep)' : 'white',
-                                color: selectedTime === slot ? 'white' : 'var(--dark)',
-                              }}>
-                              {slot}
-                            </button>
-                          ))}
+                          {availableSlots.map(slot => {
+                            const [startHour] = slot.split(':').map(Number);
+                            const endSlot = `${(startHour + 1).toString().padStart(2, '0')}:00`;
+                            const isSelected = selectedTimeSlots.includes(slot);
+                            
+                            return (
+                              <button key={slot} type="button"
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setSelectedTimeSlots(selectedTimeSlots.filter(s => s !== slot));
+                                  } else {
+                                    setSelectedTimeSlots([...selectedTimeSlots, slot]);
+                                  }
+                                }}
+                                style={{
+                                  padding: '8px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                                  border: isSelected ? '2px solid var(--rose-deep)' : '1px solid rgba(42,26,31,0.12)',
+                                  background: isSelected ? 'var(--rose-deep)' : 'white',
+                                  color: isSelected ? 'white' : 'var(--dark)',
+                                }}>
+                                {slot} - {endSlot}
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -803,8 +790,8 @@ const ArtistDetailPage: React.FC = () => {
                 <div className="adp-sidebar__booking-row">
                   <span className="adp-sidebar__booking-label">Time</span>
                   <span className="adp-sidebar__booking-val">
-                    {selectedTime
-                      ? (selectedEndTime ? `${selectedTime} – ${selectedEndTime}` : selectedTime)
+                    {selectedTimeSlots.length > 0
+                      ? selectedTimeSlots.join(', ')
                       : <em className="adp-sidebar__booking-empty">Not selected</em>}
                   </span>
                 </div>
