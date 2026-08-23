@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApi, apiFetch } from '../../hooks/useApi';
-import { CheckCircle2, Calendar as CalendarIcon } from 'lucide-react';
+import { CheckCircle2, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import './ArtistPages.css';
 
 interface Booking {
@@ -23,6 +23,7 @@ type TabType = 'PENDING' | 'UPCOMING' | 'PAST';
 const ArtistBookings: React.FC = () => {
   const { data, loading, execute } = useApi<Booking[]>();
   const [activeTab, setActiveTab] = useState<TabType>('PENDING');
+  const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     execute('/api/artists/me/bookings');
@@ -33,6 +34,7 @@ const ArtistBookings: React.FC = () => {
       return;
     }
     
+    setUpdatingBookingId(bookingId);
     try {
       const token = localStorage.getItem('lume_token') || undefined;
       const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
@@ -50,6 +52,8 @@ const ArtistBookings: React.FC = () => {
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to update booking status');
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
@@ -148,16 +152,18 @@ const ArtistBookings: React.FC = () => {
                   <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', paddingTop: 8, borderTop: '1px solid rgba(42,26,31,0.06)' }}>
                     <button 
                       onClick={() => handleStatusUpdate(booking.id, 'CANCELLED')}
-                      style={{ padding: '10px 24px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', cursor: 'pointer', transition: 'all 0.2s' }}
+                      disabled={updatingBookingId === booking.id}
+                      style={{ padding: '10px 24px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', cursor: updatingBookingId === booking.id ? 'not-allowed' : 'pointer', transition: 'all 0.2s', opacity: updatingBookingId === booking.id ? 0.6 : 1 }}
                     >
-                      Decline Request
+                      {updatingBookingId === booking.id ? 'Declining...' : 'Decline Request'}
                     </button>
                     <button 
                       onClick={() => handleStatusUpdate(booking.id, 'ACCEPTED')}
-                      style={{ padding: '10px 24px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600, background: 'var(--success-color, #10b981)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
+                      disabled={updatingBookingId === booking.id}
+                      style={{ padding: '10px 24px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600, background: 'var(--success-color, #10b981)', color: '#fff', border: 'none', cursor: updatingBookingId === booking.id ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)', opacity: updatingBookingId === booking.id ? 0.6 : 1 }}
                     >
-                      <CheckCircle2 size={18} />
-                      Accept Booking
+                      {updatingBookingId === booking.id ? <Loader2 size={18} className="spinner" /> : <CheckCircle2 size={18} />}
+                      {updatingBookingId === booking.id ? 'Accepting...' : 'Accept Booking'}
                     </button>
                   </div>
                 )}

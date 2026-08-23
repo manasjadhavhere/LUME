@@ -5,7 +5,7 @@ import {
   Sparkles, Heart, Shield, Clock, CheckCircle, Mail, Phone,
   ArrowUpRight, Play, Share2, MessageCircle, Video
 } from 'lucide-react';
-import { API_BASE } from '../context/AuthContext';
+import { API_BASE, useAuth } from '../context/AuthContext';
 import './LandingPage.css';
 
 import img1 from '../assets/images/1.png';
@@ -48,13 +48,13 @@ const HERO_SLIDES = [
   },
   {
     id: 3,
-    image: img5,
-    eyebrow: 'Editorial Excellence',
-    title: 'Bold Looks.',
-    titleAccent: 'Lasting Impressions.',
-    sub: 'From runway to real life — discover artists who push creative boundaries.',
-    tag: 'Editorial · Avant-garde · Fashion',
-  },
+    image: img3,
+    eyebrow: 'Exclusive Talent',
+    title: 'Editorial &',
+    titleAccent: 'High Fashion.',
+    sub: 'Bring your vision to life with artists experienced in high-end fashion and commercial shoots.',
+    tag: 'Fashion · Runway · Creative',
+  }
 ];
 
 /* ── Categories ── */
@@ -222,10 +222,41 @@ const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ on
 ══════════════════════════════════════ */
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [activeSlide, setActiveSlide] = useState(0);
   const [prevSlide, setPrevSlide] = useState<number | null>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formSent, setFormSent] = useState(false);
+  const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
+
+  // Fetch upcoming bookings for client
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'CLIENT') {
+      const token = localStorage.getItem('lume_token');
+      fetch(`${API_BASE}/api/clients/me/bookings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const upcoming = data.data.filter((b: any) => b.status === 'ACCEPTED' || b.status === 'CONFIRMED');
+          setUpcomingBookings(upcoming.slice(0, 3)); // show top 3
+        }
+      })
+      .catch(err => console.error("Failed to fetch client bookings on landing", err));
+    }
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/artists?limit=4`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setFeatured(data.data.artists);
+        }
+      })
+      .catch(err => console.error('Failed to load featured artists', err));
+  }, []);
   const [featured, setFeatured] = useState<any[]>([]);
   const slideTimerRef = useRef<number>(0);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -393,6 +424,31 @@ const LandingPage: React.FC = () => {
       {/* ════════════════════════════
           LUME INTRO
       ════════════════════════════ */}
+      {upcomingBookings.length > 0 && (
+        <section className="lp-section lp-upcoming" style={{ padding: '60px 0', background: 'var(--light)' }}>
+          <div className="lp-container">
+            <h2 className="lp-heading reveal" style={{ fontSize: '2rem', marginBottom: '24px' }}>Your Upcoming Bookings</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }} className="stagger">
+              {upcomingBookings.map((booking: any) => (
+                <div key={booking.id} className="reveal-up" style={{ background: '#fff', borderRadius: '16px', padding: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '16px', border: '1px solid rgba(42,26,31,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--success-color, #10b981)', background: '#ecfdf5', padding: '4px 10px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{booking.status}</span>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--rose-deep)' }}>₹{booking.totalPaid?.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>{booking.artist?.user?.name || 'Artist'}</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{new Date(booking.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })} • {booking.time}</p>
+                  </div>
+                  <button className="lp-btn lp-btn--outline-dark" style={{ width: '100%', marginTop: '8px', padding: '12px' }} onClick={() => navigate('/profile')}>
+                    {booking.status === 'ACCEPTED' ? 'Pay Now' : 'View Details'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <LumeIntro onBook={() => navigate('/home')} onExplore={() => navigate('/discover')} />
 
       {/* ══════════════════════════════

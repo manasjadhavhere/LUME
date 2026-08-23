@@ -67,7 +67,7 @@ const PRICE_TYPE_LABELS: Record<PriceType, string> = {
 const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
 
   const [artist, setArtist] = useState<ApiArtist | null>(null);
   const [availability, setAvailability] = useState<AvailabilityData | null>(null);
@@ -133,6 +133,8 @@ const ArtistDetailPage: React.FC = () => {
     return () => { observer.disconnect(); sentinel.remove(); };
   }, [artist]);
 
+  const [acceptedBooking, setAcceptedBooking] = useState<any>(null);
+
   // Scroll-spy for tabs
   useEffect(() => {
     if (isMobileView) return;
@@ -151,6 +153,23 @@ const ArtistDetailPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMobileView, artist]);
+
+  // Fetch accepted booking for client
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'CLIENT' && artist?.id) {
+      fetch(`${API_BASE}/api/clients/me/bookings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const b = data.data.find((x: any) => x.artistId === artist.id && x.status === 'ACCEPTED');
+          if (b) setAcceptedBooking(b);
+        }
+      })
+      .catch(err => console.error("Failed to fetch client bookings", err));
+    }
+  }, [isAuthenticated, user, artist?.id, token]);
 
   const scrollToSection = useCallback((tab: TabId) => {
     setActiveTab(tab);
@@ -731,24 +750,34 @@ const ArtistDetailPage: React.FC = () => {
                 </div>
               )}
 
-              <Button
-                variant="primary"
-                onClick={handleBookingConfirm}
-                disabled={!isBookingReady || bookingLoading || showSuccessModal}
-                className="booking-sidebar__submit-btn"
-                style={{ width: '100%' }}
-              >
-                {bookingLoading ? (
-                  <Loader2 className="spinner" size={20} />
-                ) : (
-                  'Book'
-                )}
-              </Button>
-
-              <span className="adp-sidebar__booking-secure">
-                <Shield size={13} />
-                {isAuthenticated ? 'Booking sent for artist approval' : 'Create a free account to book'}
-              </span>
+              {acceptedBooking ? (
+                <div style={{ padding: '16px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #10b981', textAlign: 'center', marginBottom: 16 }}>
+                  <p style={{ color: '#047857', fontWeight: 600, fontSize: '0.9rem', marginBottom: 12 }}>Your booking was approved!</p>
+                  <Button onClick={() => navigate('/profile')} style={{ width: '100%', background: 'var(--success-color, #10b981)', color: '#fff', border: 'none' }}>
+                    Pay Now to Confirm
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="primary"
+                    onClick={handleBookingConfirm}
+                    disabled={!isBookingReady || bookingLoading || showSuccessModal}
+                    className="booking-sidebar__submit-btn"
+                    style={{ width: '100%' }}
+                  >
+                    {bookingLoading ? (
+                      <Loader2 className="spinner" size={20} />
+                    ) : (
+                      'Book'
+                    )}
+                  </Button>
+                  <span className="adp-sidebar__booking-secure">
+                    <Shield size={13} />
+                    {isAuthenticated ? '100% secure bookings with Lume' : 'Create a free account to book'}
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Why Book Card */}
