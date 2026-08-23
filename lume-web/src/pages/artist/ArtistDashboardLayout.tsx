@@ -26,7 +26,7 @@ const navItems = [
 ];
 
 const ArtistDashboardLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { execute } = useApi();
@@ -96,6 +96,14 @@ const ArtistDashboardLayout: React.FC = () => {
       });
       if (res) {
         setIsTakingBookings(!isTakingBookings);
+        if (user && user.artistProfile) {
+          updateUser({
+            artistProfile: {
+              ...user.artistProfile,
+              isTakingBookings: !isTakingBookings
+            }
+          });
+        }
         alert('Booking status updated successfully.');
       }
     } catch (e: any) {

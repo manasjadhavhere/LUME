@@ -38,6 +38,7 @@ interface ApiArtist {
   services: ServiceItem[];
   user: { id: string; name: string; email: string; avatarUrl?: string; };
   reviews?: ReviewItem[];
+  isTakingBookings?: boolean;
 }
 
 interface ServiceItem {
@@ -426,6 +427,15 @@ const ArtistDetailPage: React.FC = () => {
                     ✅ Verified
                   </span>
                 )}
+                {artist.isTakingBookings ? (
+                  <span style={{ display:'inline-flex',alignItems:'center',gap:4,background:'rgba(34,197,94,0.1)',color:'#16a34a',padding:'3px 10px',borderRadius:20,fontSize:'0.72rem',fontWeight:700 }}>
+                    Taking Bookings
+                  </span>
+                ) : (
+                  <span style={{ display:'inline-flex',alignItems:'center',gap:4,background:'rgba(239,68,68,0.1)',color:'#dc2626',padding:'3px 10px',borderRadius:20,fontSize:'0.72rem',fontWeight:700 }}>
+                    Not Taking Bookings
+                  </span>
+                )}
               </div>
               {artist.certification && <p className="adp-profile__certification">{artist.certification}</p>}
               <div className="adp-profile__meta">
@@ -812,10 +822,11 @@ const ArtistDetailPage: React.FC = () => {
               )}
 
               <Button variant="primary" size="lg" onClick={handleBookingConfirm}
-                disabled={!isBookingReady || bookingLoading}
+                disabled={!isBookingReady || bookingLoading || artist.isTakingBookings === false}
                 className="adp-sidebar__booking-btn">
                 {bookingLoading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Processing...</>
-                  : !isAuthenticated ? <><Lock size={16} /> Sign In to Book</>
+                  : artist.isTakingBookings === false ? <><Lock size={16} /> Not Taking Bookings</>
+                    : !isAuthenticated ? <><Lock size={16} /> Sign In to Book</>
                     : <><Lock size={16} /> Confirm Booking</>}
               </Button>
 
@@ -856,8 +867,8 @@ const ArtistDetailPage: React.FC = () => {
           <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()}</span>
         </div>
         <Button variant="primary" size="lg" onClick={handleBookingConfirm}
-          disabled={!isBookingReady || bookingLoading} className="adp-mobile-bar__btn">
-          {bookingLoading ? 'Processing...' : isAuthenticated ? 'Confirm Booking' : 'Sign In to Book'}
+          disabled={!isBookingReady || bookingLoading || artist.isTakingBookings === false} className="adp-mobile-bar__btn">
+          {bookingLoading ? 'Processing...' : artist.isTakingBookings === false ? 'Not Taking Bookings' : isAuthenticated ? 'Confirm Booking' : 'Sign In to Book'}
         </Button>
       </div>
 
