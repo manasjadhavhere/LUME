@@ -213,24 +213,40 @@ const ArtistDashboardLayout: React.FC = () => {
             <span className="artist-topbar__title">
               {currentNav?.label || 'Studio Overview'}
             </span>
-            <button 
-              type="button"
-              onClick={toggleBookingStatus}
-              disabled={statusUpdating}
-              className="artist-topbar__status-pill"
-              style={{ 
-                cursor: statusUpdating ? 'wait' : 'pointer',
-                background: isTakingBookings ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                color: isTakingBookings ? '#065f46' : '#991b1b',
-                border: 'none',
-                opacity: statusUpdating ? 0.7 : 1,
-                transition: 'all 0.2s',
-              }}
-              title="Click to toggle availability. Note: Changing this has a 48-hour lock."
-            >
-              <span className="artist-topbar__status-dot" style={{ background: isTakingBookings ? '#10b981' : '#ef4444' }} />
-              <span>{isTakingBookings ? 'Taking Bookings' : 'Not Taking Bookings'}</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }} title="Toggle to turn bookings on/off. (48-hour lock applies)">
+              <button 
+                type="button"
+                onClick={toggleBookingStatus}
+                disabled={statusUpdating}
+                style={{ 
+                  width: '40px', 
+                  height: '22px', 
+                  borderRadius: '12px', 
+                  background: isTakingBookings ? '#10b981' : '#d1d5db', 
+                  border: 'none', 
+                  cursor: statusUpdating ? 'wait' : 'pointer', 
+                  position: 'relative', 
+                  transition: 'background 0.3s',
+                  opacity: statusUpdating ? 0.7 : 1,
+                  padding: 0
+                }}
+              >
+                <div style={{ 
+                  width: '18px', 
+                  height: '18px', 
+                  background: 'white', 
+                  borderRadius: '50%', 
+                  position: 'absolute', 
+                  top: '2px', 
+                  left: isTakingBookings ? '20px' : '2px', 
+                  transition: 'left 0.3s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)' 
+                }} />
+              </button>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: isTakingBookings ? '#10b981' : '#6b7280' }}>
+                {isTakingBookings ? 'Taking Bookings' : 'Not Taking Bookings'}
+              </span>
+            </div>
           </div>
 
           <div className="artist-topbar__right">
