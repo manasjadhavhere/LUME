@@ -346,8 +346,8 @@ const LandingPage: React.FC = () => {
             <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
               Book an Artist <ArrowRight size={16} />
             </button>
-            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/reels')}>
-              <Play size={14} fill="currentColor" /> Watch Reel
+            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
+              <Sparkles size={14} /> Explore Artists
             </button>
           </div>
 

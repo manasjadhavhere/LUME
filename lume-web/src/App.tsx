@@ -12,7 +12,6 @@ import BookingConfirmPage from './pages/BookingConfirmPage';
 import DiscoverPage from './pages/DiscoverPage';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
-import ReelsPage from './pages/ReelsPage';
 import NotFound from './components/layout/NotFound';
 
 // Auth Pages
@@ -113,7 +112,7 @@ const App: React.FC = () => {
                 <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
-                <Route path="/reels" element={<AppLayoutWrapper><ReelsPage /></AppLayoutWrapper>} />
+                <Route path="/reels" element={<Navigate to="/discover" replace />} />
                 <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
                 <Route path="/profile" element={<AppLayoutWrapper><ClientGuard><ProfilePage /></ClientGuard></AppLayoutWrapper>} />
                 <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />
