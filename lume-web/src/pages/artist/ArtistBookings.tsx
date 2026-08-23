@@ -34,9 +34,11 @@ const ArtistBookings: React.FC = () => {
     }
     
     try {
+      const token = localStorage.getItem('lume_token') || undefined;
       const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
         body: { status: newStatus },
+        token,
       }) as any;
       if (res.success) {
         execute('/api/artists/me/bookings');
