@@ -8,7 +8,7 @@ import {
   TrendingUp,
   CalendarX,
 } from 'lucide-react';
-import { useAuth, API_BASE } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import './ArtistPages.css';
 
@@ -115,6 +115,22 @@ const ArtistDashboard: React.FC = () => {
         </Link>
       </div>
 
+      {/* Pending Requests Alert Banner */}
+      {stats?.pendingBookings ? (
+        <div style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 24px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Clock size={20} />
+            <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+              <strong style={{ fontWeight: 700, marginRight: 6 }}>Action Required:</strong>
+              You have {stats.pendingBookings} pending booking request{stats.pendingBookings > 1 ? 's' : ''}! Review them to secure your schedule.
+            </span>
+          </div>
+          <Link to="/artist-dashboard/bookings" style={{ background: '#dc2626', color: '#fff', padding: '8px 16px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s' }}>
+            Review Requests
+          </Link>
+        </div>
+      ) : null}
+
       {/* Metrics Strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 20, flexShrink: 0 }}>
         {metricCards.map((card, i) => (
@@ -199,41 +215,6 @@ const ArtistDashboard: React.FC = () => {
                           <div style={{ fontSize: '0.75rem', color: 'var(--mid)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                             <span>{booking.service.icon}</span> {booking.service.name}
                           </div>
-                          {isPending && (
-                            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                              <button 
-                                onClick={async () => {
-                                  try {
-                                    const res = await fetch(`${API_BASE}/api/bookings/${booking.id}/status`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-                                      body: JSON.stringify({ status: 'ACCEPTED' })
-                                    });
-                                    if(res.ok) execute('/api/artists/me/stats');
-                                  } catch (e) { console.error(e); }
-                                }}
-                                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 600, background: 'var(--success-color, #10b981)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                              >
-                                Accept
-                              </button>
-                              <button 
-                                onClick={async () => {
-                                  if (!window.confirm('Are you sure you want to decline this booking?')) return;
-                                  try {
-                                    const res = await fetch(`${API_BASE}/api/bookings/${booking.id}/status`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-                                      body: JSON.stringify({ status: 'CANCELLED' })
-                                    });
-                                    if(res.ok) execute('/api/artists/me/stats');
-                                  } catch (e) { console.error(e); }
-                                }}
-                                style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 600, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer' }}
-                              >
-                                Decline
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>

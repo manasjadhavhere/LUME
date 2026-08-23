@@ -24,6 +24,7 @@ import ArtistDashboard from './pages/artist/ArtistDashboard';
 import ArtistProfile from './pages/artist/ArtistProfile';
 import ArtistCalendar from './pages/artist/ArtistCalendar';
 import ArtistRatings from './pages/artist/ArtistRatings';
+import ArtistBookings from './pages/artist/ArtistBookings';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -124,6 +125,7 @@ const App: React.FC = () => {
                   <Route path="profile" element={<ArtistProfile />} />
                   <Route path="calendar" element={<ArtistCalendar />} />
                   <Route path="ratings" element={<ArtistRatings />} />
+                  <Route path="bookings" element={<ArtistBookings />} />
                   <Route path="settings" element={<ArtistProfile />} />
                 </Route>
 

@@ -16,6 +16,7 @@ import {
   getDashboardStats,
   requestEdit,
   updateBookingStatus,
+  getArtistBookings,
 } from './artists.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
@@ -33,6 +34,7 @@ const artistAuth = [authenticate, requireRole('ARTIST')];
 
 router.get('/me/profile', ...artistAuth, getMyProfile);
 router.get('/me/stats', ...artistAuth, getDashboardStats);
+router.get('/me/bookings', ...artistAuth, getArtistBookings);
 router.put('/me/profile', ...artistAuth, validate(updateProfileSchema), updateProfile);
 router.patch('/me/booking-status', ...artistAuth, updateBookingStatus);
 

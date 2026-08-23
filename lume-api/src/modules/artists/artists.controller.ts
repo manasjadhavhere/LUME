@@ -135,3 +135,10 @@ export async function updateBookingStatus(req: Request, res: Response, next: Nex
     res.json({ success: true, data: artist, message: 'Booking status updated successfully' });
   } catch (err) { next(err); }
 }
+
+export async function getArtistBookings(req: Request, res: Response, next: NextFunction) {
+  try {
+    const bookings = await ArtistsService.getArtistBookings(req.user!.userId);
+    res.json({ success: true, data: bookings });
+  } catch (err) { next(err); }
+}

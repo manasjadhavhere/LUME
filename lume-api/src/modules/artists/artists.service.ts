@@ -387,3 +387,20 @@ export async function updateBookingStatus(userId: string, isTakingBookings: bool
     }
   });
 }
+
+export async function getArtistBookings(userId: string) {
+  const profile = await prisma.artistProfile.findUnique({
+    where: { userId },
+  });
+  if (!profile) throw createError('Artist profile not found', 404);
+
+  return prisma.booking.findMany({
+    where: { artistId: profile.id },
+    include: {
+      client: { select: { name: true, email: true, phone: true, avatarUrl: true } },
+      service: { select: { id: true, name: true, price: true, icon: true } },
+      review: { select: { rating: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}

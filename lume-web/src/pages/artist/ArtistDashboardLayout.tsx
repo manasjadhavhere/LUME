@@ -13,6 +13,7 @@ import {
   X,
   Bell,
   CheckCircle2,
+  Clock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
@@ -172,7 +173,17 @@ const ArtistDashboardLayout: React.FC = () => {
             </NavLink>
           ))}
 
-          <div className="artist-sidebar__nav-section">Preferences</div>
+          <div className="artist-sidebar__nav-section">Bookings & Settings</div>
+          <NavLink 
+            to="/artist-dashboard/bookings" 
+            end 
+            className={({ isActive }) => `artist-sidebar__link ${isActive ? 'artist-sidebar__link--active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <Clock size={18} />
+            <span>Booking Requests</span>
+          </NavLink>
+
           <NavLink
             to="/artist-dashboard/profile"
             className={({ isActive }) =>

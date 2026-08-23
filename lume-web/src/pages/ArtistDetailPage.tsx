@@ -734,7 +734,7 @@ const ArtistDetailPage: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={handleBookingConfirm}
-                disabled={!isBookingReady || bookingLoading}
+                disabled={!isBookingReady || bookingLoading || showSuccessModal}
                 className="booking-sidebar__submit-btn"
               >
                 {bookingLoading ? (
@@ -781,7 +781,7 @@ const ArtistDetailPage: React.FC = () => {
           <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()}</span>
         </div>
         <Button variant="primary" size="lg" onClick={handleBookingConfirm}
-          disabled={!isBookingReady || bookingLoading || artist.isTakingBookings === false} className="adp-mobile-bar__btn">
+          disabled={!isBookingReady || bookingLoading || showSuccessModal || artist.isTakingBookings === false} className="adp-mobile-bar__btn">
           {bookingLoading ? 'Processing...' : artist.isTakingBookings === false ? 'Not Taking Bookings' : isAuthenticated ? 'Confirm Booking' : 'Sign In to Book'}
         </Button>
       </div>
