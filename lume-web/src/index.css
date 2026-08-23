@@ -13,11 +13,12 @@
   --rose:        #f2a4b0;
   --rose-light:  #fce8ec;
   --rose-pale:   #fff0f3;
+  --rose-wash:   rgba(242, 164, 176, 0.03);
   --gold:        #c9a96e;
   --gold-light:  #e8cfa0;
-  --dark:        #2a1a1f;
-  --mid:         #6b4f57;
-  --text-soft:   #9a7f87;
+  --dark:        #1F2937;
+  --mid:         #4B5563;
+  --text-soft:   #6B7280;
   --frost:       #ffffff;
   --white:       #ffffff;
 
@@ -29,11 +30,11 @@
   --spacing-xs:   4px;
   --spacing-sm:   8px;
   --spacing-md:   16px;
-  --spacing-lg:   24px;
-  --spacing-xl:   32px;
-  --spacing-2xl:  48px;
-  --spacing-3xl:  64px;
-  --spacing-4xl:  96px;
+  --spacing-lg:   32px;
+  --spacing-xl:   40px;
+  --spacing-2xl:  56px;
+  --spacing-3xl:  80px;
+  --spacing-4xl:  120px;
 
   /* Border radius */
   --radius-sm:    6px;
@@ -42,12 +43,12 @@
   --radius-xl:    26px;
   --radius-full:  9999px;
 
-  /* Shadows — layered depth system */
-  --shadow-xs:  0 1px 3px rgba(42,26,31,0.06);
-  --shadow-sm:  0 2px 8px rgba(42,26,31,0.08);
-  --shadow-md:  0 6px 20px rgba(42,26,31,0.10);
-  --shadow-lg:  0 14px 40px rgba(42,26,31,0.12);
-  --shadow-xl:  0 24px 64px rgba(42,26,31,0.14);
+  /* Shadows — ultra-soft diffused depth system */
+  --shadow-xs:  0 1px 4px rgba(31,41,55,0.04);
+  --shadow-sm:  0 2px 12px rgba(31,41,55,0.05), 0 1px 3px rgba(217,122,140,0.04);
+  --shadow-md:  0 8px 28px rgba(31,41,55,0.06), 0 2px 8px rgba(217,122,140,0.04);
+  --shadow-lg:  0 16px 48px rgba(31,41,55,0.07), 0 4px 16px rgba(217,122,140,0.05);
+  --shadow-xl:  0 28px 72px rgba(31,41,55,0.08), 0 8px 24px rgba(217,122,140,0.06);
 
   /* Z-index layers */
   --z-base:       1;
@@ -72,7 +73,7 @@
 
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--dark);
   background: var(--frost);
   -webkit-font-smoothing: antialiased;
@@ -92,7 +93,7 @@
 
 ::selection {
   background: var(--rose-light);
-  color: #1a1114;
+  color: var(--dark);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -116,9 +117,10 @@ img, video {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  line-height: 1.15;
+  line-height: 1.12;
   color: var(--dark);
   margin: 0;
+  letter-spacing: -0.03em;
 }
 
 p { margin: 0; }

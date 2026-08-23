@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #faf8f6;
+  background: var(--frost, #ffffff);
   position: relative;
   width: 100%;
   max-width: 100vw;
@@ -159,8 +159,9 @@
    ══════════════════════════════════════ */
 .adp-profile {
   background: white;
-  border-bottom: 1px solid #f0ebe8;
-  padding: 28px 0;
+  border-bottom: none;
+  padding: 32px 0;
+  box-shadow: 0 1px 0 rgba(242, 164, 176, 0.08);
 }
 
 .adp-profile__container {
@@ -344,7 +345,7 @@
 .adp-profile__cta--secondary {
   background: white;
   color: var(--dark);
-  border: 1.5px solid #e8e0dc;
+  border: 1.5px solid rgba(242, 164, 176, 0.15);
 }
 
 .adp-profile__cta--secondary:hover {
@@ -380,10 +381,11 @@
    ══════════════════════════════════════ */
 .adp-tabs-wrapper {
   background: white;
-  border-bottom: 1px solid #f0ebe8;
+  border-bottom: none;
   position: relative;
   z-index: 50;
   transition: box-shadow 0.3s ease;
+  box-shadow: 0 1px 0 rgba(242, 164, 176, 0.06);
 }
 
 .adp-tabs-wrapper--sticky {
@@ -504,12 +506,13 @@
    ══════════════════════════════════════ */
 .adp-section {
   background: white;
-  border: 1px solid #f0ebe8;
+  border: none;
   border-radius: 16px;
-  padding: 32px;
-  margin-bottom: 24px;
+  padding: 36px;
+  margin-bottom: 28px;
   transition: box-shadow 0.3s ease;
   animation: fadeInUp 0.5s ease backwards;
+  box-shadow: 0 2px 20px rgba(31, 41, 55, 0.04), 0 4px 24px rgba(217, 122, 140, 0.04);
 }
 
 .adp-tab-pane {
@@ -528,7 +531,7 @@
 }
 
 .adp-section:hover {
-  box-shadow: 0 8px 32px rgba(42, 26, 31, 0.06);
+  box-shadow: 0 8px 40px rgba(31, 41, 55, 0.06), 0 4px 20px rgba(217, 122, 140, 0.06);
 }
 
 .adp-section__title {
@@ -601,13 +604,14 @@
   padding: 16px;
   background: #ffffff;
   border-radius: 14px;
-  border: 1px solid #e8e2de;
-  transition: all 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 16px rgba(31, 41, 55, 0.04), 0 1px 4px rgba(217, 122, 140, 0.04);
+  transition: all 0.3s ease;
 }
 
 .adp-about__stat:hover {
   background: #faf8f7;
-  border-color: #28141b;
+  box-shadow: 0 8px 28px rgba(31, 41, 55, 0.06), 0 2px 8px rgba(217, 122, 140, 0.06);
   transform: translateY(-2px);
 }
 
@@ -654,7 +658,8 @@
   background: transparent;
   border-radius: 0;
   border: none;
-  border-bottom: 1px solid #e8e2de;
+  border-bottom: none;
+  box-shadow: 0 1px 0 rgba(242, 164, 176, 0.1);
 }
 
 .adp-progress__step {
@@ -677,8 +682,8 @@
   font-family: var(--font-body);
   background: white;
   color: var(--text-soft);
-  border: 2px solid #e4ddd8;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 2px solid rgba(242, 164, 176, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .adp-progress__step--current .adp-progress__circle {
@@ -828,11 +833,12 @@
 .adp-reviews__summary {
   display: flex;
   gap: 32px;
-  padding: 24px;
+  padding: 28px;
   background: #fdfbfb;
   border-radius: 14px;
-  border: 1px solid #f0ecea;
-  margin-bottom: 24px;
+  border: none;
+  box-shadow: 0 2px 16px rgba(31, 41, 55, 0.04), 0 1px 4px rgba(217, 122, 140, 0.04);
+  margin-bottom: 28px;
   align-items: center;
 }
 
@@ -924,7 +930,7 @@
   margin-top: 16px;
   padding: 12px 24px;
   background: none;
-  border: 1.5px solid #e4ddd8;
+  border: 1.5px solid rgba(242, 164, 176, 0.15);
   border-radius: 12px;
   color: var(--rose-deep);
   font-size: 0.88rem;
@@ -1029,9 +1035,10 @@
 /* Booking Summary Card */
 .adp-sidebar__booking {
   background: white;
-  border: 1px solid #f0ebe8;
+  border: none;
   border-radius: 16px;
-  padding: 28px;
+  padding: 32px;
+  box-shadow: 0 2px 20px rgba(31, 41, 55, 0.04), 0 4px 24px rgba(217, 122, 140, 0.04);
 }
 
 .adp-sidebar__booking-header {
@@ -1178,9 +1185,10 @@
 /* Why Book Card */
 .adp-sidebar__why {
   background: white;
-  border: 1px solid #f0ebe8;
+  border: none;
   border-radius: 16px;
-  padding: 24px;
+  padding: 28px;
+  box-shadow: 0 2px 20px rgba(31, 41, 55, 0.04), 0 4px 24px rgba(217, 122, 140, 0.04);
 }
 
 .adp-sidebar__why-title {

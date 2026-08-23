@@ -4,14 +4,14 @@
 
 .profile-dashboard {
   min-height: 100vh;
-  background: #faf7f5;
+  background: var(--frost, #ffffff);
   padding: var(--spacing-xl) var(--spacing-lg) 7rem;
   max-width: 1400px;
   margin: 0 auto;
   animation: fadeUp 0.5s ease-out both;
   display: grid;
   grid-template-columns: 260px 1fr;
-  gap: 32px;
+  gap: 40px;
   align-items: start;
 }
 

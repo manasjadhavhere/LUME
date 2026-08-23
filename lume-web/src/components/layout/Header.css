@@ -15,7 +15,7 @@
   border-bottom: 1px solid rgba(242, 164, 176, 0.2);
   box-shadow: 0 2px 20px rgba(42, 26, 31, 0.06),
               inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  transition: background 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Dark / Hero mode — no longer transparent, keep light theme ── */
@@ -110,7 +110,7 @@
 .lume-header__nav {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg, 24px);
+  gap: 40px;
 }
 
 .lume-header__nav-link {
@@ -125,7 +125,7 @@
   text-transform: uppercase;
   padding: 6px 0;
   position: relative;
-  transition: color 0.25s ease;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Animated underline that grows from center */
@@ -171,7 +171,7 @@
   justify-content: center;
   color: var(--dark, #2a1a1f);
   border-radius: 50%;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .lume-header__search:hover {
   color: var(--rose-deep, #d97a8c);
@@ -190,13 +190,13 @@
   padding: 8px 20px;
   border-radius: var(--radius-full, 9999px);
   cursor: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .lume-header__cta:hover {
   background: var(--rose-deep, #d97a8c);
   color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(217, 122, 140, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.3);
 }
 
 .lume-header__hamburger {

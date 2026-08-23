@@ -5,33 +5,29 @@
 
 .artist-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-shadow: 0 4px 24px rgba(217, 122, 140, 0.10),
-              inset 0 1px 0 rgba(255, 255, 255, 0.9),
-              inset 0 -1px 0 rgba(217, 122, 140, 0.06);
+  box-shadow: 0 2px 20px rgba(31, 41, 55, 0.05),
+    0 8px 40px rgba(217, 122, 140, 0.06);
 }
 
 /* Only lift on pointer devices (not touch) */
 @media (hover: hover) and (pointer: fine) {
   .artist-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 56px rgba(217, 122, 140, 0.22),
-                0 4px 12px rgba(42, 26, 31, 0.06),
-                inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    border-color: rgba(242, 164, 176, 0.55);
+    box-shadow: 0 20px 56px rgba(217, 122, 140, 0.18),
+      0 4px 12px rgba(31, 41, 55, 0.04);
   }
+
   .artist-card:hover .artist-card__image {
     transform: scale(1.07);
   }
@@ -61,12 +57,10 @@
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(
-    to top,
-    rgba(217, 122, 140, 0.38) 0%,
-    rgba(242, 164, 176, 0.1) 60%,
-    transparent 100%
-  );
+  background: linear-gradient(to top,
+      rgba(217, 122, 140, 0.38) 0%,
+      rgba(242, 164, 176, 0.1) 60%,
+      transparent 100%);
   pointer-events: none;
 }
 
@@ -78,12 +72,12 @@
 }
 
 .artist-card__content {
-  padding: clamp(10px, 2vw, 16px);
+  padding: clamp(14px, 2.5vw, 20px);
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.78);
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -168,8 +162,19 @@
 
 .artist-card__footer {
   margin-top: auto;
-  border-top: 1px solid rgba(242, 164, 176, 0.18);
-  padding-top: 8px;
+  border-top: none;
+  padding-top: 10px;
+  position: relative;
+}
+
+.artist-card__footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(242, 164, 176, 0.15), transparent);
 }
 
 .artist-card__price {
@@ -195,6 +200,50 @@
 
 /* Extra small phone — ultra compact */
 @media (max-width: 380px) {
-  .artist-card__content { padding: 9px 9px 11px; gap: 6px; }
-  .artist-card__image-wrapper { padding-top: 105%; }
+  .artist-card__content {
+    padding: 9px 9px 11px;
+    gap: 6px;
+  }
+
+  .artist-card__image-wrapper {
+    padding-top: 105%;
+  }
+}
+
+right: 0;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(242, 164, 176, 0.15), transparent);
+}
+
+.artist-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.artist-card__price-value {
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.artist-card__price-label {
+  font-size: 0.68rem;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
+/* Extra small phone — ultra compact */
+@media (max-width: 380px) {
+  .artist-card__content {
+    padding: 9px 9px 11px;
+    gap: 6px;
+  }
+
+  .artist-card__image-wrapper {
+    padding-top: 105%;
+  }
 }

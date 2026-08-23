@@ -64,7 +64,7 @@
 
   .saved-page__list {
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-xl);
+    gap: 28px;
   }
 }
 

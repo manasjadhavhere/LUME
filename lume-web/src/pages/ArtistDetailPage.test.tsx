@@ -178,7 +178,7 @@ describe('ArtistDetailPage Unit Tests', () => {
 
       const firstDate = new Date(artist.availability.dates[0].date);
       const allOptions = screen.getAllByRole('option');
-      let dateButton = allOptions.find(el => {
+      const dateButton = allOptions.find(el => {
         const label = el.getAttribute('aria-label') || '';
         return label.includes(firstDate.getDate().toString()) && 
                el.getAttribute('class')?.includes('date-picker__chip');
@@ -196,7 +196,7 @@ describe('ArtistDetailPage Unit Tests', () => {
         fireEvent.click(timeSlotButton);
 
         // Button should be enabled with complete selection
-        let bookingButton = screen.getByRole('button', { name: /confirm booking/i });
+        const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
         expect(bookingButton).not.toBeDisabled();
 
         // Verify button shows the correct service price

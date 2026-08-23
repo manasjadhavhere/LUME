@@ -236,14 +236,14 @@ const LandingPage: React.FC = () => {
       fetch(`${API_BASE}/api/clients/me/bookings`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data) {
-          const upcoming = data.data.filter((b: any) => b.status === 'ACCEPTED' || b.status === 'CONFIRMED');
-          setUpcomingBookings(upcoming.slice(0, 3)); // show top 3
-        }
-      })
-      .catch(err => console.error("Failed to fetch client bookings on landing", err));
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const upcoming = data.data.filter((b: any) => b.status === 'ACCEPTED' || b.status === 'CONFIRMED');
+            setUpcomingBookings(upcoming.slice(0, 3)); // show top 3
+          }
+        })
+        .catch(err => console.error("Failed to fetch client bookings on landing", err));
     }
   }, [isAuthenticated, user]);
 
@@ -788,6 +788,66 @@ const LandingPage: React.FC = () => {
       </section>
 
     </div>
+  );
+};
+
+export default LandingPage;
+          </div >
+
+  {/* Form */ }
+  < div className = "lp-contact__form-wrap reveal-right" >
+    <form className="lp-contact__form glass-panel" onSubmit={handleContact}>
+      <h3 className="lp-contact__form-title">Send us a Message</h3>
+
+      {formSent && (
+        <div className="lp-contact__success">
+          <CheckCircle size={18} />
+          Message sent! We'll be in touch soon.
+        </div>
+      )}
+
+      <div className="lp-contact__field">
+        <label htmlFor="contact-name">Your Name</label>
+        <input
+          id="contact-name"
+          type="text"
+          placeholder="e.g. Priya Sharma"
+          value={contactForm.name}
+          onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
+          required
+        />
+      </div>
+      <div className="lp-contact__field">
+        <label htmlFor="contact-email">Email Address</label>
+        <input
+          id="contact-email"
+          type="email"
+          placeholder="you@email.com"
+          value={contactForm.email}
+          onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
+          required
+        />
+      </div>
+      <div className="lp-contact__field">
+        <label htmlFor="contact-msg">Message</label>
+        <textarea
+          id="contact-msg"
+          rows={4}
+          placeholder="How can we help you?"
+          value={contactForm.message}
+          onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
+          required
+        />
+      </div>
+      <button type="submit" className="lp-btn lp-btn--primary lp-contact__submit">
+        Send Message <ArrowRight size={16} />
+      </button>
+    </form>
+          </div >
+        </div >
+      </section >
+
+    </div >
   );
 };
 

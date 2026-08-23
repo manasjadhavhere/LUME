@@ -146,13 +146,13 @@
   color: var(--rose-deep) !important;
   font-weight: 600;
   border: none !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 8px 32px rgba(31, 41, 55, 0.2) !important;
 }
 
 .booking-confirm-button:hover {
   background: var(--white) !important;
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25) !important;
+  box-shadow: 0 12px 40px rgba(31, 41, 55, 0.25) !important;
 }
 
 /* Loading state */

@@ -376,7 +376,7 @@
   max-width: 480px;
   aspect-ratio: 9/16;
   max-height: 85vh;
-  background: #000;
+  background: #1a1520;
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
@@ -579,7 +579,7 @@
   left: 0;
   right: 0;
   bottom: 64px; /* leaves room for Lume BottomNav */
-  background: #000;
+  background: #1a1520;
   z-index: 950;
   overflow: hidden;
 }

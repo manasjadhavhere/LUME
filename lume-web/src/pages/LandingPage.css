@@ -15,13 +15,13 @@
 }
 
 .lp-section {
-  padding: clamp(80px, 10vw, 130px) 0;
+  padding: clamp(96px, 12vw, 160px) 0;
 }
 
 .lp-section__header {
   text-align: center;
-  max-width: 680px;
-  margin: 0 auto clamp(48px, 6vw, 80px);
+  max-width: 700px;
+  margin: 0 auto clamp(56px, 7vw, 96px);
 }
 
 .lp-section__lead {
@@ -136,12 +136,12 @@
 .lp-btn--light {
   background: white;
   color: var(--dark);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(31, 41, 55, 0.08);
 }
 
 .lp-btn--light:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 32px rgba(31, 41, 55, 0.12);
 }
 
 .lp-btn--ghost-light {
@@ -729,8 +729,9 @@
 ═══════════════════════════════════════ */
 .lp-stats-bar {
   background: white;
-  border-bottom: 1px solid rgba(242, 164, 176, 0.12);
-  padding: 40px 0;
+  border-bottom: none;
+  padding: 56px 0;
+  box-shadow: 0 1px 0 rgba(242, 164, 176, 0.08);
 }
 
 .lp-stats-bar__inner {
@@ -745,14 +746,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-align: center;
-  padding: 12px 24px;
-  border-right: 1px solid rgba(242, 164, 176, 0.15);
+  padding: 16px 32px;
+  border-right: none;
+  position: relative;
 }
 
-.lp-stats-bar__item:last-child {
-  border-right: none;
+.lp-stats-bar__item::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(242, 164, 176, 0.2), transparent);
+}
+
+.lp-stats-bar__item:last-child::after {
+  display: none;
 }
 
 .lp-stats-bar__item strong {
@@ -779,7 +791,7 @@
 .lp-artists {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #fff8f9 0%, #fdf3f5 50%, #fff0f2 100%);
+  background: linear-gradient(160deg, #fefcfd 0%, #fdf8f9 50%, #fdfbfc 100%);
 }
 
 /* Ambient glass orbs for artists section */
@@ -812,7 +824,7 @@
 .lp-artists__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 28px;
 }
 
 .lp-artist-card {

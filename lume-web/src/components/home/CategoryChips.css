@@ -16,7 +16,7 @@
 
 .category-circles__container {
   display: flex;
-  gap: 24px;
+  gap: 32px;
   padding: 0 24px;
   min-width: max-content;
   justify-content: center;
@@ -54,7 +54,7 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;

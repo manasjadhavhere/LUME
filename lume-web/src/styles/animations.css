@@ -270,12 +270,27 @@
 
 /* Hover Effects */
 .hover-lift {
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(31, 41, 55, 0.07), 0 4px 16px rgba(217, 122, 140, 0.05);
+}
+
+/* Premium transition — apply to any interactive element */
+.premium-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button lift with rose glow */
+.btn-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(217, 122, 140, 0.28);
 }
 
 .hover-scale {

@@ -32,7 +32,7 @@
   border: none;
   cursor: pointer;
   color: var(--text-soft);
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--radius-md);
   min-width: 64px;
   min-height: 56px;
