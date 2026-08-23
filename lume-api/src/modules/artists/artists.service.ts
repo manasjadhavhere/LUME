@@ -43,7 +43,9 @@ export async function getAllArtists(query: {
 }) {
   const { specialty, location, search, page = 1, limit = 20, minPrice, maxPrice } = query;
 
-  const where: any = {};
+  const where: any = {
+    isVerified: true, // Only show verified artists to clients
+  };
 
   if (specialty && specialty !== 'All') {
     where.specialties = { has: specialty };
@@ -94,7 +96,7 @@ export async function getAllArtists(query: {
 
 export async function getArtistById(artistId: string) {
   const artist = await prisma.artistProfile.findFirst({
-    where: { id: artistId },
+    where: { id: artistId, isVerified: true },
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true } },
       services: { where: { isActive: true }, orderBy: { price: 'asc' } },
