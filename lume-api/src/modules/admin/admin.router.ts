@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPendingArtists, getAllArtists, verifyArtist, rejectArtist, getStats, updateArtistAdmin, approveEditRequest, deleteUser } from './admin.controller';
+import { getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist, getStats, updateArtistAdmin, approveEditRequest, deleteUser } from './admin.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 
 const router = Router();
@@ -12,6 +12,9 @@ router.get('/stats', getStats);
 
 // GET /api/admin/artists
 router.get('/artists', getAllArtists);
+
+// GET /api/admin/clients
+router.get('/clients', getAllClients);
 
 // GET /api/admin/artists/pending
 router.get('/artists/pending', getPendingArtists);

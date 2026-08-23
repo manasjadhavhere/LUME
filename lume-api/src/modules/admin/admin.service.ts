@@ -23,6 +23,16 @@ export async function getAllArtistsAdmin() {
   });
 }
 
+// Get all clients (for admin overview)
+export async function getAllClients() {
+  return prisma.user.findMany({
+    where: { role: 'CLIENT' },
+    select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+
 // Approve an artist
 export async function verifyArtist(artistId: string, remarks?: string) {
   const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });

@@ -64,6 +64,7 @@ const AdminDashboard: React.FC = () => {
 
   // We fetch all artists to allow editing any profile
   const [allArtists, setAllArtists] = useState<ArtistProfile[]>([]);
+  const [clients, setClients] = useState<ClientUser[]>([]);
   const [activeTab, setActiveTab] = useState<'pending' | 'all' | 'clients'>('pending');
 
   useEffect(() => {
@@ -72,14 +73,16 @@ const AdminDashboard: React.FC = () => {
   }, [user]);
 
   const loadData = async () => {
-    const [statsRes, pendingRes, allRes] = await Promise.all([
+    const [statsRes, pendingRes, allRes, clientsRes] = await Promise.all([
       execute('/api/admin/stats') as Promise<Stats | null>,
       execute('/api/admin/artists/pending') as Promise<ArtistProfile[] | null>,
       execute('/api/admin/artists') as Promise<ArtistProfile[] | null>,
+      execute('/api/admin/clients') as Promise<ClientUser[] | null>,
     ]);
     if (statsRes) setStats(statsRes);
     if (pendingRes) setPendingArtists(pendingRes);
     if (allRes) setAllArtists(allRes);
+    if (clientsRes) setClients(clientsRes);
   };
 
   const handleVerify = async (artistId: string) => {
@@ -244,7 +247,7 @@ const AdminDashboard: React.FC = () => {
           onClick={() => setActiveTab('clients')}
           style={{ padding: '8px 16px', borderRadius: '6px', background: activeTab === 'clients' ? '#0f172a' : 'white', color: activeTab === 'clients' ? 'white' : '#475569', border: '1px solid #cbd5e1', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s' }}
         >
-          Clients ({stats?.clients?.length || 0})
+          Clients ({clients.length})
         </button>
       </div>
 
@@ -305,7 +308,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         ) : (
           <div className="admin-artists-grid">
-            {stats?.clients?.map(client => (
+            {clients.map(client => (
               <div key={client.id} className="admin-artist-card" style={{ cursor: 'default' }}>
                 <div className="admin-artist-card__avatar">
                   <span>{client.name[0]}</span>

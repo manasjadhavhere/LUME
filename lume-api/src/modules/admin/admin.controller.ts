@@ -15,6 +15,13 @@ export async function getAllArtists(req: Request, res: Response, next: NextFunct
   } catch (err) { next(err); }
 }
 
+export async function getAllClients(req: Request, res: Response, next: NextFunction) {
+  try {
+    const clients = await AdminService.getAllClients();
+    res.json({ success: true, data: clients });
+  } catch (err) { next(err); }
+}
+
 export async function verifyArtist(req: Request, res: Response, next: NextFunction) {
   try {
     const artist = await AdminService.verifyArtist(req.params.id as string, req.body.remarks);
