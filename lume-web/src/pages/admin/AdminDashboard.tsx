@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Users, Calendar, BarChart2, BadgeCheck, Clock, X, Home, Briefcase, User as UserIcon, ExternalLink } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
 import { API_BASE } from '../../context/AuthContext';
@@ -46,7 +47,11 @@ interface Stats {
   pendingVerifications: number;
   totalBookings: number;
   verifiedArtists: number;
-  clients: ClientUser[];
+  charts?: {
+    userGrowth: { month: string; clients: number; artists: number }[];
+    bookingTrends: { month: string; completed: number; cancelled: number; other: number }[];
+    verificationDist: { name: string; value: number; color: string }[];
+  };
 }
 
 const AdminDashboard: React.FC = () => {
@@ -258,6 +263,64 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {stats.charts && (
+                <div className="admin-charts-grid">
+                  <div className="admin-chart-card">
+                    <h3 className="admin-chart-title">User Growth (Last 6 Months)</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={stats.charts.userGrowth}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
+                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                        <Legend iconType="circle" wrapperStyle={{paddingTop: 20}} />
+                        <Line type="monotone" dataKey="clients" name="New Clients" stroke="#6366f1" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                        <Line type="monotone" dataKey="artists" name="New Artists" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="admin-chart-card">
+                    <h3 className="admin-chart-title">Booking Trends (Last 6 Months)</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={stats.charts.bookingTrends}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dx={-10} />
+                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} cursor={{fill: '#f1f5f9'}} />
+                        <Legend iconType="circle" wrapperStyle={{paddingTop: 20}} />
+                        <Bar dataKey="completed" name="Completed" stackId="a" fill="#10b981" radius={[0,0,4,4]} />
+                        <Bar dataKey="cancelled" name="Cancelled" stackId="a" fill="#ef4444" />
+                        <Bar dataKey="other" name="Other/Pending" stackId="a" fill="#94a3b8" radius={[4,4,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="admin-chart-card">
+                    <h3 className="admin-chart-title">Artist Verification Distribution</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={stats.charts.verificationDist}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={80}
+                          outerRadius={110}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {stats.charts.verificationDist.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip contentStyle={{borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}} />
+                        <Legend iconType="circle" layout="vertical" verticalAlign="middle" align="right" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
 
               {pendingArtists.length > 0 && (
                 <div>

@@ -158,7 +158,6 @@ export async function updateArtistAdmin(artistId: string, data: any) {
   return updatedArtist;
 }
 
-// Admin stats
 export async function getAdminStats() {
   const [
     totalUsers,
@@ -171,8 +170,77 @@ export async function getAdminStats() {
     prisma.artistProfile.count(),
     prisma.artistProfile.count({ where: { verificationStatus: 'PENDING' } }),
     prisma.booking.count(),
-    prisma.artistProfile.count({ where: { isVerified: true } }),
+    prisma.artistProfile.count({ where: { verificationStatus: 'VERIFIED' } }),
   ]);
+
+  // Fetch data for charts (last 6 months)
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  sixMonthsAgo.setDate(1); // Start of that month
+
+  const [recentUsers, recentBookings, allArtistsStatus] = await Promise.all([
+    prisma.user.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true, role: true }
+    }),
+    prisma.booking.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true, status: true }
+    }),
+    prisma.artistProfile.findMany({
+      select: { verificationStatus: true }
+    })
+  ]);
+
+  // Process User Growth Chart
+  const userGrowthMap: Record<string, { month: string; clients: number; artists: number }> = {};
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const monthStr = d.toLocaleString('default', { month: 'short' });
+    userGrowthMap[monthStr] = { month: monthStr, clients: 0, artists: 0 };
+  }
+
+  recentUsers.forEach(u => {
+    const monthStr = u.createdAt.toLocaleString('default', { month: 'short' });
+    if (userGrowthMap[monthStr]) {
+      if (u.role === 'CLIENT') userGrowthMap[monthStr].clients++;
+      else if (u.role === 'ARTIST') userGrowthMap[monthStr].artists++;
+    }
+  });
+
+  // Process Booking Trends Chart
+  const bookingTrendsMap: Record<string, { month: string; completed: number; cancelled: number; other: number }> = {};
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const monthStr = d.toLocaleString('default', { month: 'short' });
+    bookingTrendsMap[monthStr] = { month: monthStr, completed: 0, cancelled: 0, other: 0 };
+  }
+
+  recentBookings.forEach(b => {
+    const monthStr = b.createdAt.toLocaleString('default', { month: 'short' });
+    if (bookingTrendsMap[monthStr]) {
+      if (b.status === 'COMPLETED') bookingTrendsMap[monthStr].completed++;
+      else if (b.status === 'CANCELLED' || b.status === 'NO_SHOW') bookingTrendsMap[monthStr].cancelled++;
+      else bookingTrendsMap[monthStr].other++;
+    }
+  });
+
+  // Process Verification Distribution
+  const verificationDist = {
+    verified: 0,
+    pending: 0,
+    rejected: 0,
+    other: 0
+  };
+  
+  allArtistsStatus.forEach(a => {
+    if (a.verificationStatus === 'VERIFIED') verificationDist.verified++;
+    else if (a.verificationStatus === 'PENDING') verificationDist.pending++;
+    else if (a.verificationStatus === 'REJECTED') verificationDist.rejected++;
+    else verificationDist.other++;
+  });
 
   return {
     totalUsers,
@@ -180,6 +248,16 @@ export async function getAdminStats() {
     pendingVerifications,
     totalBookings,
     verifiedArtists,
+    charts: {
+      userGrowth: Object.values(userGrowthMap),
+      bookingTrends: Object.values(bookingTrendsMap),
+      verificationDist: [
+        { name: 'Verified', value: verificationDist.verified, color: '#10b981' },
+        { name: 'Pending', value: verificationDist.pending, color: '#f59e0b' },
+        { name: 'Rejected', value: verificationDist.rejected, color: '#ef4444' },
+        { name: 'Other', value: verificationDist.other, color: '#64748b' }
+      ].filter(d => d.value > 0)
+    }
   };
 }
 
