@@ -15,7 +15,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useApi } from '../../hooks/useApi';
+import { useApi, apiFetch } from '../../hooks/useApi';
 import './ArtistDashboardLayout.css';
 
 const navItems = [
@@ -26,7 +26,7 @@ const navItems = [
 ];
 
 const ArtistDashboardLayout: React.FC = () => {
-  const { user, logout, updateUser } = useAuth();
+  const { user, logout, updateUser, token } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { execute } = useApi();
@@ -90,9 +90,10 @@ const ArtistDashboardLayout: React.FC = () => {
     if (statusUpdating) return;
     setStatusUpdating(true);
     try {
-      const res = await execute('/api/artists/me/booking-status', {
+      const res = await apiFetch('/api/artists/me/booking-status', {
         method: 'PATCH',
-        body: { isTakingBookings: !isTakingBookings }
+        body: { isTakingBookings: !isTakingBookings },
+        token: token || undefined
       });
       if (res) {
         setIsTakingBookings(!isTakingBookings);
