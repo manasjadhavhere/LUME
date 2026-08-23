@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist, getStats, updateArtistAdmin, approveEditRequest, deleteUser } from './admin.controller';
+import { getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist, getStats, updateArtistAdmin, approveEditRequest, deleteUser, updateBookingStatus } from './admin.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 
 const router = Router();
@@ -30,6 +30,9 @@ router.patch('/artists/:id/approve-edit', approveEditRequest);
 
 // PUT /api/admin/artists/:id
 router.put('/artists/:id', updateArtistAdmin);
+
+// PATCH /api/admin/artists/:id/booking-status
+router.patch('/artists/:id/booking-status', updateBookingStatus);
 
 // DELETE /api/admin/users/:id
 router.delete('/users/:id', deleteUser);

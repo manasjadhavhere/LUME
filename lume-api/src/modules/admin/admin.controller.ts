@@ -50,6 +50,13 @@ export async function updateArtistAdmin(req: Request, res: Response, next: NextF
   } catch (err) { next(err); }
 }
 
+export async function updateBookingStatus(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artist = await AdminService.updateBookingStatusAdmin(req.params.id as string, !!req.body.isTakingBookings);
+    res.json({ success: true, data: artist, message: 'Booking status updated successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function getStats(req: Request, res: Response, next: NextFunction) {
   try {
     const stats = await AdminService.getAdminStats();
