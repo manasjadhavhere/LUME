@@ -5,7 +5,7 @@ import {
   Lock, Eye, EyeOff, Building2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useApi } from '../../hooks/useApi';
+import { useApi, apiFetch } from '../../hooks/useApi';
 import { API_BASE } from '../../context/AuthContext';
 import './ArtistPages.css';
 
