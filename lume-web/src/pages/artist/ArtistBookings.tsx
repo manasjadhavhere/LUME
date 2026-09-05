@@ -42,7 +42,7 @@ const ArtistBookings: React.FC = () => {
         body: { status: newStatus },
         token,
       }) as any;
-      if (res.success) {
+      if (res) {
         execute('/api/artists/me/bookings');
         if (newStatus === 'ACCEPTED' || newStatus === 'CONFIRMED') {
           setActiveTab('UPCOMING');
