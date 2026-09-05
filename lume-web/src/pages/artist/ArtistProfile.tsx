@@ -144,19 +144,24 @@ const ArtistProfile: React.FC = () => {
           accountType: bankType,
         },
       }) as any;
-      if (res) {
-        setSavedBankAccount(res);
-        setBankSuccess(true);
-        setBankAccountNumber('');
-        setBankConfirmAccount('');
-        setTimeout(() => setBankSuccess(false), 4000);
+      
+      if (!res) {
+        setBankError('Failed to save bank account. The server might be missing configuration (like BANK_ENCRYPTION_KEY). Please contact support or check server logs.');
+        return;
       }
+      
+      setSavedBankAccount(res);
+      setBankSuccess(true);
+      setBankAccountNumber('');
+      setBankConfirmAccount('');
+      setTimeout(() => setBankSuccess(false), 4000);
     } catch (err: any) {
       setBankError(err?.message || 'Failed to save bank account');
     } finally {
       setBankLoading(false);
     }
   };
+
 
   const toggleSpecialty = (s: string) =>
     setSpecialties(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
