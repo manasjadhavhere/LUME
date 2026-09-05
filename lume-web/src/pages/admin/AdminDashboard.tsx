@@ -28,6 +28,17 @@ interface ArtistProfile {
   occasionPrice?: number;
   hourlyPrice?: number;
   isTakingBookings?: boolean;
+  gender?: string;
+  dob?: string;
+  instagramUrl?: string;
+  bankAccount?: {
+    id: string;
+    accountHolderName: string;
+    accountNumberLast4: string;
+    ifscCode: string;
+    isVerified: boolean;
+    verificationStatus: string;
+  };
   user: { id: string; name: string; email: string; avatarUrl?: string; createdAt: string; };
 }
 
@@ -222,6 +233,9 @@ const AdminDashboard: React.FC = () => {
       weddingPrice: artist.weddingPrice || 0,
       occasionPrice: artist.occasionPrice || 0,
       hourlyPrice: artist.hourlyPrice || 0,
+      gender: artist.gender || '',
+      dob: artist.dob ? new Date(artist.dob).toISOString().split('T')[0] : '',
+      instagramUrl: artist.instagramUrl || '',
     });
   };
 
@@ -685,6 +699,24 @@ const AdminDashboard: React.FC = () => {
                           <div style={{ fontSize: '1rem', fontWeight: 600 }}>{selectedArtist.user.name}</div>
                           <div style={{ fontSize: '0.875rem', color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14}/> {selectedArtist.location || 'No location'}</div>
                           <div style={{ fontSize: '0.875rem', color: '#475569' }}>{selectedArtist.bio || 'No bio provided'}</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+                            <div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Experience</span>
+                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.experience || 0} years</div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Gender</span>
+                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.gender || 'Not specified'}</div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Certification</span>
+                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.certification || 'None'}</div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Specialties</span>
+                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.specialties?.length ? selectedArtist.specialties.join(', ') : 'None'}</div>
+                            </div>
+                          </div>
                         </>
                       )}
                     </div>
@@ -705,6 +737,32 @@ const AdminDashboard: React.FC = () => {
                       ))}
                     </div>
                   </div>
+                  
+                  {selectedArtist.bankAccount && (
+                    <div>
+                      <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Bank Details</h3>
+                      <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Holder</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.accountHolderName}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Number</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>****{selectedArtist.bankAccount.accountNumberLast4}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>IFSC Code</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.ifscCode}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Verification</span>
+                          <span className={`admin-badge admin-badge--${selectedArtist.bankAccount.isVerified ? 'success' : 'warning'}`}>
+                            {selectedArtist.bankAccount.verificationStatus}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Col */}

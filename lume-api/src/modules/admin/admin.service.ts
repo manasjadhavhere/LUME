@@ -8,6 +8,7 @@ export async function getPendingArtists() {
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true } },
       services: { where: { isActive: true } },
+      bankAccount: true,
     },
     orderBy: { verificationSubmittedAt: 'asc' },
   });
@@ -18,6 +19,7 @@ export async function getAllArtistsAdmin() {
   return prisma.artistProfile.findMany({
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true } },
+      bankAccount: true,
     },
     orderBy: { createdAt: 'desc' },
   });

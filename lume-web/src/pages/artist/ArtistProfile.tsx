@@ -164,10 +164,14 @@ const ArtistProfile: React.FC = () => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault(); setProfileSuccess(false); setProfileError('');
     try {
-      await apiExecute('/api/artists/me/profile', {
+      const res = await apiExecute('/api/artists/me/profile', {
         method: 'PUT',
         body: { bio, location, experience: parseInt(experience, 10) || 0, certification, specialties, gender: gender || undefined },
       });
+      if (!res) {
+        setProfileError('Failed to save profile. Please check if all fields are valid.');
+        return;
+      }
       setProfileSuccess(true); await refreshUser();
       setTimeout(() => setProfileSuccess(false), 4000);
     } catch { setProfileError('An error occurred while saving.'); }
@@ -175,7 +179,7 @@ const ArtistProfile: React.FC = () => {
 
   const handleSavePricing = async (e: React.FormEvent) => {
     e.preventDefault(); setPricingSuccess(false);
-    await apiExecute('/api/artists/me/pricing', {
+    const res = await apiExecute('/api/artists/me/pricing', {
       method: 'PUT',
       body: {
         weddingPrice: weddingPrice ? parseFloat(weddingPrice) : undefined,
@@ -183,6 +187,7 @@ const ArtistProfile: React.FC = () => {
         hourlyPrice: hourlyPrice ? parseFloat(hourlyPrice) : undefined,
       },
     });
+    if (!res) return;
     setPricingSuccess(true); await refreshUser();
     setTimeout(() => setPricingSuccess(false), 3000);
   };
