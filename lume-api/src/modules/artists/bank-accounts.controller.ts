@@ -230,7 +230,9 @@ export async function verifyAndRegisterOnRoute(bankAccountId: string): Promise<{
     console.log(`[Route] Successfully registered artist on Razorpay Route: ${linkedAccountId}`);
     return { success: true, linkedAccountId };
   } catch (err: any) {
-    console.error('[Route] Failed to register on Razorpay Route:', err?.message || err);
-    return { success: false, error: err?.message || 'Route registration failed' };
+    // Log the full Razorpay error object so description/code fields are visible in logs
+    console.error('[Route] Failed to register on Razorpay Route:', JSON.stringify(err, null, 2));
+    const errorDescription = err?.error?.description || err?.description || err?.message || 'Route registration failed';
+    return { success: false, error: errorDescription };
   }
 }

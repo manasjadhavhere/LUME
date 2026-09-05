@@ -114,9 +114,10 @@ export async function adminVerifyBankAccount(req: Request, res: Response, next: 
       success: true,
       message: result.success
         ? `Bank account verified and registered on Razorpay Route (${result.linkedAccountId})`
-        : `Bank account verified. Route registration skipped: ${result.error}`,
+        : `Bank account verified. Route registration failed: ${result.error}`,
       routeRegistered: result.success,
       linkedAccountId: result.linkedAccountId,
+      errorDetail: result.success ? undefined : result.error,
     });
   } catch (err) { next(err); }
 }

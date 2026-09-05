@@ -110,6 +110,7 @@ const AdminDashboard: React.FC = () => {
   const [remarks, setRemarks] = useState('');
   
   const [actionMsg, setActionMsg] = useState('');
+  const [actionMsgType, setActionMsgType] = useState<'success' | 'error'>('success');
   const [actioning, setActioning] = useState(false);
 
   useEffect(() => {
@@ -134,9 +135,16 @@ const AdminDashboard: React.FC = () => {
     if (revenueRes) setLumeRevenue(revenueRes);
   };
 
-  const displayMsg = (msg: string) => {
+  const displayMsg = (msg: string, type: 'success' | 'error' = 'success') => {
     setActionMsg(msg);
-    setTimeout(() => setActionMsg(''), 4000);
+    setActionMsgType(type);
+    setTimeout(() => setActionMsg(''), 6000);
+  };
+
+  const switchTab = (tab: 'dashboard' | 'artists' | 'clients' | 'payments') => {
+    setActiveTab(tab);
+    setSelectedArtist(null);
+    setSelectedPaymentArtist(null);
   };
 
   const handleVerify = async (artistId: string) => {
@@ -318,24 +326,24 @@ const AdminDashboard: React.FC = () => {
           </Link>
         </div>
         <nav className="admin-sidebar__nav">
-          <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+          <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => switchTab('dashboard')}>
             <BarChart2 size={18} />
             <span>Overview</span>
           </button>
-          <button className={`admin-nav-item ${activeTab === 'artists' ? 'active' : ''}`} onClick={() => setActiveTab('artists')}>
+          <button className={`admin-nav-item ${activeTab === 'artists' ? 'active' : ''}`} onClick={() => switchTab('artists')}>
             <Briefcase size={18} />
             <span>Artists</span>
             {pendingArtists.length > 0 && (
-              <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem' }}>
+              <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
                 {pendingArtists.length}
               </span>
             )}
           </button>
-          <button className={`admin-nav-item ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => setActiveTab('clients')}>
+          <button className={`admin-nav-item ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => switchTab('clients')}>
             <Users size={18} />
             <span>Clients</span>
           </button>
-          <button className={`admin-nav-item ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => setActiveTab('payments')}>
+          <button className={`admin-nav-item ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => switchTab('payments')}>
             <CreditCard size={18} />
             <span>Payments</span>
           </button>
@@ -363,7 +371,7 @@ const AdminDashboard: React.FC = () => {
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>Admin Portal</span>
             </div>
             {actionMsg && (
-              <div style={{ background: '#10b981', color: '#fff', padding: '6px 16px', borderRadius: 99, fontSize: '0.85rem', fontWeight: 600, animation: 'fadeIn 0.3s' }}>
+              <div style={{ background: actionMsgType === 'error' ? '#ef4444' : '#10b981', color: '#fff', padding: '6px 16px', borderRadius: 99, fontSize: '0.85rem', fontWeight: 600, animation: 'fadeIn 0.3s', maxWidth: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {actionMsg}
               </div>
             )}
@@ -635,6 +643,7 @@ const AdminDashboard: React.FC = () => {
                         <th>Artist Name</th>
                         <th>Total Earnings</th>
                         <th>Pending Payout</th>
+                        <th>Route Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -655,6 +664,17 @@ const AdminDashboard: React.FC = () => {
                           </td>
                           <td><span style={{ fontWeight: 600 }}>₹{p.totalArtistDue.toLocaleString()}</span></td>
                           <td><span style={{ color: p.pendingPayout > 0 ? '#ef4444' : '#10b981', fontWeight: 600 }}>₹{p.pendingPayout.toLocaleString()}</span></td>
+                          <td>
+                            {p.bankAccount?.isLinkedToRazorpay ? (
+                              <span style={{ background: '#dbeafe', color: '#1d4ed8', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⚡ Auto-Pay ON</span>
+                            ) : p.bankAccount?.isVerified ? (
+                              <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⚠ Not Linked</span>
+                            ) : p.bankAccount ? (
+                              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⏳ Unverified</span>
+                            ) : (
+                              <span style={{ background: '#f1f5f9', color: '#64748b', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>No Bank</span>
+                            )}
+                          </td>
                           <td>
                             <button className="admin-btn-icon" onClick={() => fetchPaymentDetails(p.artistId)} title="View Payment Details" style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: 6, width: 'auto' }}>
                               View Details
@@ -919,15 +939,20 @@ const AdminDashboard: React.FC = () => {
                                   const res = await execute(`/api/admin/bank-accounts/${selectedPaymentArtist.bankAccount.id}/verify`, { method: 'PATCH' });
                                   if (res) {
                                     const r = res as any;
-                                    displayMsg('✅ ' + (r.routeRegistered ? 'Artist registered on Razorpay Route.' : 'Note: Route registration skipped (check logs).'));
+                                    if (r.routeRegistered) {
+                                      displayMsg('✅ Artist registered on Razorpay Route! Auto-payouts now active.', 'success');
+                                    } else {
+                                      displayMsg(`⚠ Razorpay Route failed: ${r.errorDetail || 'Check Render logs'}`, 'error');
+                                    }
                                     fetchPaymentDetails(selectedPaymentArtist.id);
+                                    loadData();
                                   }
                                   setActioning(false);
                                 }}
                                 disabled={actioning}
-                                style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+                                style={{ padding: '4px 10px', background: actioning ? '#94a3b8' : '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: actioning ? 'not-allowed' : 'pointer' }}
                               >
-                                Retry Linking
+                                {actioning ? '⏳...' : 'Retry Linking'}
                               </button>
                             </>
                           )}
@@ -940,15 +965,20 @@ const AdminDashboard: React.FC = () => {
                             const res = await execute(`/api/admin/bank-accounts/${selectedPaymentArtist.bankAccount.id}/verify`, { method: 'PATCH' });
                             if (res) {
                               const r = res as any;
-                              displayMsg('✅ Bank account verified! ' + (r.routeRegistered ? 'Artist registered on Razorpay Route.' : 'Note: Route registration skipped (check logs).'));
+                              if (r.routeRegistered) {
+                                displayMsg('✅ Artist registered on Razorpay Route! Auto-payouts now active.', 'success');
+                              } else {
+                                displayMsg(`⚠ Bank verified, but Razorpay Route failed: ${r.errorDetail || 'Check Render logs'}`, 'error');
+                              }
                               fetchPaymentDetails(selectedPaymentArtist.id);
+                              loadData();
                             }
                             setActioning(false);
                           }}
                           disabled={actioning}
                           style={{ padding: '5px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
                         >
-                          ✓ Verify & Enable Auto-Pay
+                          {actioning ? '⏳ Processing...' : '✓ Verify & Enable Auto-Pay'}
                         </button>
                       )}
                     </div>

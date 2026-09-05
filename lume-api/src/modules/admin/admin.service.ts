@@ -429,6 +429,8 @@ export async function getArtistPaymentSummaries() {
           bankName: true,
           accountType: true,
           isVerified: true,
+          isLinkedToRazorpay: true,
+          razorpayLinkedAccountId: true,
         },
       },
       bookings: {
