@@ -31,10 +31,18 @@ enum Gender {
 enum BookingStatus {
   PENDING
   ACCEPTED
+  PARTIALLY_PAID
   CONFIRMED
   CANCELLED
   COMPLETED
   NO_SHOW
+}
+
+enum PayoutStatus {
+  PENDING
+  INITIATED
+  COMPLETED
+  FAILED
 }
 
 enum PriceType {
@@ -138,13 +146,14 @@ model ArtistProfile {
   createdAt               DateTime           @default(now())
   updatedAt               DateTime           @updatedAt
 
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   services        Service[]
   availability    Availability[]
   defaultSchedule DefaultSchedule[]
-  bookings        Booking[]         @relation("ArtistBookings")
-  reviews         Review[]          @relation("ArtistReviews")
+  bookings        Booking[]           @relation("ArtistBookings")
+  reviews         Review[]            @relation("ArtistReviews")
   blockedDates    BlockedDate[]
+  bankAccount     ArtistBankAccount?
 
   @@map("artist_profiles")
 }
@@ -216,26 +225,31 @@ model BlockedDate {
 // ── Bookings ──────────────────────────────────────────────────
 
 model Booking {
-  id           String        @id @default(cuid())
-  clientId     String
-  artistId     String
-  serviceId    String?
-  date         DateTime      @db.Date
-  time         String
-  endTime      String?
-  status       BookingStatus @default(PENDING)
-  priceType    PriceType     @default(OCCASION)
-  totalPaid    Float         @default(0)
-  notes        String?
-  address      String?
-  cancelReason String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  clientId        String
+  artistId        String
+  serviceId       String?
+  date            DateTime      @db.Date
+  time            String
+  endTime         String?
+  status          BookingStatus @default(PENDING)
+  priceType       PriceType     @default(OCCASION)
+  totalPaid       Float         @default(0)
+  notes           String?
+  address         String?
+  cancelReason    String?
+  // Payment split tracking
+  paymentType     String?       // 'ADVANCE' | 'FULL'
+  advancePaid     Float         @default(0)  // amount already collected
+  remainingAmount Float         @default(0)  // balance still owed
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   client  User          @relation("ClientBookings", fields: [clientId], references: [id])
   artist  ArtistProfile @relation("ArtistBookings", fields: [artistId], references: [id])
   service Service?      @relation(fields: [serviceId], references: [id])
   review  Review?
+  paymentRecords PaymentRecord[]
 
   @@map("bookings")
 }
@@ -274,4 +288,51 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+// ── Artist Bank Account ───────────────────────────────────────
+
+model ArtistBankAccount {
+  id                       String   @id @default(cuid())
+  artistId                 String   @unique
+  accountHolderName        String
+  encryptedAccountNumber   String   // AES-256-CBC encrypted
+  ifscCode                 String
+  bankName                 String
+  accountType              String   @default("SAVINGS") // SAVINGS | CURRENT
+  isVerified               Boolean  @default(false)     // admin can mark verified
+  razorpayLinkedAccountId  String?                      // Razorpay Route Linked Account ID
+  isLinkedToRazorpay       Boolean  @default(false)     // true after Route registration
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("artist_bank_accounts")
+}
+
+// ── Payment Records (Commission Split Tracking) ───────────────
+
+model PaymentRecord {
+  id                  String       @id @default(cuid())
+  bookingId           String
+  paymentType         String       // 'ADVANCE' | 'FULL' | 'REMAINING'
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+  totalCharged        Float        // what client paid (base + GST)
+  basePortion         Float        // base amount for this payment (without GST)
+  gstAmount           Float        // 18% of basePortion → goes to Lume
+  lumeCommission      Float        // 5% of basePortion → goes to Lume
+  lumeTotal           Float        // gstAmount + lumeCommission (23% of base)
+  artistPayout        Float        // 95% of basePortion → goes to artist
+  payoutStatus        PayoutStatus @default(PENDING)
+  razorpayTransferId  String?      // Razorpay Route transfer ID (auto-payout)
+  transferStatus      String       @default("PENDING") // PENDING | SUCCESS | FAILED | NOT_LINKED
+  payoutInitiatedAt   DateTime?
+  payoutCompletedAt   DateTime?
+  createdAt           DateTime     @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("payment_records")
 }

@@ -319,39 +319,63 @@
 .adp-profile__cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
   font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.adp-profile__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+
+.adp-profile__cta:hover::before {
+  transform: scaleY(1);
 }
 
 .adp-profile__cta--primary {
-  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%);
-  color: white;
-  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.3);
+  background: white;
+  color: var(--dark);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .adp-profile__cta--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .adp-profile__cta--secondary {
-  background: white;
+  background: transparent;
   color: var(--dark);
-  border: 1.5px solid rgba(242, 164, 176, 0.15);
+  border: 1px solid var(--dark);
+}
+
+.adp-profile__cta--secondary::before {
+  background: var(--dark);
 }
 
 .adp-profile__cta--secondary:hover {
-  border-color: var(--rose-deep);
-  color: var(--rose-deep);
-  background: var(--rose-light);
+  color: white;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

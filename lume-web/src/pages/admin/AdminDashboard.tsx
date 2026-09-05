@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, ExternalLink, Settings, MapPin, Star } from 'lucide-react';
+import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, ExternalLink, Settings, MapPin, Star, CreditCard, Download, CheckCircle } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import './AdminDashboard.css';
 
 interface ArtistProfile {
@@ -27,6 +29,26 @@ interface ArtistProfile {
   hourlyPrice?: number;
   isTakingBookings?: boolean;
   user: { id: string; name: string; email: string; avatarUrl?: string; createdAt: string; };
+}
+
+interface ArtistPaymentSummary {
+  artistId: string;
+  user: { name: string; avatarUrl?: string };
+  bankAccount: any;
+  totalBookings: number;
+  bookingsWithPayment: number;
+  totalCharged: number;
+  totalLume: number;
+  totalArtistDue: number;
+  pendingPayout: number;
+  completedPayout: number;
+}
+
+interface LumeRevenue {
+  totalEarned: number;
+  totalReceived: number;
+  totalPending: number;
+  records: any[];
 }
 
 interface ClientUser {
@@ -62,10 +84,13 @@ const AdminDashboard: React.FC = () => {
   const [pendingArtists, setPendingArtists] = useState<ArtistProfile[]>([]);
   const [allArtists, setAllArtists] = useState<ArtistProfile[]>([]);
   const [clients, setClients] = useState<ClientUser[]>([]);
+  const [paymentSummaries, setPaymentSummaries] = useState<ArtistPaymentSummary[]>([]);
+  const [lumeRevenue, setLumeRevenue] = useState<LumeRevenue | null>(null);
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'artists' | 'clients'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'artists' | 'clients' | 'payments'>('dashboard');
   
   const [selectedArtist, setSelectedArtist] = useState<ArtistProfile | null>(null);
+  const [selectedPaymentArtist, setSelectedPaymentArtist] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState<any>({});
   const [remarks, setRemarks] = useState('');
@@ -79,16 +104,20 @@ const AdminDashboard: React.FC = () => {
   }, [user]);
 
   const loadData = async () => {
-    const [statsRes, pendingRes, allRes, clientsRes] = await Promise.all([
+    const [statsRes, pendingRes, allRes, clientsRes, paymentSummariesRes, revenueRes] = await Promise.all([
       execute('/api/admin/stats') as Promise<Stats | null>,
       execute('/api/admin/artists/pending') as Promise<ArtistProfile[] | null>,
       execute('/api/admin/artists') as Promise<ArtistProfile[] | null>,
       execute('/api/admin/clients') as Promise<ClientUser[] | null>,
+      execute('/api/admin/payments/summaries') as Promise<ArtistPaymentSummary[] | null>,
+      execute('/api/admin/payments/revenue') as Promise<LumeRevenue | null>,
     ]);
     if (statsRes) setStats(statsRes);
     if (pendingRes) setPendingArtists(pendingRes);
     if (allRes) setAllArtists(allRes);
     if (clientsRes) setClients(clientsRes);
+    if (paymentSummariesRes) setPaymentSummaries(paymentSummariesRes);
+    if (revenueRes) setLumeRevenue(revenueRes);
   };
 
   const displayMsg = (msg: string) => {
@@ -196,6 +225,71 @@ const AdminDashboard: React.FC = () => {
     });
   };
 
+  const fetchPaymentDetails = async (artistId: string) => {
+    setActioning(true);
+    const res = await execute(`/api/admin/payments/detail/${artistId}`) as any;
+    if (res) setSelectedPaymentArtist(res);
+    setActioning(false);
+  };
+
+  const handleMarkPayoutCompleted = async (recordId: string) => {
+    if (!window.confirm('Are you sure you want to mark this payout as COMPLETED?')) return;
+    setActioning(true);
+    const res = await execute(`/api/admin/payments/${recordId}/complete`, { method: 'PATCH' });
+    if (res) {
+      displayMsg('✅ Payout marked as completed.');
+      if (selectedPaymentArtist) {
+        fetchPaymentDetails(selectedPaymentArtist.id); // refresh modal data
+      }
+      loadData(); // refresh summary list
+    }
+    setActioning(false);
+  };
+
+  const generateInvoice = (booking: any, record: any) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.text('LUME INVOICE', 14, 22);
+    
+    doc.setFontSize(10);
+    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.text(`Payment ID: ${record.id}`, 14, 36);
+    doc.text(`Booking ID: ${booking.id}`, 14, 42);
+
+    doc.setFontSize(12);
+    doc.text('Bill To:', 14, 55);
+    doc.setFontSize(10);
+    doc.text(`Client: ${booking.client.name}`, 14, 62);
+    doc.text(`Email: ${booking.client.email}`, 14, 68);
+
+    doc.setFontSize(12);
+    doc.text('Artist Details:', 120, 55);
+    doc.setFontSize(10);
+    doc.text(`Artist: ${selectedPaymentArtist.user.name}`, 120, 62);
+
+    // Table
+    autoTable(doc, {
+      startY: 80,
+      head: [['Description', 'Amount']],
+      body: [
+        [`Service: ${booking.service?.name || booking.priceType} on ${new Date(booking.date).toLocaleDateString()}`, `Rs ${record.totalCharged.toFixed(2)}`],
+        ['Platform Fee (5%)', `Rs ${record.lumeCommission.toFixed(2)}`],
+        ['GST (18%)', `Rs ${record.gstAmount.toFixed(2)}`],
+        ['Total Paid', `Rs ${record.totalCharged.toFixed(2)}`]
+      ],
+    });
+
+    // Footer
+    const finalY = (doc as any).lastAutoTable.finalY || 130;
+    doc.setFontSize(12);
+    doc.text('Payment Status: COMPLETED', 14, finalY + 15);
+    doc.text(`Net Amount to Artist: Rs ${record.artistPayout.toFixed(2)}`, 14, finalY + 23);
+
+    doc.save(`Invoice_${record.id}.pdf`);
+  };
+
   return (
     <div className="admin-layout">
       {/* Sidebar */}
@@ -224,6 +318,10 @@ const AdminDashboard: React.FC = () => {
             <Users size={18} />
             <span>Clients</span>
           </button>
+          <button className={`admin-nav-item ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => setActiveTab('payments')}>
+            <CreditCard size={18} />
+            <span>Payments</span>
+          </button>
         </nav>
         <div className="admin-sidebar__footer">
           <button className="admin-nav-item" onClick={() => navigate('/profile')}>
@@ -240,6 +338,7 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'dashboard' && 'Dashboard Overview'}
             {activeTab === 'artists' && 'Artist Management'}
             {activeTab === 'clients' && 'Client Directory'}
+            {activeTab === 'payments' && 'Artist Payments & Revenue'}
           </h1>
           <div className="admin-header__actions">
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f8fafc', padding: '6px 16px', borderRadius: 99, border: '1px solid #e2e8f0' }}>
@@ -431,7 +530,7 @@ const AdminDashboard: React.FC = () => {
                 </table>
               </div>
             </div>
-          ) : (
+          ) : activeTab === 'clients' ? (
             <div className="admin-table-card">
               <div className="admin-table-header">
                 <h3 className="admin-table-title">Registered Clients</h3>
@@ -476,7 +575,85 @@ const AdminDashboard: React.FC = () => {
                 </table>
               </div>
             </div>
-          )}
+          ) : activeTab === 'payments' ? (
+            <div className="admin-payments">
+              <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                    <CreditCard size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Lume Total Revenue</div>
+                    <div className="admin-kpi-value">₹{(lumeRevenue?.totalEarned || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#f0fdf4', color: '#22c55e' }}>
+                    <CheckCircle size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Revenue Received</div>
+                    <div className="admin-kpi-value">₹{(lumeRevenue?.totalReceived || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="admin-kpi-card">
+                  <div className="admin-kpi-icon" style={{ background: '#fffbeb', color: '#f59e0b' }}>
+                    <Clock size={24} />
+                  </div>
+                  <div className="admin-kpi-info">
+                    <div className="admin-kpi-label">Pending Revenue</div>
+                    <div className="admin-kpi-value">₹{(lumeRevenue?.totalPending || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-table-card">
+                <div className="admin-table-header">
+                  <h3 className="admin-table-title">Artist Payments</h3>
+                </div>
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Artist Name</th>
+                        <th>Total Earnings</th>
+                        <th>Pending Payout</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paymentSummaries.map(p => (
+                        <tr key={p.artistId}>
+                          <td>
+                            <div className="admin-user-cell">
+                              {p.user.avatarUrl ? (
+                                <img src={p.user.avatarUrl} alt={p.user.name} className="admin-user-avatar" />
+                              ) : (
+                                <div className="admin-user-avatar">{p.user.name.charAt(0)}</div>
+                              )}
+                              <div className="admin-user-details">
+                                <span className="admin-user-name">{p.user.name}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td><span style={{ fontWeight: 600 }}>₹{p.totalArtistDue.toLocaleString()}</span></td>
+                          <td><span style={{ color: p.pendingPayout > 0 ? '#ef4444' : '#10b981', fontWeight: 600 }}>₹{p.pendingPayout.toLocaleString()}</span></td>
+                          <td>
+                            <button className="admin-btn-icon" onClick={() => fetchPaymentDetails(p.artistId)} title="View Payment Details" style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: 6, width: 'auto' }}>
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {paymentSummaries.length === 0 && (
+                        <tr><td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No payments found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </main>
 
@@ -616,6 +793,158 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Details Modal */}
+      {selectedPaymentArtist && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 800, padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Payments: {selectedPaymentArtist.user.name}</h2>
+              <button className="admin-btn-icon" onClick={() => setSelectedPaymentArtist(null)}><X size={20} /></button>
+            </div>
+            
+            <div style={{ padding: '32px', maxHeight: '70vh', overflowY: 'auto' }}>
+              
+              <div style={{ marginBottom: 24, padding: '16px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Bank Account Details</h3>
+                {selectedPaymentArtist.bankAccount ? (
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Bank Name:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.bankName}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Account Holder:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.accountHolderName}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>IFSC Code:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.ifscCode}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Account Type:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.accountType}</div></div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      {selectedPaymentArtist.bankAccount.isVerified ? (
+                        <>
+                          <span style={{ background: '#dcfce7', color: '#16a34a', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <CheckCircle size={12} /> Verified
+                          </span>
+                          {selectedPaymentArtist.bankAccount.isLinkedToRazorpay ? (
+                            <span style={{ background: '#dbeafe', color: '#1d4ed8', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                              ⚡ On Razorpay Route (Auto-Pay Active)
+                            </span>
+                          ) : (
+                            <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                              ⚠ Not on Razorpay Route
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm('Verify this bank account and register the artist on Razorpay Route for automatic payouts?')) return;
+                            setActioning(true);
+                            const res = await execute(`/api/admin/bank-accounts/${selectedPaymentArtist.bankAccount.id}/verify`, { method: 'PATCH' });
+                            if (res) {
+                              const r = res as any;
+                              displayMsg('✅ Bank account verified! ' + (r.routeRegistered ? 'Artist registered on Razorpay Route.' : 'Note: Route registration skipped (check logs).'));
+                              fetchPaymentDetails(selectedPaymentArtist.id);
+                            }
+                            setActioning(false);
+                          }}
+                          disabled={actioning}
+                          style={{ padding: '5px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          ✓ Verify & Enable Auto-Pay
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ color: '#ef4444', fontSize: '0.9rem' }}>No bank account added yet.</div>
+                )}
+              </div>
+
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 12 }}>Booking Payments</h3>
+              {selectedPaymentArtist.bookings.filter((b: any) => b.paymentRecords.length > 0).length === 0 ? (
+                <div style={{ padding: 20, textAlign: 'center', color: '#64748b', background: '#f1f5f9', borderRadius: 8 }}>No payments recorded for this artist.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {selectedPaymentArtist.bookings.filter((b: any) => b.paymentRecords.length > 0).map((booking: any) => (
+                    <div key={booking.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+                      <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Booking #{booking.id.slice(-6).toUpperCase()}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Client: {booking.client.name} | Date: {new Date(booking.date).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                      
+                      <div style={{ padding: '16px' }}>
+                        {booking.paymentRecords.map((record: any) => (
+                          <div key={record.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                                Total Charged: ₹{record.totalCharged.toLocaleString()}
+                              </div>
+                              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                Lume Cut (5% + 18% GST): ₹{record.lumeTotal.toFixed(2)} | Artist Payout: <span style={{ color: '#10b981', fontWeight: 600 }}>₹{record.artistPayout.toFixed(2)}</span>
+                              </div>
+                              {/* Transfer Status Badge */}
+                              <div style={{ marginTop: 6 }}>
+                                {record.transferStatus === 'SUCCESS' && (
+                                  <span style={{ background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                    <CheckCircle size={11} /> Auto-Paid via Razorpay Route
+                                  </span>
+                                )}
+                                {record.transferStatus === 'FAILED' && (
+                                  <span style={{ background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                    ⚠ Auto-Transfer Failed — Manual Payout Needed
+                                  </span>
+                                )}
+                                {record.transferStatus === 'NOT_LINKED' && (
+                                  <span style={{ background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                    ⚡ Artist Not on Razorpay Route — Verify Bank to Enable Auto-Pay
+                                  </span>
+                                )}
+                                {record.transferStatus === 'PENDING' && (
+                                  <span style={{ background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                    Manual Payout Pending
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                              {record.payoutStatus === 'PENDING' ? (
+                                <button 
+                                  onClick={() => handleMarkPayoutCompleted(record.id)}
+                                  style={{ padding: '6px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                                >
+                                  Mark Payout Done
+                                </button>
+                              ) : (
+                                <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <CheckCircle size={14} /> Paid
+                                </span>
+                              )}
+                              
+                              <button 
+                                onClick={() => generateInvoice(booking, record)}
+                                disabled={record.payoutStatus === 'PENDING'}
+                                style={{ 
+                                  padding: '6px 12px', 
+                                  background: record.payoutStatus === 'PENDING' ? '#e2e8f0' : '#1e293b', 
+                                  color: record.payoutStatus === 'PENDING' ? '#94a3b8' : '#fff', 
+                                  border: 'none', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, cursor: record.payoutStatus === 'PENDING' ? 'not-allowed' : 'pointer',
+                                  display: 'flex', alignItems: 'center', gap: 4
+                                }}
+                                title={record.payoutStatus === 'PENDING' ? 'Complete payout to generate invoice' : 'Download Invoice'}
+                              >
+                                <Download size={14} /> Invoice
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

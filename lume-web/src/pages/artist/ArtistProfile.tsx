@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Trash2, CheckCircle, AlertCircle, Clock, Upload,
-  Camera, Send, ShieldCheck, ShieldAlert, Shield, BadgeCheck, Sparkles
+  Camera, Send, ShieldCheck, ShieldAlert, Shield, BadgeCheck, Sparkles,
+  Lock, Eye, EyeOff, Building2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
@@ -69,6 +70,19 @@ const ArtistProfile: React.FC = () => {
   const [hourlyPrice, setHourlyPrice] = useState(String(profile?.hourlyPrice || ''));
   const [pricingSuccess, setPricingSuccess] = useState(false);
 
+  // Bank Account
+  const [bankHolderName, setBankHolderName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [bankConfirmAccount, setBankConfirmAccount] = useState('');
+  const [bankIfsc, setBankIfsc] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [bankType, setBankType] = useState('SAVINGS');
+  const [showAccountNumber, setShowAccountNumber] = useState(false);
+  const [savedBankAccount, setSavedBankAccount] = useState<any>(null);
+  const [bankLoading, setBankLoading] = useState(false);
+  const [bankSuccess, setBankSuccess] = useState(false);
+  const [bankError, setBankError] = useState('');
+
   // Services
   const [services, setServices] = useState<ServiceItem[]>(profile?.services || []);
   const [showAddService, setShowAddService] = useState(false);
@@ -99,6 +113,50 @@ const ArtistProfile: React.FC = () => {
       setPortfolioPhotos(profile.portfolioUrls || []); setCertFiles(profile.certificationFiles || []);
     }
   }, [user, profile]);
+
+  // Load saved bank account on mount
+  useEffect(() => {
+    const fetchBankAccount = async () => {
+      try {
+        const res = await apiExecute('/api/artists/me/bank-account', { method: 'GET' }) as any;
+        if (res) setSavedBankAccount(res);
+      } catch { /* ignore */ }
+    };
+    fetchBankAccount();
+  }, []);
+
+  const handleSaveBankAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBankError(''); setBankSuccess(false);
+    if (bankAccountNumber !== bankConfirmAccount) {
+      setBankError('Account numbers do not match');
+      return;
+    }
+    setBankLoading(true);
+    try {
+      const res = await apiExecute('/api/artists/me/bank-account', {
+        method: 'POST',
+        body: {
+          accountHolderName: bankHolderName,
+          accountNumber: bankAccountNumber,
+          ifscCode: bankIfsc,
+          bankName,
+          accountType: bankType,
+        },
+      }) as any;
+      if (res) {
+        setSavedBankAccount(res);
+        setBankSuccess(true);
+        setBankAccountNumber('');
+        setBankConfirmAccount('');
+        setTimeout(() => setBankSuccess(false), 4000);
+      }
+    } catch (err: any) {
+      setBankError(err?.message || 'Failed to save bank account');
+    } finally {
+      setBankLoading(false);
+    }
+  };
 
   const toggleSpecialty = (s: string) =>
     setSpecialties(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
@@ -357,6 +415,104 @@ const ArtistProfile: React.FC = () => {
               <button type="submit" className="artist-save-btn" disabled={loading}>Save Pricing</button>
             </div>
           </form>
+        </div>
+
+        {/* ── Bank Account Details ──────────────────────────────── */}
+        <div className="artist-panel" style={{ border: '1px solid rgba(42,26,31,0.12)', background: 'linear-gradient(135deg,#fafafa,#fff)' }}>
+          <div className="artist-panel__header" style={{ display:'flex',alignItems:'center',gap:8 }}>
+            <Building2 size={18} style={{ color: 'var(--rose-deep)' }} />
+            <h2 className="artist-panel__title">Bank Account Details</h2>
+          </div>
+          <div className="artist-panel__body">
+            {/* Security notice */}
+            <div style={{ display:'flex',alignItems:'flex-start',gap:10,padding:'12px 16px',background:'rgba(52,152,219,0.08)',borderRadius:10,marginBottom:20,border:'1px solid rgba(52,152,219,0.2)' }}>
+              <Lock size={16} style={{ color:'#2980b9',marginTop:2,flexShrink:0 }} />
+              <div style={{ fontSize:'0.82rem',color:'#2c3e50',lineHeight:1.5 }}>
+                <strong>Your account details are encrypted end-to-end.</strong> We use AES-256 encryption — only the last 4 digits are ever displayed. Lume will use these details to transfer your earnings after each booking.
+              </div>
+            </div>
+
+            {/* Show saved account (masked) */}
+            {savedBankAccount && (
+              <div style={{ display:'flex',alignItems:'center',gap:12,padding:'12px 16px',background:'rgba(34,197,94,0.08)',borderRadius:10,marginBottom:20,border:'1px solid rgba(34,197,94,0.2)' }}>
+                <CheckCircle size={18} style={{ color:'#16a34a',flexShrink:0 }} />
+                <div style={{ fontSize:'0.88rem',color:'#166534' }}>
+                  <strong>Saved:</strong> {savedBankAccount.bankName} · {savedBankAccount.accountHolderName} · A/C {savedBankAccount.maskedAccountNumber} · IFSC {savedBankAccount.ifscCode}
+                  {savedBankAccount.isVerified && <span style={{ marginLeft:8,background:'#dcfce7',color:'#16a34a',padding:'2px 8px',borderRadius:99,fontSize:'0.72rem',fontWeight:700 }}>✓ Verified by Lume</span>}
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveBankAccount} style={{ display:'flex',flexDirection:'column',gap:'var(--spacing-md)', opacity: savedBankAccount?.isVerified ? 0.7 : 1, pointerEvents: savedBankAccount?.isVerified ? 'none' : 'auto' }}>
+              {bankSuccess && <div style={{ display:'flex',alignItems:'center',gap:8,padding:12,background:'rgba(34,197,94,0.1)',color:'#16a34a',borderRadius:'var(--radius-sm)',fontSize:'0.85rem' }}><CheckCircle size={16} /> Bank account saved securely!</div>}
+              {bankError && <div style={{ display:'flex',alignItems:'center',gap:8,padding:12,background:'rgba(239,68,68,0.1)',color:'#dc2626',borderRadius:'var(--radius-sm)',fontSize:'0.85rem' }}><AlertCircle size={16} /> {bankError}</div>}
+
+              <div className="artist-form__row">
+                <div className="artist-field">
+                  <label className="artist-label">Account Holder Name</label>
+                  <input type="text" className="artist-input" value={bankHolderName} onChange={e => setBankHolderName(e.target.value)} placeholder="As per bank records" required disabled={savedBankAccount?.isVerified} />
+                </div>
+                <div className="artist-field">
+                  <label className="artist-label">Bank Name</label>
+                  <input type="text" className="artist-input" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" required disabled={savedBankAccount?.isVerified} />
+                </div>
+              </div>
+
+              <div className="artist-form__row">
+                <div className="artist-field" style={{ position:'relative' }}>
+                  <label className="artist-label">Account Number</label>
+                  <input
+                    type={showAccountNumber ? 'text' : 'password'}
+                    className="artist-input"
+                    value={bankAccountNumber}
+                    onChange={e => setBankAccountNumber(e.target.value)}
+                    placeholder="Enter account number"
+                    autoComplete="off"
+                    required
+                    disabled={savedBankAccount?.isVerified}
+                    style={{ paddingRight: 44 }}
+                  />
+                  <button type="button" onClick={() => setShowAccountNumber(v => !v)}
+                    style={{ position:'absolute',right:12,top:34,background:'none',border:'none',cursor:'pointer',color:'var(--mid)',padding:0 }}>
+                    {showAccountNumber ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <div className="artist-field">
+                  <label className="artist-label">Confirm Account Number</label>
+                  <input
+                    type="password"
+                    className="artist-input"
+                    value={bankConfirmAccount}
+                    onChange={e => setBankConfirmAccount(e.target.value)}
+                    placeholder="Re-enter account number"
+                    autoComplete="off"
+                    required
+                    disabled={savedBankAccount?.isVerified}
+                  />
+                </div>
+              </div>
+
+              <div className="artist-form__row">
+                <div className="artist-field">
+                  <label className="artist-label">IFSC Code</label>
+                  <input type="text" className="artist-input" value={bankIfsc} onChange={e => setBankIfsc(e.target.value.toUpperCase())} placeholder="e.g. HDFC0001234" required maxLength={11} disabled={savedBankAccount?.isVerified} style={{ textTransform:'uppercase',letterSpacing:'0.05em' }} />
+                </div>
+                <div className="artist-field">
+                  <label className="artist-label">Account Type</label>
+                  <select className="artist-input" value={bankType} onChange={e => setBankType(e.target.value)} disabled={savedBankAccount?.isVerified}>
+                    <option value="SAVINGS">Savings</option>
+                    <option value="CURRENT">Current</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display:'flex',justifyContent:'flex-end' }}>
+                <button type="submit" className="artist-save-btn" disabled={bankLoading || savedBankAccount?.isVerified} style={{ display:'inline-flex',alignItems:'center',gap:8 }}>
+                  <Lock size={14} />{bankLoading ? ' Saving securely...' : (savedBankAccount?.isVerified ? ' Account Verified & Locked' : savedBankAccount ? ' Update Bank Account' : ' Save Bank Account')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         {/* Portfolio Gallery */}

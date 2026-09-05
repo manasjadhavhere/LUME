@@ -114,22 +114,24 @@
 }
 
 .profile-premium-card__btn {
-  background: #90536c; /* A deep purple/rose */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
+  background: white;
+  color: var(--dark);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 16px;
   width: 100%;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(144, 83, 108, 0.25);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .profile-premium-card__btn:hover {
-  background: #7a455a;
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 /* ---------------------------
@@ -566,6 +568,21 @@
 .status--pending {
   background: rgba(241, 196, 15, 0.15);
   color: #f39c12;
+}
+
+.status--accepted {
+  background: rgba(52, 152, 219, 0.15);
+  color: #2980b9;
+}
+
+.status--partially-paid {
+  background: rgba(196, 169, 125, 0.18);
+  color: #a88a5e;
+}
+
+.status--cancelled {
+  background: rgba(231, 76, 60, 0.12);
+  color: #c0392b;
 }
 
 .status--completed {

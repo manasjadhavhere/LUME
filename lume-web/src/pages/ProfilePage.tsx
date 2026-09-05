@@ -19,6 +19,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useAuth, API_BASE } from '../context/AuthContext';
+import PaymentOptionsModal from '../components/payment/PaymentOptionsModal';
 import './ProfilePage.css';
 
 interface MenuItem {
@@ -26,17 +27,6 @@ interface MenuItem {
   icon: React.ReactNode;
   label: string;
 }
-
-// Helper to dynamically load the Razorpay script
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,7 +36,10 @@ const ProfilePage: React.FC = () => {
   
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
-  const [payingBookingId, setPayingBookingId] = useState<string | null>(null);
+  // Payment modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
+  const [payingRemainingId, setPayingRemainingId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -97,75 +90,76 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handlePayNow = async (booking: any) => {
-    if (!user) return;
-    setPayingBookingId(booking.id);
-    
-    try {
-      const resLoad = await loadRazorpayScript();
-      if (!resLoad) throw new Error('Razorpay SDK failed to load. Are you online?');
+  // Opens the payment options modal for ACCEPTED bookings
+  const handlePayNow = (booking: any) => {
+    setSelectedBookingForPayment(booking);
+    setShowPaymentModal(true);
+  };
 
-      const orderRes = await fetch(`${API_BASE}/api/payments/pay-booking`, {
+  // Handles remaining balance payment for PARTIALLY_PAID bookings
+  const handlePayRemaining = async (booking: any) => {
+    if (!user) return;
+    setPayingRemainingId(booking.id);
+    try {
+      // Dynamically load Razorpay SDK
+      if (!(window as any).Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error('Razorpay SDK failed to load'));
+          document.body.appendChild(s);
+        });
+      }
+
+      const orderRes = await fetch(`${API_BASE}/api/payments/create-booking-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ bookingId: booking.id }),
+        body: JSON.stringify({ bookingId: booking.id, paymentType: 'REMAINING' }),
       });
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.message || 'Failed to create order');
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', 
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
         amount: orderData.data.amount,
         currency: orderData.data.currency,
         name: 'LUME',
-        description: `Booking Payment`,
-        image: 'https://i.imgur.com/K3VqQ5n.png', 
+        description: `Remaining Balance — ${booking.service?.name || 'Booking'}`,
+        image: 'https://i.imgur.com/K3VqQ5n.png',
         order_id: orderData.data.id,
-        handler: async function (response: any) {
+        handler: async (response: any) => {
           try {
-            const verifyRes = await fetch(`${API_BASE}/api/payments/verify`, {
+            const verifyRes = await fetch(`${API_BASE}/api/payments/verify-booking`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                bookingId: booking.id
+                bookingId: booking.id,
+                paymentType: 'REMAINING',
               }),
             });
             const verifyData = await verifyRes.json();
             if (!verifyData.success) throw new Error('Payment verification failed');
-            
-            // Refresh bookings
             fetchBookings();
-            alert('Payment successful! Your booking is now confirmed.');
-          } catch (err) {
-            console.error(err);
-            alert('Payment verification failed.');
+          } catch (err: any) {
+            alert(err.message || 'Payment verification failed.');
           } finally {
-            setPayingBookingId(null);
+            setPayingRemainingId(null);
           }
         },
-        prefill: {
-          name: user.name,
-          email: user.email,
-        },
-        theme: {
-          color: '#e11d48',
-        },
-        modal: {
-          ondismiss: function () {
-            setPayingBookingId(null);
-          }
-        }
+        prefill: { name: user.name, email: user.email },
+        theme: { color: '#c4a97d' },
+        modal: { ondismiss: () => setPayingRemainingId(null) },
       };
-      
+
       const paymentObject = new (window as any).Razorpay(options);
       paymentObject.open();
-
     } catch (err: any) {
       alert(err.message || 'Payment initiation failed.');
-      setPayingBookingId(null);
+      setPayingRemainingId(null);
     }
   };
 
@@ -489,12 +483,19 @@ const ProfilePage: React.FC = () => {
                     
                     const isPending = booking.status === 'PENDING';
                     const isAccepted = booking.status === 'ACCEPTED';
+                    const isPartiallyPaid = booking.status === 'PARTIALLY_PAID';
                     const isConfirmed = booking.status === 'CONFIRMED';
-                    
+
                     let displayStatus = booking.status;
                     if (isPending) displayStatus = 'Request sent';
                     if (isAccepted) displayStatus = 'Pending Payment';
+                    if (isPartiallyPaid) displayStatus = 'Advance Paid';
                     if (isConfirmed) displayStatus = 'Booking Done';
+
+                    // GST computation for display
+                    const baseAmt = booking.totalPaid || 0;
+                    const totalWithGST = baseAmt * 1.18;
+                    const remaining = booking.remainingAmount || 0;
 
                     return (
                       <div key={booking.id} className="profile-booking-card">
@@ -508,20 +509,51 @@ const ProfilePage: React.FC = () => {
                             <MapPin size={14} />
                             <span>{displayLocation}</span>
                           </div>
+                          {/* Partial payment progress */}
+                          {isPartiallyPaid && user?.role === 'CLIENT' && (
+                            <div style={{ marginTop: 8 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-soft)', marginBottom: 4 }}>
+                                <span>Advance paid: ₹{Math.round(booking.advancePaid || 0)}</span>
+                                <span>Remaining: ₹{Math.round(remaining)}</span>
+                              </div>
+                              <div style={{ height: 4, borderRadius: 99, background: 'rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                                <div style={{
+                                  height: '100%',
+                                  borderRadius: 99,
+                                  background: 'linear-gradient(90deg, #c4a97d, #a88a5e)',
+                                  width: `${Math.round(((booking.advancePaid || 0) / totalWithGST) * 100)}%`,
+                                  transition: 'width 0.4s ease',
+                                }} />
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div className="profile-booking-card__actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                          <div className={`profile-booking-card__status status--${booking.status.toLowerCase()}`}>
+                          <div className={`profile-booking-card__status status--${booking.status.toLowerCase().replace('_', '-')}`}>
                             {displayStatus}
                           </div>
-                          
+
+                          {/* Pay Now → opens modal with Advance / Full options */}
                           {isAccepted && user?.role === 'CLIENT' && (
-                            <button 
+                            <button
                               onClick={() => handlePayNow(booking)}
-                              disabled={payingBookingId === booking.id}
+                              style={{ padding: '6px 16px', background: 'linear-gradient(135deg, #c4a97d, #a88a5e)', color: '#1a0f14', border: 'none', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 12px rgba(196,169,125,0.3)' }}
+                            >
+                              Pay Now
+                            </button>
+                          )}
+
+                          {/* Pay Remaining → direct Razorpay for balance */}
+                          {isPartiallyPaid && user?.role === 'CLIENT' && (
+                            <button
+                              onClick={() => handlePayRemaining(booking)}
+                              disabled={payingRemainingId === booking.id}
                               style={{ padding: '6px 16px', background: 'var(--dark)', color: '#fff', border: 'none', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                             >
-                              {payingBookingId === booking.id ? <Loader2 size={14} className="spinner" /> : null}
-                              Pay Now (₹{booking.totalPaid})
+                              {payingRemainingId === booking.id
+                                ? <Loader2 size={14} className="spinner" />
+                                : null}
+                              Pay Remaining (₹{Math.round(remaining)})
                             </button>
                           )}
                         </div>
@@ -701,6 +733,22 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Options Modal — Advance / Full with GST */}
+      {showPaymentModal && selectedBookingForPayment && (
+        <PaymentOptionsModal
+          booking={selectedBookingForPayment}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedBookingForPayment(null);
+          }}
+          onSuccess={() => {
+            setShowPaymentModal(false);
+            setSelectedBookingForPayment(null);
+            fetchBookings();
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -183,23 +183,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  background: var(--dark);
-  color: #ffffff;
-  font-size: 0.92rem;
-  font-weight: 600;
-  border: none;
+  padding: 16px;
+  border-radius: 4px;
+  background: white;
+  color: var(--dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: all 0.2s var(--ease-out);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.auth-page__submit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+
+.auth-page__submit:hover:not(:disabled)::before {
+  transform: scaleY(1);
 }
 
 .auth-page__submit:hover:not(:disabled) {
-  background: #180e11;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(42, 26, 31, 0.22);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .auth-page__submit:disabled {

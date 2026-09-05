@@ -90,22 +90,38 @@
 
 .hero-slide__cta {
   background: var(--white, #fff);
-  color: var(--dark, #1F2937);
+  color: var(--dark);
   border: none;
-  font-weight: 600;
-  padding: 16px 32px;
-  border-radius: var(--radius-full, 9999px);
+  font-weight: 500;
+  padding: 16px 36px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.04em;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-slide__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
 }
 
 .hero-slide__cta:hover {
-  background: var(--rose-deep, #d97a8c);
-  color: var(--white, #fff);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(217, 122, 140, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.hero-slide__cta:hover::before {
+  transform: scaleY(1);
 }
 
 /* Navigation Controls */

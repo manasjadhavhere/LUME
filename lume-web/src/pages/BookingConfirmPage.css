@@ -143,10 +143,15 @@
 .booking-confirm-button {
   width: 100%;
   background: var(--white) !important;
-  color: var(--rose-deep) !important;
-  font-weight: 600;
+  color: var(--dark) !important;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
   border: none !important;
-  box-shadow: 0 8px 32px rgba(31, 41, 55, 0.2) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+  padding: 16px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .booking-confirm-button:hover {

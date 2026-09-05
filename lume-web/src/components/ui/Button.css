@@ -4,11 +4,13 @@
 
 .btn {
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +19,6 @@
   white-space: nowrap;
   user-select: none;
   touch-action: manipulation;
-  letter-spacing: 0.01em;
 }
 
 /* Sizes */
@@ -42,16 +43,34 @@
   min-width: 160px;
 }
 
-/* Variants */
+/* Variants (Redesigned) */
 .btn-primary {
-  background: linear-gradient(135deg, var(--rose-deep) 0%, #C86B7C 100%);
-  color: var(--white);
-  box-shadow: var(--shadow-md);
+  background: white;
+  color: var(--dark);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 12px 32px rgba(217, 122, 140, 0.35);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover::before {
+  transform: scaleY(1);
 }
 
 .btn-primary:active {
@@ -59,17 +78,32 @@
 }
 
 .btn-secondary {
-  background: var(--white);
-  color: var(--rose-deep);
-  border: 2px solid var(--rose);
-  box-shadow: var(--shadow-sm);
+  background: transparent;
+  color: var(--dark);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
 }
 
 .btn-secondary:hover {
-  background: var(--rose-pale);
-  border-color: var(--rose-deep);
-  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.12);
+  color: var(--dark);
   transform: translateY(-2px);
+}
+
+.btn-secondary:hover::before {
+  transform: scaleY(1);
 }
 
 .btn-secondary:active {
@@ -78,11 +112,11 @@
 
 .btn-ghost {
   background: transparent;
-  color: var(--rose-deep);
+  color: var(--dark);
 }
 
 .btn-ghost:hover {
-  background: var(--rose-pale);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .btn-ghost:active {
@@ -99,6 +133,6 @@
 
 /* Focus visible (accessibility) */
 .btn:focus-visible {
-  outline: 2px solid var(--rose-deep);
+  outline: 2px solid var(--dark);
   outline-offset: 2px;
 }

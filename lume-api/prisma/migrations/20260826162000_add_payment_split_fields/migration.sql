@@ -1,0 +1,7 @@
+-- AlterEnum
+ALTER TYPE "BookingStatus" ADD VALUE 'PARTIALLY_PAID';
+
+-- AlterTable
+ALTER TABLE "bookings" ADD COLUMN     "paymentType" TEXT,
+ADD COLUMN     "advancePaid" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "remainingAmount" DOUBLE PRECISION NOT NULL DEFAULT 0;

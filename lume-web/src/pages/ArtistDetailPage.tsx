@@ -463,14 +463,14 @@ const ArtistDetailPage: React.FC = () => {
                               onClick={() => { setSelectedPriceType(pt); setSelectedServiceId(null); }}
                               style={{
                                 display: 'flex', flexDirection: 'column', gap: 4, padding: '14px 20px', borderRadius: 12, cursor: 'pointer',
-                                border: selectedPriceType === pt ? '2px solid var(--rose-deep)' : '1.5px solid rgba(42,26,31,0.12)',
-                                background: selectedPriceType === pt ? 'var(--rose-pale)' : 'white', textAlign: 'left', transition: 'all .15s',
+                                border: selectedPriceType === pt ? '2px solid var(--dark)' : '1.5px solid rgba(42,26,31,0.12)',
+                                background: selectedPriceType === pt ? 'rgba(0,0,0,0.05)' : 'white', textAlign: 'left', transition: 'all .15s',
                               }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: selectedPriceType === pt ? 'var(--rose-deep)' : 'var(--dark)' }}>
+                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--dark)' }}>
                                 {PRICE_TYPE_LABELS[pt]}
                               </span>
-                              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--rose-deep)' }}>
-                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''}
+                              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--dark)' }}>
+                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span style={{fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span>
                               </span>
                             </button>
                           );
@@ -479,7 +479,7 @@ const ArtistDetailPage: React.FC = () => {
                       {selectedPriceType === 'HOURLY' && (
                         <div style={{ marginTop: 12, padding: '10px 16px', background: 'var(--rose-pale)', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--rose-deep)' }}>
                           Tip: Select multiple time slots in Step 3 to book several hours.
-                          {selectedTimeSlots.length > 0 && <span style={{display: 'block', marginTop: 4, fontWeight: 700}}>Total: ₹{calculatedPrice.toLocaleString()}</span>}
+                          {selectedTimeSlots.length > 0 && <span style={{display: 'block', marginTop: 4, fontWeight: 700}}>Total: ₹{calculatedPrice.toLocaleString()} <span style={{fontWeight: 'normal', fontSize: '0.85em'}}>+ GST</span></span>}
                         </div>
                       )}
                       {/* Optional: link to a specific service */}
@@ -496,7 +496,7 @@ const ArtistDetailPage: React.FC = () => {
                                   background: selectedServiceId === s.id ? 'var(--rose-pale)' : 'white',
                                   color: selectedServiceId === s.id ? 'var(--rose-deep)' : 'var(--mid)',
                                 }}>
-                                {s.icon} {s.name} — ₹{s.price.toLocaleString()}
+                                {s.icon} {s.name} — ₹{s.price.toLocaleString()} <span style={{fontSize: '0.85em', fontWeight: 'normal'}}>+ GST</span>
                               </button>
                             ))}
                           </div>
@@ -517,11 +517,11 @@ const ArtistDetailPage: React.FC = () => {
                               onClick={() => setSelectedServiceId(selectedServiceId === s.id ? null : s.id)}
                               style={{
                                 display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12, cursor: 'pointer',
-                                border: selectedServiceId === s.id ? '2px solid var(--rose-deep)' : '1.5px solid rgba(42,26,31,0.12)',
-                                background: selectedServiceId === s.id ? 'var(--rose-pale)' : 'white',
-                                fontWeight: 600, color: selectedServiceId === s.id ? 'var(--rose-deep)' : 'var(--dark)', fontSize: '0.88rem',
+                                border: selectedServiceId === s.id ? '2px solid var(--dark)' : '1.5px solid rgba(42,26,31,0.12)',
+                                background: selectedServiceId === s.id ? 'rgba(0,0,0,0.05)' : 'white',
+                                fontWeight: 600, color: selectedServiceId === s.id ? 'var(--dark)' : 'var(--dark)', fontSize: '0.88rem',
                               }}>
-                              {s.icon} {s.name} <span style={{ color: 'var(--rose-deep)', marginLeft: 4 }}>₹{s.price.toLocaleString()}</span>
+                              {s.icon} {s.name} <span style={{ color: 'var(--dark)', marginLeft: 4 }}>₹{s.price.toLocaleString()} <span style={{fontSize: '0.85em', fontWeight: 'normal', color: 'var(--text-soft)'}}>+ GST</span></span>
                             </button>
                           ))}
                         </div>
@@ -548,17 +548,17 @@ const ArtistDetailPage: React.FC = () => {
                             onClick={() => { setSelectedDate(dateStr); setSelectedTimeSlots([]); }}
                             style={{
                               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '10px 14px', borderRadius: 12, minWidth: 64,
-                              border: selectedDate === dateStr ? '2px solid var(--rose-deep)' : '1px solid rgba(42,26,31,0.12)',
-                              background: selectedDate === dateStr ? 'var(--rose-pale)' : (isBlocked || slots === 0) ? '#f5f5f5' : 'white',
+                              border: selectedDate === dateStr ? '2px solid var(--dark)' : '1px solid rgba(42,26,31,0.12)',
+                              background: selectedDate === dateStr ? 'rgba(0,0,0,0.05)' : (isBlocked || slots === 0) ? '#f5f5f5' : 'white',
                               cursor: (isBlocked || slots === 0) ? 'not-allowed' : 'pointer', opacity: (isBlocked || slots === 0) ? 0.4 : 1,
                             }}>
                             <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--mid)', textTransform: 'uppercase' }}>
                               {d.toLocaleDateString('en-IN', { weekday: 'short' })}
                             </span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: selectedDate === dateStr ? 'var(--rose-deep)' : 'var(--dark)' }}>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--dark)' }}>
                               {d.getDate()}
                             </span>
-                            <span style={{ fontSize: '0.62rem', color: slots > 0 ? 'var(--rose-deep)' : 'var(--mid)', fontWeight: 600 }}>
+                            <span style={{ fontSize: '0.62rem', color: slots > 0 ? 'var(--dark)' : 'var(--mid)', fontWeight: 600 }}>
                               {isBlocked ? 'Off' : slots > 0 ? `${slots} slots` : 'Full'}
                             </span>
                           </button>
@@ -593,8 +593,8 @@ const ArtistDetailPage: React.FC = () => {
                                 }}
                                 style={{
                                   padding: '8px 16px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-                                  border: isSelected ? '2px solid var(--rose-deep)' : '1px solid rgba(42,26,31,0.12)',
-                                  background: isSelected ? 'var(--rose-deep)' : 'white',
+                                  border: isSelected ? '2px solid var(--dark)' : '1px solid rgba(42,26,31,0.12)',
+                                  background: isSelected ? 'var(--dark)' : 'white',
                                   color: isSelected ? 'white' : 'var(--dark)',
                                 }}>
                                 {slot} - {endSlot}
@@ -703,7 +703,7 @@ const ArtistDetailPage: React.FC = () => {
                   <span className="adp-sidebar__price-label">
                     {selectedPriceType === 'WEDDING' ? '💍 Wedding' : selectedPriceType === 'OCCASION' ? '🎉 Occasion' : selectedPriceType === 'HOURLY' ? '⏱ Hourly' : 'Starting at'}
                   </span>
-                  <span className="adp-sidebar__price-value">₹{calculatedPrice.toLocaleString()}</span>
+                  <span className="adp-sidebar__price-value">₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '1rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
                   {selectedPriceType === 'HOURLY' && <span className="adp-sidebar__price-per">per hour</span>}
                 </div>
                 {artist.isVerified && <div className="adp-sidebar__demand"><TrendingUp size={14} /><span>Verified Artist</span></div>}
@@ -738,8 +738,7 @@ const ArtistDetailPage: React.FC = () => {
                 </div>
                 <div className="adp-sidebar__booking-divider" />
                 <div className="adp-sidebar__booking-row">
-                  <span className="adp-sidebar__booking-label">Total</span>
-                  <span className="adp-sidebar__booking-val" style={{ fontWeight: 800, color: 'var(--rose-deep)' }}>₹{calculatedPrice.toLocaleString()}</span>
+                  <span className="adp-sidebar__booking-val" style={{ fontWeight: 800, color: 'var(--rose-deep)' }}>₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
                 </div>
               </div>
 
@@ -808,7 +807,7 @@ const ArtistDetailPage: React.FC = () => {
       <div className="adp-mobile-bar">
         <div className="adp-mobile-bar__info">
           <span className="adp-mobile-bar__label">Total</span>
-          <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()}</span>
+          <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
         </div>
         <Button variant="primary" size="lg" onClick={handleBookingConfirm}
           disabled={!isBookingReady || bookingLoading || showSuccessModal || artist.isTakingBookings === false} className="adp-mobile-bar__btn">

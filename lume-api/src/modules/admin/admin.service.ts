@@ -325,7 +325,124 @@ export async function updateBookingStatusAdmin(artistId: string, isTakingBooking
     where: { id: artistId },
     data: {
       isTakingBookings,
-      lastBookingStatusChange: new Date(), // Optionally update the timer so artists are locked for 48h from admin's change
+      lastBookingStatusChange: new Date(),
+    },
+  });
+}
+
+// ── Admin Payment Tracking ─────────────────────────────────────────────────────
+
+/**
+ * Returns all artists that have at least one booking with PaymentRecords.
+ * Includes aggregated payout summary per artist.
+ */
+export async function getArtistPaymentSummaries() {
+  const artists = await prisma.artistProfile.findMany({
+    include: {
+      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      bankAccount: {
+        select: {
+          id: true,
+          accountHolderName: true,
+          ifscCode: true,
+          bankName: true,
+          accountType: true,
+          isVerified: true,
+        },
+      },
+      bookings: {
+        include: {
+          paymentRecords: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return artists.map(artist => {
+    const allRecords = artist.bookings.flatMap(b => b.paymentRecords);
+    const totalCharged     = allRecords.reduce((s, r) => s + r.totalCharged, 0);
+    const totalLume        = allRecords.reduce((s, r) => s + r.lumeTotal, 0);
+    const totalArtist      = allRecords.reduce((s, r) => s + r.artistPayout, 0);
+    const pendingPayout    = allRecords.filter(r => r.payoutStatus === 'PENDING').reduce((s, r) => s + r.artistPayout, 0);
+    const completedPayout  = allRecords.filter(r => r.payoutStatus === 'COMPLETED').reduce((s, r) => s + r.artistPayout, 0);
+    const bookingsWithPayment = artist.bookings.filter(b => b.paymentRecords.length > 0).length;
+
+    return {
+      artistId: artist.id,
+      user: artist.user,
+      bankAccount: artist.bankAccount,
+      totalBookings: artist.bookings.length,
+      bookingsWithPayment,
+      totalCharged,
+      totalLume,
+      totalArtistDue: totalArtist,
+      pendingPayout,
+      completedPayout,
+    };
+  });
+}
+
+/**
+ * Returns all bookings + PaymentRecords for a single artist.
+ */
+export async function getArtistPaymentDetail(artistId: string) {
+  const artist = await prisma.artistProfile.findUnique({
+    where: { id: artistId },
+    include: {
+      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      bankAccount: true,
+      bookings: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          paymentRecords: { orderBy: { createdAt: 'asc' } },
+          client: { select: { id: true, name: true, email: true } },
+          service: { select: { name: true, price: true } },
+        },
+      },
+    },
+  });
+
+  if (!artist) throw createError('Artist not found', 404);
+  return artist;
+}
+
+/**
+ * Returns the Lume platform's total earnings from commissions + GST.
+ * Only counts COMPLETED payouts as "received".
+ */
+export async function getLumeEarnings() {
+  const allRecords = await prisma.paymentRecord.findMany({
+    include: {
+      booking: {
+        include: {
+          artist: { include: { user: { select: { name: true } } } },
+          client: { select: { name: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const totalEarned    = allRecords.reduce((s, r) => s + r.lumeTotal, 0);
+  const totalReceived  = allRecords.filter(r => r.payoutStatus === 'COMPLETED').reduce((s, r) => s + r.lumeTotal, 0);
+  const totalPending   = allRecords.filter(r => r.payoutStatus === 'PENDING').reduce((s, r) => s + r.lumeTotal, 0);
+
+  return { totalEarned, totalReceived, totalPending, records: allRecords };
+}
+
+/**
+ * Marks a PaymentRecord's payout status as COMPLETED (admin confirms transfer was done).
+ */
+export async function markPayoutCompleted(paymentRecordId: string) {
+  const record = await prisma.paymentRecord.findUnique({ where: { id: paymentRecordId } });
+  if (!record) throw createError('Payment record not found', 404);
+
+  return prisma.paymentRecord.update({
+    where: { id: paymentRecordId },
+    data: {
+      payoutStatus: 'COMPLETED',
+      payoutCompletedAt: new Date(),
     },
   });
 }

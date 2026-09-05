@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist, getStats, updateArtistAdmin, approveEditRequest, deleteUser, updateBookingStatus } from './admin.controller';
+import {
+  getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist,
+  getStats, updateArtistAdmin, approveEditRequest, deleteUser, updateBookingStatus,
+  getArtistPayments, getArtistPaymentDetails, getLumeRevenue, markPaymentPaid,
+  adminVerifyBankAccount,
+} from './admin.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 
 const router = Router();
@@ -36,5 +41,23 @@ router.patch('/artists/:id/booking-status', updateBookingStatus);
 
 // DELETE /api/admin/users/:id
 router.delete('/users/:id', deleteUser);
+
+// ── Payment Tracking ──────────────────────────────────────────────────────────
+
+// GET  /api/admin/payments             — all artists payment summaries
+router.get('/payments', getArtistPayments);
+
+// GET  /api/admin/payments/lume        — Lume platform earnings
+router.get('/payments/lume', getLumeRevenue);
+
+// GET  /api/admin/payments/:artistId   — single artist full payment detail
+router.get('/payments/:artistId', getArtistPaymentDetails);
+
+// PATCH /api/admin/payments/:paymentId/mark-paid — mark payout completed
+router.patch('/payments/:paymentId/mark-paid', markPaymentPaid);
+
+// ── Bank Account Verification ─────────────────────────────────────────────
+// PATCH /api/admin/bank-accounts/:bankAccountId/verify — verify + register on Razorpay Route
+router.patch('/bank-accounts/:bankAccountId/verify', adminVerifyBankAccount);
 
 export default router;

@@ -18,6 +18,7 @@ import {
   updateBookingStatus,
   getArtistBookings,
 } from './artists.controller';
+import { getBankAccount, saveBankAccount } from './bank-accounts.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
 import { updateProfileSchema, addServiceSchema } from './artists.service';
@@ -41,6 +42,10 @@ router.patch('/me/booking-status', ...artistAuth, updateBookingStatus);
 // Pricing
 router.put('/me/pricing', ...artistAuth, updatePricing);
 
+// Bank Account (encrypted storage)
+router.get('/me/bank-account', ...artistAuth, getBankAccount);
+router.post('/me/bank-account', ...artistAuth, saveBankAccount);
+
 // File uploads
 router.post('/me/avatar', ...artistAuth, uploadAvatar.single('avatar'), uploadAvatarHandler);
 router.post('/me/portfolio', ...artistAuth, uploadPortfolio.array('photos', 10), uploadPortfolioHandler);
@@ -57,3 +62,4 @@ router.put('/me/services/:serviceId', ...artistAuth, updateService);
 router.delete('/me/services/:serviceId', ...artistAuth, deleteService);
 
 export default router;
+
