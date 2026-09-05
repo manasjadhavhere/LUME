@@ -123,8 +123,8 @@ const AdminDashboard: React.FC = () => {
       execute('/api/admin/artists/pending') as Promise<ArtistProfile[] | null>,
       execute('/api/admin/artists') as Promise<ArtistProfile[] | null>,
       execute('/api/admin/clients') as Promise<ClientUser[] | null>,
-      execute('/api/admin/payments/summaries') as Promise<ArtistPaymentSummary[] | null>,
-      execute('/api/admin/payments/revenue') as Promise<LumeRevenue | null>,
+      execute('/api/admin/payments') as Promise<ArtistPaymentSummary[] | null>,
+      execute('/api/admin/payments/lume') as Promise<LumeRevenue | null>,
     ]);
     if (statsRes) setStats(statsRes);
     if (pendingRes) setPendingArtists(pendingRes);
@@ -244,7 +244,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchPaymentDetails = async (artistId: string) => {
     setActioning(true);
-    const res = await execute(`/api/admin/payments/detail/${artistId}`) as any;
+    const res = await execute(`/api/admin/payments/${artistId}`) as any;
     if (res) setSelectedPaymentArtist(res);
     setActioning(false);
   };
@@ -252,7 +252,7 @@ const AdminDashboard: React.FC = () => {
   const handleMarkPayoutCompleted = async (recordId: string) => {
     if (!window.confirm('Are you sure you want to mark this payout as COMPLETED?')) return;
     setActioning(true);
-    const res = await execute(`/api/admin/payments/${recordId}/complete`, { method: 'PATCH' });
+    const res = await execute(`/api/admin/payments/${recordId}/mark-paid`, { method: 'PATCH' });
     if (res) {
       displayMsg('✅ Payout marked as completed.');
       if (selectedPaymentArtist) {
