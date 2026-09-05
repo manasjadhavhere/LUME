@@ -96,16 +96,22 @@ export async function saveBankAccount(req: Request, res: Response, next: NextFun
       return;
     }
 
-    // Validate account number (digits only, 9-18 chars)
+    // Validate account number (digits only, 5-25 chars)
     const cleanAccount = accountNumber.replace(/\s/g, '');
-    if (!/^\d{9,18}$/.test(cleanAccount)) {
-      res.status(400).json({ success: false, message: 'Account number must be 9-18 digits' });
+    if (!/^\d{5,25}$/.test(cleanAccount)) {
+      res.status(400).json({ success: false, message: 'Account number must be between 5 and 25 digits' });
       return;
     }
 
+    // Clean IFSC code (auto-fix common 'O' instead of '0' typo in 5th char)
+    let cleanIfsc = ifscCode.toUpperCase().trim();
+    if (cleanIfsc.length === 11 && cleanIfsc[4] === 'O') {
+      cleanIfsc = cleanIfsc.substring(0, 4) + '0' + cleanIfsc.substring(5);
+    }
+
     // Validate IFSC (standard format)
-    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode.toUpperCase())) {
-      res.status(400).json({ success: false, message: 'Invalid IFSC code format' });
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(cleanIfsc)) {
+      res.status(400).json({ success: false, message: 'Invalid IFSC code format. Expected format: 4 letters, a zero, and 6 alphanumeric characters (e.g., HDFC0001234)' });
       return;
     }
 
@@ -120,7 +126,7 @@ export async function saveBankAccount(req: Request, res: Response, next: NextFun
         artistId: profile.id,
         accountHolderName: accountHolderName.trim(),
         encryptedAccountNumber,
-        ifscCode: ifscCode.toUpperCase(),
+        ifscCode: cleanIfsc,
         bankName: bankName.trim(),
         accountType: accountType || 'SAVINGS',
         isVerified: false, // reset verification on update
@@ -128,7 +134,7 @@ export async function saveBankAccount(req: Request, res: Response, next: NextFun
       update: {
         accountHolderName: accountHolderName.trim(),
         encryptedAccountNumber,
-        ifscCode: ifscCode.toUpperCase(),
+        ifscCode: cleanIfsc,
         bankName: bankName.trim(),
         accountType: accountType || 'SAVINGS',
         isVerified: false, // reset on any update

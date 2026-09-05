@@ -134,8 +134,9 @@ const ArtistProfile: React.FC = () => {
     }
     setBankLoading(true);
     try {
-      const res = await apiExecute('/api/artists/me/bank-account', {
+      const res = await apiFetch('/api/artists/me/bank-account', {
         method: 'POST',
+        token: token || undefined,
         body: {
           accountHolderName: bankHolderName,
           accountNumber: bankAccountNumber,
@@ -144,11 +145,6 @@ const ArtistProfile: React.FC = () => {
           accountType: bankType,
         },
       }) as any;
-      
-      if (!res) {
-        setBankError('Failed to save bank account. The server might be missing configuration (like BANK_ENCRYPTION_KEY). Please contact support or check server logs.');
-        return;
-      }
       
       setSavedBankAccount(res);
       setBankSuccess(true);
