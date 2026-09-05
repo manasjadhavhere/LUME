@@ -908,9 +908,28 @@ const AdminDashboard: React.FC = () => {
                               ⚡ On Razorpay Route (Auto-Pay Active)
                             </span>
                           ) : (
-                            <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
-                              ⚠ Not on Razorpay Route
-                            </span>
+                            <>
+                              <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                                ⚠ Not on Razorpay Route
+                              </span>
+                              <button
+                                onClick={async () => {
+                                  if (!window.confirm('Attempt to register this artist on Razorpay Route?')) return;
+                                  setActioning(true);
+                                  const res = await execute(`/api/admin/bank-accounts/${selectedPaymentArtist.bankAccount.id}/verify`, { method: 'PATCH' });
+                                  if (res) {
+                                    const r = res as any;
+                                    displayMsg('✅ ' + (r.routeRegistered ? 'Artist registered on Razorpay Route.' : 'Note: Route registration skipped (check logs).'));
+                                    fetchPaymentDetails(selectedPaymentArtist.id);
+                                  }
+                                  setActioning(false);
+                                }}
+                                disabled={actioning}
+                                style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+                              >
+                                Retry Linking
+                              </button>
+                            </>
                           )}
                         </>
                       ) : (
