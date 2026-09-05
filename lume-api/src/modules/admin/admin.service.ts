@@ -1,28 +1,107 @@
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
+import crypto from 'crypto';
+
+// ── Safe bank account mask helper (no routes/imports needed) ─────
+const ALGORITHM = 'aes-256-cbc';
+function _safeDecryptLast4(encryptedHex: string): string {
+  try {
+    const keyHex = process.env.BANK_ENCRYPTION_KEY || '';
+    if (!keyHex || keyHex.length < 32) return '****';
+    const key = Buffer.from(keyHex.substring(0, 32), 'utf8');
+    const [ivHex, encHex] = encryptedHex.split(':');
+    if (!ivHex || !encHex) return '****';
+    const iv = Buffer.from(ivHex, 'hex');
+    const encrypted = Buffer.from(encHex, 'hex');
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    const plain = Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
+    return plain.length <= 4 ? '****' : '****' + plain.slice(-4);
+  } catch {
+    return '****';
+  }
+}
 
 // Get artists pending verification
 export async function getPendingArtists() {
-  return prisma.artistProfile.findMany({
+  const artists = await prisma.artistProfile.findMany({
     where: { verificationStatus: { in: ['PENDING', 'EDIT_REQUESTED'] } },
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true } },
       services: { where: { isActive: true } },
-      bankAccount: true,
+      bankAccount: {
+        select: {
+          id: true,
+          accountHolderName: true,
+          encryptedAccountNumber: true,
+          ifscCode: true,
+          bankName: true,
+          accountType: true,
+          isVerified: true,
+          razorpayLinkedAccountId: true,
+          isLinkedToRazorpay: true,
+          createdAt: true,
+        },
+      },
     },
     orderBy: { verificationSubmittedAt: 'asc' },
   });
+  // Mask encrypted account numbers before returning
+  return artists.map(a => ({
+    ...a,
+    bankAccount: a.bankAccount ? {
+      id: a.bankAccount.id,
+      accountHolderName: a.bankAccount.accountHolderName,
+      maskedAccountNumber: _safeDecryptLast4(a.bankAccount.encryptedAccountNumber),
+      ifscCode: a.bankAccount.ifscCode,
+      bankName: a.bankAccount.bankName,
+      accountType: a.bankAccount.accountType,
+      isVerified: a.bankAccount.isVerified,
+      razorpayLinkedAccountId: a.bankAccount.razorpayLinkedAccountId,
+      isLinkedToRazorpay: a.bankAccount.isLinkedToRazorpay,
+      createdAt: a.bankAccount.createdAt,
+    } : null,
+  }));
 }
 
 // Get all artists (for admin overview)
 export async function getAllArtistsAdmin() {
-  return prisma.artistProfile.findMany({
+  const artists = await prisma.artistProfile.findMany({
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true } },
-      bankAccount: true,
+      services: { where: { isActive: true } },
+      bankAccount: {
+        select: {
+          id: true,
+          accountHolderName: true,
+          encryptedAccountNumber: true,
+          ifscCode: true,
+          bankName: true,
+          accountType: true,
+          isVerified: true,
+          razorpayLinkedAccountId: true,
+          isLinkedToRazorpay: true,
+          createdAt: true,
+        },
+      },
     },
     orderBy: { createdAt: 'desc' },
   });
+  // Mask encrypted account numbers before returning
+  return artists.map(a => ({
+    ...a,
+    bankAccount: a.bankAccount ? {
+      id: a.bankAccount.id,
+      accountHolderName: a.bankAccount.accountHolderName,
+      maskedAccountNumber: _safeDecryptLast4(a.bankAccount.encryptedAccountNumber),
+      ifscCode: a.bankAccount.ifscCode,
+      bankName: a.bankAccount.bankName,
+      accountType: a.bankAccount.accountType,
+      isVerified: a.bankAccount.isVerified,
+      razorpayLinkedAccountId: a.bankAccount.razorpayLinkedAccountId,
+      isLinkedToRazorpay: a.bankAccount.isLinkedToRazorpay,
+      createdAt: a.bankAccount.createdAt,
+    } : null,
+  }));
 }
 
 // Get all clients (for admin overview)

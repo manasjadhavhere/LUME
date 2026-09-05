@@ -34,10 +34,13 @@ interface ArtistProfile {
   bankAccount?: {
     id: string;
     accountHolderName: string;
-    accountNumberLast4: string;
+    maskedAccountNumber: string;
     ifscCode: string;
+    bankName: string;
+    accountType: string;
     isVerified: boolean;
-    verificationStatus: string;
+    isLinkedToRazorpay?: boolean;
+    razorpayLinkedAccountId?: string;
   };
   user: { id: string; name: string; email: string; avatarUrl?: string; createdAt: string; };
 }
@@ -748,22 +751,39 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Number</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>****{selectedArtist.bankAccount.accountNumberLast4}</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>{selectedArtist.bankAccount.maskedAccountNumber}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>IFSC Code</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.ifscCode}</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>{selectedArtist.bankAccount.ifscCode}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Bank Name</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.bankName}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Type</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.accountType}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
                           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Verification</span>
                           <span className={`admin-badge admin-badge--${selectedArtist.bankAccount.isVerified ? 'success' : 'warning'}`}>
-                            {selectedArtist.bankAccount.verificationStatus}
+                            {selectedArtist.bankAccount.isVerified ? '✓ Verified' : '⏳ Pending Verification'}
                           </span>
                         </div>
+                        {selectedArtist.bankAccount.isLinkedToRazorpay && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Razorpay Route</span>
+                            <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: 99, fontWeight: 600 }}>
+                              🔗 Linked ({selectedArtist.bankAccount.razorpayLinkedAccountId})
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
+
 
                 {/* Right Col */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
