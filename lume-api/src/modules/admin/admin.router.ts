@@ -3,7 +3,7 @@ import {
   getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist,
   getStats, updateArtistAdmin, approveEditRequest, deleteUser, updateBookingStatus,
   getArtistPayments, getArtistPaymentDetails, getLumeRevenue, markPaymentPaid,
-  adminVerifyBankAccount,
+  adminVerifyBankAccount, removeArtistDocument,
 } from './admin.controller';
 import { authenticate, requireRole } from '../../middleware/auth';
 
@@ -38,6 +38,9 @@ router.put('/artists/:id', updateArtistAdmin);
 
 // PATCH /api/admin/artists/:id/booking-status
 router.patch('/artists/:id/booking-status', updateBookingStatus);
+
+// DELETE /api/admin/artists/:id/documents
+router.delete('/artists/:id/documents', removeArtistDocument);
 
 // DELETE /api/admin/users/:id
 router.delete('/users/:id', deleteUser);

@@ -239,6 +239,29 @@ export async function updateArtistAdmin(artistId: string, data: any) {
   return updatedArtist;
 }
 
+// Remove an artist document (admin)
+export async function removeArtistDocument(artistId: string, fileUrl: string, type: 'certification' | 'portfolio') {
+  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
+  if (!artist) throw createError('Artist not found', 404);
+
+  if (type === 'certification') {
+    const updatedFiles = artist.certificationFiles.filter(f => f !== fileUrl);
+    return prisma.artistProfile.update({
+      where: { id: artistId },
+      data: { certificationFiles: updatedFiles },
+      include: { user: true, bankAccount: true }
+    });
+  } else {
+    const updatedUrls = artist.portfolioUrls.filter(u => u !== fileUrl);
+    return prisma.artistProfile.update({
+      where: { id: artistId },
+      data: { portfolioUrls: updatedUrls },
+      include: { user: true, bankAccount: true }
+    });
+  }
+}
+
+
 export async function getAdminStats() {
   const [
     totalUsers,

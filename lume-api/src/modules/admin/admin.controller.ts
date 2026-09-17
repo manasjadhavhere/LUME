@@ -58,6 +58,18 @@ export async function updateBookingStatus(req: Request, res: Response, next: Nex
   } catch (err) { next(err); }
 }
 
+export async function removeArtistDocument(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { fileUrl, type } = req.body;
+    if (!fileUrl || !type) {
+      res.status(400).json({ success: false, message: 'Missing fileUrl or type' });
+      return;
+    }
+    const artist = await AdminService.removeArtistDocument(req.params.id as string, fileUrl, type);
+    res.json({ success: true, data: artist, message: 'Document removed successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function getStats(req: Request, res: Response, next: NextFunction) {
   try {
     const stats = await AdminService.getAdminStats();

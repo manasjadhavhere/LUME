@@ -205,6 +205,27 @@ const AdminDashboard: React.FC = () => {
     setActioning(false);
   };
 
+  const handleRemoveDocument = async (artistId: string, fileUrl: string, type: 'certification' | 'portfolio') => {
+    if (!window.confirm('Are you sure you want to remove this document?')) return;
+    setActioning(true);
+    const res = await execute(`/api/admin/artists/${artistId}/documents`, { 
+      method: 'DELETE',
+      body: { fileUrl, type }
+    });
+    if (res) {
+      displayMsg('✅ Document removed successfully!');
+      if (selectedArtist && selectedArtist.id === artistId) {
+        if (type === 'certification') {
+          setSelectedArtist({ ...selectedArtist, certificationFiles: selectedArtist.certificationFiles.filter(f => f !== fileUrl) });
+        } else {
+          setSelectedArtist({ ...selectedArtist, portfolioUrls: selectedArtist.portfolioUrls.filter(u => u !== fileUrl) });
+        }
+      }
+      loadData();
+    }
+    setActioning(false);
+  };
+
   const toggleBookingStatusAdmin = async (artistId: string, currentStatus: boolean) => {
     if (actioning) return;
     setActioning(true);
@@ -749,15 +770,26 @@ const AdminDashboard: React.FC = () => {
                     <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Documents & Links</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {selectedArtist.portfolioUrls.map((url, i) => (
-                        <a key={i} href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
-                          <ExternalLink size={14} /> Portfolio Link {i+1}
-                        </a>
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                          <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                            <ExternalLink size={14} /> Portfolio Link {i+1}
+                          </a>
+                          <button onClick={() => handleRemoveDocument(selectedArtist.id, url, 'portfolio')} disabled={actioning} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 4 }} title="Remove Document">
+                            <X size={14} />
+                          </button>
+                        </div>
                       ))}
                       {selectedArtist.certificationFiles.map((file, i) => (
-                        <a key={i} href={file} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
-                          <ExternalLink size={14} /> Certificate {i+1}
-                        </a>
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                          <a href={file} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                            <ExternalLink size={14} /> Certificate {i+1}
+                          </a>
+                          <button onClick={() => handleRemoveDocument(selectedArtist.id, file, 'certification')} disabled={actioning} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 4 }} title="Remove Document">
+                            <X size={14} />
+                          </button>
+                        </div>
                       ))}
+
                     </div>
                   </div>
                   
