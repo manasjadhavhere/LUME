@@ -35,11 +35,13 @@ const portfolioStorage = new CloudinaryStorage({
 // Certification storage: PDFs and images, stored in lume/certifications folder
 const certificationStorage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: 'lume/certifications',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
-    resource_type: 'auto',
-  } as any,
+  params: async (req, file) => {
+    return {
+      folder: 'lume/certifications',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+      resource_type: file.mimetype === 'application/pdf' ? 'raw' : 'auto',
+    };
+  },
 });
 
 // ── File Filters ───────────────────────────────────────────────────────────────

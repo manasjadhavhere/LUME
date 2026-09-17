@@ -549,7 +549,7 @@ const ArtistProfile: React.FC = () => {
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(160px,1fr))',gap:'var(--spacing-md)' }}>
               {portfolioPhotos.map((url, idx) => {
                 let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
-                if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/image/upload/') && finalUrl.endsWith('.pdf')) {
                   finalUrl = finalUrl.replace('.pdf', '.jpg');
                 }
                 return (
@@ -588,7 +588,7 @@ const ArtistProfile: React.FC = () => {
             <div style={{ display:'flex',flexWrap:'wrap',gap:10 }}>
               {certFiles.map((url, idx) => {
                 let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
-                if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/image/upload/') && finalUrl.endsWith('.pdf')) {
                   finalUrl = finalUrl.replace('.pdf', '.jpg');
                 }
                 return (

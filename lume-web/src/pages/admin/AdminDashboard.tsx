@@ -771,7 +771,7 @@ const AdminDashboard: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {selectedArtist.portfolioUrls.map((url, i) => {
                         let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
-                        if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                        if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/image/upload/') && finalUrl.endsWith('.pdf')) {
                           finalUrl = finalUrl.replace('.pdf', '.jpg');
                         }
                         return (
@@ -787,7 +787,7 @@ const AdminDashboard: React.FC = () => {
                       })}
                       {selectedArtist.certificationFiles.map((file, i) => {
                         let finalUrl = file.startsWith('/') ? `${API_BASE}${file}` : file;
-                        if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                        if (finalUrl.includes('cloudinary.com') && finalUrl.includes('/image/upload/') && finalUrl.endsWith('.pdf')) {
                           finalUrl = finalUrl.replace('.pdf', '.jpg');
                         }
                         return (
