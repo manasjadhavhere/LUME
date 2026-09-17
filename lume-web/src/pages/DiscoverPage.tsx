@@ -24,7 +24,7 @@ const DiscoverPage: React.FC = () => {
   const [artists, setArtists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, clearFilterState } = useFilterState();
 
   useEffect(() => {
@@ -119,7 +119,7 @@ const DiscoverPage: React.FC = () => {
             No artists match your current search and filters.<br />
             Try adjusting your criteria or browse all categories.
           </p>
-          <button 
+          <button
             className="discover-page__reset-btn"
             onClick={clearFilterState}
           >

@@ -144,11 +144,13 @@
   .adp-gallery {
     padding: 0;
   }
+
   .adp-gallery__grid {
     grid-template-columns: 1fr;
     max-height: 320px;
     border-radius: 0;
   }
+
   .adp-gallery__side {
     display: none;
   }
@@ -383,17 +385,21 @@
     flex-direction: column;
     align-items: stretch;
   }
+
   .adp-profile__avatar {
     width: 64px;
     height: 64px;
   }
+
   .adp-profile__name {
     font-size: 1.4rem;
   }
+
   .adp-profile__cta-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
+
   .adp-profile__cta {
     justify-content: center;
     padding: 10px 16px;
@@ -464,6 +470,7 @@
     font-size: 0.82rem;
     gap: 5px;
   }
+
   .adp-tabs__tab svg {
     display: none;
   }
@@ -511,9 +518,11 @@
   .adp-body {
     grid-template-columns: 1fr;
   }
+
   .adp-sidebar {
     position: static;
   }
+
   .adp-sidebar__booking {
     display: none;
   }
@@ -548,6 +557,7 @@
     opacity: 0;
     transform: translateY(14px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -591,6 +601,7 @@
     padding: 24px 18px;
     border-radius: 14px;
   }
+
   .adp-section__title {
     font-size: 1.2rem;
   }
@@ -601,6 +612,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -666,6 +678,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
+
   .adp-about__stat {
     padding: 12px;
   }
@@ -752,9 +765,17 @@
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15); }
-  50% { box-shadow: 0 0 0 8px rgba(217, 122, 140, 0.08); }
-  100% { box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15); }
+  0% {
+    box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(217, 122, 140, 0.08);
+  }
+
+  100% {
+    box-shadow: 0 0 0 4px rgba(217, 122, 140, 0.15);
+  }
 }
 
 /* Steps */
@@ -982,11 +1003,13 @@
     gap: 20px;
     padding: 20px;
   }
+
   .adp-reviews__score {
     flex-direction: row;
     gap: 12px;
     align-items: center;
   }
+
   .adp-reviews__score-value {
     font-size: 2.2rem;
   }
@@ -1294,7 +1317,7 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-.adp-sidebar__help > svg {
+.adp-sidebar__help>svg {
   color: var(--rose-deep);
   flex-shrink: 0;
 }
@@ -1372,6 +1395,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 18px;
   }
+
   .adp-trust__item {
     font-size: 0.82rem;
   }
@@ -1437,6 +1461,8 @@
 /* ══════════════════════════════════════
    SCROLL SMOOTH OFFSET FOR STICKY NAV
    ══════════════════════════════════════ */
-#services, #portfolio, #reviews {
+#services,
+#portfolio,
+#reviews {
   scroll-margin-top: 160px;
 }

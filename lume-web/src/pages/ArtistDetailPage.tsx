@@ -160,14 +160,14 @@ const ArtistDetailPage: React.FC = () => {
       fetch(`${API_BASE}/api/clients/me/bookings`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data) {
-          const b = data.data.find((x: any) => x.artistId === artist.id && x.status === 'ACCEPTED');
-          if (b) setAcceptedBooking(b);
-        }
-      })
-      .catch(err => console.error("Failed to fetch client bookings", err));
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const b = data.data.find((x: any) => x.artistId === artist.id && x.status === 'ACCEPTED');
+            if (b) setAcceptedBooking(b);
+          }
+        })
+        .catch(err => console.error("Failed to fetch client bookings", err));
     }
   }, [isAuthenticated, user, artist?.id, token]);
 
@@ -224,8 +224,8 @@ const ArtistDetailPage: React.FC = () => {
   const handleBookingConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
     if (!isBookingReady || !artist || bookingLoading || showSuccessModal) return;
-    
-    setBookingLoading(true); 
+
+    setBookingLoading(true);
     setBookingError('');
 
     try {
@@ -306,7 +306,7 @@ const ArtistDetailPage: React.FC = () => {
           <div className="adp-gallery__main">
             {avatarSrc
               ? <img src={avatarSrc} alt={artist.user.name} className="adp-gallery__img" />
-              : <div className="adp-gallery__img" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display:'flex',alignItems:'center',justifyContent:'center',fontSize:'4rem' }}>✨</div>
+              : <div className="adp-gallery__img" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>✨</div>
             }
           </div>
           <div className="adp-gallery__side">
@@ -316,7 +316,7 @@ const ArtistDetailPage: React.FC = () => {
               </div>
             ))}
             {portfolioImages.length < 2 && (
-              <div className="adp-gallery__side-img" style={{ background: 'linear-gradient(135deg,#f8e1e8,#fce8ec)', display:'flex',alignItems:'center',justifyContent:'center' }}>
+              <div className="adp-gallery__side-img" style={{ background: 'linear-gradient(135deg,#f8e1e8,#fce8ec)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Camera size={32} style={{ color: 'var(--rose-mid)', opacity: 0.5 }} />
               </div>
             )}
@@ -347,7 +347,7 @@ const ArtistDetailPage: React.FC = () => {
             <div className="adp-profile__avatar-wrap">
               {avatarSrc
                 ? <img src={avatarSrc} alt={artist.user.name} className="adp-profile__avatar" />
-                : <div className="adp-profile__avatar" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem' }}>✨</div>
+                : <div className="adp-profile__avatar" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>✨</div>
               }
               {artist.isVerified && <span className="adp-profile__verified"><BadgeCheck size={16} /></span>}
             </div>
@@ -358,16 +358,16 @@ const ArtistDetailPage: React.FC = () => {
                   <span className="adp-profile__badge"><Sparkles size={12} />{artist.badge}</span>
                 )}
                 {artist.isVerified && (
-                  <span style={{ display:'inline-flex',alignItems:'center',gap:4,background:'rgba(34,197,94,0.1)',color:'#16a34a',padding:'3px 10px',borderRadius:20,fontSize:'0.72rem',fontWeight:700 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.1)', color: '#16a34a', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
                     ✅ Verified
                   </span>
                 )}
                 {artist.isTakingBookings ? (
-                  <span style={{ display:'inline-flex',alignItems:'center',gap:4,background:'rgba(34,197,94,0.1)',color:'#16a34a',padding:'3px 10px',borderRadius:20,fontSize:'0.72rem',fontWeight:700 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.1)', color: '#16a34a', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
                     Taking Bookings
                   </span>
                 ) : (
-                  <span style={{ display:'inline-flex',alignItems:'center',gap:4,background:'rgba(239,68,68,0.1)',color:'#dc2626',padding:'3px 10px',borderRadius:20,fontSize:'0.72rem',fontWeight:700 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(239,68,68,0.1)', color: '#dc2626', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
                     Not Taking Bookings
                   </span>
                 )}
@@ -470,7 +470,7 @@ const ArtistDetailPage: React.FC = () => {
                                 {PRICE_TYPE_LABELS[pt]}
                               </span>
                               <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--dark)' }}>
-                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span style={{fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span>
+                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span>
                               </span>
                             </button>
                           );
@@ -479,7 +479,7 @@ const ArtistDetailPage: React.FC = () => {
                       {selectedPriceType === 'HOURLY' && (
                         <div style={{ marginTop: 12, padding: '10px 16px', background: 'var(--rose-pale)', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--rose-deep)' }}>
                           Tip: Select multiple time slots in Step 3 to book several hours.
-                          {selectedTimeSlots.length > 0 && <span style={{display: 'block', marginTop: 4, fontWeight: 700}}>Total: ₹{calculatedPrice.toLocaleString()} <span style={{fontWeight: 'normal', fontSize: '0.85em'}}>+ GST</span></span>}
+                          {selectedTimeSlots.length > 0 && <span style={{ display: 'block', marginTop: 4, fontWeight: 700 }}>Total: ₹{calculatedPrice.toLocaleString()} <span style={{ fontWeight: 'normal', fontSize: '0.85em' }}>+ GST</span></span>}
                         </div>
                       )}
                       {/* Optional: link to a specific service */}
@@ -496,7 +496,7 @@ const ArtistDetailPage: React.FC = () => {
                                   background: selectedServiceId === s.id ? 'var(--rose-pale)' : 'white',
                                   color: selectedServiceId === s.id ? 'var(--rose-deep)' : 'var(--mid)',
                                 }}>
-                                {s.icon} {s.name} — ₹{s.price.toLocaleString()} <span style={{fontSize: '0.85em', fontWeight: 'normal'}}>+ GST</span>
+                                {s.icon} {s.name} — ₹{s.price.toLocaleString()} <span style={{ fontSize: '0.85em', fontWeight: 'normal' }}>+ GST</span>
                               </button>
                             ))}
                           </div>
@@ -521,7 +521,7 @@ const ArtistDetailPage: React.FC = () => {
                                 background: selectedServiceId === s.id ? 'rgba(0,0,0,0.05)' : 'white',
                                 fontWeight: 600, color: selectedServiceId === s.id ? 'var(--dark)' : 'var(--dark)', fontSize: '0.88rem',
                               }}>
-                              {s.icon} {s.name} <span style={{ color: 'var(--dark)', marginLeft: 4 }}>₹{s.price.toLocaleString()} <span style={{fontSize: '0.85em', fontWeight: 'normal', color: 'var(--text-soft)'}}>+ GST</span></span>
+                              {s.icon} {s.name} <span style={{ color: 'var(--dark)', marginLeft: 4 }}>₹{s.price.toLocaleString()} <span style={{ fontSize: '0.85em', fontWeight: 'normal', color: 'var(--text-soft)' }}>+ GST</span></span>
                             </button>
                           ))}
                         </div>
@@ -581,7 +581,7 @@ const ArtistDetailPage: React.FC = () => {
                             const [startHour] = slot.split(':').map(Number);
                             const endSlot = `${(startHour + 1).toString().padStart(2, '0')}:00`;
                             const isSelected = selectedTimeSlots.includes(slot);
-                            
+
                             return (
                               <button key={slot} type="button"
                                 onClick={() => {
@@ -703,7 +703,7 @@ const ArtistDetailPage: React.FC = () => {
                   <span className="adp-sidebar__price-label">
                     {selectedPriceType === 'WEDDING' ? '💍 Wedding' : selectedPriceType === 'OCCASION' ? '🎉 Occasion' : selectedPriceType === 'HOURLY' ? '⏱ Hourly' : 'Starting at'}
                   </span>
-                  <span className="adp-sidebar__price-value">₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '1rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
+                  <span className="adp-sidebar__price-value">₹{calculatedPrice.toLocaleString()} <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span></span>
                   {selectedPriceType === 'HOURLY' && <span className="adp-sidebar__price-per">per hour</span>}
                 </div>
                 {artist.isVerified && <div className="adp-sidebar__demand"><TrendingUp size={14} /><span>Verified Artist</span></div>}
@@ -738,7 +738,7 @@ const ArtistDetailPage: React.FC = () => {
                 </div>
                 <div className="adp-sidebar__booking-divider" />
                 <div className="adp-sidebar__booking-row">
-                  <span className="adp-sidebar__booking-val" style={{ fontWeight: 800, color: 'var(--rose-deep)' }}>₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
+                  <span className="adp-sidebar__booking-val" style={{ fontWeight: 800, color: 'var(--rose-deep)' }}>₹{calculatedPrice.toLocaleString()} <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span></span>
                 </div>
               </div>
 
@@ -807,7 +807,7 @@ const ArtistDetailPage: React.FC = () => {
       <div className="adp-mobile-bar">
         <div className="adp-mobile-bar__info">
           <span className="adp-mobile-bar__label">Total</span>
-          <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()} <span style={{fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-soft)'}}>+ GST</span></span>
+          <span className="adp-mobile-bar__price">₹{calculatedPrice.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span></span>
         </div>
         <Button variant="primary" size="lg" onClick={handleBookingConfirm}
           disabled={!isBookingReady || bookingLoading || showSuccessModal || artist.isTakingBookings === false} className="adp-mobile-bar__btn">
@@ -824,8 +824,8 @@ const ArtistDetailPage: React.FC = () => {
             <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', textAlign: 'center' }}>
               Your booking request has been sent to the artist. We'll get back to you shortly!
             </p>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={() => {
                 setShowSuccessModal(false);
                 navigate('/profile');

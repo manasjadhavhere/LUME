@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Trash2, CheckCircle, AlertCircle, Clock, Upload,
   Camera, Send, ShieldCheck, ShieldAlert, Shield, BadgeCheck, Sparkles,
-  Lock, Eye, EyeOff, Building2,
+  Lock, Eye, EyeOff, Building2, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
@@ -102,13 +102,21 @@ const ArtistProfile: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [verifyMsg, setVerifyMsg] = useState('');
 
+  const isInitialized = useRef(false);
+
   useEffect(() => {
-    if (profile) {
+    if (profile && !isInitialized.current) {
       setBio(profile.bio || ''); setLocation(profile.location || '');
       setExperience(String(profile.experience || 0)); setCertification(profile.certification || '');
       setSpecialties(profile.specialties || []); setGender(profile.gender || '');
       setWeddingPrice(String(profile.weddingPrice || '')); setOccasionPrice(String(profile.occasionPrice || ''));
       setHourlyPrice(String(profile.hourlyPrice || '')); setServices(profile.services || []);
+      setAvatarPreview(profile.profileImageUrl || user?.avatarUrl || '');
+      setPortfolioPhotos(profile.portfolioUrls || []); setCertFiles(profile.certificationFiles || []);
+      isInitialized.current = true;
+    } else if (profile) {
+      // Always keep these in sync with the backend if they change externally
+      setServices(profile.services || []);
       setAvatarPreview(profile.profileImageUrl || user?.avatarUrl || '');
       setPortfolioPhotos(profile.portfolioUrls || []); setCertFiles(profile.certificationFiles || []);
     }
@@ -253,6 +261,11 @@ const ArtistProfile: React.FC = () => {
   const handleRemovePortfolio = async (url: string) => {
     await apiExecute('/api/artists/me/portfolio', { method: 'DELETE', body: { url } });
     setPortfolioPhotos(prev => prev.filter(u => u !== url));
+  };
+
+  const handleRemoveCert = async (url: string) => {
+    await apiExecute('/api/artists/me/certifications', { method: 'DELETE', body: { url } });
+    setCertFiles(prev => prev.filter(u => u !== url));
   };
 
   const handleSubmitVerification = async () => {
@@ -534,17 +547,23 @@ const ArtistProfile: React.FC = () => {
             <p style={{ fontSize:'0.85rem',color:'var(--text-soft)',marginBottom:16 }}>Showcase high-resolution photos of your best work. These will be visible to clients.</p>
             <input ref={portfolioInputRef} type="file" accept="image/*" multiple hidden onChange={handlePortfolioChange} />
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(160px,1fr))',gap:'var(--spacing-md)' }}>
-              {portfolioPhotos.map((url, idx) => (
+              {portfolioPhotos.map((url, idx) => {
+                let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                  finalUrl = finalUrl.replace('.pdf', '.jpg');
+                }
+                return (
                 <div key={idx} style={{ position:'relative',borderRadius:'var(--radius-md)',overflow:'hidden',aspectRatio:'1',background:'#eee',border:'1px solid rgba(42,26,31,0.08)' }}>
-                  <img src={url.startsWith('/') ? `${API_BASE}${url}` : url} alt="Portfolio" style={{ width:'100%',height:'100%',objectFit:'cover' }} />
+                  <img src={finalUrl} alt="Portfolio" style={{ width:'100%',height:'100%',objectFit:'cover' }} />
                   {!isLocked && (
                     <button type="button" onClick={() => handleRemovePortfolio(url)}
-                      style={{ position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',background:'rgba(42,26,31,0.7)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer' }}>
-                      <Trash2 size={14} />
+                      style={{ position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',background:'rgba(239,68,68,0.9)',color:'white',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer',boxShadow:'0 2px 4px rgba(0,0,0,0.2)' }} title="Remove image">
+                      <X size={16} />
                     </button>
                   )}
                 </div>
-              ))}
+                );
+              })}
               {portfolioPhotos.length === 0 && (
                 <div style={{ gridColumn:'1/-1',textAlign:'center',padding:32,color:'var(--mid)',fontSize:'0.88rem' }}>
                   No portfolio photos yet. Click "Upload Looks" to add your work.
@@ -568,12 +587,23 @@ const ArtistProfile: React.FC = () => {
             <input ref={certInputRef} type="file" accept="image/*,.pdf" multiple hidden onChange={handleCertChange} />
             <div style={{ display:'flex',flexWrap:'wrap',gap:10 }}>
               {certFiles.map((url, idx) => {
-                const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                  finalUrl = finalUrl.replace('.pdf', '.jpg');
+                }
                 return (
-                  <a key={idx} href={finalUrl} target="_blank" rel="noopener noreferrer"
-                    style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--rose-pale)',borderRadius:8,fontSize:'0.82rem',fontWeight:600,color:'var(--rose-deep)',border:'1px solid var(--rose-light)',textDecoration:'none' }}>
-                    📄 Document {idx + 1}
-                  </a>
+                  <div key={idx} style={{ display:'flex',alignItems:'center',background:'var(--rose-pale)',borderRadius:8,border:'1px solid var(--rose-light)' }}>
+                    <a href={finalUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ display:'flex',alignItems:'center',gap:6,padding:'8px 14px',fontSize:'0.82rem',fontWeight:600,color:'var(--rose-deep)',textDecoration:'none' }}>
+                      📄 Document {idx + 1}
+                    </a>
+                    {!isLocked && (
+                      <button type="button" onClick={() => handleRemoveCert(url)}
+                        style={{ padding:'8px 10px',background:'none',border:'none',color:'#ef4444',cursor:'pointer',borderLeft:'1px solid rgba(225,29,72,0.1)' }} title="Remove Document">
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
                 );
               })}
               {certFiles.length === 0 && <p style={{ color:'var(--mid)',fontSize:'0.85rem' }}>No documents uploaded yet.</p>}

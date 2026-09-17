@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, ExternalLink, Settings, MapPin, Star, CreditCard, Download, CheckCircle } from 'lucide-react';
+import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, ExternalLink, Settings, MapPin, Star, CreditCard, Download, CheckCircle, MinusCircle } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, API_BASE } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -769,26 +769,38 @@ const AdminDashboard: React.FC = () => {
                   <div>
                     <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Documents & Links</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {selectedArtist.portfolioUrls.map((url, i) => (
+                      {selectedArtist.portfolioUrls.map((url, i) => {
+                        let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                        if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                          finalUrl = finalUrl.replace('.pdf', '.jpg');
+                        }
+                        return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                          <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                          <a href={finalUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
                             <ExternalLink size={14} /> Portfolio Link {i+1}
                           </a>
                           <button onClick={() => handleRemoveDocument(selectedArtist.id, url, 'portfolio')} disabled={actioning} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 4 }} title="Remove Document">
-                            <X size={14} />
+                            <MinusCircle size={16} />
                           </button>
                         </div>
-                      ))}
-                      {selectedArtist.certificationFiles.map((file, i) => (
+                        );
+                      })}
+                      {selectedArtist.certificationFiles.map((file, i) => {
+                        let finalUrl = file.startsWith('/') ? `${API_BASE}${file}` : file;
+                        if (finalUrl.includes('cloudinary.com') && finalUrl.endsWith('.pdf')) {
+                          finalUrl = finalUrl.replace('.pdf', '.jpg');
+                        }
+                        return (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                          <a href={file} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
+                          <a href={finalUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#3b82f6', fontSize: '0.875rem', textDecoration: 'none' }}>
                             <ExternalLink size={14} /> Certificate {i+1}
                           </a>
                           <button onClick={() => handleRemoveDocument(selectedArtist.id, file, 'certification')} disabled={actioning} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 4 }} title="Remove Document">
-                            <X size={14} />
+                            <MinusCircle size={16} />
                           </button>
                         </div>
-                      ))}
+                        );
+                      })}
 
                     </div>
                   </div>

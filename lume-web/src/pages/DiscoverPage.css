@@ -79,6 +79,7 @@
   .discover-page {
     padding: 20px 12px clamp(80px, 12vh, 120px);
   }
+
   .discover-page__artists-grid {
     gap: 8px;
   }

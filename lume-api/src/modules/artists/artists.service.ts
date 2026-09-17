@@ -240,6 +240,16 @@ export async function addCertificationFiles(userId: string, urls: string[]) {
   });
 }
 
+export async function removeCertificationFile(userId: string, url: string) {
+  const profile = await prisma.artistProfile.findUnique({ where: { userId } });
+  if (!profile) throw createError('Artist profile not found', 404);
+
+  return prisma.artistProfile.update({
+    where: { userId },
+    data: { certificationFiles: profile.certificationFiles.filter(u => u !== url) },
+  });
+}
+
 export async function submitForVerification(userId: string) {
   const profile = await prisma.artistProfile.findUnique({ where: { userId } });
   if (!profile) throw createError('Artist profile not found', 404);

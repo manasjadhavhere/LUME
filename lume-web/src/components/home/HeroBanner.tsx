@@ -71,7 +71,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ onCtaClick }) => {
           </div>
         </div>
       ))}
-      
+
       {/* Navigation Controls */}
       <button className="hero-nav-btn prev" onClick={prevSlide} aria-label="Previous slide">
         <ChevronLeft size={32} />

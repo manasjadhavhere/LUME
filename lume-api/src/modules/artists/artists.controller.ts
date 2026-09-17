@@ -79,6 +79,14 @@ export async function uploadCertificationHandler(req: Request, res: Response, ne
   } catch (err) { next(err); }
 }
 
+export async function deleteCertificationItem(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { url } = req.body;
+    const artist = await ArtistsService.removeCertificationFile(req.user!.userId, url);
+    res.json({ success: true, data: artist });
+  } catch (err) { next(err); }
+}
+
 export async function submitVerification(req: Request, res: Response, next: NextFunction) {
   try {
     const artist = await ArtistsService.submitForVerification(req.user!.userId);

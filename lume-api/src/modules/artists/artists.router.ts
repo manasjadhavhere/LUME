@@ -8,6 +8,7 @@ import {
   uploadPortfolioHandler,
   deletePortfolioItem,
   uploadCertificationHandler,
+  deleteCertificationItem,
   submitVerification,
   updatePricing,
   addService,
@@ -51,6 +52,7 @@ router.post('/me/avatar', ...artistAuth, uploadAvatar.single('avatar'), uploadAv
 router.post('/me/portfolio', ...artistAuth, uploadPortfolio.array('photos', 10), uploadPortfolioHandler);
 router.delete('/me/portfolio', ...artistAuth, deletePortfolioItem);
 router.post('/me/certifications', ...artistAuth, uploadCertification.array('files', 5), uploadCertificationHandler);
+router.delete('/me/certifications', ...artistAuth, deleteCertificationItem);
 
 // Verification
 router.post('/me/submit-verification', ...artistAuth, submitVerification);

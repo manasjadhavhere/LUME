@@ -39,17 +39,17 @@ const SplashPage: React.FC = () => {
 
         {/* Brand Title */}
         <h1 className="brand-title">LUME</h1>
-        
+
         {/* Subtitle */}
         <p className="brand-subtitle">Beauty · Art · Glow</p>
-        
+
         {/* Tagline */}
         <p className="brand-tagline">Your canvas. Our masterpiece.</p>
 
         {/* CTA Button */}
-        <Button 
-          variant="primary" 
-          size="lg" 
+        <Button
+          variant="primary"
+          size="lg"
           onClick={handleExploreClick}
           ariaLabel="Explore artists - navigate to home screen"
           className="explore-btn"
