@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Sparkles, Search, User, Palette } from 'lucide-react';
+import { Menu, X, Search, User, Palette } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Sparkles, User, Palette, ArrowRight, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../context/AuthContext';
 import LocationAutocomplete from '../../components/ui/LocationAutocomplete';
