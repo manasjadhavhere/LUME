@@ -57,12 +57,15 @@ const HERO_SLIDES = [
   }
 ];
 
-/* ── Categories ── */
 const CATEGORIES = [
-  { name: 'Bridal', image: img1, wide: true },
+  { name: 'Bridal', image: img1 },
   { name: 'Editorial', image: img2 },
   { name: 'Natural', image: img4 },
   { name: 'Fantasy', image: img6 },
+  { name: 'Festive', image: img7 },
+  { name: 'Glamour', image: img3 },
+  { name: 'SFX', image: img5 },
+  { name: 'Party', image: img1 },
 ];
 
 /* ── Marquee ── */
@@ -473,6 +476,10 @@ const LandingPage: React.FC = () => {
             <h2 className="lp-heading">
               Our <em>Categories</em>
             </h2>
+            <p className="lp-section__lead">
+              Discover the perfect aesthetic for your next event.<br />
+              Browse through our specialized artists for every occasion.
+            </p>
           </div>
 
           <div className="lp-categories__grid stagger">
@@ -481,10 +488,10 @@ const LandingPage: React.FC = () => {
                 key={cat.name}
                 className="lp-cat-card reveal-up"
                 style={{ '--delay': `${i * 0.1}s` } as React.CSSProperties}
-                onClick={() => navigate('/discover')}
+                onClick={() => navigate(`/discover?category=${cat.name.toLowerCase()}`)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && navigate('/discover')}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/discover?category=${cat.name.toLowerCase()}`)}
               >
                 <div className="lp-cat-card__img-wrap">
                   <img src={cat.image} alt={cat.name} className="lp-cat-card__img" loading="lazy" />
