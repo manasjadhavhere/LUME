@@ -8,18 +8,27 @@ import ArtistCardSkeleton from '../components/home/ArtistCardSkeleton';
 import useFilterState from '../hooks/useFilterState';
 import { API_BASE } from '../context/AuthContext';
 import type { ServiceCategory } from '../data/types';
+import useScrollReveal from '../hooks/useScrollReveal';
 import './DiscoverPage.css';
 
-const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon: string; label: string }> = [
-  { id: 'All', icon: '✨', label: 'All' },
-  { id: 'Bridal', icon: '👰', label: 'Bridal' },
-  { id: 'Editorial', icon: '📸', label: 'Editorial' },
-  { id: 'Natural', icon: '🌿', label: 'Natural' },
-  { id: 'Fantasy', icon: '🦋', label: 'Fantasy' },
-  { id: 'Festive', icon: '🎆', label: 'Festive' },
-  { id: 'Glamour', icon: '💫', label: 'Glamour' },
-  { id: 'SFX', icon: '👽', label: 'SFX' },
-  { id: 'Party', icon: '🥂', label: 'Party' },
+import img1 from '../assets/images/1.png';
+import img2 from '../assets/images/2.png';
+import img3 from '../assets/images/3.png';
+import img4 from '../assets/images/4.png';
+import img5 from '../assets/images/5.png';
+import img6 from '../assets/images/6.png';
+import img7 from '../assets/images/7.png';
+
+const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon?: string; image?: string; label: string }> = [
+  { id: 'All', image: img1, label: 'All' },
+  { id: 'Bridal', image: img2, label: 'Bridal' },
+  { id: 'Editorial', image: img3, label: 'Editorial' },
+  { id: 'Natural', image: img4, label: 'Natural' },
+  { id: 'Fantasy', image: img5, label: 'Fantasy' },
+  { id: 'Festive', image: img6, label: 'Festive' },
+  { id: 'Glamour', image: img7, label: 'Glamour' },
+  { id: 'SFX', image: img1, label: 'SFX' },
+  { id: 'Party', image: img2, label: 'Party' },
 ];
 
 const DiscoverPage: React.FC = () => {
@@ -30,6 +39,7 @@ const DiscoverPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, locationQuery, setLocationQuery, clearFilterState } = useFilterState();
+  useScrollReveal([artists, isLoading]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -71,27 +81,34 @@ const DiscoverPage: React.FC = () => {
   };
 
   return (
-    <div className="discover-page">
-      {/* Header */}
-      <div className="discover-page__header">
-        <h1 className="discover-page__title">Discover Artists</h1>
-        <p className="discover-page__subtitle">
-          Find the perfect makeup artist for any occasion
-        </p>
-      </div>
+    <div className="discover-page lp-section">
+      <div className="lp-container">
+        {/* Header */}
+        <div className="lp-section__header reveal" style={{ marginTop: '20px', marginBottom: '40px' }}>
+          <h1 className="lp-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', whiteSpace: 'nowrap' }}>
+            <span style={{ height: '1px', background: 'var(--text-soft)', flex: 1, maxWidth: '60px' }}></span>
+            Discover Artists
+            <span style={{ height: '1px', background: 'var(--text-soft)', flex: 1, maxWidth: '60px' }}></span>
+          </h1>
+          <p className="discover-page__subtitle" style={{ marginTop: '16px' }}>
+            Find the perfect makeup artist for any occasion
+          </p>
+        </div>
 
       {/* Search Bar */}
-      <SearchBar
-        value={searchQuery}
-        onChange={setSearchQuery}
-        locationValue={locationQuery}
-        onLocationChange={setLocationQuery}
-        onFilter={handleFilter}
-        placeholder="Search by name, style, occasion..."
-      />
+      <div className="reveal-up">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          locationValue={locationQuery}
+          onLocationChange={setLocationQuery}
+          onFilter={handleFilter}
+          placeholder="Search by name, style, occasion..."
+        />
+      </div>
 
       {/* Filter Categories */}
-      <div className="discover-page__filters">
+      <div className="discover-page__filters reveal-up" style={{ transitionDelay: '0.1s' }}>
         <CategoryChips
           categories={DISCOVER_CATEGORIES}
           activeCategory={activeCategory}
@@ -116,19 +133,22 @@ const DiscoverPage: React.FC = () => {
 
       {/* Artists Grid */}
       {isLoading ? (
-        <div className="discover-page__artists-grid">
+        <div className="discover-page__artists-grid stagger">
           {Array.from({ length: 6 }).map((_, index) => (
-            <ArtistCardSkeleton key={`skeleton-${index}`} />
+            <div className="reveal-scale" key={`skeleton-${index}`}>
+              <ArtistCardSkeleton />
+            </div>
           ))}
         </div>
       ) : artists.length > 0 ? (
-        <div className="discover-page__artists-grid">
+        <div className="discover-page__artists-grid stagger">
           {artists.map((artist) => (
-            <ArtistCard
-              key={artist.id}
-              artist={artist}
-              onClick={handleArtistClick}
-            />
+            <div className="reveal-scale" key={artist.id}>
+              <ArtistCard
+                artist={artist}
+                onClick={handleArtistClick}
+              />
+            </div>
           ))}
         </div>
       ) : !error ? (
@@ -147,6 +167,7 @@ const DiscoverPage: React.FC = () => {
           </button>
         </div>
       ) : null}
+      </div>
     </div>
   );
 };
