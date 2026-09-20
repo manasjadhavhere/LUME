@@ -4,7 +4,7 @@
 
 .discover-page {
   min-height: 100vh;
-  background: var(--frost);
+  background: #ffffff !important;
   padding: clamp(32px, 6vw, 64px) var(--container-pad) clamp(80px, 12vh, 120px);
   width: 100%;
   box-sizing: border-box;
