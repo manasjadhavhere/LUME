@@ -88,11 +88,6 @@ body {
   line-height: 1.7;
   color: var(--dark);
   background-color: var(--frost);
-  background-image:
-    radial-gradient(ellipse at 20% 10%, rgba(242, 164, 176, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(245, 230, 211, 0.10) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 30%, rgba(251, 221, 228, 0.06) 0%, transparent 40%);
-  background-attachment: fixed;
   overflow-x: hidden;
 }
 
