@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Star, MapPin, ChevronLeft, ChevronRight,
-  Sparkles, Heart, Shield, Clock, CheckCircle, Mail, Phone,
-  ArrowUpRight, Play, Share2, MessageCircle, Video
+  Sparkles, Heart, Shield, CheckCircle, Mail, Phone,
+  ArrowUpRight, Share2, MessageCircle, Video
 } from 'lucide-react';
 import { API_BASE, useAuth } from '../context/AuthContext';
 import './LandingPage.css';
@@ -109,109 +109,46 @@ const HeroLights: React.FC = () => (
 /* ══════════════════════════════════════
    Lume Intro Component
 ══════════════════════════════════════ */
-const LumeIntro: React.FC<{ onBook: () => void; onExplore: () => void }> = ({ onBook, onExplore }) => (
-  <section className="lp-intro" id="intro" aria-label="About Lume">
-    {/* Animated background orbs */}
-    <div className="lp-intro__orb lp-intro__orb--1" aria-hidden="true" />
-    <div className="lp-intro__orb lp-intro__orb--2" aria-hidden="true" />
-    <div className="lp-intro__orb lp-intro__orb--3" aria-hidden="true" />
-
-    {/* Floating sparkle particles */}
-    <div className="lp-intro__spark lp-intro__spark--1" aria-hidden="true" />
-    <div className="lp-intro__spark lp-intro__spark--2" aria-hidden="true" />
-    <div className="lp-intro__spark lp-intro__spark--3" aria-hidden="true" />
-    <div className="lp-intro__spark lp-intro__spark--4" aria-hidden="true" />
-
-    <div className="lp-intro__inner">
-      {/* Left: Text */}
-      <div className="lp-intro__text reveal-left">
-        {/* <div className="lp-intro__badge">
-          <span className="lp-intro__badge-dot" />
-          Redefining Beauty in India
-        </div> */}
-
-        <h2 className="lp-intro__heading">
+const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
+  <section className="lp-section lp-intro" id="about" aria-label="About Lume">
+    <div className="lp-container lp-intro__grid">
+      <div className="lp-intro__content reveal-left">
+        <span className="lp-eyebrow">About Lume</span>
+        <h2 className="lp-heading" style={{ marginBottom: '24px' }}>
           Where Every Look<br />
           Becomes a <em>Masterpiece.</em>
         </h2>
-
-        <p className="lp-intro__tagline">
+        <p className="lp-intro__body">
           Lume is India's most curated beauty platform — connecting visionaries
           with <strong>verified, award-winning makeup artists</strong> for bridal
-          ceremonies, editorial shoots, and everyday transformations.
-          Not just a booking. A&nbsp;<strong>luminous experience.</strong>
+          ceremonies, editorial shoots, and everyday transformations. Not just a booking. A <em>luminous experience.</em>
         </p>
-
-        <div className="lp-intro__divider">
-          <div className="lp-intro__divider-line" />
-          <span className="lp-intro__divider-icon"><Sparkles size={16} /></span>
-          <div className="lp-intro__divider-line" />
-        </div>
-
-        <div className="lp-intro__micro-stats">
-          <div className="lp-intro__micro-stat">
-            <strong>Verified</strong>
-            <span>Expert Artists</span>
-          </div>
-          <div className="lp-intro__micro-stat">
-            <strong>Trusted</strong>
-            <span>By Clients</span>
-          </div>
-          <div className="lp-intro__micro-stat">
-            <strong>Premium</strong>
-            <span>Quality</span>
-          </div>
-          <div className="lp-intro__micro-stat">
-            <strong>Pan-India</strong>
-            <span>Coverage</span>
-          </div>
-        </div>
-
-        <div className="lp-intro__cta">
-          <button className="lp-btn lp-btn--primary" onClick={onBook}>
-            Book an Artist <ArrowRight size={16} />
-          </button>
-          <button className="lp-btn lp-btn--ghost-dark" onClick={onExplore}>
-            <Play size={13} fill="currentColor" /> Explore Gallery
-          </button>
-        </div>
+        <button className="lp-btn lp-btn--primary lp-intro__cta" onClick={onBook}>
+          Book an Artist <ArrowRight size={16} />
+        </button>
       </div>
 
-      {/* Right: Visual */}
-      <div className="lp-intro__visual reveal-right">
-        <div className="lp-intro__glass-main">
-          <img
-            src={img3}
-            alt="Lume beauty artistry — a bride in premium makeup"
-            className="lp-intro__img"
-            loading="lazy"
-          />
+      <div className="lp-intro__collage reveal-right">
+        {/* Cursive Text */}
+        <div className="lp-intro__cursive">
+          Beauty<br />Looks Good<br />On You <span>♡</span>
         </div>
-
-        {/* Floating glass card 1 */}
-        <div className="lp-intro__float-card lp-intro__float-card--1">
-          <div className="lp-intro__float-icon">
-            <Heart size={20} fill="white" />
-          </div>
-          <div className="lp-intro__float-text">
-            <strong>Trusted</strong>
-            <span>By Clients</span>
-          </div>
+        
+        {/* Main Arch Image */}
+        <div className="lp-intro__arch">
+          <img src={img3} alt="Beautiful bride" loading="lazy" />
         </div>
-
-        {/* Floating glass card 2 */}
-        <div className="lp-intro__float-card lp-intro__float-card--2">
-          <div className="lp-intro__float-icon">
-            <Sparkles size={16} />
-          </div>
-          <div className="lp-intro__float-text">
-            <strong>Premium</strong>
-            <span>Quality</span>
-          </div>
+        
+        {/* Floating Accent Images */}
+        <div className="lp-intro__float lp-intro__float--1">
+          <img src={img2} alt="Makeup brushes" loading="lazy" />
         </div>
-
-        {/* Decorative spinning ring */}
-        <div className="lp-intro__deco-ring" aria-hidden="true" />
+        <div className="lp-intro__float lp-intro__float--2">
+          <img src={img5} alt="Eye makeup detail" loading="lazy" />
+        </div>
+        <div className="lp-intro__float lp-intro__float--3">
+          <img src={img4} alt="Elegant updo" loading="lazy" />
+        </div>
       </div>
     </div>
   </section>
@@ -449,7 +386,7 @@ const LandingPage: React.FC = () => {
         </section>
       )}
 
-      <LumeIntro onBook={() => navigate('/home')} onExplore={() => navigate('/discover')} />
+
 
       {/* ══════════════════════════════
           2. OUR ARTISTS
@@ -524,73 +461,7 @@ const LandingPage: React.FC = () => {
       {/* ══════════════════════════════
           3. ABOUT US
       ══════════════════════════════ */}
-      <section className="lp-section lp-about" id="about">
-        <div className="lp-container lp-about__grid">
-
-          {/* Visual */}
-          <div className="lp-about__visual reveal-left">
-            <div className="lp-about__img-stack">
-              <img
-                src={img5}
-                alt="Beauty artist at work"
-                className="lp-about__img lp-about__img--main"
-                loading="lazy"
-              />
-              <img
-                src={img3}
-                alt="Makeup artistry detail"
-                className="lp-about__img lp-about__img--accent"
-                loading="lazy"
-              />
-              <div className="lp-about__stat-pill reveal">
-                <Sparkles size={16} className="lp-about__stat-pill-icon" />
-                <strong>Trusted</strong>
-                <span>By Clients</span>
-              </div>
-              {/* Decorative ring */}
-              <div className="lp-about__deco-ring" aria-hidden="true" />
-            </div>
-          </div>
-
-          {/* Text */}
-          <div className="lp-about__text reveal-right">
-            <span className="lp-eyebrow">About Lume</span>
-            <h2 className="lp-heading">
-              Where Beauty Meets<br />
-              <em>Artistry & Trust</em>
-            </h2>
-            <p className="lp-about__body">
-              Lume was founded with a single mission — to make premium beauty artistry accessible to everyone. We connect clients with India's most talented, verified makeup artists for every occasion, from bridal ceremonies to editorial shoots.
-            </p>
-            <p className="lp-about__body">
-              Every artist on Lume is hand-vetted, portfolio-reviewed, and backed by authentic client reviews so you always know exactly what you're booking.
-            </p>
-
-            <div className="lp-about__trust stagger">
-              {[
-                { icon: Shield, text: '100% Verified Artists' },
-                { icon: Heart, text: 'Personalized Matching' },
-                { icon: Clock, text: 'Instant Confirmation' },
-                { icon: CheckCircle, text: 'Secure Payments' },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} className="lp-about__trust-item reveal">
-                  <div className="lp-about__trust-icon"><Icon size={15} /></div>
-                  {text}
-                </div>
-              ))}
-            </div>
-
-            <div className="lp-about__cta-row reveal">
-              <button className="lp-btn lp-btn--primary" onClick={() => navigate('/discover')}>
-                Explore Artists <ArrowRight size={16} />
-              </button>
-              <button className="lp-btn lp-btn--ghost-dark" onClick={() => navigate('/home')}>
-                Book Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <LumeIntro onBook={() => navigate('/discover')} />
 
       {/* ══════════════════════════════
           4. CATEGORIES
@@ -598,10 +469,9 @@ const LandingPage: React.FC = () => {
       <section className="lp-section lp-categories" id="categories">
         <div className="lp-container">
           <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">Categories</span>
+            <span className="lp-eyebrow">Explore</span>
             <h2 className="lp-heading">
-              Find the Perfect Look<br />
-              <em>For Every Occasion</em>
+              Our <em>Categories</em>
             </h2>
           </div>
 
@@ -609,19 +479,20 @@ const LandingPage: React.FC = () => {
             {CATEGORIES.map((cat, i) => (
               <div
                 key={cat.name}
-                className={`lp-cat-card reveal-scale ${cat.wide ? 'lp-cat-card--wide' : ''}`}
-                style={{ '--delay': `${i * 0.07}s` } as React.CSSProperties}
+                className="lp-cat-card reveal-up"
+                style={{ '--delay': `${i * 0.1}s` } as React.CSSProperties}
                 onClick={() => navigate('/discover')}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && navigate('/discover')}
               >
-                <img src={cat.image} alt={cat.name} className="lp-cat-card__img" loading="lazy" />
-                <div className="lp-cat-card__overlay" />
-                <div className="lp-cat-card__content">
-                  <h3 className="lp-cat-card__name">{cat.name}</h3>
-                  <span className="lp-cat-card__arrow"><ArrowUpRight size={18} /></span>
+                <div className="lp-cat-card__img-wrap">
+                  <img src={cat.image} alt={cat.name} className="lp-cat-card__img" loading="lazy" />
+                  <div className="lp-cat-card__overlay" />
+                  <span className="lp-cat-card__arrow"><ArrowUpRight size={20} /></span>
                 </div>
+                <h3 className="lp-cat-card__name">{cat.name}</h3>
+                <p className="lp-cat-card__desc">Explore Artists</p>
               </div>
             ))}
           </div>
@@ -632,11 +503,6 @@ const LandingPage: React.FC = () => {
           5. PARTNER WITH US
       ══════════════════════════════ */}
       <section className="lp-section lp-partner" id="partner">
-        <div className="lp-partner__bg" aria-hidden="true">
-          <div className="lp-partner__bg-orb lp-partner__bg-orb--1" />
-          <div className="lp-partner__bg-orb lp-partner__bg-orb--2" />
-        </div>
-
         <div className="lp-container lp-partner__inner">
           <div className="lp-partner__content">
             <span className="lp-eyebrow lp-eyebrow--light reveal">Partner With Us</span>
@@ -673,16 +539,6 @@ const LandingPage: React.FC = () => {
                 className="lp-partner__img"
                 loading="lazy"
               />
-              <div className="lp-partner__card glass">
-                <Sparkles size={20} className="lp-partner__card-icon" />
-                <strong>Verified</strong>
-                <span>Artists Already on Lume</span>
-              </div>
-              <div className="lp-partner__card-2 glass">
-                <Star size={14} fill="currentColor" />
-                <strong>Premium</strong>
-                <span>Quality Platform</span>
-              </div>
             </div>
           </div>
         </div>
