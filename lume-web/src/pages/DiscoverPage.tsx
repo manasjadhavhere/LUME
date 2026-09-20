@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
-import SearchBar from '../components/home/SearchBar';
+import { AlertCircle, Search, MapPin, Filter, ArrowRight, CheckCircle, Star } from 'lucide-react';
+import LocationAutocomplete from '../components/ui/LocationAutocomplete';
 import CategoryChips from '../components/home/CategoryChips';
-import ArtistCard from '../components/home/ArtistCard';
 import ArtistCardSkeleton from '../components/home/ArtistCardSkeleton';
 import useFilterState from '../hooks/useFilterState';
 import { API_BASE } from '../context/AuthContext';
 import type { ServiceCategory } from '../data/types';
 import useScrollReveal from '../hooks/useScrollReveal';
 import './DiscoverPage.css';
+import './LandingPage.css';
 
 import img1 from '../assets/images/1.png';
 import img2 from '../assets/images/2.png';
@@ -30,6 +30,16 @@ const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon?: string; image?: s
   { id: 'SFX', image: img1, label: 'SFX' },
   { id: 'Party', image: img2, label: 'Party' },
 ];
+
+const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
+
+const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, index = 0) => {
+  const target = e.currentTarget;
+  const fallback = ASSET_IMAGES[index % ASSET_IMAGES.length];
+  if (target.src !== fallback) {
+    target.src = fallback;
+  }
+};
 
 const DiscoverPage: React.FC = () => {
   const navigate = useNavigate();
@@ -96,15 +106,30 @@ const DiscoverPage: React.FC = () => {
         </div>
 
       {/* Search Bar */}
-      <div className="reveal-up">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          locationValue={locationQuery}
-          onLocationChange={setLocationQuery}
-          onFilter={handleFilter}
-          placeholder="Search by name, style, occasion..."
-        />
+      <div className="reveal-up" style={{ maxWidth: '700px', margin: '0 auto', transitionDelay: '0.1s' }}>
+        <div className="lp-search-box glass-panel" style={{ background: 'var(--white)' }}>
+          <div className="lp-search-input">
+            <Search size={18} className="lp-search-icon" />
+            <input 
+              type="text" 
+              placeholder="Service (e.g. Bridal HD, Airbrush)" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="lp-search-divider" />
+          <div className="lp-search-input" style={{ padding: 0 }}>
+            <LocationAutocomplete 
+              value={locationQuery} 
+              onChange={setLocationQuery} 
+              icon={<MapPin size={18} className="lp-search-icon" />}
+              className="lp-search-input--autocomplete"
+            />
+          </div>
+          <button className="lp-btn lp-btn--primary lp-search-btn" onClick={handleFilter}>
+             <Filter size={16} /> Filters
+          </button>
+        </div>
       </div>
 
       {/* Filter Categories */}
@@ -133,23 +158,58 @@ const DiscoverPage: React.FC = () => {
 
       {/* Artists Grid */}
       {isLoading ? (
-        <div className="discover-page__artists-grid stagger">
-          {Array.from({ length: 6 }).map((_, index) => (
+        <div className="lp-artists__grid stagger" style={{ marginTop: '32px' }}>
+          {Array.from({ length: 8 }).map((_, index) => (
             <div className="reveal-scale" key={`skeleton-${index}`}>
               <ArtistCardSkeleton />
             </div>
           ))}
         </div>
       ) : artists.length > 0 ? (
-        <div className="discover-page__artists-grid stagger">
-          {artists.map((artist) => (
-            <div className="reveal-scale" key={artist.id}>
-              <ArtistCard
-                artist={artist}
-                onClick={handleArtistClick}
-              />
-            </div>
-          ))}
+        <div className="lp-artists__grid stagger" style={{ marginTop: '32px' }}>
+          {artists.map((artist) => {
+            const rawImg = artist.profileImageUrl || artist.user?.avatarUrl;
+            const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
+            return (
+              <div
+                key={artist.id}
+                className="lp-artist-card reveal-scale"
+                onClick={() => handleArtistClick(artist.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleArtistClick(artist.id)}
+              >
+                <div className="lp-artist-card__img-wrap">
+                  <img src={imgUrl} alt={artist.user?.name || 'Artist'} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
+                  <div className="lp-artist-card__overlay">
+                    <button className="lp-artist-card__view" onClick={() => handleArtistClick(artist.id)}>
+                      View Profile <ArrowRight size={14} />
+                    </button>
+                  </div>
+                  {artist.isVerified && (
+                    <span className="lp-artist-card__badge" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <CheckCircle size={12} /> Verified
+                    </span>
+                  )}
+                  <div className="lp-artist-card__rating-chip">
+                    <Star size={10} fill="currentColor" /> {artist.rating?.toFixed(1) || '0.0'}
+                  </div>
+                </div>
+                <div className="lp-artist-card__info">
+                  <div className="lp-artist-card__meta">
+                    <h3 className="lp-artist-card__name">{artist.user?.name || 'Unknown Artist'}</h3>
+                  </div>
+                  <p className="lp-artist-card__specialty">{artist.specialties?.length ? artist.specialties.join(' · ') : 'Makeup Artist'}</p>
+                  <div className="lp-artist-card__footer">
+                    <span className="lp-artist-card__location">
+                      <MapPin size={11} /> {artist.location || 'Location'}
+                    </span>
+                    <span className="lp-artist-card__price">from ₹{(artist.startingPrice || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : !error ? (
         <div className="discover-page__empty-state">
