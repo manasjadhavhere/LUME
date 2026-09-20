@@ -33,7 +33,7 @@ const SplashPage: React.FC = () => {
       <div className="splash-content">
         {/* Logo Container */}
         <div className="logo-container" role="img" aria-label="Lume logo" style={{ background: 'transparent', boxShadow: 'none', border: 'none', marginBottom: '1rem' }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '160px', width: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Subtitle */}

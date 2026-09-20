@@ -130,7 +130,7 @@ const ArtistDashboardLayout: React.FC = () => {
         {/* Brand Header */}
         <div className="artist-sidebar__header">
           <Link to="/" className="artist-sidebar__logo" onClick={closeSidebar} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Lume Logo" style={{ height: '24px', width: 'auto' }} />
+            <img src="/logo.png" alt="Lume Logo" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
           </Link>
           <span className="artist-sidebar__logo-badge">Artist Studio</span>
         </div>

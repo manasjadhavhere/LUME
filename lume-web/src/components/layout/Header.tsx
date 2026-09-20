@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
 
         {/* Logo */}
         <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home" style={{ background: 'transparent', border: 'none', padding: 0 }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '32px', width: 'auto', display: 'block' }} />
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', objectFit: 'contain' }} />
         </button>
 
         {/* Desktop Nav */}

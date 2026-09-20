@@ -342,7 +342,7 @@ const AdminDashboard: React.FC = () => {
       <aside className="admin-sidebar">
         <div className="admin-sidebar__header">
           <Link to="/" className="admin-sidebar__brand" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <img src="/logo.png" alt="Lume Logo" style={{ height: '20px', width: 'auto' }} />
+            <img src="/logo.png" alt="Lume Logo" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
           </Link>
         </div>
         <nav className="admin-sidebar__nav">

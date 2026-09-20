@@ -55,7 +55,7 @@ const RegisterPage: React.FC = () => {
     <div className="auth-page">
       <div className="auth-page__container">
         <Link to="/" className="auth-page__logo" style={{ textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '32px', width: 'auto', display: 'block', margin: '0 auto' }} />
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', margin: '0 auto', objectFit: 'contain' }} />
         </Link>
 
         <div className="auth-page__card">
