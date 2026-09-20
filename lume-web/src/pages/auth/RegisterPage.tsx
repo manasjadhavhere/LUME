@@ -54,9 +54,8 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="auth-page">
       <div className="auth-page__container">
-        <Link to="/" className="auth-page__logo">
-          <Sparkles size={20} />
-          <span>LUME</span>
+        <Link to="/" className="auth-page__logo" style={{ textDecoration: 'none' }}>
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '32px', width: 'auto', display: 'block', margin: '0 auto' }} />
         </Link>
 
         <div className="auth-page__card">

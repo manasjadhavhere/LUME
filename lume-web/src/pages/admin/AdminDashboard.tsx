@@ -341,9 +341,8 @@ const AdminDashboard: React.FC = () => {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar__header">
-          <Link to="/" className="admin-sidebar__brand">
-            <div className="admin-sidebar__brand-dot"></div>
-            LUME
+          <Link to="/" className="admin-sidebar__brand" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <img src="/logo.png" alt="Lume Logo" style={{ height: '20px', width: 'auto' }} />
           </Link>
         </div>
         <nav className="admin-sidebar__nav">

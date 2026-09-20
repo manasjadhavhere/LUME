@@ -32,16 +32,13 @@ const SplashPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="splash-content">
-        {/* Logo Container with Glassmorphism */}
-        <div className="logo-container glass" role="img" aria-label="Lume sparkles logo">
-          <Sparkles className="logo-icon" size={64} aria-hidden="true" />
+        {/* Logo Container */}
+        <div className="logo-container" role="img" aria-label="Lume logo" style={{ background: 'transparent', boxShadow: 'none', border: 'none', marginBottom: '1rem' }}>
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
         </div>
 
-        {/* Brand Title */}
-        <h1 className="brand-title">LUME</h1>
-
         {/* Subtitle */}
-        <p className="brand-subtitle">Beauty · Art · Glow</p>
+        <p className="brand-subtitle" style={{ marginTop: '0.5rem' }}>Beauty · Art · Glow</p>
 
         {/* Tagline */}
         <p className="brand-tagline">Your canvas. Our masterpiece.</p>

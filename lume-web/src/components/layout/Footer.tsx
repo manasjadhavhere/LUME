@@ -14,11 +14,10 @@ const Footer: React.FC = () => {
 
           {/* Brand */}
           <div className="lume-footer__brand">
-            <button className="lume-footer__logo" onClick={() => navigate('/')} aria-label="Lume Home">
-              <Sparkles size={20} />
-              <span>LUME</span>
+            <button className="lume-footer__logo" onClick={() => navigate('/')} aria-label="Lume Home" style={{ background: 'transparent', border: 'none', padding: 0 }}>
+              <img src="/logo.png" alt="Lume Logo" style={{ height: '32px', width: 'auto', display: 'block' }} />
             </button>
-            <p className="lume-footer__tagline">Your canvas. Our masterpiece.</p>
+            <p className="lume-footer__tagline" style={{ marginTop: '0.75rem' }}>Your canvas. Our masterpiece.</p>
             <p className="lume-footer__desc">
               India's finest beauty artists, one booking away.
             </p>

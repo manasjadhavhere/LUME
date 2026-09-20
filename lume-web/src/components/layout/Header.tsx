@@ -73,9 +73,8 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
       <div className="lume-header__inner">
 
         {/* Logo */}
-        <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home">
-          <Sparkles size={18} className="lume-header__logo-icon" />
-          <span className="lume-header__logo-text">LUME</span>
+        <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home" style={{ background: 'transparent', border: 'none', padding: 0 }}>
+          <img src="/logo.png" alt="Lume Logo" style={{ height: '32px', width: 'auto', display: 'block' }} />
         </button>
 
         {/* Desktop Nav */}
