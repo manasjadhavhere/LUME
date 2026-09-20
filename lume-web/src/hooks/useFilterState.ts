@@ -16,6 +16,10 @@ const useFilterState = () => {
     return sessionStorage.getItem('searchQuery') || '';
   });
 
+  const [locationQuery, setLocationQuery] = useState(() => {
+    return sessionStorage.getItem('locationQuery') || '';
+  });
+
   // Persist category changes
   useEffect(() => {
     sessionStorage.setItem('activeCategory', activeCategory);
@@ -30,18 +34,31 @@ const useFilterState = () => {
     }
   }, [searchQuery]);
 
+  // Persist location query changes
+  useEffect(() => {
+    if (locationQuery.trim()) {
+      sessionStorage.setItem('locationQuery', locationQuery);
+    } else {
+      sessionStorage.removeItem('locationQuery');
+    }
+  }, [locationQuery]);
+
   // Function to clear all filter state
   const clearFilterState = () => {
     sessionStorage.removeItem('activeCategory');
     sessionStorage.removeItem('searchQuery');
+    sessionStorage.removeItem('locationQuery');
     setActiveCategory('All');
     setSearchQuery('');
+    setLocationQuery('');
   };
 
   // Function to reset only search while keeping category
   const clearSearch = () => {
     sessionStorage.removeItem('searchQuery');
+    sessionStorage.removeItem('locationQuery');
     setSearchQuery('');
+    setLocationQuery('');
   };
 
   // Function to reset only category while keeping search
@@ -55,6 +72,8 @@ const useFilterState = () => {
     setActiveCategory,
     searchQuery,
     setSearchQuery,
+    locationQuery,
+    setLocationQuery,
     clearFilterState,
     clearSearch,
     resetCategory,

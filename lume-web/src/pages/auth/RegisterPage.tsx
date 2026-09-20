@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Sparkles, User, Palette, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../context/AuthContext';
+import LocationAutocomplete from '../../components/ui/LocationAutocomplete';
 import './AuthPage.css';
 
 const RegisterPage: React.FC = () => {
@@ -125,18 +126,11 @@ const RegisterPage: React.FC = () => {
             </div>
 
             {selectedRole === 'CLIENT' && (
-              <>
-                <div className="auth-page__field">
-                  <label className="auth-page__label">Mobile Number</label>
-                  <input type="tel" className="auth-page__input" placeholder="+91 98765 43210"
-                    value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} />
-                </div>
-                <div className="auth-page__field">
-                  <label className="auth-page__label">Location</label>
-                  <input type="text" className="auth-page__input" placeholder="Bandra, Mumbai"
-                    value={location} onChange={e => setLocation(e.target.value)} />
-                </div>
-              </>
+              <div className="auth-page__field">
+                <label className="auth-page__label">Mobile Number</label>
+                <input type="tel" className="auth-page__input" placeholder="+91 98765 43210"
+                  value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} />
+              </div>
             )}
 
             {selectedRole === 'ARTIST' && (
@@ -146,6 +140,16 @@ const RegisterPage: React.FC = () => {
                   value={phone} onChange={e => setPhone(e.target.value)} />
               </div>
             )}
+
+            <div className="auth-page__field">
+              <label className="auth-page__label">Location</label>
+              <LocationAutocomplete
+                value={location}
+                onChange={setLocation}
+                placeholder="Select your city"
+                className="auth-page__input"
+              />
+            </div>
 
             <div className="auth-page__field">
               <label className="auth-page__label">Password</label>

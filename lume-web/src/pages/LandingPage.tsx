@@ -6,6 +6,7 @@ import {
   ArrowUpRight, Share2, MessageCircle, Video
 } from 'lucide-react';
 import { API_BASE, useAuth } from '../context/AuthContext';
+import LocationAutocomplete from '../components/ui/LocationAutocomplete';
 import './LandingPage.css';
 
 import img1 from '../assets/images/1.png';
@@ -29,34 +30,63 @@ const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, i
 
 
 const CATEGORIES = [
-  { name: 'Bridal', image: img1 },
-  { name: 'Editorial', image: img2 },
-  { name: 'Natural', image: img4 },
-  { name: 'Fantasy', image: img6 },
-  { name: 'Festive', image: img7 },
-  { name: 'Glamour', image: img3 },
-  { name: 'SFX', image: img5 },
-  { name: 'Party', image: img1 },
+  { name: 'Bridal', image: img1, desc: 'Find the perfect artists for your wedding ceremonies.' },
+  { name: 'Editorial', image: img2, desc: 'High-fashion and avant-garde looks for photoshoots.' },
+  { name: 'Natural', image: img4, desc: 'Subtle and elegant makeup for a flawless no-makeup look.' },
+  { name: 'Fantasy', image: img6, desc: 'Creative, bold, and imaginative transformative artistry.' },
+  { name: 'Festive', image: img7, desc: 'Vibrant and traditional styling for your festive occasions.' },
+  { name: 'Glamour', image: img3, desc: 'Red-carpet ready looks with dramatic and striking details.' },
+  { name: 'SFX', image: img5, desc: 'Special effects and prosthetics for film, cosplay, or events.' },
+  { name: 'Party', image: img1, desc: 'Stunning evening glam to make you stand out in the crowd.' },
 ];
+
+/* ══════════════════════════════════════
+   Scroll Reveal Hook
+══════════════════════════════════════ */
+const useScrollReveal = (deps: React.DependencyList = []) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
+    );
+
+    const targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-up');
+    targets.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+    }, 80);
+    return () => clearTimeout(timer);
+  }, deps);
+};
 
 /* ══════════════════════════════════════
    Lume Intro Component
 ══════════════════════════════════════ */
 const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
   <section className="lp-section lp-intro" id="about" aria-label="About Lume">
-    <div className="lp-container lp-intro__grid">
-      <div className="lp-intro__content reveal-left">
+    <div className="lp-container">
+      <div className="lp-section__header reveal" style={{ marginBottom: '56px' }}>
         <span className="lp-eyebrow">About Lume</span>
-        <h2 className="lp-heading" style={{ marginBottom: '24px' }}>
+        <h2 className="lp-heading">
           Where Every Look<br />
           Becomes a <em>Masterpiece.</em>
         </h2>
-        <p className="lp-intro__body">
+      </div>
+      <div className="lp-intro__grid">
+        <div className="lp-intro__content reveal-left">
+          <p className="lp-intro__body">
           Lume is India's most curated beauty platform — connecting visionaries
           with <strong>verified, award-winning makeup artists</strong> for bridal
           ceremonies, editorial shoots, and everyday transformations. Not just a booking. A <em>luminous experience.</em>
         </p>
-        <button className="lp-btn lp-btn--primary lp-intro__cta" onClick={onBook}>
+        <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '16px' }} onClick={onBook}>
           Book an Artist <ArrowRight size={16} />
         </button>
       </div>
@@ -82,6 +112,7 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
         <div className="lp-intro__float lp-intro__float--3">
           <img src={img4} alt="Elegant updo" loading="lazy" />
         </div>
+        </div>
       </div>
     </div>
   </section>
@@ -97,6 +128,23 @@ const LandingPage: React.FC = () => {
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formSent, setFormSent] = useState(false);
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [searchService, setSearchService] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [featured, setFeatured] = useState<any[]>([]);
+
+  useScrollReveal([featured, upcomingBookings]);
+
+  const handleHeroSearch = () => {
+    navigate(`/discover?service=${encodeURIComponent(searchService)}&location=${encodeURIComponent(searchLocation)}&category=${encodeURIComponent(activeFilter)}`);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % ASSET_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch upcoming bookings for client
   useEffect(() => {
@@ -126,7 +174,6 @@ const LandingPage: React.FC = () => {
       })
       .catch(err => console.error('Failed to load featured artists', err));
   }, []);
-  const [featured, setFeatured] = useState<any[]>([]);
 
 
   const handleContact = (e: React.FormEvent) => {
@@ -143,6 +190,18 @@ const LandingPage: React.FC = () => {
           1. HERO EDITORIAL SECTION
       ══════════════════════════════ */}
       <section className="lp-hero" id="hero" aria-label="Hero section">
+        {/* Slideshow Background */}
+        <div className="lp-hero__bg-slider">
+          {ASSET_IMAGES.map((img, index) => (
+            <div
+              key={index}
+              className={`lp-hero__slide ${index === currentSlide ? 'lp-hero__slide--active' : ''}`}
+              style={{ backgroundImage: `url(${img})` }}
+            />
+          ))}
+          <div className="lp-hero__bg-overlay"></div>
+        </div>
+
         <div className="lp-hero__content">
           <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
           <h1 className="lp-hero__title">
@@ -157,14 +216,23 @@ const LandingPage: React.FC = () => {
             <div className="lp-search-box glass-panel">
               <div className="lp-search-input">
                 <Search size={18} className="lp-search-icon" />
-                <input type="text" placeholder="Service (e.g. Bridal HD, Airbrush)" />
+                <input 
+                  type="text" 
+                  placeholder="Service (e.g. Bridal HD, Airbrush)" 
+                  value={searchService}
+                  onChange={(e) => setSearchService(e.target.value)}
+                />
               </div>
               <div className="lp-search-divider" />
-              <div className="lp-search-input">
-                <MapPin size={18} className="lp-search-icon" />
-                <input type="text" placeholder="City (e.g. Mumbai, Delhi NCR)" />
+              <div className="lp-search-input" style={{ padding: 0 }}>
+                <LocationAutocomplete 
+                  value={searchLocation} 
+                  onChange={setSearchLocation} 
+                  icon={<MapPin size={18} className="lp-search-icon" />}
+                  className="lp-search-input--autocomplete"
+                />
               </div>
-              <button className="lp-btn lp-btn--primary lp-search-btn" onClick={() => navigate('/discover')}>
+              <button className="lp-btn lp-btn--primary lp-search-btn" onClick={handleHeroSearch}>
                 Search <ArrowRight size={16} />
               </button>
             </div>
@@ -182,8 +250,31 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
 
+        {/* Moving Ribbon */}
+        <div className="lp-hero__marquee-wrapper">
+          <div className="lp-hero__marquee">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="lp-hero__marquee-track">
+                <span>BRIDAL MAKEUP</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>EDITORIAL</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>PRE-WEDDING</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>PARTY GLAM</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>AIRBRUSH</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>HAIRSTYLING</span>
+                <span className="lp-hero__marquee-dot">•</span>
+                <span>FASHION</span>
+                <span className="lp-hero__marquee-dot">•</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* ════════════════════════════
           LUME INTRO
       ════════════════════════════ */}
@@ -202,7 +293,7 @@ const LandingPage: React.FC = () => {
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>{booking.artist?.user?.name || 'Artist'}</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{new Date(booking.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })} • {booking.time}</p>
                   </div>
-                  <button className="lp-btn lp-btn--outline-dark" style={{ width: '100%', marginTop: '8px', padding: '12px' }} onClick={() => navigate('/profile')}>
+                  <button className="lp-btn lp-btn--primary" style={{ width: '100%', marginTop: '8px', padding: '12px' }} onClick={() => navigate('/profile')}>
                     {booking.status === 'ACCEPTED' ? 'Pay Now' : 'View Details'}
                   </button>
                 </div>
@@ -277,7 +368,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="lp-section__more reveal">
-            <button className="lp-btn lp-btn--outline" onClick={() => navigate('/discover')}>
+            <button className="lp-btn lp-btn--primary" onClick={() => navigate('/discover')}>
               View All Artists <ArrowRight size={16} />
             </button>
           </div>
@@ -323,6 +414,7 @@ const LandingPage: React.FC = () => {
                 </div>
                 <h3 className="lp-cat-card__name">{cat.name}</h3>
                 <p className="lp-cat-card__desc">Explore Artists</p>
+                <p className="lp-cat-card__subtext">{cat.desc}</p>
               </div>
             ))}
           </div>
@@ -330,145 +422,123 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ══════════════════════════════
-          5. PARTNER WITH US
+          5. PARTNER WITH US (MERGED)
       ══════════════════════════════ */}
-      <section className="lp-section lp-partner" id="partner">
-        <div className="lp-container lp-partner__inner">
-          <div className="lp-partner__content">
-            <span className="lp-eyebrow lp-eyebrow--light reveal">Partner With Us</span>
-            <h2 className="lp-heading lp-heading--light reveal">
-              Are You a Beauty Artist?<br />
-              <em>Join the Lume Family</em>
-            </h2>
-            <p className="lp-partner__sub reveal">
-              Grow your clientele, manage your bookings, and showcase your portfolio to thousands of clients actively looking for your expertise.
-            </p>
-            <div className="lp-partner__perks stagger">
-              {[
-                { icon: Sparkles, text: 'Free Profile Listing' },
-                { icon: CheckCircle, text: 'Verified Artist Badge' },
-                { icon: Heart, text: 'Dedicated Support' },
-                { icon: Shield, text: 'Secure Payments' },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} className="lp-partner__perk reveal">
-                  <div className="lp-partner__perk-icon"><Icon size={16} /></div>
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
-            <button className="lp-btn lp-btn--primary lp-partner__cta reveal" onClick={() => navigate('/home')}>
-              Apply to Join <ArrowRight size={16} />
-            </button>
-          </div>
-
-          <div className="lp-partner__visual reveal-right">
-            <div className="lp-partner__img-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=700&q=80"
-                alt="Beauty artist"
-                className="lp-partner__img"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════
-          6. CONTACT
-      ══════════════════════════════ */}
-      <section className="lp-section lp-contact" id="contact">
-        <div className="lp-container lp-contact__grid">
-
-          {/* Info */}
-          <div className="lp-contact__info reveal-left">
-            <span className="lp-eyebrow">Contact Us</span>
+      <section className="lp-section lp-contact" id="partner">
+        <div className="lp-container">
+          <div className="lp-section__header reveal" style={{ marginBottom: '56px' }}>
+            <span className="lp-eyebrow">Partner With Us</span>
             <h2 className="lp-heading">
-              Let's Talk<br /><em>Beauty</em>
+              Join India's growing<br />
+              <em>artist trust</em>
             </h2>
-            <p className="lp-contact__sub">
-              Questions, partnerships, press inquiries — we'd love to hear from you.
+            <p className="lp-section__lead" style={{ maxWidth: '600px', margin: '16px auto 0' }}>
+              Grow your clientele, manage your bookings, and showcase your portfolio to thousands of clients. Questions or partnerships? We'd love to hear from you.
             </p>
-
-            <div className="lp-contact__details stagger">
-              <a href="mailto:hello@lume.beauty" className="lp-contact__detail reveal">
-                <div className="lp-contact__icon"><Mail size={18} /></div>
-                <div>
-                  <span className="lp-contact__label">Email</span>
-                  <span className="lp-contact__value">hello@lume.beauty</span>
-                </div>
-              </a>
-              <a href="tel:+911234567890" className="lp-contact__detail reveal">
-                <div className="lp-contact__icon"><Phone size={18} /></div>
-                <div>
-                  <span className="lp-contact__label">Phone</span>
-                  <span className="lp-contact__value">+91 123 456 7890</span>
-                </div>
-              </a>
-            </div>
-
-            <div className="lp-contact__social stagger">
-              {[
-                { Icon: Share2, label: 'Instagram' },
-                { Icon: MessageCircle, label: 'Twitter' },
-                { Icon: Video, label: 'YouTube' },
-              ].map(({ Icon, label }) => (
-                <a key={label} href="#" className="lp-contact__social-btn reveal" aria-label={label}>
-                  <Icon size={17} />
-                </a>
-              ))}
-            </div>
           </div>
 
-          {/* Form */}
-          <div className="lp-contact__form-wrap reveal-right">
-            <form className="lp-contact__form glass-panel" onSubmit={handleContact}>
-              <h3 className="lp-contact__form-title">Send us a Message</h3>
+          <div className="lp-contact__grid">
+            {/* Info */}
+            <div className="lp-contact__info reveal-left">
+              
+              <div className="lp-partner__perks stagger" style={{ justifyContent: 'flex-start', gap: '16px', margin: '0 0 24px 0' }}>
+                {[
+                  { icon: Sparkles, text: 'Free Profile Listing' },
+                  { icon: CheckCircle, text: 'Verified Badge' },
+                  { icon: Heart, text: 'Dedicated Support' },
+                  { icon: Shield, text: 'Secure Payments' },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="lp-partner__perk reveal" style={{ background: 'white', padding: '10px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div className="lp-partner__perk-icon" style={{ background: 'var(--blush-surface)', width: '28px', height: '28px' }}><Icon size={14} /></div>
+                    <span style={{ fontSize: '0.9rem' }}>{text}</span>
+                  </div>
+                ))}
+              </div>
 
-              {formSent && (
-                <div className="lp-contact__success">
-                  <CheckCircle size={18} />
-                  Message sent! We'll be in touch soon.
-                </div>
-              )}
-
-              <div className="lp-contact__field">
-                <label htmlFor="contact-name">Your Name</label>
-                <input
-                  id="contact-name"
-                  type="text"
-                  placeholder="e.g. Priya Sharma"
-                  value={contactForm.name}
-                  onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="lp-contact__field">
-                <label htmlFor="contact-email">Email Address</label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  placeholder="you@email.com"
-                  value={contactForm.email}
-                  onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="lp-contact__field">
-                <label htmlFor="contact-msg">Message</label>
-                <textarea
-                  id="contact-msg"
-                  rows={4}
-                  placeholder="How can we help you?"
-                  value={contactForm.message}
-                  onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
-                  required
-                />
-              </div>
-              <button type="submit" className="lp-btn lp-btn--primary lp-contact__submit">
-                Send Message <ArrowRight size={16} />
+              <button className="lp-btn lp-btn--primary reveal" style={{ alignSelf: 'flex-start', marginBottom: '48px' }} onClick={() => navigate('/register')}>
+                Create Artist Account <ArrowRight size={16} />
               </button>
-            </form>
+
+              <div className="lp-contact__details stagger">
+                <a href="mailto:hello@lume.beauty" className="lp-contact__detail reveal">
+                  <div className="lp-contact__icon"><Mail size={18} /></div>
+                  <div>
+                    <span className="lp-contact__label">Email</span>
+                    <span className="lp-contact__value">hello@lume.beauty</span>
+                  </div>
+                </a>
+                <a href="tel:+911234567890" className="lp-contact__detail reveal">
+                  <div className="lp-contact__icon"><Phone size={18} /></div>
+                  <div>
+                    <span className="lp-contact__label">Phone</span>
+                    <span className="lp-contact__value">+91 123 456 7890</span>
+                  </div>
+                </a>
+              </div>
+
+              <div className="lp-contact__social stagger" style={{ marginTop: '32px' }}>
+                {[
+                  { Icon: Share2, label: 'Instagram' },
+                  { Icon: MessageCircle, label: 'Twitter' },
+                  { Icon: Video, label: 'YouTube' },
+                ].map(({ Icon, label }) => (
+                  <a key={label} href="#" className="lp-contact__social-btn reveal" aria-label={label}>
+                    <Icon size={17} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Form */}
+            <div className="lp-contact__form-wrap reveal-right">
+              <form className="lp-contact__form glass-panel" onSubmit={handleContact}>
+                <h3 className="lp-contact__form-title">Apply or Send a Message</h3>
+
+                {formSent && (
+                  <div className="lp-contact__success">
+                    <CheckCircle size={18} />
+                    Message sent! We'll be in touch soon.
+                  </div>
+                )}
+
+                <div className="lp-contact__field">
+                  <label htmlFor="contact-name">Your Name / Business Name</label>
+                  <input
+                    id="contact-name"
+                    type="text"
+                    placeholder="e.g. Priya Sharma"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="lp-contact__field">
+                  <label htmlFor="contact-email">Email Address</label>
+                  <input
+                    id="contact-email"
+                    type="email"
+                    placeholder="you@email.com"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="lp-contact__field">
+                  <label htmlFor="contact-msg">Message or Portfolio Link</label>
+                  <textarea
+                    id="contact-msg"
+                    rows={4}
+                    placeholder="Tell us about yourself..."
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
+                    required
+                  />
+                </div>
+                <button type="submit" className="lp-btn lp-btn--primary lp-contact__submit">
+                  Submit <ArrowRight size={16} />
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </section>

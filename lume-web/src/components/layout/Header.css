@@ -164,17 +164,18 @@
 }
 
 .lume-header__cta--primary {
-  background: var(--rose-deep);
-  border-color: var(--rose-deep);
-  color: white;
+  background: white;
+  border-color: white;
+  color: var(--dark);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .lume-header__cta--primary:hover {
-  background: var(--dark);
-  border-color: var(--dark);
-  color: white;
+  background: white;
+  border-color: white;
+  color: var(--dark);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .lume-header__hamburger {

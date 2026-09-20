@@ -64,4 +64,4 @@ export interface Booking {
 
 export type BadgeVariant = 'Top Pick' | 'New' | 'Certified';
 
-export type ServiceCategory = 'All' | 'Bridal' | 'Editorial' | 'Evening' | 'Natural' | 'Glam';
+export type ServiceCategory = 'All' | 'Bridal' | 'Editorial' | 'Evening' | 'Natural' | 'Glamour' | 'Fantasy' | 'Festive' | 'SFX' | 'Party';

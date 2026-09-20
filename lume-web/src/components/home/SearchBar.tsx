@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, MapPin } from 'lucide-react';
+import LocationAutocomplete from './../ui/LocationAutocomplete';
 import './SearchBar.css';
 
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
+  locationValue?: string;
+  onLocationChange?: (value: string) => void;
   onFilter: () => void;
   placeholder?: string;
 }
@@ -12,6 +15,8 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
+  locationValue,
+  onLocationChange,
   onFilter,
   placeholder = "Search artists, styles, or occasions..."
 }) => {
@@ -49,6 +54,21 @@ const SearchBar: React.FC<SearchBarProps> = ({
             aria-label="Search for artists, styles, or occasions"
           />
         </div>
+        
+        {locationValue !== undefined && onLocationChange !== undefined && (
+          <>
+            <div className="search-bar__divider" style={{ width: '1px', height: '24px', background: 'var(--border-light)', margin: '0 8px' }} />
+            <div className="search-bar__location-wrapper" style={{ flex: 1 }}>
+              <LocationAutocomplete 
+                value={locationValue}
+                onChange={onLocationChange}
+                icon={<MapPin className="search-bar__icon" size={20} />}
+                className="search-bar__location"
+              />
+            </div>
+          </>
+        )}
+
         <button
           className="search-bar__filter-btn"
           onClick={onFilter}

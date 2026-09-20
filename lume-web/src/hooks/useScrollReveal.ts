@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-export const useScrollReveal = () => {
+export const useScrollReveal = (deps: React.DependencyList = []) => {
   const location = useLocation();
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export const useScrollReveal = () => {
     }, 80);
 
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [location.pathname, ...deps]);
 };
 
 export default useScrollReveal;

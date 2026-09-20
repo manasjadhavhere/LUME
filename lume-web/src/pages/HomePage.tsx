@@ -15,9 +15,10 @@ const HOME_CATEGORIES: Array<{ id: ServiceCategory; icon: string; image?: string
   { id: 'All', icon: '✨', label: 'All' },
   { id: 'Bridal', icon: '👰', image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Bridal' },
   { id: 'Editorial', icon: '📸', image: 'https://images.unsplash.com/photo-1515688594390-b649af70d282?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Editorial' },
-  { id: 'Evening', icon: '🌆', image: 'https://images.unsplash.com/photo-1566977755106-4b9ee5625c50?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Evening' },
   { id: 'Natural', icon: '🌿', image: 'https://images.unsplash.com/photo-1512413914583-11bf279a016f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Natural' },
-  { id: 'Glam', icon: '💫', image: 'https://images.unsplash.com/photo-1516975080661-460d3d256877?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Glam' },
+  { id: 'Fantasy', icon: '🦋', image: 'https://images.unsplash.com/photo-1516975080661-460d3d256877?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Fantasy' },
+  { id: 'Festive', icon: '🎆', label: 'Festive' },
+  { id: 'Glamour', icon: '💫', image: 'https://images.unsplash.com/photo-1566977755106-4b9ee5625c50?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80', label: 'Glamour' },
 ];
 
 const CATEGORY_TILES = [

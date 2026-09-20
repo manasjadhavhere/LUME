@@ -1,8 +1,3 @@
-// ============================================================
-// LUME — Prisma Database Schema
-// PostgreSQL + Prisma ORM
-// ============================================================
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,7 +8,236 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ── Enums ────────────────────────────────────────────────────
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  role             Role           @default(CLIENT)
+  name             String
+  phone            String?
+  gender           Gender?
+  dob              DateTime?
+  avatarUrl        String?
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  artistProfile    ArtistProfile?
+  bookingsAsClient Booking[]      @relation("ClientBookings")
+  clientProfile    ClientProfile?
+  notifications    Notification[]
+  reviewsGiven     Review[]       @relation("ClientReviews")
+
+  @@map("users")
+}
+
+model ClientProfile {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  location     String?
+  mobileNumber String?
+  dob          DateTime?
+  bio          String?
+  aadharNumber String?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("client_profiles")
+}
+
+model ArtistProfile {
+  id                      String             @id @default(cuid())
+  userId                  String             @unique
+  bio                     String?
+  gender                  Gender?
+  dob                     DateTime?
+  location                String             @default("Mumbai")
+  experience              Int                @default(0)
+  certification           String?
+  certificationFiles      String[]           @default([])
+  profileImageUrl         String?
+  badge                   BadgeType?
+  isVerified              Boolean            @default(false)
+  verificationStatus      VerificationStatus @default(NOT_SUBMITTED)
+  verificationSubmittedAt DateTime?
+  isAvailable             Boolean            @default(true)
+  rating                  Float              @default(0.0)
+  reviewCount             Int                @default(0)
+  bookingCount            Int                @default(0)
+  totalEarnings           Float              @default(0.0)
+  responseRate            Float              @default(100.0)
+  completionRate          Float              @default(100.0)
+  instagramUrl            String?
+  portfolioUrls           String[]           @default([])
+  specialties             String[]           @default([])
+  weddingPrice            Float?
+  occasionPrice           Float?
+  hourlyPrice             Float?
+  startingPrice           Float              @default(0.0)
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  verificationRemarks     String?
+  isTakingBookings        Boolean            @default(true)
+  lastBookingStatusChange DateTime?
+  bankAccount             ArtistBankAccount?
+  user                    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availability            Availability[]
+  blockedDates            BlockedDate[]
+  bookings                Booking[]          @relation("ArtistBookings")
+  defaultSchedule         DefaultSchedule[]
+  reviews                 Review[]           @relation("ArtistReviews")
+  services                Service[]
+
+  @@map("artist_profiles")
+}
+
+model DefaultSchedule {
+  id        String        @id @default(cuid())
+  artistId  String
+  dayOfWeek Int
+  timeSlots Json
+  artist    ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, dayOfWeek])
+  @@map("default_schedules")
+}
+
+model Service {
+  id          String        @id @default(cuid())
+  artistId    String
+  name        String
+  description String?
+  price       Float
+  duration    Int
+  icon        String        @default("✨")
+  isActive    Boolean       @default(true)
+  bookings    Booking[]
+  artist      ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("services")
+}
+
+model Availability {
+  id        String        @id @default(cuid())
+  artistId  String
+  date      DateTime      @db.Date
+  timeSlots Json
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  artist    ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, date])
+  @@map("availability")
+}
+
+model BlockedDate {
+  id        String        @id @default(cuid())
+  artistId  String
+  date      DateTime      @db.Date
+  reason    String?
+  createdAt DateTime      @default(now())
+  artist    ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, date])
+  @@map("blocked_dates")
+}
+
+model Booking {
+  id              String          @id @default(cuid())
+  clientId        String
+  artistId        String
+  serviceId       String?
+  date            DateTime        @db.Date
+  time            String
+  endTime         String?
+  status          BookingStatus   @default(PENDING)
+  priceType       PriceType       @default(OCCASION)
+  totalPaid       Float           @default(0)
+  notes           String?
+  address         String?
+  cancelReason    String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  paymentType     String?
+  advancePaid     Float           @default(0)
+  remainingAmount Float           @default(0)
+  artist          ArtistProfile   @relation("ArtistBookings", fields: [artistId], references: [id])
+  client          User            @relation("ClientBookings", fields: [clientId], references: [id])
+  service         Service?        @relation(fields: [serviceId], references: [id])
+  paymentRecords  PaymentRecord[]
+  review          Review?
+
+  @@map("bookings")
+}
+
+model Review {
+  id        String        @id @default(cuid())
+  bookingId String        @unique
+  clientId  String
+  artistId  String
+  rating    Float
+  text      String
+  reply     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  artist    ArtistProfile @relation("ArtistReviews", fields: [artistId], references: [id])
+  booking   Booking       @relation(fields: [bookingId], references: [id])
+  client    User          @relation("ClientReviews", fields: [clientId], references: [id])
+
+  @@map("reviews")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ArtistBankAccount {
+  id                      String        @id @default(cuid())
+  artistId                String        @unique
+  accountHolderName       String
+  encryptedAccountNumber  String
+  ifscCode                String
+  bankName                String
+  accountType             String        @default("SAVINGS")
+  isVerified              Boolean       @default(false)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  isLinkedToRazorpay      Boolean       @default(false)
+  razorpayLinkedAccountId String?
+  artist                  ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("artist_bank_accounts")
+}
+
+model PaymentRecord {
+  id                 String       @id @default(cuid())
+  bookingId          String
+  paymentType        String
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  totalCharged       Float
+  basePortion        Float
+  gstAmount          Float
+  lumeCommission     Float
+  lumeTotal          Float
+  artistPayout       Float
+  payoutStatus       PayoutStatus @default(PENDING)
+  payoutInitiatedAt  DateTime?
+  payoutCompletedAt  DateTime?
+  createdAt          DateTime     @default(now())
+  razorpayTransferId String?
+  transferStatus     String       @default("PENDING")
+  booking            Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("payment_records")
+}
 
 enum Role {
   CLIENT
@@ -30,12 +254,12 @@ enum Gender {
 
 enum BookingStatus {
   PENDING
-  ACCEPTED
-  PARTIALLY_PAID
   CONFIRMED
   CANCELLED
   COMPLETED
   NO_SHOW
+  ACCEPTED
+  PARTIALLY_PAID
 }
 
 enum PayoutStatus {
@@ -65,274 +289,4 @@ enum VerificationStatus {
   REJECTED
   EDIT_REQUESTED
   EDIT_APPROVED
-}
-
-// ── Users ────────────────────────────────────────────────────
-
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  role         Role      @default(CLIENT)
-  name         String
-  phone        String?
-  gender       Gender?
-  dob          DateTime?
-  avatarUrl    String?
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  // Relations
-  artistProfile    ArtistProfile?
-  clientProfile    ClientProfile?
-  bookingsAsClient Booking[] @relation("ClientBookings")
-  reviewsGiven     Review[]  @relation("ClientReviews")
-  notifications    Notification[]
-
-  @@map("users")
-}
-
-// ── Client Profile ────────────────────────────────────────────
-
-model ClientProfile {
-  id           String    @id @default(cuid())
-  userId       String    @unique
-  location     String?
-  mobileNumber String?
-  dob          DateTime?
-  bio          String?
-  aadharNumber String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("client_profiles")
-}
-
-// ── Artist Profile ────────────────────────────────────────────
-
-model ArtistProfile {
-  id                      String             @id @default(cuid())
-  userId                  String             @unique
-  bio                     String?
-  gender                  Gender?
-  dob                     DateTime?
-  location                String             @default("Mumbai")
-  experience              Int                @default(0) // years
-  certification           String?
-  certificationFiles      String[]           @default([])
-  profileImageUrl         String?
-  badge                   BadgeType?
-  isVerified              Boolean            @default(false)
-  verificationStatus      VerificationStatus @default(NOT_SUBMITTED)
-  verificationSubmittedAt DateTime?
-  verificationRemarks     String?
-  isAvailable             Boolean            @default(true)
-  isTakingBookings        Boolean            @default(true)
-  lastBookingStatusChange DateTime?
-  rating                  Float              @default(0.0)
-  reviewCount             Int                @default(0)
-  bookingCount            Int                @default(0)
-  totalEarnings           Float              @default(0.0)
-  responseRate            Float              @default(100.0)
-  completionRate          Float              @default(100.0)
-  instagramUrl            String?
-  portfolioUrls           String[]           @default([])
-  specialties             String[]           @default([])
-  weddingPrice            Float?
-  occasionPrice           Float?
-  hourlyPrice             Float?
-  startingPrice           Float              @default(0.0)
-  createdAt               DateTime           @default(now())
-  updatedAt               DateTime           @updatedAt
-
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  services        Service[]
-  availability    Availability[]
-  defaultSchedule DefaultSchedule[]
-  bookings        Booking[]           @relation("ArtistBookings")
-  reviews         Review[]            @relation("ArtistReviews")
-  blockedDates    BlockedDate[]
-  bankAccount     ArtistBankAccount?
-
-  @@map("artist_profiles")
-}
-
-// ── Default Weekly Schedule ───────────────────────────────────
-
-model DefaultSchedule {
-  id        String @id @default(cuid())
-  artistId  String
-  // 0 = Sunday, 1 = Monday ... 6 = Saturday
-  dayOfWeek Int    // 0-6
-  timeSlots Json   // Array of { time: string, available: boolean }
-
-  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
-
-  @@unique([artistId, dayOfWeek])
-  @@map("default_schedules")
-}
-
-// ── Services ─────────────────────────────────────────────────
-
-model Service {
-  id          String  @id @default(cuid())
-  artistId    String
-  name        String
-  description String?
-  price       Float
-  duration    Int     // minutes
-  icon        String  @default("✨")
-  isActive    Boolean @default(true)
-
-  artist   ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-
-  @@map("services")
-}
-
-// ── Availability ──────────────────────────────────────────────
-
-model Availability {
-  id        String   @id @default(cuid())
-  artistId  String
-  date      DateTime @db.Date
-  timeSlots Json     // Array of { time: string, available: boolean }
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
-
-  @@unique([artistId, date])
-  @@map("availability")
-}
-
-// ── Blocked Dates ─────────────────────────────────────────────
-
-model BlockedDate {
-  id        String   @id @default(cuid())
-  artistId  String
-  date      DateTime @db.Date
-  reason    String?
-  createdAt DateTime @default(now())
-
-  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
-
-  @@unique([artistId, date])
-  @@map("blocked_dates")
-}
-
-// ── Bookings ──────────────────────────────────────────────────
-
-model Booking {
-  id              String        @id @default(cuid())
-  clientId        String
-  artistId        String
-  serviceId       String?
-  date            DateTime      @db.Date
-  time            String
-  endTime         String?
-  status          BookingStatus @default(PENDING)
-  priceType       PriceType     @default(OCCASION)
-  totalPaid       Float         @default(0)
-  notes           String?
-  address         String?
-  cancelReason    String?
-  // Payment split tracking
-  paymentType     String?       // 'ADVANCE' | 'FULL'
-  advancePaid     Float         @default(0)  // amount already collected
-  remainingAmount Float         @default(0)  // balance still owed
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  client  User          @relation("ClientBookings", fields: [clientId], references: [id])
-  artist  ArtistProfile @relation("ArtistBookings", fields: [artistId], references: [id])
-  service Service?      @relation(fields: [serviceId], references: [id])
-  review  Review?
-  paymentRecords PaymentRecord[]
-
-  @@map("bookings")
-}
-
-// ── Reviews ───────────────────────────────────────────────────
-
-model Review {
-  id        String   @id @default(cuid())
-  bookingId String   @unique
-  clientId  String
-  artistId  String
-  rating    Float    // 1.0 - 5.0
-  text      String
-  reply     String?  // Artist reply
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  booking Booking       @relation(fields: [bookingId], references: [id])
-  client  User          @relation("ClientReviews", fields: [clientId], references: [id])
-  artist  ArtistProfile @relation("ArtistReviews", fields: [artistId], references: [id])
-
-  @@map("reviews")
-}
-
-// ── Notifications ─────────────────────────────────────────────
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String
-  message   String
-  type      String   @default("INFO") // VERIFICATION, BOOKING, SYSTEM, etc.
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
-}
-
-// ── Artist Bank Account ───────────────────────────────────────
-
-model ArtistBankAccount {
-  id                       String   @id @default(cuid())
-  artistId                 String   @unique
-  accountHolderName        String
-  encryptedAccountNumber   String   // AES-256-CBC encrypted
-  ifscCode                 String
-  bankName                 String
-  accountType              String   @default("SAVINGS") // SAVINGS | CURRENT
-  isVerified               Boolean  @default(false)     // admin can mark verified
-  razorpayLinkedAccountId  String?                      // Razorpay Route Linked Account ID
-  isLinkedToRazorpay       Boolean  @default(false)     // true after Route registration
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
-
-  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
-
-  @@map("artist_bank_accounts")
-}
-
-// ── Payment Records (Commission Split Tracking) ───────────────
-
-model PaymentRecord {
-  id                  String       @id @default(cuid())
-  bookingId           String
-  paymentType         String       // 'ADVANCE' | 'FULL' | 'REMAINING'
-  razorpayOrderId     String?
-  razorpayPaymentId   String?
-  totalCharged        Float        // what client paid (base + GST)
-  basePortion         Float        // base amount for this payment (without GST)
-  gstAmount           Float        // 18% of basePortion → goes to Lume
-  lumeCommission      Float        // 5% of basePortion → goes to Lume
-  lumeTotal           Float        // gstAmount + lumeCommission (23% of base)
-  artistPayout        Float        // 95% of basePortion → goes to artist
-  payoutStatus        PayoutStatus @default(PENDING)
-  razorpayTransferId  String?      // Razorpay Route transfer ID (auto-payout)
-  transferStatus      String       @default("PENDING") // PENDING | SUCCESS | FAILED | NOT_LINKED
-  payoutInitiatedAt   DateTime?
-  payoutCompletedAt   DateTime?
-  createdAt           DateTime     @default(now())
-
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  @@map("payment_records")
 }

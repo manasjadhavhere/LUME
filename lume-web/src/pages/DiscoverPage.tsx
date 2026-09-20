@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import SearchBar from '../components/home/SearchBar';
 import CategoryChips from '../components/home/CategoryChips';
@@ -14,18 +14,35 @@ const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon: string; label: str
   { id: 'All', icon: '✨', label: 'All' },
   { id: 'Bridal', icon: '👰', label: 'Bridal' },
   { id: 'Editorial', icon: '📸', label: 'Editorial' },
-  { id: 'Evening', icon: '🌆', label: 'Evening' },
   { id: 'Natural', icon: '🌿', label: 'Natural' },
-  { id: 'Glam', icon: '💫', label: 'Glam' },
+  { id: 'Fantasy', icon: '🦋', label: 'Fantasy' },
+  { id: 'Festive', icon: '🎆', label: 'Festive' },
+  { id: 'Glamour', icon: '💫', label: 'Glamour' },
+  { id: 'SFX', icon: '👽', label: 'SFX' },
+  { id: 'Party', icon: '🥂', label: 'Party' },
 ];
 
 const DiscoverPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [artists, setArtists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, clearFilterState } = useFilterState();
+  const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, locationQuery, setLocationQuery, clearFilterState } = useFilterState();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('category');
+    if (cat) {
+      const formattedCat = cat.charAt(0).toUpperCase() + cat.slice(1);
+      setActiveCategory(formattedCat as ServiceCategory);
+    }
+    const loc = params.get('location');
+    if (loc) setLocationQuery(loc);
+    const srv = params.get('service');
+    if (srv) setSearchQuery(srv);
+  }, [location.search, setActiveCategory, setLocationQuery, setSearchQuery]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -33,6 +50,7 @@ const DiscoverPage: React.FC = () => {
     const queryParams = new URLSearchParams();
     if (activeCategory !== 'All') queryParams.append('specialty', activeCategory);
     if (searchQuery.trim()) queryParams.append('search', searchQuery.trim());
+    if (locationQuery.trim()) queryParams.append('location', locationQuery.trim());
 
     fetch(`${API_BASE}/api/artists?${queryParams.toString()}`)
       .then(r => r.json())
@@ -42,7 +60,7 @@ const DiscoverPage: React.FC = () => {
       })
       .catch(() => setError('Network error. Please try again later.'))
       .finally(() => setIsLoading(false));
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, locationQuery]);
 
   const handleArtistClick = (id: string) => {
     navigate(`/artist/${id}`);
@@ -66,8 +84,10 @@ const DiscoverPage: React.FC = () => {
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
+        locationValue={locationQuery}
+        onLocationChange={setLocationQuery}
         onFilter={handleFilter}
-        placeholder="Search by name, style, location..."
+        placeholder="Search by name, style, occasion..."
       />
 
       {/* Filter Categories */}
