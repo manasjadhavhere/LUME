@@ -3,9 +3,6 @@
    Design tokens + reset + typography + responsive system
    ============================================================ */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 /* ── Design Tokens ── */
 :root {
   /* Brand palette */
@@ -13,18 +10,25 @@
   --rose: #f2a4b0;
   --rose-light: #fce8ec;
   --rose-pale: #fff0f3;
+  --blush-surface: #fff6f8;
   --rose-wash: rgba(242, 164, 176, 0.03);
+  
   --gold: #c9a96e;
   --gold-light: #e8cfa0;
-  --dark: #1F2937;
-  --mid: #4B5563;
-  --text-soft: #6B7280;
+  
+  --dark: #2D3748;
+  --mid: #4A5568;
+  --text-soft: #718096;
+  
+  --border-light: #e2e8f0;
+  --border-blush: #f5e8eb;
+  
   --frost: #ffffff;
   --white: #ffffff;
 
   /* Typography */
-  --font-display: 'DM Serif Display', 'Georgia', serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-body: 'Poppins', 'Inter', system-ui, sans-serif;
 
   /* Fluid spacing — clamps for seamless scaling */
   --spacing-xs: 4px;
@@ -44,11 +48,11 @@
   --radius-full: 9999px;
 
   /* Shadows — ultra-soft diffused depth system */
-  --shadow-xs: 0 1px 4px rgba(31, 41, 55, 0.04);
-  --shadow-sm: 0 2px 12px rgba(31, 41, 55, 0.05), 0 1px 3px rgba(217, 122, 140, 0.04);
-  --shadow-md: 0 8px 28px rgba(31, 41, 55, 0.06), 0 2px 8px rgba(217, 122, 140, 0.04);
-  --shadow-lg: 0 16px 48px rgba(31, 41, 55, 0.07), 0 4px 16px rgba(217, 122, 140, 0.05);
-  --shadow-xl: 0 28px 72px rgba(31, 41, 55, 0.08), 0 8px 24px rgba(217, 122, 140, 0.06);
+  --shadow-xs: 0 1px 2px rgba(45, 55, 72, 0.04);
+  --shadow-sm: 0 2px 8px rgba(45, 55, 72, 0.04), 0 1px 3px rgba(217, 122, 140, 0.03);
+  --shadow-md: 0 8px 24px rgba(45, 55, 72, 0.05), 0 2px 8px rgba(217, 122, 140, 0.04);
+  --shadow-lg: 0 16px 40px rgba(45, 55, 72, 0.06), 0 4px 16px rgba(217, 122, 140, 0.04);
+  --shadow-xl: 0 24px 60px rgba(45, 55, 72, 0.07), 0 8px 24px rgba(217, 122, 140, 0.05);
 
   /* Z-index layers */
   --z-base: 1;
@@ -129,10 +133,10 @@ h4,
 h5,
 h6 {
   font-family: var(--font-display);
-  line-height: 1.12;
+  line-height: 1.2;
   color: var(--dark);
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 p {

@@ -5,39 +5,35 @@
 
 .artist-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: none;
-  border-radius: var(--radius-lg);
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md); /* 12px */
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-shadow: 0 2px 20px rgba(31, 41, 55, 0.05),
-    0 8px 40px rgba(217, 122, 140, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Only lift on pointer devices (not touch) */
 @media (hover: hover) and (pointer: fine) {
   .artist-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 56px rgba(217, 122, 140, 0.18),
-      0 4px 12px rgba(31, 41, 55, 0.04);
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
   }
 
   .artist-card:hover .artist-card__image {
-    transform: scale(1.07);
+    transform: scale(1.05);
   }
 }
 
 .artist-card__image-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 120%;
-  background: linear-gradient(135deg, var(--rose-pale) 0%, #f5e6d3 100%);
+  padding-top: 125%; /* 4:5 aspect ratio */
+  background: var(--border-blush);
   overflow: hidden;
 }
 
@@ -53,15 +49,17 @@
 .artist-card__image-wrapper::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(to top,
-      rgba(217, 122, 140, 0.38) 0%,
-      rgba(242, 164, 176, 0.1) 60%,
-      transparent 100%);
+  inset: 0;
+  background: linear-gradient(to top, rgba(45, 55, 72, 0.6) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
   pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .artist-card:hover .artist-card__image-wrapper::after {
+    opacity: 1;
+  }
 }
 
 .artist-card__badge {
@@ -72,14 +70,14 @@
 }
 
 .artist-card__content {
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--white);
+  position: relative;
+  z-index: 1;
 }
 
 .artist-card__header {
@@ -90,24 +88,24 @@
 
 .artist-card__name {
   font-family: var(--font-display);
-  font-size: clamp(0.92rem, 1.8vw, 1.08rem);
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--dark);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .artist-card__specialties {
-  font-size: clamp(0.7rem, 1.3vw, 0.8rem);
-  color: var(--text-soft);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--mid);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 500;
 }
 
 .artist-card__stats {
@@ -129,31 +127,31 @@
 }
 
 .artist-card__rating-value {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--dark);
 }
 
 .artist-card__reviews {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   color: var(--text-soft);
 }
 
 .artist-card__location {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   color: var(--text-soft);
   min-width: 0;
 }
 
 .artist-card__location-icon {
-  color: var(--rose-deep);
+  color: var(--text-soft);
   flex-shrink: 0;
 }
 
 .artist-card__distance {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -162,19 +160,11 @@
 
 .artist-card__footer {
   margin-top: auto;
-  border-top: none;
-  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 12px;
   position: relative;
-}
-
-.artist-card__footer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(242, 164, 176, 0.15), transparent);
+  display: flex;
+  justify-content: flex-start;
 }
 
 .artist-card__price {
@@ -184,18 +174,16 @@
 }
 
 .artist-card__price-value {
-  font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--dark);
 }
 
 .artist-card__price-label {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--text-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-weight: 500;
+  text-transform: none;
 }
 
 /* Extra small phone — ultra compact */

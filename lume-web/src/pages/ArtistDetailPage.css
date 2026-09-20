@@ -40,11 +40,12 @@
 .adp-gallery__grid {
   position: relative;
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 6px;
-  border-radius: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  max-height: 480px;
+  max-height: 520px;
+  background: var(--white);
 }
 
 .adp-gallery__main {
@@ -65,8 +66,9 @@
 
 .adp-gallery__side {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 6px;
+  gap: 8px;
 }
 
 .adp-gallery__side-img {
@@ -824,6 +826,64 @@
   letter-spacing: -0.01em;
 }
 
+/* ── Packages (Step 1) ── */
+.adp-packages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.adp-package-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 24px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--white);
+  text-align: left;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 140px;
+}
+
+.adp-package-btn:hover {
+  border-color: var(--rose-mid);
+  box-shadow: var(--shadow-sm);
+}
+
+.adp-package-btn--active {
+  border-color: var(--rose-deep);
+  background: var(--blush-surface);
+  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.15);
+}
+
+.adp-package-btn__label {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.adp-package-btn--active .adp-package-btn__label {
+  color: var(--rose-deep);
+}
+
+.adp-package-btn__price {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.adp-package-btn__price-sub {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+
 /* ── Portfolio Section ── */
 .adp-portfolio__grid {
   display: grid;
@@ -1362,9 +1422,9 @@
    TRUST BADGES
    ══════════════════════════════════════ */
 .adp-trust {
-  background: white;
-  border-top: 1px solid #f0ebe8;
-  padding: 28px 24px;
+  background: var(--blush-surface);
+  border-top: 1px solid var(--border-blush);
+  padding: 40px 24px;
 }
 
 .adp-trust__container {
@@ -1449,13 +1509,15 @@
 }
 
 .adp-mobile-bar__btn {
-  background: linear-gradient(135deg, #d97a8c 0%, #b85d6d 100%) !important;
+  background: var(--dark) !important;
   border: none !important;
   color: white !important;
-  padding: 14px 28px !important;
-  border-radius: 14px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 6px 18px rgba(217, 122, 140, 0.3) !important;
+  padding: 14px 32px !important;
+  border-radius: var(--radius-full) !important;
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 8px 24px rgba(42, 26, 31, 0.25) !important;
 }
 
 /* ══════════════════════════════════════

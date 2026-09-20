@@ -310,16 +310,16 @@ const ArtistDetailPage: React.FC = () => {
             }
           </div>
           <div className="adp-gallery__side">
-            {portfolioImages.slice(0, 2).map((img, i) => (
+            {portfolioImages.slice(0, 4).map((img, i) => (
               <div key={i} className="adp-gallery__side-img">
                 <img src={img} alt={`${artist.user.name} work ${i + 1}`} className="adp-gallery__img" />
               </div>
             ))}
-            {portfolioImages.length < 2 && (
-              <div className="adp-gallery__side-img" style={{ background: 'linear-gradient(135deg,#f8e1e8,#fce8ec)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Camera size={32} style={{ color: 'var(--rose-mid)', opacity: 0.5 }} />
+            {portfolioImages.length < 4 && Array.from({ length: 4 - Math.min(4, portfolioImages.length) }).map((_, i) => (
+              <div key={`placeholder-${i}`} className="adp-gallery__side-img" style={{ background: 'var(--border-blush)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Camera size={32} style={{ color: 'var(--rose-mid)', opacity: 0.3 }} />
               </div>
-            )}
+            ))}
           </div>
           <div className="adp-gallery__overlay">
             <button className="adp-gallery__action-btn" onClick={() => navigate(-1)} aria-label="Go back"><ArrowLeft size={20} /></button>
@@ -455,22 +455,19 @@ const ArtistDetailPage: React.FC = () => {
                         <span className="adp-step__number">STEP 01</span>
                         <h3 className="adp-step__title">Choose Occasion & Pricing</h3>
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                      <div className="adp-packages">
                         {availPriceTypes.map(pt => {
                           const prices = { WEDDING: artist.weddingPrice, OCCASION: artist.occasionPrice, HOURLY: artist.hourlyPrice };
+                          const isActive = selectedPriceType === pt;
                           return (
                             <button key={pt} type="button"
                               onClick={() => { setSelectedPriceType(pt); setSelectedServiceId(null); }}
-                              style={{
-                                display: 'flex', flexDirection: 'column', gap: 4, padding: '14px 20px', borderRadius: 12, cursor: 'pointer',
-                                border: selectedPriceType === pt ? '2px solid var(--dark)' : '1.5px solid rgba(42,26,31,0.12)',
-                                background: selectedPriceType === pt ? 'rgba(0,0,0,0.05)' : 'white', textAlign: 'left', transition: 'all .15s',
-                              }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--dark)' }}>
+                              className={`adp-package-btn ${isActive ? 'adp-package-btn--active' : ''}`}>
+                              <span className="adp-package-btn__label">
                                 {PRICE_TYPE_LABELS[pt]}
                               </span>
-                              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--dark)' }}>
-                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span>
+                              <span className="adp-package-btn__price">
+                                ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span className="adp-package-btn__price-sub">+ GST</span>
                               </span>
                             </button>
                           );

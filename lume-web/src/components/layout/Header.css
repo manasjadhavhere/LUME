@@ -18,40 +18,7 @@
   transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Dark / Hero mode — no longer transparent, keep light theme ── */
-.lume-header--dark {
-  background: rgba(255, 255, 255, 0.88);
-}
 
-.lume-header--dark .lume-header__logo-text {
-  background: linear-gradient(135deg, var(--rose-deep, #d97a8c) 0%, var(--rose, #f2a4b0) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.lume-header--dark .lume-header__logo-icon {
-  color: var(--rose-deep, #d97a8c);
-}
-
-.lume-header--dark .lume-header__nav-link {
-  color: var(--dark, #2a1a1f);
-}
-.lume-header--dark .lume-header__nav-link:hover { color: var(--rose-deep, #d97a8c); }
-
-.lume-header--dark .lume-header__cta {
-  border-color: var(--rose-deep, #d97a8c);
-  color: var(--rose-deep, #d97a8c);
-}
-.lume-header--dark .lume-header__cta:hover {
-  background: var(--rose-deep, #d97a8c);
-  color: white;
-}
-
-.lume-header--dark .lume-header__search,
-.lume-header--dark .lume-header__hamburger {
-  color: var(--dark, #2a1a1f);
-}
 
 /* ── Scrolled state — deeper glass ── */
 .lume-header--scrolled {
@@ -116,13 +83,12 @@
 .lume-header__nav-link {
   background: none;
   border: none;
-  cursor: none;
+  cursor: pointer;
   font-family: var(--font-body, 'Inter', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--dark, #2a1a1f);
-  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--mid);
   padding: 6px 0;
   position: relative;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -136,8 +102,8 @@
   left: 50%;
   transform: translateX(-50%);
   width: 0;
-  height: 1.5px;
-  background: var(--rose-deep, #d97a8c);
+  height: 2px;
+  background: var(--rose-deep);
   transition: width 0.32s ease;
   border-radius: 2px;
 }
@@ -179,24 +145,36 @@
 }
 
 .lume-header__cta {
-  background: none;
-  border: 1.5px solid var(--rose-deep, #d97a8c);
-  color: var(--rose-deep, #d97a8c);
-  font-family: var(--font-body, 'Inter', sans-serif);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 8px 20px;
-  border-radius: var(--radius-full, 9999px);
-  cursor: none;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--dark);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .lume-header__cta:hover {
-  background: var(--rose-deep, #d97a8c);
+  border-color: var(--dark);
+  background: var(--dark);
+  color: var(--white);
+}
+
+.lume-header__cta--primary {
+  background: var(--rose-deep);
+  border-color: var(--rose-deep);
+  color: white;
+}
+
+.lume-header__cta--primary:hover {
+  background: var(--dark);
+  border-color: var(--dark);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .lume-header__hamburger {
@@ -259,22 +237,33 @@
 }
 
 .lume-header__drawer-cta {
-  margin-top: var(--spacing-md, 16px);
-  background: linear-gradient(135deg, var(--rose-deep, #d97a8c) 0%, #c86b7c 100%);
+  margin-top: var(--spacing-sm);
+  background: var(--dark);
   color: white;
-  border: none;
-  border-radius: var(--radius-full, 9999px);
-  padding: 14px var(--spacing-xl, 32px);
-  font-family: var(--font-body, 'Inter', sans-serif);
+  border: 1px solid var(--dark);
+  border-radius: var(--radius-full);
+  padding: 14px var(--spacing-xl);
+  font-family: var(--font-body);
   font-size: 1rem;
-  font-weight: 700;
-  cursor: none;
-  letter-spacing: 0.04em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+
 .lume-header__drawer-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(217, 122, 140, 0.35);
+  box-shadow: var(--shadow-md);
+}
+
+.lume-header__drawer-cta--outline {
+  background: transparent;
+  color: var(--dark);
+  border: 1px solid var(--border-light);
+}
+
+.lume-header__drawer-cta--primary {
+  background: var(--rose-deep);
+  border-color: var(--rose-deep);
 }
 
 /* ── Responsive ── */

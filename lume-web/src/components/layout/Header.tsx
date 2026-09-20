@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  const isDark = isLanding && !scrolled;
+
 
   const handleHashLink = (path: string) => {
     // Artists clicking on the Profile nav item should go to their dashboard
@@ -69,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
   const links = isLanding ? NAV_LINKS : APP_NAV;
 
   return (
-    <header className={`lume-header ${scrolled ? 'lume-header--scrolled' : ''} ${isDark ? 'lume-header--dark' : ''}`}>
+    <header className={`lume-header ${scrolled ? 'lume-header--scrolled' : ''}`}>
       <div className="lume-header__inner">
 
         {/* Logo */}
@@ -106,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
               >
                 Sign In
               </button>
-              <button className="lume-header__cta" onClick={() => navigate('/home')}>
+              <button className="lume-header__cta lume-header__cta--primary" onClick={() => navigate('/home')}>
                 Book Now ↗
               </button>
             </>
@@ -156,13 +156,12 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
         {!isAuthenticated ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 12 }}>
             <button
-              className="lume-header__drawer-cta"
-              style={{ background: 'transparent', color: 'var(--dark)', border: '1px solid rgba(42,26,31,0.2)' }}
+              className="lume-header__drawer-cta lume-header__drawer-cta--outline"
               onClick={() => navigate('/login')}
             >
               Sign In
             </button>
-            <button className="lume-header__drawer-cta" onClick={() => navigate('/home')}>
+            <button className="lume-header__drawer-cta lume-header__drawer-cta--primary" onClick={() => navigate('/home')}>
               Book Now →
             </button>
           </div>

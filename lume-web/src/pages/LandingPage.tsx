@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, Star, MapPin, ChevronLeft, ChevronRight,
+  ArrowRight, Star, MapPin, Search,
   Sparkles, Heart, Shield, CheckCircle, Mail, Phone,
   ArrowUpRight, Share2, MessageCircle, Video
 } from 'lucide-react';
@@ -26,36 +26,7 @@ const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, i
   }
 };
 
-/* ── Hero slides ── */
-const HERO_SLIDES = [
-  {
-    id: 1,
-    image: img1,
-    eyebrow: "India's #1 Beauty Platform",
-    title: 'Your Canvas.',
-    titleAccent: 'Our Masterpiece.',
-    sub: "Connect with India's finest beauty artists for bridal, editorial, and everyday looks.",
-    tag: 'Bridal · Editorial · Glam',
-  },
-  {
-    id: 2,
-    image: img4,
-    eyebrow: 'Award-Winning Artists',
-    title: 'Bridal Beauty,',
-    titleAccent: 'Redefined.',
-    sub: 'Celebrate your most important day with artists who understand tradition and elegance.',
-    tag: 'Wedding · Ceremony · Heritage',
-  },
-  {
-    id: 3,
-    image: img3,
-    eyebrow: 'Exclusive Talent',
-    title: 'Editorial &',
-    titleAccent: 'High Fashion.',
-    sub: 'Bring your vision to life with artists experienced in high-end fashion and commercial shoots.',
-    tag: 'Fashion · Runway · Creative',
-  }
-];
+
 
 const CATEGORIES = [
   { name: 'Bridal', image: img1 },
@@ -67,47 +38,6 @@ const CATEGORIES = [
   { name: 'SFX', image: img5 },
   { name: 'Party', image: img1 },
 ];
-
-/* ── Marquee ── */
-const MARQUEE = ['Bridal Artistry', '✦', 'Editorial Glam', '✦', 'Natural Beauty', '✦', 'Evening Looks', '✦', 'Premium Artists', '✦', 'Verified & Trusted', '✦'];
-
-
-
-/* ══════════════════════════════════════
-   Scroll Reveal Hook
-══════════════════════════════════════ */
-const useScrollReveal = (deps: any[] = []) => {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            // Don't unobserve — keep visible once triggered
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
-    );
-
-    const targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
-    targets.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, deps);
-};
-
-/* ══════════════════════════════════════
-   Hero Light Particles
-══════════════════════════════════════ */
-const HeroLights: React.FC = () => (
-  <div className="lp-hero__lights" aria-hidden="true">
-    <div className="lp-hero__light lp-hero__light--1" />
-    <div className="lp-hero__light lp-hero__light--2" />
-    <div className="lp-hero__light lp-hero__light--3" />
-    <div className="lp-hero__light lp-hero__light--4" />
-  </div>
-);
 
 /* ══════════════════════════════════════
    Lume Intro Component
@@ -163,8 +93,7 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [prevSlide, setPrevSlide] = useState<number | null>(null);
+  const [activeFilter, setActiveFilter] = useState('All');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formSent, setFormSent] = useState(false);
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
@@ -198,56 +127,7 @@ const LandingPage: React.FC = () => {
       .catch(err => console.error('Failed to load featured artists', err));
   }, []);
   const [featured, setFeatured] = useState<any[]>([]);
-  const slideTimerRef = useRef<number>(0);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [parallaxY, setParallaxY] = useState(0);
 
-  useScrollReveal([featured]);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/artists?limit=4`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setFeatured(data.data.artists);
-        }
-      })
-      .catch(err => console.error('Failed to load featured artists', err));
-  }, []);
-
-  /* ── Hero parallax on scroll ── */
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setParallaxY(y * 0.35);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  /* ── Auto-advance hero ── */
-  const startTimer = useCallback(() => {
-    clearInterval(slideTimerRef.current);
-    slideTimerRef.current = window.setInterval(() => {
-      setActiveSlide((p) => {
-        setPrevSlide(p);
-        return (p + 1) % HERO_SLIDES.length;
-      });
-    }, 5500);
-  }, []);
-
-  useEffect(() => {
-    startTimer();
-    return () => clearInterval(slideTimerRef.current);
-  }, [startTimer]);
-
-  const goTo = (i: number) => {
-    setPrevSlide(activeSlide);
-    setActiveSlide(i);
-    startTimer();
-  };
-  const goPrev = () => goTo(activeSlide === 0 ? HERO_SLIDES.length - 1 : activeSlide - 1);
-  const goNext = () => goTo((activeSlide + 1) % HERO_SLIDES.length);
 
   const handleContact = (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,106 +140,49 @@ const LandingPage: React.FC = () => {
     <div className="lp">
 
       {/* ══════════════════════════════
-          1. HERO SLIDESHOW
+          1. HERO EDITORIAL SECTION
       ══════════════════════════════ */}
-      <section className="lp-hero" id="hero" ref={heroRef} aria-label="Hero slideshow">
-
-        {/* Background slides with parallax */}
-        <div className="lp-hero__bg-wrap" style={{ transform: `translateY(${parallaxY}px)` }}>
-          {HERO_SLIDES.map((slide, i) => (
-            <div
-              key={slide.id}
-              className={`lp-hero__slide ${i === activeSlide ? 'lp-hero__slide--active' : ''} ${i === prevSlide ? 'lp-hero__slide--prev' : ''}`}
-              style={{ backgroundImage: `url('${slide.image}')` }}
-            />
-          ))}
-        </div>
-
-        {/* Cinematic overlays */}
-        <div className="lp-hero__overlay" />
-        <div className="lp-hero__overlay-bottom" />
-
-        {/* Animated light flares */}
-        <HeroLights />
-
-        {/* Slide number indicator */}
-        <div className="lp-hero__slide-num" aria-hidden="true">
-          <span className="lp-hero__slide-current">{String(activeSlide + 1).padStart(2, '0')}</span>
-          <span className="lp-hero__slide-sep" />
-          <span className="lp-hero__slide-total">{String(HERO_SLIDES.length).padStart(2, '0')}</span>
-        </div>
-
-        {/* Hero Content */}
+      <section className="lp-hero" id="hero" aria-label="Hero section">
         <div className="lp-hero__content">
-          {/* Animated text — re-mounts on slide change */}
-          <div key={activeSlide} className="lp-hero__content-inner lp-hero__content--animate">
-            <span className="lp-hero__tag">{HERO_SLIDES[activeSlide].tag}</span>
-            <span className="lp-hero__eyebrow">{HERO_SLIDES[activeSlide].eyebrow}</span>
-            <h1 className="lp-hero__title">
-              {HERO_SLIDES[activeSlide].title}<br />
-              <em className="lp-hero__title-accent">{HERO_SLIDES[activeSlide].titleAccent}</em>
-            </h1>
-            <p className="lp-hero__sub">{HERO_SLIDES[activeSlide].sub}</p>
-          </div>
-        </div>
+          <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
+          <h1 className="lp-hero__title">
+            Curated Bridal Artists for<br />
+            <em className="lp-hero__title-accent">Your Defining Moments.</em>
+          </h1>
+          <p className="lp-hero__sub">
+            Discover and book verified makeup artists for bridal ceremonies, editorial shoots, and everyday glam.
+          </p>
 
-        {/* Arrows */}
-        <button className="lp-hero__arrow lp-hero__arrow--prev" onClick={goPrev} aria-label="Previous slide">
-          <ChevronLeft size={22} />
-        </button>
-        <button className="lp-hero__arrow lp-hero__arrow--next" onClick={goNext} aria-label="Next slide">
-          <ChevronRight size={22} />
-        </button>
-
-        {/* Unified Bottom Controls — Buttons sitting exactly above slideshow dots */}
-        <div className="lp-hero__bottom-controls">
-          <div className="lp-hero__cta">
-            <button className="lp-btn lp-btn--light" onClick={() => navigate('/home')}>
-              Book an Artist <ArrowRight size={16} />
-            </button>
-            <button className="lp-btn lp-btn--ghost-light" onClick={() => navigate('/discover')}>
-              <Sparkles size={14} /> Explore Artists
-            </button>
+          <div className="lp-hero__search-container">
+            <div className="lp-search-box glass-panel">
+              <div className="lp-search-input">
+                <Search size={18} className="lp-search-icon" />
+                <input type="text" placeholder="Service (e.g. Bridal HD, Airbrush)" />
+              </div>
+              <div className="lp-search-divider" />
+              <div className="lp-search-input">
+                <MapPin size={18} className="lp-search-icon" />
+                <input type="text" placeholder="City (e.g. Mumbai, Delhi NCR)" />
+              </div>
+              <button className="lp-btn lp-btn--primary lp-search-btn" onClick={() => navigate('/discover')}>
+                Search <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
 
-          <div className="lp-hero__dots" role="tablist" aria-label="Slide navigation">
-            {HERO_SLIDES.map((_, i) => (
+          <div className="lp-hero__filters">
+            {['All', 'Bridal', 'Engagement', 'Pre-Wedding', 'Editorial', 'Party'].map(filter => (
               <button
-                key={i}
-                role="tab"
-                aria-selected={i === activeSlide}
-                className={`lp-hero__dot ${i === activeSlide ? 'active' : ''}`}
-                onClick={() => goTo(i)}
-                aria-label={`Slide ${i + 1}`}
-              />
+                key={filter}
+                className={`lp-filter-chip ${activeFilter === filter ? 'lp-filter-chip--active' : ''}`}
+                onClick={() => setActiveFilter(filter)}
+              >
+                {filter}
+              </button>
             ))}
           </div>
         </div>
-
-        {/* Scroll hint */}
-        <div className="lp-hero__scroll-hint" aria-hidden="true">
-          <span>Scroll</span>
-          <div className="lp-hero__scroll-line" />
-        </div>
-
-        {/* Trust badges */}
-        {/* <div className="lp-hero__trust" aria-hidden="true">
-          <div className="lp-hero__trust-item"><Shield size={13} /> 100% Verified</div>
-          <div className="lp-hero__trust-item"><Star size={13} fill="currentColor" /> 4.9 Rating</div>
-          <div className="lp-hero__trust-item"><CheckCircle size={13} /> Instant Booking</div>
-        </div> */}
       </section>
-
-      {/* ══════════════════════════════
-          MARQUEE TICKER
-      ══════════════════════════════ */}
-      <div className="lp-marquee" aria-hidden="true">
-        <div className="lp-marquee__track">
-          {[...MARQUEE, ...MARQUEE, ...MARQUEE].map((item, i) => (
-            <span key={i} className="lp-marquee__item">{item}</span>
-          ))}
-        </div>
-      </div>
 
       {/* ════════════════════════════
           LUME INTRO
