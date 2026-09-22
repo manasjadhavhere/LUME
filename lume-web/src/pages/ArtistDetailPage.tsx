@@ -4,14 +4,14 @@ import {
   ArrowLeft, Heart, Share2, Lock, Shield,
   Headphones, Sparkles, Clock, CalendarCheck, ShieldCheck,
   Award, Check, MapPin, CheckCircle2, Star, Camera, ChevronRight,
-  Users, Briefcase, BadgeCheck, TrendingUp, AlertCircle, Loader2,
+  Users, Briefcase, BadgeCheck, TrendingUp, AlertCircle, Loader2, X, ChevronLeft
 } from 'lucide-react';
 import useFavorites from '../hooks/useFavorites';
 import Button from '../components/ui/Button';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import './ArtistDetailPage.css';
 
-type TabId = 'services' | 'portfolio' | 'reviews';
+type TabId = 'services' | 'reviews';
 type PriceType = 'WEDDING' | 'OCCASION' | 'HOURLY';
 
 interface ApiArtist {
@@ -89,12 +89,13 @@ const ArtistDetailPage: React.FC = () => {
   const [isTabSticky, setIsTabSticky] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [isMobileView, setIsMobileView] = useState(() => window.innerWidth <= 768);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [avatarLightbox, setAvatarLightbox] = useState(false);
 
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const tabNavRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
-  const portfolioRef = useRef<HTMLElement>(null);
   const reviewsRef = useRef<HTMLElement>(null);
 
   // Fetch artist data
@@ -142,7 +143,6 @@ const ArtistDetailPage: React.FC = () => {
       const offset = 200;
       const sections = [
         { id: 'services' as TabId, ref: servicesRef },
-        { id: 'portfolio' as TabId, ref: portfolioRef },
         { id: 'reviews' as TabId, ref: reviewsRef },
       ];
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -174,7 +174,7 @@ const ArtistDetailPage: React.FC = () => {
   const scrollToSection = useCallback((tab: TabId) => {
     setActiveTab(tab);
     if (window.innerWidth <= 768) tabNavRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    else ({ services: servicesRef, portfolio: portfolioRef, reviews: reviewsRef }[tab]).current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else ({ services: servicesRef, reviews: reviewsRef }[tab]).current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
   // Get available time slots for selected date
@@ -300,93 +300,110 @@ const ArtistDetailPage: React.FC = () => {
 
   return (
     <div className="adp">
-      {/* ═══ HERO GALLERY ═══ */}
-      <section className="adp-gallery">
-        <div className="adp-gallery__grid">
-          <div className="adp-gallery__main">
-            {avatarSrc
-              ? <img src={avatarSrc} alt={artist.user.name} className="adp-gallery__img" />
-              : <div className="adp-gallery__img" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>✨</div>
-            }
-          </div>
-          <div className="adp-gallery__side">
-            {portfolioImages.slice(0, 4).map((img, i) => (
-              <div key={i} className="adp-gallery__side-img">
-                <img src={img} alt={`${artist.user.name} work ${i + 1}`} className="adp-gallery__img" />
-              </div>
-            ))}
-            {portfolioImages.length < 4 && Array.from({ length: 4 - Math.min(4, portfolioImages.length) }).map((_, i) => (
-              <div key={`placeholder-${i}`} className="adp-gallery__side-img" style={{ background: 'var(--border-blush)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Camera size={32} style={{ color: 'var(--rose-mid)', opacity: 0.3 }} />
-              </div>
-            ))}
-          </div>
-          <div className="adp-gallery__overlay">
-            <button className="adp-gallery__action-btn" onClick={() => navigate(-1)} aria-label="Go back"><ArrowLeft size={20} /></button>
-            <div className="adp-gallery__action-group">
-              {portfolioImages.length > 0 && (
-                <button className="adp-gallery__action-btn adp-gallery__action-btn--photos">
-                  <Camera size={16} /><span>{portfolioImages.length} Photos</span>
-                </button>
-              )}
-              <button
-                className={`adp-gallery__action-btn ${isFavorite(artist.id) ? 'adp-gallery__action-btn--active' : ''}`}
-                onClick={() => toggleFavorite(artist.id)} aria-label="Favorite">
-                <Heart size={18} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
-              </button>
-              <button className="adp-gallery__action-btn" aria-label="Share"><Share2 size={18} /></button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ PROFILE INFO BAR ═══ */}
-      <section className="adp-profile">
-        <div className="adp-profile__container">
-          <div className="adp-profile__info">
-            <div className="adp-profile__avatar-wrap">
+      {/* ═══ HERO SECTION (Details + Gallery) ═══ */}
+      <section className="adp-hero">
+        <div className="adp-hero__container">
+          
+          {/* ── LEFT: Profile Info ── */}
+          <div className="adp-hero__info">
+            <button className="adp-hero__back-btn" onClick={() => navigate(-1)} aria-label="Go back">
+              <ArrowLeft size={20} /> Back
+            </button>
+            
+            <div className="adp-hero__avatar-wrap">
               {avatarSrc
-                ? <img src={avatarSrc} alt={artist.user.name} className="adp-profile__avatar" />
-                : <div className="adp-profile__avatar" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>✨</div>
+                ? <img src={avatarSrc} alt={artist.user.name} className="adp-hero__avatar adp-hero__avatar--clickable" onClick={() => setAvatarLightbox(true)} />
+                : <div className="adp-hero__avatar" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>✨</div>
               }
-              {artist.isVerified && <span className="adp-profile__verified"><BadgeCheck size={16} /></span>}
+              {artist.isVerified && <span className="adp-hero__verified"><BadgeCheck size={16} /></span>}
             </div>
-            <div className="adp-profile__details">
-              <div className="adp-profile__name-row">
-                <h1 className="adp-profile__name">{artist.user.name}</h1>
+
+            <div className="adp-hero__details">
+              <div className="adp-hero__name-row">
+                <h1 className="adp-hero__name">{artist.user.name}</h1>
                 {artist.badge && (
-                  <span className="adp-profile__badge"><Sparkles size={12} />{artist.badge}</span>
+                  <span className="adp-hero__badge"><Sparkles size={12} />{artist.badge}</span>
                 )}
+              </div>
+              
+              <div className="adp-hero__status-row">
                 {artist.isVerified && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.1)', color: '#16a34a', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
+                  <span className="adp-hero__status-tag adp-hero__status-tag--verified">
                     ✅ Verified
                   </span>
                 )}
                 {artist.isTakingBookings ? (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.1)', color: '#16a34a', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
+                  <span className="adp-hero__status-tag adp-hero__status-tag--taking">
                     Taking Bookings
                   </span>
                 ) : (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(239,68,68,0.1)', color: '#dc2626', padding: '3px 10px', borderRadius: 20, fontSize: '0.72rem', fontWeight: 700 }}>
+                  <span className="adp-hero__status-tag adp-hero__status-tag--not-taking">
                     Not Taking Bookings
                   </span>
                 )}
               </div>
-              {artist.certification && <p className="adp-profile__certification">{artist.certification}</p>}
-              <div className="adp-profile__meta">
-                <span className="adp-profile__meta-item"><MapPin size={14} />{artist.location}</span>
-                <span className="adp-profile__meta-divider">•</span>
-                <span className="adp-profile__meta-item adp-profile__meta-item--rating">
+
+              {artist.certification && <p className="adp-hero__certification">{artist.certification}</p>}
+              
+              <div className="adp-hero__meta">
+                <span className="adp-hero__meta-item"><MapPin size={14} />{artist.location}</span>
+                <span className="adp-hero__meta-divider">•</span>
+                <span className="adp-hero__meta-item adp-hero__meta-item--rating">
                   <Star size={14} fill="var(--gold)" color="var(--gold)" />
                   {artist.rating.toFixed(1)}
-                  <span className="adp-profile__meta-count">({artist.reviewCount} reviews)</span>
+                  <span className="adp-hero__meta-count">({artist.reviewCount} reviews)</span>
                 </span>
-                <span className="adp-profile__meta-divider">•</span>
-                <span className="adp-profile__meta-item"><Briefcase size={14} />{artist.experience}+ yrs</span>
+                <span className="adp-hero__meta-divider">•</span>
+                <span className="adp-hero__meta-item"><Briefcase size={14} />{artist.experience}+ yrs</span>
               </div>
-              <div className="adp-profile__specialties">
-                {artist.specialties.map(s => <span key={s} className="adp-profile__specialty-tag">{s}</span>)}
+              
+              <div className="adp-hero__specialties">
+                {artist.specialties.map(s => <span key={s} className="adp-hero__specialty-tag">{s}</span>)}
               </div>
+
+              <div className="adp-hero__actions">
+                <button
+                  className={`adp-hero__action-btn ${isFavorite(artist.id) ? 'adp-hero__action-btn--active' : ''}`}
+                  onClick={() => toggleFavorite(artist.id)} aria-label="Favorite">
+                  <Heart size={18} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
+                  {isFavorite(artist.id) ? 'Saved' : 'Save'}
+                </button>
+                <button className="adp-hero__action-btn" aria-label="Share">
+                  <Share2 size={18} /> Share
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── RIGHT: Gallery Grid ── */}
+          <div className="adp-hero__gallery">
+            <h2 className="adp-hero__gallery-title">Portfolio</h2>
+            <div className="adp-gallery__grid">
+              <div className="adp-gallery__main" onClick={() => portfolioImages.length > 0 && setLightboxIndex(0)}>
+                {portfolioImages.length > 0
+                  ? <img src={portfolioImages[0]} alt={`${artist.user.name} work 1`} className="adp-gallery__img adp-gallery__img--contain" />
+                  : avatarSrc 
+                    ? <img src={avatarSrc} alt={artist.user.name} className="adp-gallery__img adp-gallery__img--contain" />
+                    : <div className="adp-gallery__img adp-gallery__img--contain" style={{ background: 'linear-gradient(135deg,#F2A4B0,#C9956A)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>✨</div>
+                }
+              </div>
+              <div className="adp-gallery__side">
+                {portfolioImages.slice(1, 5).map((img, i) => (
+                  <div key={i} className="adp-gallery__side-img" onClick={() => setLightboxIndex(i + 1)}>
+                    <img src={img} alt={`${artist.user.name} work ${i + 2}`} className="adp-gallery__img" />
+                  </div>
+                ))}
+                {portfolioImages.length < 5 && Array.from({ length: 5 - Math.max(1, portfolioImages.length) }).map((_, i) => (
+                  <div key={`placeholder-${i}`} className="adp-gallery__side-img" style={{ background: 'var(--border-blush)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Camera size={32} style={{ color: 'var(--rose-mid)', opacity: 0.3 }} />
+                  </div>
+                ))}
+              </div>
+              {portfolioImages.length > 5 && (
+                <button className="adp-gallery__view-all" onClick={() => setLightboxIndex(0)}>
+                  <Camera size={16} /> View all {portfolioImages.length} photos
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -395,14 +412,13 @@ const ArtistDetailPage: React.FC = () => {
       {/* ═══ STICKY TABS ═══ */}
       <div className={`adp-tabs-wrapper ${isTabSticky ? 'adp-tabs-wrapper--sticky' : ''}`} ref={tabNavRef}>
         <nav className="adp-tabs" role="tablist">
-          {(['services', 'portfolio', 'reviews'] as TabId[]).map(tab => (
+          {(['services', 'reviews'] as TabId[]).map(tab => (
             <button key={tab} role="tab" aria-selected={activeTab === tab}
               className={`adp-tabs__tab ${activeTab === tab ? 'adp-tabs__tab--active' : ''}`}
               onClick={() => scrollToSection(tab)}>
               {tab === 'services' && <Briefcase size={16} />}
-              {tab === 'portfolio' && <Camera size={16} />}
               {tab === 'reviews' && <Star size={16} />}
-              <span>{tab === 'services' ? 'Book Now' : tab === 'portfolio' ? `Portfolio (${portfolioImages.length})` : `Reviews (${artist.reviewCount})`}</span>
+              <span>{tab === 'services' ? 'Book Now' : `Reviews (${artist.reviewCount})`}</span>
             </button>
           ))}
         </nav>
@@ -619,24 +635,7 @@ const ArtistDetailPage: React.FC = () => {
               </>
             )}
 
-            {/* Portfolio */}
-            {(!isMobileView || activeTab === 'portfolio') && (
-              <section className="adp-section adp-portfolio adp-tab-pane" ref={portfolioRef} id="portfolio">
-                <h2 className="adp-section__title"><Camera size={20} />Portfolio<span className="adp-section__count">{portfolioImages.length}</span></h2>
-                {portfolioImages.length === 0 ? (
-                  <div style={{ padding: 32, textAlign: 'center', color: 'var(--mid)', fontSize: '0.88rem' }}>No portfolio photos yet.</div>
-                ) : (
-                  <div className="adp-portfolio__grid">
-                    {portfolioImages.map((img, i) => (
-                      <div key={i} className="adp-portfolio__item" style={{ animationDelay: `${i * 0.08}s` }}>
-                        <img src={img} alt={`${artist.user.name} portfolio ${i + 1}`} className="adp-portfolio__img" loading="lazy" />
-                        <div className="adp-portfolio__hover"><Camera size={24} /></div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
+
 
             {/* Reviews */}
             {(!isMobileView || activeTab === 'reviews') && (
@@ -832,6 +831,51 @@ const ArtistDetailPage: React.FC = () => {
               View My Bookings
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX FOR PORTFOLIO */}
+      {lightboxIndex !== null && portfolioImages.length > 0 && (
+        <div className="adp-lightbox" onClick={() => setLightboxIndex(null)}>
+          <button className="adp-lightbox__close" onClick={() => setLightboxIndex(null)}>
+            <X size={32} />
+          </button>
+          
+          <button 
+            className="adp-lightbox__nav adp-lightbox__nav--prev" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : portfolioImages.length - 1));
+            }}
+          >
+            <ChevronLeft size={36} />
+          </button>
+          
+          <img src={portfolioImages[lightboxIndex]} alt={`Portfolio full ${lightboxIndex + 1}`} className="adp-lightbox__img" onClick={(e) => e.stopPropagation()} />
+          
+          <button 
+            className="adp-lightbox__nav adp-lightbox__nav--next" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((prev) => (prev !== null && prev < portfolioImages.length - 1 ? prev + 1 : 0));
+            }}
+          >
+            <ChevronRight size={36} />
+          </button>
+
+          <div className="adp-lightbox__counter">
+            {lightboxIndex + 1} / {portfolioImages.length}
+          </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX FOR AVATAR */}
+      {avatarLightbox && avatarSrc && (
+        <div className="adp-lightbox" onClick={() => setAvatarLightbox(false)}>
+          <button className="adp-lightbox__close" onClick={() => setAvatarLightbox(false)}>
+            <X size={32} />
+          </button>
+          <img src={avatarSrc} alt={artist.user.name} className="adp-lightbox__img adp-lightbox__img--circle" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
 
