@@ -91,10 +91,10 @@ const DiscoverPage: React.FC = () => {
   };
 
   return (
-    <div className="discover-page lp-section">
+    <div className="discover-page">
       <div className="lp-container">
         {/* Header */}
-        <div className="lp-section__header reveal" style={{ marginTop: '20px', marginBottom: '40px' }}>
+        <div className="lp-section__header reveal" style={{ marginTop: '0', marginBottom: '40px' }}>
           <h1 className="lp-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', whiteSpace: 'nowrap' }}>
             <span style={{ height: '1px', background: 'var(--text-soft)', flex: 1, maxWidth: '60px' }}></span>
             Discover Artists

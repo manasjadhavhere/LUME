@@ -214,7 +214,7 @@ const LandingPage: React.FC = () => {
         <div className="lp-hero__content">
           <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
           <h1 className="lp-hero__title">
-            Curated Expert Artists for<br />
+            Curated Bridal Artists for<br />
             <em className="lp-hero__title-accent">Your Defining Moments.</em>
           </h1>
           <p className="lp-hero__sub">
