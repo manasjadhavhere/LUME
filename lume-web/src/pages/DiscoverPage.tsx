@@ -20,15 +20,15 @@ import img6 from '../assets/images/6.png';
 import img7 from '../assets/images/7.png';
 
 const DISCOVER_CATEGORIES: Array<{ id: ServiceCategory; icon?: string; image?: string; label: string }> = [
-  { id: 'All', image: img1, label: 'All' },
-  { id: 'Bridal', image: img2, label: 'Bridal' },
-  { id: 'Editorial', image: img3, label: 'Editorial' },
-  { id: 'Natural', image: img4, label: 'Natural' },
-  { id: 'Fantasy', image: img5, label: 'Fantasy' },
-  { id: 'Festive', image: img6, label: 'Festive' },
-  { id: 'Glamour', image: img7, label: 'Glamour' },
-  { id: 'SFX', image: img1, label: 'SFX' },
-  { id: 'Party', image: img2, label: 'Party' },
+  { id: 'All', image: '/images/categories/natural.jpg', label: 'All' },
+  { id: 'Bridal', image: '/images/categories/bridal.jpg', label: 'Bridal' },
+  { id: 'Editorial', image: '/images/categories/editorial.jpg', label: 'Editorial' },
+  { id: 'Natural', image: '/images/categories/natural.jpg', label: 'Natural' },
+  { id: 'Fantasy', image: '/images/categories/fantasy.jpg', label: 'Fantasy' },
+  { id: 'Festive', image: '/images/categories/festive.jpg', label: 'Festive' },
+  { id: 'Glamour', image: '/images/categories/glamour.jpg', label: 'Glamour' },
+  { id: 'SFX', image: '/images/categories/sfx.jpg', label: 'SFX' },
+  { id: 'Party', image: '/images/categories/party.jpg', label: 'Party' },
 ];
 
 const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
