@@ -56,20 +56,20 @@ const useScrollReveal = (deps: React.DependencyList = []) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
-    );
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
+      );
 
-    const targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-up');
-    targets.forEach((el) => observer.observe(el));
+      const targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-up');
+      targets.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+      return () => observer.disconnect();
     }, 80);
     return () => clearTimeout(timer);
   }, deps);
@@ -91,36 +91,36 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
       <div className="lp-intro__grid">
         <div className="lp-intro__content reveal-left">
           <p className="lp-intro__body">
-          Lume is India's most curated beauty platform — connecting visionaries
-          with <strong>verified, award-winning makeup artists</strong> for bridal
-          ceremonies, editorial shoots, and everyday transformations. Not just a booking. A <em>luminous experience.</em>
-        </p>
-        <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '16px' }} onClick={onBook}>
-          Book an Artist <ArrowRight size={16} />
-        </button>
-      </div>
+            Lume is India's most curated beauty platform — connecting visionaries
+            with <strong>verified, award-winning makeup artists</strong> for bridal
+            ceremonies, editorial shoots, and everyday transformations. Not just a booking. A <em>luminous experience.</em>
+          </p>
+          <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '16px' }} onClick={onBook}>
+            Book an Artist <ArrowRight size={16} />
+          </button>
+        </div>
 
-      <div className="lp-intro__collage reveal-right">
-        {/* Cursive Text */}
-        <div className="lp-intro__cursive">
-          Beauty<br />Looks Good<br />On You <span>♡</span>
-        </div>
-        
-        {/* Main Arch Image */}
-        <div className="lp-intro__arch">
-          <img src={img3} alt="Beautiful bride" loading="lazy" />
-        </div>
-        
-        {/* Floating Accent Images */}
-        <div className="lp-intro__float lp-intro__float--1">
-          <img src={img2} alt="Makeup brushes" loading="lazy" />
-        </div>
-        <div className="lp-intro__float lp-intro__float--2">
-          <img src={img5} alt="Eye makeup detail" loading="lazy" />
-        </div>
-        <div className="lp-intro__float lp-intro__float--3">
-          <img src={img4} alt="Elegant updo" loading="lazy" />
-        </div>
+        <div className="lp-intro__collage reveal-right">
+          {/* Cursive Text */}
+          <div className="lp-intro__cursive">
+            Beauty<br />Looks Good<br />On You <span>♡</span>
+          </div>
+
+          {/* Main Arch Image */}
+          <div className="lp-intro__arch">
+            <img src={img3} alt="Beautiful bride" loading="lazy" />
+          </div>
+
+          {/* Floating Accent Images */}
+          <div className="lp-intro__float lp-intro__float--1">
+            <img src={img2} alt="Makeup brushes" loading="lazy" />
+          </div>
+          <div className="lp-intro__float lp-intro__float--2">
+            <img src={img5} alt="Eye makeup detail" loading="lazy" />
+          </div>
+          <div className="lp-intro__float lp-intro__float--3">
+            <img src={img4} alt="Elegant updo" loading="lazy" />
+          </div>
         </div>
       </div>
     </div>
@@ -214,7 +214,7 @@ const LandingPage: React.FC = () => {
         <div className="lp-hero__content">
           <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
           <h1 className="lp-hero__title">
-            Curated Bridal Artists for<br />
+            Curated Expert Artists for<br />
             <em className="lp-hero__title-accent">Your Defining Moments.</em>
           </h1>
           <p className="lp-hero__sub">
@@ -225,18 +225,18 @@ const LandingPage: React.FC = () => {
             <div className="lp-search-box glass-panel">
               <div className="lp-search-input">
                 <Search size={18} className="lp-search-icon" />
-                <input 
-                  type="text" 
-                  placeholder="Service (e.g. Bridal HD, Airbrush)" 
+                <input
+                  type="text"
+                  placeholder="Service (e.g. Bridal HD, Airbrush)"
                   value={searchService}
                   onChange={(e) => setSearchService(e.target.value)}
                 />
               </div>
               <div className="lp-search-divider" />
               <div className="lp-search-input" style={{ padding: 0 }}>
-                <LocationAutocomplete 
-                  value={searchLocation} 
-                  onChange={setSearchLocation} 
+                <LocationAutocomplete
+                  value={searchLocation}
+                  onChange={setSearchLocation}
                   icon={<MapPin size={18} className="lp-search-icon" />}
                   className="lp-search-input--autocomplete"
                 />
@@ -449,7 +449,7 @@ const LandingPage: React.FC = () => {
           <div className="lp-contact__grid">
             {/* Info */}
             <div className="lp-contact__info reveal-left">
-              
+
               <div className="lp-partner__perks stagger" style={{ justifyContent: 'flex-start', gap: '16px', margin: '0 0 24px 0' }}>
                 {[
                   { icon: Sparkles, text: 'Free Profile Listing' },
