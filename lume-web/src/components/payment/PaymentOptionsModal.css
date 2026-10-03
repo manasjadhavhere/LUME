@@ -83,7 +83,7 @@
 }
 
 .pom-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
   color: #f5f0e8;
@@ -313,7 +313,7 @@
   font-size: 1.35rem;
   font-weight: 800;
   color: #f5f0e8;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
 }
 
 .pom-option--selected .pom-option__amount-value {

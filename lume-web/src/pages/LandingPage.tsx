@@ -19,6 +19,15 @@ import img7 from '../assets/images/7.png';
 
 const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
 
+const SLIDESHOW_IMAGES = [
+  '/slideshow/pexels-didsss-1830447.jpg',
+  '/slideshow/pexels-mart-production-7290670.jpg',
+  '/slideshow/pexels-mart-production-7290681.jpg',
+  '/slideshow/pexels-mart-production-7290687.jpg',
+  '/slideshow/pexels-n-voitkevich-8558532.jpg',
+  '/slideshow/pexels-towfiqu-barbhuiya-3440682-12449962.jpg'
+];
+
 const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, index = 0) => {
   const target = e.currentTarget;
   const fallback = ASSET_IMAGES[index % ASSET_IMAGES.length];
@@ -30,14 +39,14 @@ const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, i
 
 
 const CATEGORIES = [
-  { name: 'Bridal', image: img1, desc: 'Find the perfect artists for your wedding ceremonies.' },
-  { name: 'Editorial', image: img2, desc: 'High-fashion and avant-garde looks for photoshoots.' },
-  { name: 'Natural', image: img4, desc: 'Subtle and elegant makeup for a flawless no-makeup look.' },
-  { name: 'Fantasy', image: img6, desc: 'Creative, bold, and imaginative transformative artistry.' },
-  { name: 'Festive', image: img7, desc: 'Vibrant and traditional styling for your festive occasions.' },
-  { name: 'Glamour', image: img3, desc: 'Red-carpet ready looks with dramatic and striking details.' },
-  { name: 'SFX', image: img5, desc: 'Special effects and prosthetics for film, cosplay, or events.' },
-  { name: 'Party', image: img1, desc: 'Stunning evening glam to make you stand out in the crowd.' },
+  { name: 'Bridal', image: '/images/categories/bridal.jpg', desc: 'Find the perfect artists for your wedding ceremonies.' },
+  { name: 'Editorial', image: '/images/categories/editorial.jpg', desc: 'High-fashion and avant-garde looks for photoshoots.' },
+  { name: 'Natural', image: '/images/categories/natural.jpg', desc: 'Subtle and elegant makeup for a flawless no-makeup look.' },
+  { name: 'Fantasy', image: '/images/categories/fantasy.jpg', desc: 'Creative, bold, and imaginative transformative artistry.' },
+  { name: 'Festive', image: '/images/categories/festive.jpg', desc: 'Vibrant and traditional styling for your festive occasions.' },
+  { name: 'Glamour', image: '/images/categories/glamour.jpg', desc: 'Red-carpet ready looks with dramatic and striking details.' },
+  { name: 'SFX', image: '/images/categories/sfx.jpg', desc: 'Special effects and prosthetics for film, cosplay, or events.' },
+  { name: 'Party', image: '/images/categories/party.jpg', desc: 'Stunning evening glam to make you stand out in the crowd.' },
 ];
 
 /* ══════════════════════════════════════
@@ -141,7 +150,7 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % ASSET_IMAGES.length);
+      setCurrentSlide((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
     }, 4000);
     return () => clearInterval(timer);
   }, []);
@@ -192,7 +201,7 @@ const LandingPage: React.FC = () => {
       <section className="lp-hero" id="hero" aria-label="Hero section">
         {/* Slideshow Background */}
         <div className="lp-hero__bg-slider">
-          {ASSET_IMAGES.map((img, index) => (
+          {SLIDESHOW_IMAGES.map((img, index) => (
             <div
               key={index}
               className={`lp-hero__slide ${index === currentSlide ? 'lp-hero__slide--active' : ''}`}
@@ -314,7 +323,7 @@ const LandingPage: React.FC = () => {
             <span className="lp-eyebrow">Our Artists</span>
             <h2 className="lp-heading">
               Meet the Talent Behind<br />
-              <em>Every Transformation</em>
+              <em className="shimmer-text" data-text="Every Transformation">Every Transformation</em>
             </h2>
             <p className="lp-section__lead">
               Hand-vetted, portfolio-reviewed, and loved by thousands of clients across India.

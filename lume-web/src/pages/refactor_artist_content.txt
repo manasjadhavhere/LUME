@@ -1,0 +1,284 @@
+Created At: 2026-09-27T23:44:26+05:30
+Completed At: 2026-09-27T23:44:26+05:30
+File Path: `file:///c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py`
+Total Lines: 201
+Total Bytes: 11813
+Showing lines 1 to 100
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import re
+2: import os
+3: 
+4: filepath = r'c:\Users\manas\OneDrive\Desktop\LUME\LUME\lume-web\src\pages\ArtistDetailPage.tsx'
+5: with open(filepath, 'r', encoding='utf-8') as f:
+6:     content = f.read()
+7: 
+8: configurator_html = """
+9:       {/* ═══ BOOKING CONFIGURATOR ═══ */}
+10:       <section className="adp-configurator" ref={servicesRef} id="services">
+11:         <div className="adp-configurator__inner">
+12:           <h2 className="adp-configurator__title">Curate Your Session</h2>
+13:           <div className="adp-configurator__grid">
+14:             
+15:             {/* Step 1: Occasion */}
+16:             <div className="adp-config-step">
+17:               <div className="adp-config-step__header">
+18:                 <span className="adp-config-step__num">1</span>
+19:                 <h3>Occasion</h3>
+20:               </div>
+21:               
+22:               {availPriceTypes.length > 0 ? (
+23:                 <div className="adp-packages" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+24:                   {availPriceTypes.map(pt => {
+25:                     const prices = { WEDDING: artist.weddingPrice, OCCASION: artist.occasionPrice, HOURLY: artist.hourlyPrice };
+26:                     const isActive = selectedPriceType === pt;
+27:                     return (
+28:                       <button key={pt} type="button"
+29:                         onClick={() => { setSelectedPriceType(pt); setSelectedServiceId(null); }}
+30:                         className={`adp-package-btn ${isActive ? 'adp-package-btn--active' : ''}`}
+31:                         style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '8px', border: isActive ? '2px solid var(--dark)' : '1px solid #e5e7eb', background: isActive ? '#f9fafb' : 'white', cursor: 'pointer' }}>
+32:                         <span className="adp-package-btn__label" style={{ fontWeight: 600 }}>
+33:                           {PRICE_TYPE_LABELS[pt]}
+34:                         </span>
+35:                         <span className="adp-package-btn__price" style={{ fontWeight: 700 }}>
+36:                           ₹{(prices[pt] || 0).toLocaleString()}{pt === 'HOURLY' ? '/hr' : ''} <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-soft)' }}>+ GST</span>
+37:                         </span>
+38:                       </button>
+39:                     );
+40:                   })}
+41:                 </div>
+42:               ) : (
+43:                 <div style={{ padding: 16, background: 'rgba(42,26,31,0.04)', borderRadius: 12, color: 'var(--mid)', fontSize: '0.88rem' }}>
+44:                   This artist hasn't added services yet. Contact them directly.
+45:                 </div>
+46:               )}
+47:             </div>
+48: 
+49:             {/* Step 2: Date & Time */}
+50:             <div className="adp-config-step">
+51:               <div className="adp-config-step__header">
+52:                 <span className="adp-config-step__num">2</span>
+53:                 <h3>Date & Time</h3>
+54:               </div>
+55:               
+56:               <div style={{ marginBottom: 12, fontWeight: 600, fontSize: '0.9rem', color: 'var(--dark)' }}>Select Date</div>
+57:               <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
+58:                 {upcomingDates.map(dateStr => {
+59:                   const d = new Date(dateStr + 'T00:00:00');
+60:                   const isBlocked = availability?.blockedDates.some(b => b.date.startsWith(dateStr));
+61:                   const slots = (() => {
+62:                     const override = availability?.availability.find(a => a.date.startsWith(dateStr));
+63:                     if (override) return override.timeSlots.filter((s: any) => s.available).length;
+64:                     const dow = d.getDay();
+65:                     const def = availability?.defaultSchedule.find(ds => ds.dayOfWeek === dow);
+66:                     return def ? (def.timeSlots as any[]).filter((s: any) => s.available).length : 0;
+67:                   })();
+68:                   return (
+69:                     <button key={dateStr} type="button" disabled={!!isBlocked || slots === 0}
+70:                       onClick={() => { setSelectedDate(dateStr); setSelectedTimeSlots([]); }}
+71:                       style={{
+72:                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '10px 14px', borderRadius: 8, minWidth: 64,
+73:                         border: selectedDate === dateStr ? '2px solid var(--dark)' : '1px solid rgba(42,26,31,0.12)',
+74:                         background: selectedDate === dateStr ? 'var(--dark)' : (isBlocked || slots === 0) ? '#f5f5f5' : 'white',
+75:                         color: selectedDate === dateStr ? 'white' : 'inherit',
+76:                         cursor: (isBlocked || slots === 0) ? 'not-allowed' : 'pointer', opacity: (isBlocked || slots === 0) ? 0.4 : 1,
+77:                       }}>
+78:                       <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: selectedDate === dateStr ? 'rgba(255,255,255,0.8)' : 'var(--mid)' }}>
+79:                         {d.toLocaleDateString('en-IN', { weekday: 'short' })}
+80:                       </span>
+81:                       <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+82:                         {d.getDate()}
+83:                       </span>
+84:                     </button>
+85:                   );
+86:                 })}
+87:               </div>
+88: 
+89:               {selectedDate && (
+90:                 <>
+91:                   <div style={{ marginBottom: 12, fontWeight: 600, fontSize: '0.9rem', color: 'var(--dark)' }}>Available Slots</div>
+92:                   {availableSlots.length === 0 ? (
+93:                     <div style={{ padding: 14, background: 'rgba(239,68,68,0.06)', borderRadius: 10, color: 'var(--mid)', fontSize: '0.88rem' }}>
+94:                       No slots available for this date.
+95:                     </div>
+96:                   ) : (
+97:                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+98:                       {availableSlots.map(slot => {
+99:                         const [startHour] = slot.split(':').map(Number);
+100:                         const endSlot = `${(startHour + 1).toString().padStart(2, '0')}:00`;
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+Created At: 2026-09-27T23:47:27+05:30
+Completed At: 2026-09-27T23:47:27+05:30
+File Path: `file:///c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py`
+Total Lines: 201
+Total Bytes: 11813
+Showing lines 100 to 201
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+100:                         const endSlot = `${(startHour + 1).toString().padStart(2, '0')}:00`;
+101:                         const isSelected = selectedTimeSlots.includes(slot);
+102: 
+103:                         return (
+104:                           <button key={slot} type="button"
+105:                             onClick={() => {
+106:                               if (isSelected) {
+107:                                 setSelectedTimeSlots(selectedTimeSlots.filter(s => s !== slot));
+108:                               } else {
+109:                                 setSelectedTimeSlots([...selectedTimeSlots, slot]);
+110:                               }
+111:                             }}
+112:                             style={{
+113:                               padding: '8px 12px', borderRadius: 6, fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer',
+114:                               border: isSelected ? '2px solid var(--dark)' : '1px solid rgba(42,26,31,0.12)',
+115:                               background: isSelected ? 'var(--dark)' : 'white',
+116:                               color: isSelected ? 'white' : 'var(--dark)',
+117:                             }}>
+118:                             {slot}
+119:                           </button>
+120:                         );
+121:                       })}
+122:                     </div>
+123:                   )}
+124:                 </>
+125:               )}
+126:             </div>
+127: 
+128:             {/* Step 3: Checkout */}
+129:             <div className="adp-config-step">
+130:               <div className="adp-config-step__header">
+131:                 <span className="adp-config-step__num">3</span>
+132:                 <h3>Checkout</h3>
+133:               </div>
+134:               
+135:               {isBookingReady ? (
+136:                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+137:                   <div>
+138:                     <input type="text" placeholder="Event location (City/Venue)" value={address} onChange={e => setAddress(e.target.value)}
+139:                       style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: '0.9rem', width: '100%', boxSizing: 'border-box', marginBottom: 8 }} />
+140:                     <textarea placeholder="Special requests..." value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+141:                       style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: '0.9rem', width: '100%', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+142:                   </div>
+143: 
+144:                   <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
+145:                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+146:                       <span style={{ color: 'var(--mid)', fontSize: '0.9rem' }}>Date & Time</span>
+147:                       <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })} at {selectedTimeSlots[0]}</span>
+148:                     </div>
+149:                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+150:                       <span style={{ color: 'var(--mid)', fontSize: '0.9rem' }}>Total</span>
+151:                       <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--rose-deep)' }}>₹{calculatedPrice.toLocaleString()} <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)' }}>+ GST</span></span>
+152:                     </div>
+153: 
+154:                     {bookingError && (
+155:                       <div className="booking-sidebar__error" style={{ marginBottom: 12 }}>
+156:                         <AlertCircle size={14} /> <span>{bookingError}</span>
+157:                       </div>
+158:                     )}
+159: 
+160:                     {acceptedBooking ? (
+161:                       <div style={{ padding: '12px', background: '#ecfdf5', borderRadius: 8, border: '1px solid #10b981', textAlign: 'center' }}>
+162:                         <p style={{ color: '#047857', fontWeight: 600, fontSize: '0.9rem', marginBottom: 8 }}>Booking approved!</p>
+163:                         <Button onClick={() => navigate('/profile')} style={{ width: '100%', background: 'var(--success-color, #10b981)', color: '#fff', border: 'none' }}>Pay Now to Confirm</Button>
+164:                       </div>
+165:                     ) : (
+166:                       <Button variant="primary" onClick={handleBookingConfirm} disabled={!isBookingReady || bookingLoading || showSuccessModal} style={{ width: '100%', padding: '12px' }}>
+167:                         {bookingLoading ? <Loader2 className="spinner" size={20} /> : 'Confirm Booking'}
+168:                       </Button>
+169:                     )}
+170:                   </div>
+171:                 </div>
+172:               ) : (
+173:                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-soft)', fontSize: '0.9rem', textAlign: 'center', padding: 20 }}>
+174:                   Select an occasion, date, and time to proceed with your booking.
+175:                 </div>
+176:               )}
+177:             </div>
+178: 
+179:           </div>
+180:         </div>
+181:       </section>
+182: """
+183: 
+184: hero_end_str = "        </div>\n      </section>"
+185: if hero_end_str in content:
+186:     content = content.replace(hero_end_str, hero_end_str + "\n" + configurator_html)
+187: 
+188: booking_section_regex = re.compile(r'\{\/\* ── BOOKING SECTION ── \*\/\}.*?<\/section>', re.DOTALL)
+189: content = booking_section_regex.sub('', content)
+190: 
+191: sidebar_booking_extract = re.compile(r'<div className="adp-sidebar__booking">.*?\{/\* Why Book Card \*/\}', re.DOTALL)
+192: content = sidebar_booking_extract.sub('{/* Why Book Card */}', content)
+193: 
+194: content = content.replace("Reviews (${artist.reviewCount})", "Client Testimonials (${artist.reviewCount})")
+195: content = content.replace("Reviews & Ratings", "Client Testimonials")
+196: 
+197: with open(filepath, 'w', encoding='utf-8') as f:
+198:     f.write(content)
+199: 
+200: print("Done")
+201: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+Created At: 2026-09-27T23:54:10+05:30
+Completed At: 2026-09-27T23:54:10+05:30
+File Path: `file:///c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/script_out.json`
+Total Lines: 38
+Total Bytes: 5473
+Showing lines 1 to 38
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: [
+2:   [
+3:     {
+4:       "name": "run_command",
+5:       "args": {
+6:         "CommandLine": "cat << 'EOF' > c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py\nimport re\n\nfilepath = r'c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages\\ArtistDetailPage.tsx'\nwith open(filepath, 'r', encoding='utf-8') as f:\n    content = f.read()\n\n# 1. Remove adp-tabs-wrapper\ncontent = re.sub(r'\\{\\/\\* \u2550\u2550\u2550 STICKY TABS \u2550\u2550\u2550 \\*\\/.*?<\\/nav>\\s*<\\/div>', '', content, flags=re.DOTALL)\n\n# 2. Remove adp-mobile-bar\ncontent = re.sub(r'\\{\\/\\* Mobile Sticky Bar \\*\\/.*?<\\/div>\\s*\\{\\/\\* SUCCESS MODAL \\*\\/', '{/* SUCCESS MODAL */', content, flags=re.DOTALL)\n\n# 3. Add services to Occasion step\nservices_html = \"\"\"\n                          {artist.services && artist.services.length > 0 && (\n                            <div className=\"adp-specific-services\" style={{ marginTop: '12px', borderTop: '1px solid #eee', paddingTop: '12px' }}>\n                              <h4 style={{ fontSize: '0.85rem', color: 'var(--mid)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Specific Services</h4>\n                              {artist.services.filter(s => s.isActive).map(svc => {\n                                const isActive = selectedServiceId === svc.id;\n                                return (\n                                  <button key={svc.id} type=\"button\"\n                                    onClick={() => { setSelectedServiceId(svc.id); setSelectedPriceType('OCCASION'); }}\n                                    className={`adp-package-btn ${isActive ? 'adp-package-btn--active' : ''}`}\n                                    style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: isActive ? '2px solid var(--dark)' : '1px solid #f3f4f6', background: isActive ? '#f9fafb' : '#fafafa', cursor: 'pointer', marginBottom: '6px' }}>\n                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>\n                                      <span style={{ fontSize: '1rem' }}>{svc.icon}</span>\n                                      <span className=\"adp-package-btn__label\" style={{ fontSize: '0.9rem' }}>{svc.name}</span>\n                                    </div>\n                                    <span className=\"adp-package-btn__price\" style={{ fontSize: '0.9rem' }}>\n                                      \u20b9{svc.price.toLocaleString()} <span className=\"adp-checkout-gst\">+ GST</span>\n                                    </span>\n                                  </button>\n                                );\n                              })}\n                            </div>\n                          )}\n\"\"\"\ncontent = content.replace(\n    '                  })}</span>\\n                        </span>\\n                      </button>\\n                    );\\n                  })}\\n                </div>',\n    '                  })}</span>\\n                        </span>\\n                      </button>\\n                    );\\n                  })}\\n' + services_html + '\\n                </div>'\n)\n\n# 4. Restructure Layout\n# Replace the whole structure from `adp-configurator` to the end of `adp-sidebar` with the new grid structure.\n\n# Let's write the result back\nwith open(filepath, 'w', encoding='utf-8') as f:\n    f.write(content)\nEOF",
+7:         "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+8:         "WaitMsBeforeAsync": 500,
+9:         "toolAction": "Writing python script to modify ArtistDetailPage.tsx",
+10:         "toolSummary": "Write python refactor script"
+11:       }
+12:     }
+13:   ],
+14:   [
+15:     {
+16:       "name": "run_command",
+17:       "args": {
+18:         "CommandLine": "python -c \"\nimport json\nlog_path = r'c:\\Users\\manas\\.gemini\\antigravity-ide\\brain\\ddef3198-3ee2-4e35-a706-adbb07f88a3f\\.system_generated\\logs\\transcript_full.jsonl'\nwith open(log_path, 'r', encoding='utf-8') as f:\n    for line in f:\n        if 'refactor_artist.py' in line and 'import re' in line:\n            data = json.loads(line)\n            if 'tool_calls' in data:\n                print(data['tool_calls'])\n\"",
+19:         "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+20:         "WaitMsBeforeAsync": 500,
+21:         "toolAction": "Extracting refactor_artist.py from transcript",
+22:         "toolSummary": "Extract python script"
+23:       }
+24:     }
+25:   ],
+26:   [
+27:     {
+28:       "name": "run_command",
+29:       "args": {
+30:         "CommandLine": "python -c \"\nimport json\nlog_path = r'c:\\Users\\manas\\.gemini\\antigravity-ide\\brain\\ddef3198-3ee2-4e35-a706-adbb07f88a3f\\.system_generated\\logs\\transcript_full.jsonl'\nres = []\nwith open(log_path, 'r', encoding='utf-8') as f:\n    for line in f:\n        if 'refactor_artist.py' in line and 'import re' in line:\n            data = json.loads(line)\n            if 'tool_calls' in data:\n                res.append(data['tool_calls'])\nwith open('script_out.json', 'w', encoding='utf-8') as f:\n    json.dump(res, f, indent=2)\n\"",
+31:         "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+32:         "WaitMsBeforeAsync": 500,
+33:         "toolAction": "Extracting refactor_artist.py to file",
+34:         "toolSummary": "Extract python script"
+35:       }
+36:     }
+37:   ]
+38: ]
+The above content shows the entire, complete file contents of the requested file.
+
+
+Created At: 2026-09-27T23:54:17+05:30
+Completed At: 2026-09-27T23:54:17+05:30
+
+				The command exited with code 0.
+				Output:
+				{"step_index":323,"source":"MODEL","type":"VIEW_FILE","status":"DONE","created_at":"2026-09-27T18:14:26Z","content":"Created At: 2026-09-27T23:44:26+05:30\nCompleted At: 2026-09-27T23:44:26+05:30\nFile Path: `file:///c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py`\nTotal Lines: 201\nTotal Bytes: 11813\nShowing lines 1 to 100\nThe following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note
+{"step_index":395,"source":"MODEL","type":"VIEW_FILE","status":"DONE","created_at":"2026-09-27T18:17:27Z","content":"Created At: 2026-09-27T23:47:27+05:30\nCompleted At: 2026-09-27T23:47:27+05:30\nFile Path: `file:///c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py`\nTotal Lines: 201\nTotal Bytes: 11813\nShowing lines 100 to 201\nThe following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please no
+{"step_index":426,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-27T18:23:26Z","thinking":"**Prioritizing Tool Specificity**\n\nI'm focusing intently on using specialized tools rather than general-purpose utilities. The goal is to avoid the default `cat`/`grep`/`ls`/`sed` inside bash. Before executing any tools, I'm now making it a point to explicitly list related tools, ensuring a more deliberate and considered approach. So far, the tools I'm focusing on are `r
+{"step_index":427,"source":"MODEL","type":"RUN_COMMAND","status":"DONE","exit_code":1,"created_at":"2026-09-27T18:23:33Z","content":"Created At: 2026-09-27T23:53:33+05:30\nCompleted At: 2026-09-27T23:53:34+05:30\n\n\t\t\t\tThe command exited with code 1.\n\t\t\t\tOutput:\n\t\t\t\tgrep_search : The term 'grep_search' is not recognized as the name of a cmdlet, function, script file, or operable \r\nprogram. Check the spelling of the name, or if a path was included, verify that the path is correct 
+{"step_index":429,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-27T18:23:34Z","thinking":"**Prioritizing Tool Specificity**\n\nI'm focusing now on using very specific tools instead of general ones like `cat` or `grep`. I am trying to think about what tools are related to a task before executing. For example, before calling `T` I'll explicitly consider tools such as `grep_search` and `replace_file_content`.\n\n\n","tool_calls":[{"name":"grep_search","args":{"Cas
+{"step_index":453,"source":"MODEL","type":"PLANNER_RESPONSE","status":"DONE","created_at":"2026-09-27T18:24:11Z","thinking":"**Prioritizing Specific Tools**\n\nI'm focused on prioritizing specific tools instead of generic ones, avoiding bash built-ins like `cat`, `grep`, `ls`, and `sed`. Before making tool calls, I'm thinking explicitly about related tools for the task. So far, the tools I've identified are `run_command` and `replace_file_content`.\n\n\n","tool_calls":[{"name":"run_command","arg
+
+
+

@@ -1,0 +1,21 @@
+.adp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+  margin-bottom: 32px;
+}
+.adp-row-main {
+  min-width: 0;
+}
+.adp-row-side {
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .adp-row {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

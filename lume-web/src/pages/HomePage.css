@@ -68,7 +68,7 @@
 }
 
 .home-heading em {
-  font-style: italic;
+  font-style: normal;
   background: linear-gradient(135deg, var(--rose-deep) 0%, var(--gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

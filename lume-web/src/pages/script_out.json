@@ -1,0 +1,38 @@
+[
+  [
+    {
+      "name": "run_command",
+      "args": {
+        "CommandLine": "cat << 'EOF' > c:/Users/manas/OneDrive/Desktop/LUME/LUME/lume-web/src/pages/refactor_artist.py\nimport re\n\nfilepath = r'c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages\\ArtistDetailPage.tsx'\nwith open(filepath, 'r', encoding='utf-8') as f:\n    content = f.read()\n\n# 1. Remove adp-tabs-wrapper\ncontent = re.sub(r'\\{\\/\\* \u2550\u2550\u2550 STICKY TABS \u2550\u2550\u2550 \\*\\/.*?<\\/nav>\\s*<\\/div>', '', content, flags=re.DOTALL)\n\n# 2. Remove adp-mobile-bar\ncontent = re.sub(r'\\{\\/\\* Mobile Sticky Bar \\*\\/.*?<\\/div>\\s*\\{\\/\\* SUCCESS MODAL \\*\\/', '{/* SUCCESS MODAL */', content, flags=re.DOTALL)\n\n# 3. Add services to Occasion step\nservices_html = \"\"\"\n                          {artist.services && artist.services.length > 0 && (\n                            <div className=\"adp-specific-services\" style={{ marginTop: '12px', borderTop: '1px solid #eee', paddingTop: '12px' }}>\n                              <h4 style={{ fontSize: '0.85rem', color: 'var(--mid)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Specific Services</h4>\n                              {artist.services.filter(s => s.isActive).map(svc => {\n                                const isActive = selectedServiceId === svc.id;\n                                return (\n                                  <button key={svc.id} type=\"button\"\n                                    onClick={() => { setSelectedServiceId(svc.id); setSelectedPriceType('OCCASION'); }}\n                                    className={`adp-package-btn ${isActive ? 'adp-package-btn--active' : ''}`}\n                                    style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderRadius: '8px', border: isActive ? '2px solid var(--dark)' : '1px solid #f3f4f6', background: isActive ? '#f9fafb' : '#fafafa', cursor: 'pointer', marginBottom: '6px' }}>\n                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>\n                                      <span style={{ fontSize: '1rem' }}>{svc.icon}</span>\n                                      <span className=\"adp-package-btn__label\" style={{ fontSize: '0.9rem' }}>{svc.name}</span>\n                                    </div>\n                                    <span className=\"adp-package-btn__price\" style={{ fontSize: '0.9rem' }}>\n                                      \u20b9{svc.price.toLocaleString()} <span className=\"adp-checkout-gst\">+ GST</span>\n                                    </span>\n                                  </button>\n                                );\n                              })}\n                            </div>\n                          )}\n\"\"\"\ncontent = content.replace(\n    '                  })}</span>\\n                        </span>\\n                      </button>\\n                    );\\n                  })}\\n                </div>',\n    '                  })}</span>\\n                        </span>\\n                      </button>\\n                    );\\n                  })}\\n' + services_html + '\\n                </div>'\n)\n\n# 4. Restructure Layout\n# Replace the whole structure from `adp-configurator` to the end of `adp-sidebar` with the new grid structure.\n\n# Let's write the result back\nwith open(filepath, 'w', encoding='utf-8') as f:\n    f.write(content)\nEOF",
+        "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+        "WaitMsBeforeAsync": 500,
+        "toolAction": "Writing python script to modify ArtistDetailPage.tsx",
+        "toolSummary": "Write python refactor script"
+      }
+    }
+  ],
+  [
+    {
+      "name": "run_command",
+      "args": {
+        "CommandLine": "python -c \"\nimport json\nlog_path = r'c:\\Users\\manas\\.gemini\\antigravity-ide\\brain\\ddef3198-3ee2-4e35-a706-adbb07f88a3f\\.system_generated\\logs\\transcript_full.jsonl'\nwith open(log_path, 'r', encoding='utf-8') as f:\n    for line in f:\n        if 'refactor_artist.py' in line and 'import re' in line:\n            data = json.loads(line)\n            if 'tool_calls' in data:\n                print(data['tool_calls'])\n\"",
+        "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+        "WaitMsBeforeAsync": 500,
+        "toolAction": "Extracting refactor_artist.py from transcript",
+        "toolSummary": "Extract python script"
+      }
+    }
+  ],
+  [
+    {
+      "name": "run_command",
+      "args": {
+        "CommandLine": "python -c \"\nimport json\nlog_path = r'c:\\Users\\manas\\.gemini\\antigravity-ide\\brain\\ddef3198-3ee2-4e35-a706-adbb07f88a3f\\.system_generated\\logs\\transcript_full.jsonl'\nres = []\nwith open(log_path, 'r', encoding='utf-8') as f:\n    for line in f:\n        if 'refactor_artist.py' in line and 'import re' in line:\n            data = json.loads(line)\n            if 'tool_calls' in data:\n                res.append(data['tool_calls'])\nwith open('script_out.json', 'w', encoding='utf-8') as f:\n    json.dump(res, f, indent=2)\n\"",
+        "Cwd": "c:\\Users\\manas\\OneDrive\\Desktop\\LUME\\LUME\\lume-web\\src\\pages",
+        "WaitMsBeforeAsync": 500,
+        "toolAction": "Extracting refactor_artist.py to file",
+        "toolSummary": "Extract python script"
+      }
+    }
+  ]
+]
