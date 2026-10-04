@@ -158,7 +158,7 @@ const DiscoverPage: React.FC = () => {
 
       {/* Artists Grid */}
       {isLoading ? (
-        <div className="lp-artists__grid stagger" style={{ marginTop: '32px' }}>
+        <div className="discover-page__artists-grid stagger" style={{ marginTop: '32px' }}>
           {Array.from({ length: 8 }).map((_, index) => (
             <div className="reveal-scale" key={`skeleton-${index}`}>
               <ArtistCardSkeleton />
@@ -166,14 +166,28 @@ const DiscoverPage: React.FC = () => {
           ))}
         </div>
       ) : artists.length > 0 ? (
-        <div className="lp-artists__grid stagger" style={{ marginTop: '32px' }}>
+        <div className="discover-page__artists-grid stagger" style={{ marginTop: '32px' }}>
           {artists.map((artist) => {
             const rawImg = artist.profileImageUrl || artist.user?.avatarUrl;
             const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
+            
+            // Format data exactly like LandingPage
+            const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Makeup Artist'];
+            const shownSpecialties = specialties.slice(0, 2);
+            const extraSpecialties = specialties.length - shownSpecialties.length;
+            const hasRating = artist.rating > 0;
+            const years = Number(artist.experience) || 0;
+            const reviews = Number(artist.reviewCount) || 0;
+            const highlight = years > 0
+              ? `${years}+ yrs experience`
+              : reviews > 0
+                ? `${reviews} client review${reviews > 1 ? 's' : ''}`
+                : artist.isVerified ? 'Verified professional' : 'Rising talent';
+
             return (
-              <div
+              <article
                 key={artist.id}
-                className="lp-artist-card reveal-scale"
+                className="lp-artist-card"
                 onClick={() => handleArtistClick(artist.id)}
                 role="button"
                 tabIndex={0}
@@ -181,33 +195,49 @@ const DiscoverPage: React.FC = () => {
               >
                 <div className="lp-artist-card__img-wrap">
                   <img src={imgUrl} alt={artist.user?.name || 'Artist'} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
-                  <div className="lp-artist-card__overlay">
-                    <button className="lp-artist-card__view" onClick={() => handleArtistClick(artist.id)}>
-                      View Profile <ArrowRight size={14} />
-                    </button>
-                  </div>
+                  <div className="lp-artist-card__overlay" />
+
                   {artist.isVerified && (
-                    <span className="lp-artist-card__badge" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span className="lp-artist-card__badge">
                       <CheckCircle size={12} /> Verified
                     </span>
                   )}
-                  <div className="lp-artist-card__rating-chip">
-                    <Star size={10} fill="currentColor" /> {artist.rating?.toFixed(1) || '0.0'}
-                  </div>
-                </div>
-                <div className="lp-artist-card__info">
-                  <div className="lp-artist-card__meta">
-                    <h3 className="lp-artist-card__name">{artist.user?.name || 'Unknown Artist'}</h3>
-                  </div>
-                  <p className="lp-artist-card__specialty">{artist.specialties?.length ? artist.specialties.join(' · ') : 'Makeup Artist'}</p>
-                  <div className="lp-artist-card__footer">
+                  <span className={`lp-artist-card__rating-chip${hasRating ? '' : ' is-new'}`}>
+                    <Star size={11} fill="currentColor" strokeWidth={0} />
+                    {hasRating ? artist.rating.toFixed(1) : 'New'}
+                  </span>
+
+                  <div className="lp-artist-card__cover">
+                    <h3 className="lp-artist-card__name">{artist.user?.name || 'Artist'}</h3>
                     <span className="lp-artist-card__location">
-                      <MapPin size={11} /> {artist.location || 'Location'}
+                      <MapPin size={12} /> <span>{artist.location || 'India'}</span>
                     </span>
-                    <span className="lp-artist-card__price">from ₹{(artist.startingPrice || 0).toLocaleString()}</span>
                   </div>
                 </div>
-              </div>
+
+                <div className="lp-artist-card__info">
+                  <div className="lp-artist-card__highlight">
+                    <Star size={14} style={{ display: 'none' }} /> {/* Optional icon placeholder */}
+                    <span>{highlight}</span>
+                  </div>
+                  <div className="lp-artist-card__tags">
+                    {shownSpecialties.map((s) => (
+                      <span key={s} className="lp-artist-card__tag">{s}</span>
+                    ))}
+                    {extraSpecialties > 0 && (
+                      <span className="lp-artist-card__tag lp-artist-card__tag--more">+{extraSpecialties}</span>
+                    )}
+                  </div>
+                  <div className="lp-artist-card__footer">
+                    <span className="lp-artist-card__price">
+                      <em>Starting from</em> <span style={{ fontFamily: 'var(--font-body)' }}>₹</span>{(artist.startingPrice || 0).toLocaleString()}
+                    </span>
+                    <span className="lp-artist-card__cta" aria-hidden="true">
+                      <ArrowRight size={15} />
+                    </span>
+                  </div>
+                </div>
+              </article>
             );
           })}
         </div>

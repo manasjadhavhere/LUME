@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Star, MapPin, Search,
   Sparkles, Heart, Shield, CheckCircle, Mail, Phone,
-  ArrowUpRight, Share2, MessageCircle, Video
+  ArrowUpRight, Share2, MessageCircle, Video, ChevronLeft, ChevronRight, Award
 } from 'lucide-react';
 import { API_BASE, useAuth } from '../context/AuthContext';
 import LocationAutocomplete from '../components/ui/LocationAutocomplete';
@@ -18,6 +18,75 @@ import img6 from '../assets/images/6.png';
 import img7 from '../assets/images/7.png';
 
 const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
+
+const MOCK_ARTISTS = [
+  {
+    id: 'm1',
+    user: { name: 'Priya Sharma', avatarUrl: img1 },
+    specialties: ['Bridal', 'Airbrush'],
+    rating: 4.9,
+    experience: 5,
+    reviewCount: 120,
+    isVerified: true,
+    location: 'Mumbai, MH',
+    startingPrice: 15000,
+  },
+  {
+    id: 'm2',
+    user: { name: 'Rohan Gupta', avatarUrl: img2 },
+    specialties: ['Editorial', 'Fashion'],
+    rating: 4.8,
+    experience: 7,
+    reviewCount: 85,
+    isVerified: true,
+    location: 'Delhi, NCR',
+    startingPrice: 12000,
+  },
+  {
+    id: 'm3',
+    user: { name: 'Aisha Khan', avatarUrl: img3 },
+    specialties: ['Party', 'Natural'],
+    rating: 4.7,
+    experience: 3,
+    reviewCount: 45,
+    isVerified: false,
+    location: 'Bangalore, KA',
+    startingPrice: 8000,
+  },
+  {
+    id: 'm4',
+    user: { name: 'Sneha Reddy', avatarUrl: img4 },
+    specialties: ['Bridal', 'Festive'],
+    rating: 4.9,
+    experience: 6,
+    reviewCount: 200,
+    isVerified: true,
+    location: 'Hyderabad, TG',
+    startingPrice: 18000,
+  },
+  {
+    id: 'm5',
+    user: { name: 'Vikram Singh', avatarUrl: img5 },
+    specialties: ['SFX', 'Editorial'],
+    rating: 4.6,
+    experience: 4,
+    reviewCount: 30,
+    isVerified: true,
+    location: 'Pune, MH',
+    startingPrice: 10000,
+  },
+  {
+    id: 'm6',
+    user: { name: 'Ananya Patel', avatarUrl: img6 },
+    specialties: ['Glamour', 'Bridal'],
+    rating: 5.0,
+    experience: 8,
+    reviewCount: 310,
+    isVerified: true,
+    location: 'Ahmedabad, GJ',
+    startingPrice: 20000,
+  }
+];
 
 const SLIDESHOW_IMAGES = [
   '/slideshow/pexels-didsss-1830447.jpg',
@@ -91,35 +160,65 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
       <div className="lp-intro__grid">
         <div className="lp-intro__content reveal-left">
           <p className="lp-intro__body">
-            Lume is India's most curated beauty platform — connecting visionaries
-            with <strong>verified, award-winning makeup artists</strong> for bridal
-            ceremonies, editorial shoots, and everyday transformations. Not just a booking. A <em>luminous experience.</em>
+            Lume is India's most curated beauty platform, dedicated to elevating your defining moments. We connect visionaries with <strong>verified, award-winning makeup artists</strong> for bridal ceremonies, high-fashion editorial shoots, and everyday glamour.
           </p>
-          <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '16px' }} onClick={onBook}>
+          <p className="lp-intro__body" style={{ marginTop: '20px' }}>
+            We understand that finding the right artist is deeply personal. That's why every artist on Lume goes through a rigorous vetting process. From seamless bookings and secure payments to personalized consultations, our platform ensures a stress-free and premium experience. It's not just about booking an appointment; it's about stepping into your most luminous self.
+          </p>
+          <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '32px' }} onClick={onBook}>
             Book an Artist <ArrowRight size={16} />
           </button>
         </div>
 
-        <div className="lp-intro__collage reveal-right">
-          {/* Cursive Text */}
-          <div className="lp-intro__cursive">
-            Beauty<br />Looks Good<br />On You <span>♡</span>
-          </div>
+        <div className="lp-intro__video-placeholder reveal-right" style={{
+          width: '100%',
+          aspectRatio: '4/5',
+          maxHeight: '600px',
+          borderRadius: 'var(--radius-xl)',
+          overflow: 'hidden',
+          position: 'relative',
+          boxShadow: '0 24px 64px rgba(42, 26, 31, 0.16)'
+        }}>
+          <img src={img3} alt="Lume Video Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
 
-          {/* Main Arch Image */}
-          <div className="lp-intro__arch">
-            <img src={img3} alt="Beautiful bride" loading="lazy" />
-          </div>
-
-          {/* Floating Accent Images */}
-          <div className="lp-intro__float lp-intro__float--1">
-            <img src={img2} alt="Makeup brushes" loading="lazy" />
-          </div>
-          <div className="lp-intro__float lp-intro__float--2">
-            <img src={img5} alt="Eye makeup detail" loading="lazy" />
-          </div>
-          <div className="lp-intro__float lp-intro__float--3">
-            <img src={img4} alt="Elegant updo" loading="lazy" />
+          {/* Play Button Overlay */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background 0.3s ease',
+            cursor: 'pointer'
+          }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.25)'}
+          >
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <div style={{
+                width: 0,
+                height: 0,
+                borderTop: '12px solid transparent',
+                borderBottom: '12px solid transparent',
+                borderLeft: '18px solid var(--rose-deep)',
+                marginLeft: '6px'
+              }}></div>
+            </div>
           </div>
         </div>
       </div>
@@ -136,6 +235,8 @@ const LandingPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [formSent, setFormSent] = useState(false);
+
+
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchService, setSearchService] = useState('');
@@ -174,15 +275,95 @@ const LandingPage: React.FC = () => {
   }, [isAuthenticated, user]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/artists?limit=4`)
+    fetch(`${API_BASE}/api/artists?limit=12`)
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
+        if (data.success && data.data.artists && data.data.artists.length > 0) {
           setFeatured(data.data.artists);
+        } else {
+          setFeatured(MOCK_ARTISTS);
         }
       })
-      .catch(err => console.error('Failed to load featured artists', err));
+      .catch(err => {
+        console.error('Failed to load featured artists', err);
+        setFeatured(MOCK_ARTISTS);
+      });
   }, []);
+
+  /* ── Artists: infinite looping carousel ─────────────────────────────
+     The artist list is repeated (clones) on both sides of a "home" copy.
+     After every slide the position silently snaps back to the home copy,
+     so the strip never runs out and artists simply reappear. */
+  const getPerView = (w: number) =>
+    w >= 1360 ? 6 : w >= 1100 ? 5 : w >= 900 ? 4 : w >= 640 ? 3 : w >= 440 ? 2 : 1;
+
+  const [perView, setPerView] = useState(() =>
+    typeof window === 'undefined' ? 6 : getPerView(window.innerWidth)
+  );
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [animate, setAnimate] = useState(false);
+  const slideLock = useRef(false);
+  const slideTimer = useRef<number | undefined>(undefined);
+  const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const onResize = () => setPerView(getPerView(window.innerWidth));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const artistCount = featured.length;
+  const slideStep = Math.max(1, Math.floor(perView / 3));
+  const sideCopies = artistCount ? Math.ceil((slideStep + perView) / artistCount) : 0;
+  const homeStart = sideCopies * artistCount;
+
+  const slides = useMemo(() => {
+    if (!artistCount) return [];
+    const total = (2 * sideCopies + 1) * artistCount;
+    return Array.from({ length: total }, (_, i) => ({
+      artist: featured[i % artistCount],
+      copy: Math.floor(i / artistCount),
+      key: `${featured[i % artistCount].id}-${i}`,
+    }));
+  }, [featured, artistCount, sideCopies]);
+
+  // (Re)start at the home copy whenever the list or layout changes
+  useEffect(() => {
+    window.clearTimeout(slideTimer.current);
+    slideLock.current = false;
+    setAnimate(false);
+    setSlideIdx(homeStart);
+  }, [homeStart, artistCount]);
+
+  // After an instant (non-animated) jump, re-enable the transition on the next frames
+  useEffect(() => {
+    if (animate) return;
+    let r2 = 0;
+    const r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => setAnimate(true));
+    });
+    return () => {
+      cancelAnimationFrame(r1);
+      cancelAnimationFrame(r2);
+    };
+  }, [animate]);
+
+  const settleSlide = () => {
+    window.clearTimeout(slideTimer.current);
+    if (!artistCount) return;
+    setAnimate(false);
+    setSlideIdx((i) => homeStart + ((((i - homeStart) % artistCount) + artistCount) % artistCount));
+    slideLock.current = false;
+  };
+
+  const slideArtists = (dir: 1 | -1) => {
+    if (slideLock.current || !artistCount) return;
+    slideLock.current = true;
+    setAnimate(true);
+    setSlideIdx((i) => i + dir * slideStep);
+    // safety net in case transitionend never fires (e.g. reduced motion)
+    slideTimer.current = window.setTimeout(settleSlide, 900);
+  };
 
 
   const handleContact = (e: React.FormEvent) => {
@@ -214,8 +395,8 @@ const LandingPage: React.FC = () => {
         <div className="lp-hero__content">
           <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
           <h1 className="lp-hero__title">
-            Curated Bridal Artists for<br />
-            <em className="lp-hero__title-accent">Your Defining Moments.</em>
+            <span className="nowrap-desktop ethereal-float-1">Curated Professional Artists for</span><br />
+            <em className="lp-hero__title-accent ethereal-float-2">Your Defining Moments.</em>
           </h1>
           <p className="lp-hero__sub">
             Discover and book verified makeup artists for bridal ceremonies, editorial shoots, and everyday glam.
@@ -329,53 +510,128 @@ const LandingPage: React.FC = () => {
               Hand-vetted, portfolio-reviewed, and loved by thousands of clients across India.
             </p>
           </div>
+        </div>
 
-          <div className="lp-artists__grid stagger">
-            {featured.map((artist) => {
-              const rawImg = artist.profileImageUrl || artist.user.avatarUrl;
-              const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
-              return (
-                <div
-                  key={artist.id}
-                  className="lp-artist-card reveal-scale"
-                  onClick={() => navigate(`/artist/${artist.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
-                >
-                  <div className="lp-artist-card__img-wrap">
-                    <img src={imgUrl} alt={artist.user.name} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
-                    <div className="lp-artist-card__overlay">
-                      <button className="lp-artist-card__view" onClick={() => navigate(`/artist/${artist.id}`)}>
-                        View Profile <ArrowRight size={14} />
-                      </button>
-                    </div>
-                    {artist.isVerified && (
-                      <span className="lp-artist-card__badge" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <CheckCircle size={12} /> Verified
+        <div className="lp-artists__scroller">
+          <button
+            type="button"
+            className="lp-artists__arrow lp-artists__arrow--prev"
+            onClick={() => slideArtists(-1)}
+            aria-label="Previous artists"
+          >
+            <ChevronLeft size={26} strokeWidth={1.75} />
+          </button>
+
+          <div
+            className="lp-artists__viewport"
+            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              if (touchStartX.current === null) return;
+              const dx = e.changedTouches[0].clientX - touchStartX.current;
+              touchStartX.current = null;
+              if (Math.abs(dx) > 40) slideArtists(dx < 0 ? 1 : -1);
+            }}
+          >
+            <div
+              className={`lp-artists__track${animate ? '' : ' is-instant'}`}
+              style={{ '--pv': perView, '--idx': slideIdx } as React.CSSProperties}
+              onTransitionEnd={(e) => {
+                if (e.target === e.currentTarget && e.propertyName === 'transform') settleSlide();
+              }}
+            >
+              {slides.map(({ artist, copy, key }) => {
+                const isHome = copy === sideCopies;
+                const rawImg = artist.profileImageUrl || artist.user?.avatarUrl;
+                const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
+                const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Makeup Artist'];
+                const shownSpecialties = specialties.slice(0, 2);
+                const extraSpecialties = specialties.length - shownSpecialties.length;
+                const hasRating = artist.rating > 0;
+                const years = Number(artist.experience) || 0;
+                const reviews = Number(artist.reviewCount) || 0;
+                const highlight = years > 0
+                  ? `${years}+ yrs experience`
+                  : reviews > 0
+                    ? `${reviews} client review${reviews > 1 ? 's' : ''}`
+                    : artist.isVerified ? 'Verified professional' : 'Rising talent';
+                return (
+                  <article
+                    key={key}
+                    className="lp-artist-card"
+                    onClick={() => navigate(`/artist/${artist.id}`)}
+                    role="button"
+                    tabIndex={isHome ? 0 : -1}
+                    aria-hidden={isHome ? undefined : true}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
+                  >
+                    <div className="lp-artist-card__img-wrap">
+                      <img
+                        src={imgUrl}
+                        alt={artist.user?.name || 'Artist'}
+                        className="lp-artist-card__img"
+                        loading="lazy"
+                        draggable={false}
+                        onError={(e) => handleImageFallback(e, 1)}
+                      />
+                      <div className="lp-artist-card__overlay" />
+
+                      {artist.isVerified && (
+                        <span className="lp-artist-card__badge">
+                          <CheckCircle size={12} /> Verified
+                        </span>
+                      )}
+                      <span className={`lp-artist-card__rating-chip${hasRating ? '' : ' is-new'}`}>
+                        <Star size={11} fill="currentColor" strokeWidth={0} />
+                        {hasRating ? artist.rating.toFixed(1) : 'New'}
                       </span>
-                    )}
-                    <div className="lp-artist-card__rating-chip">
-                      <Star size={10} fill="currentColor" /> {artist.rating.toFixed(1)}
+
+                      <div className="lp-artist-card__cover">
+                        <h3 className="lp-artist-card__name">{artist.user?.name || 'Artist'}</h3>
+                        <span className="lp-artist-card__location">
+                          <MapPin size={12} /> <span>{artist.location || 'India'}</span>
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="lp-artist-card__info">
-                    <div className="lp-artist-card__meta">
-                      <h3 className="lp-artist-card__name">{artist.user.name}</h3>
+
+                    <div className="lp-artist-card__info">
+                      <div className="lp-artist-card__highlight">
+                        <Award size={14} />
+                        <span>{highlight}</span>
+                      </div>
+                      <div className="lp-artist-card__tags">
+                        {shownSpecialties.map((s) => (
+                          <span key={s} className="lp-artist-card__tag">{s}</span>
+                        ))}
+                        {extraSpecialties > 0 && (
+                          <span className="lp-artist-card__tag lp-artist-card__tag--more">+{extraSpecialties}</span>
+                        )}
+                      </div>
+                      <div className="lp-artist-card__footer">
+                        <span className="lp-artist-card__price">
+                          <em>Starting from</em> <span style={{ fontFamily: 'var(--font-body)' }}>₹</span>{(artist.startingPrice || 0).toLocaleString()}
+                        </span>
+                        <span className="lp-artist-card__cta" aria-hidden="true">
+                          <ArrowUpRight size={15} />
+                        </span>
+                      </div>
                     </div>
-                    <p className="lp-artist-card__specialty">{artist.specialties?.length ? artist.specialties.join(' · ') : 'Makeup Artist'}</p>
-                    <div className="lp-artist-card__footer">
-                      <span className="lp-artist-card__location">
-                        <MapPin size={11} /> {artist.location}
-                      </span>
-                      <span className="lp-artist-card__price">from ₹{(artist.startingPrice || 0).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                  </article>
+                );
+              })}
+            </div>
           </div>
 
+          <button
+            type="button"
+            className="lp-artists__arrow lp-artists__arrow--next"
+            onClick={() => slideArtists(1)}
+            aria-label="Next artists"
+          >
+            <ChevronRight size={26} strokeWidth={1.75} />
+          </button>
+        </div>
+
+        <div className="lp-container">
           <div className="lp-section__more reveal">
             <button className="lp-btn lp-btn--primary" onClick={() => navigate('/discover')}>
               View All Artists <ArrowRight size={16} />

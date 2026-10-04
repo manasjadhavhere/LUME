@@ -59,6 +59,12 @@
   }
 }
 
+/* Card override for grid context */
+.discover-page__artists-grid .lp-artist-card {
+  flex: none;
+  width: 100%;
+}
+
 /* Extra small mobile — keep 2 cols but tighter */
 @media (max-width: 360px) {
   .discover-page {
