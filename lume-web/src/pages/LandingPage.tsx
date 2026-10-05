@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Star, MapPin, Search,
-  Sparkles, Heart, Shield, CheckCircle, Mail, Phone,
-  ArrowUpRight, Share2, MessageCircle, Video, ChevronLeft, ChevronRight, Award
+  CheckCircle,
+  ArrowUpRight, ChevronLeft, ChevronRight, Award
 } from 'lucide-react';
 import { API_BASE, useAuth } from '../context/AuthContext';
 import LocationAutocomplete from '../components/ui/LocationAutocomplete';
