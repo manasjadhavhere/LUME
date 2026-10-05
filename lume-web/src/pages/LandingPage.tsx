@@ -733,8 +733,8 @@ const LandingPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="lp-community__social-bio">
-                  India's premier beauty platform ✨<br/>
-                  Discover & book verified makeup artists.<br/>
+                  India's premier beauty platform ✨<br />
+                  Discover & book verified makeup artists.<br />
                   📍 Mumbai | Delhi | Bangalore
                 </p>
                 <div className="lp-community__social-stats">

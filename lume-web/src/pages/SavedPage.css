@@ -5,7 +5,7 @@
 .saved-page {
   min-height: 100vh;
   background: transparent;
-  padding: var(--spacing-xl) var(--spacing-md) 7rem;
+  padding: 30px var(--spacing-md) 7rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -59,7 +59,7 @@
 
 @media (min-width: 769px) {
   .saved-page {
-    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-3xl);
+    padding: 40px var(--spacing-xl) var(--spacing-3xl);
   }
 
   .saved-page__list {

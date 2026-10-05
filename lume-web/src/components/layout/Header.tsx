@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Search, User, Palette } from 'lucide-react';
+import { Menu, X, Search, User, Palette, Heart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
@@ -8,8 +8,7 @@ const NAV_LINKS = [
   { label: 'Artists',    path: '/#artists' },
   { label: 'About',      path: '/#about' },
   { label: 'Categories', path: '/#categories' },
-  { label: 'Partner',    path: '/#partner' },
-  { label: 'Contact',    path: '/#contact' },
+  { label: 'Follow',     path: '/#community' },
 ];
 
 const APP_NAV = [
@@ -95,6 +94,10 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
           <button className="lume-header__search" aria-label="Search artists" onClick={() => navigate('/discover')}>
             <Search size={18} />
           </button>
+          
+          <button className="lume-header__search" aria-label="Wishlist" onClick={() => navigate('/saved')}>
+            <Heart size={18} />
+          </button>
 
           {!isAuthenticated ? (
             <>
@@ -102,8 +105,9 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
                 className="lume-header__nav-link"
                 style={{ fontWeight: 600, padding: '6px 12px' }}
                 onClick={() => navigate('/login')}
+                aria-label="Sign In"
               >
-                Sign In
+                <User size={18} />
               </button>
               <button className="lume-header__cta lume-header__cta--primary" onClick={() => navigate('/home')}>
                 Book Now ↗

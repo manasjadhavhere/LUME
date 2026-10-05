@@ -294,9 +294,9 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at 50% 35%,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.5) 35%,
-      rgba(255, 246, 248, 0.1) 65%);
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.8) 40%,
+      rgba(255, 246, 248, 0.3) 80%);
   z-index: 2;
 }
 
