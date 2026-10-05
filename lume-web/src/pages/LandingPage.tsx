@@ -150,7 +150,7 @@ const useScrollReveal = (deps: React.DependencyList = []) => {
 const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
   <section className="lp-section lp-intro" id="about" aria-label="About Lume">
     <div className="lp-container">
-      <div className="lp-section__header reveal" style={{ marginBottom: '56px' }}>
+      <div className="lp-section__header reveal">
         <span className="lp-eyebrow">About Lume</span>
         <h2 className="lp-heading">
           Where Every Look<br />
@@ -165,7 +165,7 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
           <p className="lp-intro__body" style={{ marginTop: '20px' }}>
             We understand that finding the right artist is deeply personal. That's why every artist on Lume goes through a rigorous vetting process. From seamless bookings and secure payments to personalized consultations, our platform ensures a stress-free and premium experience. It's not just about booking an appointment; it's about stepping into your most luminous self.
           </p>
-          <button className="lp-btn lp-btn--primary" style={{ alignSelf: 'flex-start', marginTop: '32px' }} onClick={onBook}>
+          <button className="lp-btn lp-btn--primary lp-intro__btn" style={{ marginTop: '32px' }} onClick={onBook}>
             Book an Artist <ArrowRight size={16} />
           </button>
         </div>
@@ -227,14 +227,33 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
 );
 
 /* ══════════════════════════════════════
+   Instagram Icon
+══════════════════════════════════════ */
+const InstagramIcon = ({ size = 24 }: { size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+/* ══════════════════════════════════════
    LandingPage Component
 ══════════════════════════════════════ */
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [activeFilter, setActiveFilter] = useState('All');
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-  const [formSent, setFormSent] = useState(false);
 
 
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
@@ -366,12 +385,7 @@ const LandingPage: React.FC = () => {
   };
 
 
-  const handleContact = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSent(true);
-    setContactForm({ name: '', email: '', message: '' });
-    setTimeout(() => setFormSent(false), 4000);
-  };
+
 
   return (
     <div className="lp">
@@ -469,9 +483,12 @@ const LandingPage: React.FC = () => {
           LUME INTRO
       ════════════════════════════ */}
       {upcomingBookings.length > 0 && (
-        <section className="lp-section lp-upcoming" style={{ padding: '60px 0', background: 'var(--light)' }}>
+        <section className="lp-section lp-upcoming" style={{ background: 'var(--light)' }}>
           <div className="lp-container">
-            <h2 className="lp-heading reveal" style={{ fontSize: '2rem', marginBottom: '24px' }}>Your Upcoming Bookings</h2>
+            <div className="lp-section__header reveal">
+              <span className="lp-eyebrow">Your Bookings</span>
+              <h2 className="lp-heading">Upcoming Appointments</h2>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }} className="stagger">
               {upcomingBookings.map((booking: any) => (
                 <div key={booking.id} className="reveal-up" style={{ background: '#fff', borderRadius: '16px', padding: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '16px', border: '1px solid rgba(42,26,31,0.05)' }}>
@@ -687,122 +704,62 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ══════════════════════════════
-          5. PARTNER WITH US (MERGED)
+          5. JOIN OUR COMMUNITY
       ══════════════════════════════ */}
-      <section className="lp-section lp-contact" id="partner">
+      <section className="lp-section lp-community" id="community">
         <div className="lp-container">
-          <div className="lp-section__header reveal" style={{ marginBottom: '56px' }}>
-            <span className="lp-eyebrow">Partner With Us</span>
+          <div className="lp-section__header reveal">
+            <span className="lp-eyebrow">Join Our Community</span>
             <h2 className="lp-heading">
-              Join India's growing<br />
-              <em>artist trust</em>
+              Follow us on<br />
+              <em>Instagram</em>
             </h2>
             <p className="lp-section__lead" style={{ maxWidth: '600px', margin: '16px auto 0' }}>
-              Grow your clientele, manage your bookings, and showcase your portfolio to thousands of clients. Questions or partnerships? We'd love to hear from you.
+              Get inspired by daily bridal transformations, editorial looks, and behind-the-scenes magic from India's finest artists.
             </p>
           </div>
 
-          <div className="lp-contact__grid">
+          <div className="lp-community__grid">
             {/* Info */}
-            <div className="lp-contact__info reveal-left">
-
-              <div className="lp-partner__perks stagger" style={{ justifyContent: 'flex-start', gap: '16px', margin: '0 0 24px 0' }}>
-                {[
-                  { icon: Sparkles, text: 'Free Profile Listing' },
-                  { icon: CheckCircle, text: 'Verified Badge' },
-                  { icon: Heart, text: 'Dedicated Support' },
-                  { icon: Shield, text: 'Secure Payments' },
-                ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="lp-partner__perk reveal" style={{ background: 'white', padding: '10px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                    <div className="lp-partner__perk-icon" style={{ background: 'var(--blush-surface)', width: '28px', height: '28px' }}><Icon size={14} /></div>
-                    <span style={{ fontSize: '0.9rem' }}>{text}</span>
+            <div className="lp-community__info reveal-left">
+              <div className="lp-community__social-card">
+                <div className="lp-community__social-header">
+                  <div className="lp-community__social-avatar">
+                    <img src={img1} alt="Lume Beauty" />
                   </div>
-                ))}
-              </div>
-
-              <button className="lp-btn lp-btn--primary reveal" style={{ alignSelf: 'flex-start', marginBottom: '48px' }} onClick={() => navigate('/register')}>
-                Create Artist Account <ArrowRight size={16} />
-              </button>
-
-              <div className="lp-contact__details stagger">
-                <a href="mailto:hello@lume.beauty" className="lp-contact__detail reveal">
-                  <div className="lp-contact__icon"><Mail size={18} /></div>
-                  <div>
-                    <span className="lp-contact__label">Email</span>
-                    <span className="lp-contact__value">hello@lume.beauty</span>
+                  <div className="lp-community__social-meta">
+                    <h4>@_hello_lume_app</h4>
+                    <p>Lume Beauty Platform</p>
                   </div>
+                </div>
+                <p className="lp-community__social-bio">
+                  India's premier beauty platform ✨<br/>
+                  Discover & book verified makeup artists.<br/>
+                  📍 Mumbai | Delhi | Bangalore
+                </p>
+                <div className="lp-community__social-stats">
+                  <div className="lp-community__stat"><strong>1.2k</strong><span>Posts</span></div>
+                  <div className="lp-community__stat"><strong>15k</strong><span>Followers</span></div>
+                  <div className="lp-community__stat"><strong>120</strong><span>Following</span></div>
+                </div>
+                <a href="https://www.instagram.com/_hello_lume_app/" target="_blank" rel="noopener noreferrer" className="lp-btn lp-btn--primary lp-community__follow-btn">
+                  <InstagramIcon size={18} /> Follow on Instagram
                 </a>
-                <a href="tel:+911234567890" className="lp-contact__detail reveal">
-                  <div className="lp-contact__icon"><Phone size={18} /></div>
-                  <div>
-                    <span className="lp-contact__label">Phone</span>
-                    <span className="lp-contact__value">+91 123 456 7890</span>
-                  </div>
-                </a>
-              </div>
-
-              <div className="lp-contact__social stagger" style={{ marginTop: '32px' }}>
-                {[
-                  { Icon: Share2, label: 'Instagram' },
-                  { Icon: MessageCircle, label: 'Twitter' },
-                  { Icon: Video, label: 'YouTube' },
-                ].map(({ Icon, label }) => (
-                  <a key={label} href="#" className="lp-contact__social-btn reveal" aria-label={label}>
-                    <Icon size={17} />
-                  </a>
-                ))}
               </div>
             </div>
 
-            {/* Form */}
-            <div className="lp-contact__form-wrap reveal-right">
-              <form className="lp-contact__form glass-panel" onSubmit={handleContact}>
-                <h3 className="lp-contact__form-title">Apply or Send a Message</h3>
-
-                {formSent && (
-                  <div className="lp-contact__success">
-                    <CheckCircle size={18} />
-                    Message sent! We'll be in touch soon.
-                  </div>
-                )}
-
-                <div className="lp-contact__field">
-                  <label htmlFor="contact-name">Your Name / Business Name</label>
-                  <input
-                    id="contact-name"
-                    type="text"
-                    placeholder="e.g. Priya Sharma"
-                    value={contactForm.name}
-                    onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="lp-contact__field">
-                  <label htmlFor="contact-email">Email Address</label>
-                  <input
-                    id="contact-email"
-                    type="email"
-                    placeholder="you@email.com"
-                    value={contactForm.email}
-                    onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="lp-contact__field">
-                  <label htmlFor="contact-msg">Message or Portfolio Link</label>
-                  <textarea
-                    id="contact-msg"
-                    rows={4}
-                    placeholder="Tell us about yourself..."
-                    value={contactForm.message}
-                    onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
-                    required
-                  />
-                </div>
-                <button type="submit" className="lp-btn lp-btn--primary lp-contact__submit">
-                  Submit <ArrowRight size={16} />
-                </button>
-              </form>
+            {/* Insta Grid Mock */}
+            <div className="lp-community__ig-wrap reveal-right">
+              <div className="lp-community__ig-grid">
+                {[img2, img3, img4, img5, img6, img7].map((img, idx) => (
+                  <a key={idx} href="https://www.instagram.com/_hello_lume_app/" target="_blank" rel="noopener noreferrer" className="lp-community__ig-post">
+                    <img src={img} alt={`Instagram Post ${idx + 1}`} />
+                    <div className="lp-community__ig-overlay">
+                      <InstagramIcon size={24} />
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowRight, ExternalLink } from 'lucide-react';
 import './Footer.css';
 
 const Footer: React.FC = () => {
@@ -9,36 +9,44 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="lume-footer">
-      <div className="lume-footer__top">
-        <div className="lume-footer__container">
-
+      <div className="lume-footer__watermark">LUME</div>
+      
+      <div className="lume-footer__container">
+        
+        {/* Top Grid Section */}
+        <div className="lume-footer__grid">
           {/* Brand */}
-          <div className="lume-footer__brand">
-            <button className="lume-footer__logo" onClick={() => navigate('/')} aria-label="Lume Home" style={{ background: 'transparent', border: 'none', padding: 0 }}>
-              <img src="/logo.png" alt="Lume Logo" style={{ height: '56px', width: 'auto', display: 'block', objectFit: 'contain' }} />
+          <div className="lume-footer__brand-col">
+            <button className="lume-footer__logo" onClick={() => navigate('/')} aria-label="Lume Home">
+              <img src="/logo.png" alt="Lume Logo" />
             </button>
-            <p className="lume-footer__tagline" style={{ marginTop: '0.75rem' }}>Your canvas. Our masterpiece.</p>
+            <h3 className="lume-footer__tagline">Your canvas. Our masterpiece.</h3>
             <p className="lume-footer__desc">
-              India's finest beauty artists, one booking away.
+              India's premier beauty platform connecting visionaries with award-winning makeup artists for your most defining moments.
             </p>
+            
             <div className="lume-footer__social">
-              {['IG', 'TW', 'YT'].map((label) => (
-                <a key={label} href="#" className="lume-footer__social-btn" aria-label={label}>
-                  <ExternalLink size={14} />
-                </a>
-              ))}
+              <a href="#" className="lume-footer__social-link" aria-label="Instagram">
+                <ExternalLink size={18} strokeWidth={1.5} />
+              </a>
+              <a href="#" className="lume-footer__social-link" aria-label="Twitter">
+                <ExternalLink size={18} strokeWidth={1.5} />
+              </a>
+              <a href="#" className="lume-footer__social-link" aria-label="YouTube">
+                <ExternalLink size={18} strokeWidth={1.5} />
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="lume-footer__col">
-            <h4 className="lume-footer__heading">Explore</h4>
+          {/* Links Nav */}
+          <div className="lume-footer__nav-col">
+            <h4 className="lume-footer__heading">Platform</h4>
             <nav>
               {[
                 { label: 'Home', path: '/' },
                 { label: 'Discover Artists', path: '/discover' },
-                { label: 'Saved', path: '/saved' },
-                { label: 'My Profile', path: '/profile' },
+                { label: 'Saved Profiles', path: '/saved' },
+                { label: 'My Account', path: '/profile' },
               ].map(({ label, path }) => (
                 <button key={label} className="lume-footer__link" onClick={() => navigate(path)}>
                   {label}
@@ -47,11 +55,10 @@ const Footer: React.FC = () => {
             </nav>
           </div>
 
-          {/* Services */}
-          <div className="lume-footer__col">
-            <h4 className="lume-footer__heading">Services</h4>
+          <div className="lume-footer__nav-col">
+            <h4 className="lume-footer__heading">Specialties</h4>
             <nav>
-              {['Bridal Makeup', 'Editorial Looks', 'Evening Glam', 'Natural Beauty', 'Fantasy & Bold'].map(s => (
+              {['Bridal Makeup', 'Editorial & Fashion', 'Evening Glamour', 'Natural & Flawless', 'Fantasy & SFX'].map(s => (
                 <button key={s} className="lume-footer__link" onClick={() => navigate('/discover')}>
                   {s}
                 </button>
@@ -60,26 +67,49 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Contact */}
-          <div className="lume-footer__col">
-            <h4 className="lume-footer__heading">Get in Touch</h4>
-            <div className="lume-footer__contact">
+          <div className="lume-footer__nav-col">
+            <h4 className="lume-footer__heading">Contact Us</h4>
+            <div className="lume-footer__contact-info">
               <a href="mailto:hello@lume.beauty" className="lume-footer__contact-item">
-                <Mail size={14} /> hello@lume.beauty
+                <Mail size={18} strokeWidth={1.5} />
+                <span>hello@lume.beauty</span>
               </a>
               <a href="tel:+911234567890" className="lume-footer__contact-item">
-                <Phone size={14} /> +91 123 456 7890
+                <Phone size={18} strokeWidth={1.5} />
+                <span>+91 123 456 7890</span>
               </a>
               <span className="lume-footer__contact-item">
-                <MapPin size={14} /> Mumbai, India
+                <MapPin size={18} strokeWidth={1.5} />
+                <span>Mumbai, India<br/>400001</span>
               </span>
             </div>
           </div>
         </div>
+
       </div>
 
-      <div className="lume-footer__bottom">
-        <div className="lume-footer__container lume-footer__bottom-inner">
-          <p>© {year} Lume. All rights reserved.</p>
+      {/* Newsletter Section */}
+      <div className="lume-footer__newsletter-wrapper">
+        <div className="lume-footer__container">
+          <div className="lume-footer__newsletter">
+            <div className="lume-footer__newsletter-content">
+              <h3 className="lume-footer__newsletter-title">Join The Insider List</h3>
+              <p className="lume-footer__newsletter-desc">Receive exclusive beauty insights and priority booking access.</p>
+            </div>
+            <form className="lume-footer__newsletter-form" onSubmit={(e) => e.preventDefault()}>
+              <input type="email" placeholder="Enter your email address" className="lume-footer__newsletter-input" />
+              <button type="submit" className="lume-footer__newsletter-btn">
+                Subscribe <ArrowRight size={18} strokeWidth={1.5} />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="lume-footer__container">
+        <div className="lume-footer__bottom">
+          <p className="lume-footer__copyright">© {year} Lume Beauty. All rights reserved.</p>
           <div className="lume-footer__legal">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
