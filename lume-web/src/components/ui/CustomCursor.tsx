@@ -10,15 +10,21 @@ const CustomCursor: React.FC = () => {
     const outer = outerRef.current;
     if (!inner || !outer) return;
 
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
+    let mouseX = -100;
+    let mouseY = -100;
     let outerX = mouseX;
     let outerY = mouseY;
     let rafId: number;
+    let hasMoved = false;
 
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      if (!hasMoved) {
+        hasMoved = true;
+        inner.style.opacity = '1';
+        outer.style.opacity = '0.65';
+      }
       inner.style.transform = `translate3d(${mouseX - 5}px, ${mouseY - 5}px, 0)`;
     };
 
@@ -43,13 +49,22 @@ const CustomCursor: React.FC = () => {
       outer.classList.remove('cursor-outer--click');
     };
 
-    const interactives = document.querySelectorAll(
-      'a, button, [role="button"], input, textarea, select, label, [tabindex]'
-    );
-    interactives.forEach((el) => {
-      el.addEventListener('mouseenter', onEnter);
-      el.addEventListener('mouseleave', onLeave);
+    const attachListeners = () => {
+      const interactives = document.querySelectorAll(
+        'a, button, [role="button"], input, textarea, select, label, [tabindex]'
+      );
+      interactives.forEach((el) => {
+        el.addEventListener('mouseenter', onEnter);
+        el.addEventListener('mouseleave', onLeave);
+      });
+      return interactives;
+    };
+
+    let interactives = attachListeners();
+    const observer = new MutationObserver(() => {
+      interactives = attachListeners();
     });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mousedown', onDown);
@@ -57,6 +72,7 @@ const CustomCursor: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(rafId);
+      observer.disconnect();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('mouseup', onUp);
@@ -69,8 +85,8 @@ const CustomCursor: React.FC = () => {
 
   return (
     <>
-      <div ref={outerRef} className="cursor-outer" aria-hidden="true" />
-      <div ref={innerRef} className="cursor-inner" aria-hidden="true" />
+      <div ref={outerRef} className="cursor-outer" aria-hidden="true" style={{ opacity: 0 }} />
+      <div ref={innerRef} className="cursor-inner" aria-hidden="true" style={{ opacity: 0 }} />
     </>
   );
 };

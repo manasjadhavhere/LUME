@@ -109,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
               >
                 <User size={18} />
               </button>
-              <button className="lume-header__cta lume-header__cta--primary" onClick={() => navigate('/home')}>
+              <button className="lume-header__cta lume-header__cta--primary" onClick={() => navigate('/discover')}>
                 Book Now ↗
               </button>
             </>
@@ -164,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
             >
               Sign In
             </button>
-            <button className="lume-header__drawer-cta lume-header__drawer-cta--primary" onClick={() => navigate('/home')}>
+            <button className="lume-header__drawer-cta lume-header__drawer-cta--primary" onClick={() => navigate('/discover')}>
               Book Now →
             </button>
           </div>

@@ -1236,13 +1236,21 @@ body:has(.ap),
   gap: 7px;
   padding: 8px 14px 8px 10px;
   border: 1px solid var(--ap-line-strong);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   background: var(--white);
   font-size: 0.82rem;
   font-weight: 500;
   color: var(--mid);
   text-align: left;
   transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
+  max-width: 100%;
+}
+
+.ap-chips button span {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .ap-chips button em {

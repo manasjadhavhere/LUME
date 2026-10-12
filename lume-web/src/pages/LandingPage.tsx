@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Star, MapPin, Search,
   CheckCircle,
-  ArrowUpRight, ChevronLeft, ChevronRight, Award
+  ArrowUpRight, ChevronLeft, ChevronRight, Award, Heart
 } from 'lucide-react';
 import { API_BASE, useAuth } from '../context/AuthContext';
+import useFavorites from '../hooks/useFavorites';
 import LocationAutocomplete from '../components/ui/LocationAutocomplete';
 import './LandingPage.css';
 
@@ -170,15 +171,7 @@ const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
           </button>
         </div>
 
-        <div className="lp-intro__video-placeholder reveal-right" style={{
-          width: '100%',
-          aspectRatio: '4/5',
-          maxHeight: '600px',
-          borderRadius: 'var(--radius-xl)',
-          overflow: 'hidden',
-          position: 'relative',
-          boxShadow: '0 24px 64px rgba(42, 26, 31, 0.16)'
-        }}>
+        <div className="lp-intro__video-placeholder reveal-right">
           <img src={img3} alt="Lume Video Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
 
           {/* Play Button Overlay */}
@@ -253,6 +246,7 @@ const InstagramIcon = ({ size = 24 }: { size?: number }) => (
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [activeFilter, setActiveFilter] = useState('All');
 
 
@@ -314,7 +308,7 @@ const LandingPage: React.FC = () => {
      After every slide the position silently snaps back to the home copy,
      so the strip never runs out and artists simply reappear. */
   const getPerView = (w: number) =>
-    w >= 1360 ? 6 : w >= 1100 ? 5 : w >= 900 ? 4 : w >= 640 ? 3 : w >= 440 ? 2 : 1;
+    w >= 1360 ? 6 : w >= 1100 ? 5 : w >= 900 ? 4 : w >= 640 ? 3 : 2;
 
   const [perView, setPerView] = useState(() =>
     typeof window === 'undefined' ? 6 : getPerView(window.innerWidth)
@@ -602,6 +596,18 @@ const LandingPage: React.FC = () => {
                         {hasRating ? artist.rating.toFixed(1) : 'New'}
                       </span>
 
+                      <button
+                        type="button"
+                        className={`lp-artist-card__fav-btn ${isFavorite(artist.id) ? 'is-fav' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(artist.id);
+                        }}
+                        aria-label={isFavorite(artist.id) ? 'Remove from favorites' : 'Save to favorites'}
+                      >
+                        <Heart size={14} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
+                      </button>
+
                       <div className="lp-artist-card__cover">
                         <h3 className="lp-artist-card__name">{artist.user?.name || 'Artist'}</h3>
                         <span className="lp-artist-card__location">
@@ -663,6 +669,58 @@ const LandingPage: React.FC = () => {
       <LumeIntro onBook={() => navigate('/discover')} />
 
       {/* ══════════════════════════════
+          4. HOW IT WORKS — 3-Step Journey
+      ══════════════════════════════ */}
+      <section className="lp-section lp-how-it-works" id="how-it-works" aria-label="How Lume works">
+        <div className="lp-container">
+          <div className="lp-section__header reveal">
+            <span className="lp-eyebrow">The Experience</span>
+            <h2 className="lp-heading">
+              Your Journey to <em>Effortless Glamour.</em>
+            </h2>
+            <p className="lp-section__lead">
+              Three seamless steps from initial inspiration to your defining celebration.
+            </p>
+          </div>
+
+          <div className="lp-how__grid stagger">
+            <div className="lp-how__card reveal-up">
+              <div className="lp-how__badge-num">01</div>
+              <div className="lp-how__icon-box">
+                <Search size={24} />
+              </div>
+              <h3 className="lp-how__card-title">Explore Verified Portfolios</h3>
+              <p className="lp-how__card-desc">
+                Browse hand-vetted artists across Mumbai, Delhi, and Bangalore. Filter by specialized occasion, portfolio high-res visuals, and verified ratings.
+              </p>
+            </div>
+
+            <div className="lp-how__card reveal-up">
+              <div className="lp-how__badge-num">02</div>
+              <div className="lp-how__icon-box">
+                <Award size={24} />
+              </div>
+              <h3 className="lp-how__card-title">Tailor Your Occasion & Date</h3>
+              <p className="lp-how__card-desc">
+                Choose bridal ceremonies, sangeet glam, editorial shoots, or hourly bookings. Lock in your exact calendar slot with transparent, upfront pricing.
+              </p>
+            </div>
+
+            <div className="lp-how__card reveal-up">
+              <div className="lp-how__badge-num">03</div>
+              <div className="lp-how__icon-box">
+                <CheckCircle size={24} />
+              </div>
+              <h3 className="lp-how__card-title">Transform with Peace of Mind</h3>
+              <p className="lp-how__card-desc">
+                Rest easy with Razorpay escrow protection. Your artist arrives punctually with luxury-grade kits to craft your radiant, unforgettable look.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════
           4. CATEGORIES
       ══════════════════════════════ */}
       <section className="lp-section lp-categories" id="categories">
@@ -704,7 +762,125 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ══════════════════════════════
-          5. JOIN OUR COMMUNITY
+          5. THE HAUTE STANDARD — Trust Pillars
+      ══════════════════════════════ */}
+      <section className="lp-section lp-pillars" id="standards" aria-label="The Lume Standards">
+        <div className="lp-container">
+          <div className="lp-section__header reveal">
+            <span className="lp-eyebrow">The Lume Standard</span>
+            <h2 className="lp-heading">
+              Curated for <em>Perfection.</em>
+            </h2>
+            <p className="lp-section__lead">
+              Every detail engineered to give you complete confidence on your most meaningful occasions.
+            </p>
+          </div>
+
+          <div className="lp-pillars__grid stagger">
+            <div className="lp-pillar-card reveal-up">
+              <div className="lp-pillar-card__icon-box">
+                <Award size={26} />
+              </div>
+              <h3 className="lp-pillar-card__title">Top 5% Vetted Artistry</h3>
+              <p className="lp-pillar-card__text">
+                Every makeup artist undergoes a thorough portfolio evaluation, hygiene audit, and background verification.
+              </p>
+            </div>
+
+            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.1s' }}>
+              <div className="lp-pillar-card__icon-box">
+                <CheckCircle size={26} />
+              </div>
+              <h3 className="lp-pillar-card__title">Zero Hidden Surcharges</h3>
+              <p className="lp-pillar-card__text">
+                Transparent upfront pricing including tax breakdowns and travel guidelines, with zero surprise charges on event day.
+              </p>
+            </div>
+
+            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.2s' }}>
+              <div className="lp-pillar-card__icon-box">
+                <Star size={26} />
+              </div>
+              <h3 className="lp-pillar-card__title">Escrow Payment Security</h3>
+              <p className="lp-pillar-card__text">
+                Your payment is securely held in escrow via Razorpay and released to the artist only after satisfactory service delivery.
+              </p>
+            </div>
+
+            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.3s' }}>
+              <div className="lp-pillar-card__icon-box">
+                <ArrowRight size={26} />
+              </div>
+              <h3 className="lp-pillar-card__title">Dedicated Bridal Concierge</h3>
+              <p className="lp-pillar-card__text">
+                Need multiple artist coordination for destination weddings or multi-day celebrations? Our concierge assists 24/7.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════
+          6. DEFINING MOMENTS — Client Stories
+      ══════════════════════════════ */}
+      <section className="lp-section lp-stories" id="stories" aria-label="Client testimonials">
+        <div className="lp-container">
+          <div className="lp-section__header reveal">
+            <span className="lp-eyebrow">Real Transformations</span>
+            <h2 className="lp-heading">
+              Loved by <em>Visionaries & Brides.</em>
+            </h2>
+            <p className="lp-section__lead">
+              Hear from clients who trusted Lume artists with their most precious moments.
+            </p>
+          </div>
+
+          <div className="lp-stories__grid stagger">
+            {[
+              {
+                quote: "Finding an artist who understood my heritage bridal vision was effortless on Lume. My artist arrived 30 minutes early, perfectly calm, and made me feel like royalty all night.",
+                author: "Rhea Singhania",
+                event: "Bridal Ceremony • Mumbai",
+                rating: 5,
+                image: img1
+              },
+              {
+                quote: "I needed high-definition makeup for our fashion magazine cover shoot on short notice. Lume's portfolio verification made choosing so easy—flawless skin work with zero touch-up delays.",
+                author: "Tanvi Deshmukh",
+                event: "Editorial Shoot • Pune",
+                rating: 5,
+                image: img2
+              },
+              {
+                quote: "The escrow payment feature gave me huge peace of mind for our multi-day destination wedding. Both the sangeet and wedding looks were breathtaking!",
+                author: "Ananya Mehra",
+                event: "Destination Wedding • Udaipur",
+                rating: 5,
+                image: img4
+              }
+            ].map((story, idx) => (
+              <div key={idx} className="lp-story-card reveal-up" style={{ animationDelay: `${idx * 0.12}s` }}>
+                <div className="lp-story-card__stars">
+                  {[...Array(story.rating)].map((_, s) => (
+                    <Star key={s} size={15} fill="var(--gold)" color="var(--gold)" />
+                  ))}
+                </div>
+                <p className="lp-story-card__quote">"{story.quote}"</p>
+                <div className="lp-story-card__author-wrap">
+                  <img src={story.image} alt={story.author} className="lp-story-card__avatar" />
+                  <div>
+                    <h4 className="lp-story-card__author">{story.author}</h4>
+                    <span className="lp-story-card__event">{story.event}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════
+          7. JOIN OUR COMMUNITY
       ══════════════════════════════ */}
       <section className="lp-section lp-community" id="community">
         <div className="lp-container">

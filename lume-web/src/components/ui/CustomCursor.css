@@ -55,9 +55,13 @@
   background: rgba(217, 122, 140, 0.15);
 }
 
-/* Hide cursor on touch devices */
-@media (hover: none) and (pointer: coarse) {
+/* Hide cursor on touch devices and small viewports */
+@media (hover: none) and (pointer: coarse), (max-width: 900px) {
   .cursor-inner,
-  .cursor-outer { display: none; }
-  *, *::before, *::after { cursor: auto !important; }
+  .cursor-outer {
+    display: none !important;
+  }
+  *, *::before, *::after {
+    cursor: auto !important;
+  }
 }

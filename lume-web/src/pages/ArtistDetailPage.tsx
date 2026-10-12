@@ -696,7 +696,8 @@ const ArtistDetailPage: React.FC = () => {
                         className={selectedServiceId === s.id ? 'is-on' : ''}
                         onClick={() => setSelectedServiceId(selectedServiceId === s.id ? null : s.id)}>
                         <Ico n={serviceIcon(s.name)} c="rose" s={16} />
-                        {s.name}<em>{inr(s.price)}</em>
+                        <span title={s.name.replace(/,\s*/g, ', ')}>{s.name.replace(/,\s*/g, ', ')}</span>
+                        <em>{inr(s.price)}</em>
                       </button>
                     ))}
                   </div>

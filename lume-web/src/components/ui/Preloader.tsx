@@ -11,8 +11,8 @@ const Preloader: React.FC = () => {
       return;
     }
     sessionStorage.setItem('lume_preloaded', 'true');
-    const fadeTimer = setTimeout(() => setFading(true), 900);
-    const goneTimer = setTimeout(() => setGone(true), 1300);
+    const fadeTimer = setTimeout(() => setFading(true), 1200);
+    const goneTimer = setTimeout(() => setGone(true), 1800);
 
     return () => {
       clearTimeout(fadeTimer);

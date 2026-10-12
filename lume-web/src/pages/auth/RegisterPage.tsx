@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../context/AuthContext';
 import LocationAutocomplete from '../../components/ui/LocationAutocomplete';
@@ -53,6 +53,13 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="auth-page">
+      <button 
+        className="auth-page__back-btn" 
+        onClick={() => navigate(-1)}
+        aria-label="Go back"
+      >
+        <ArrowLeft size={20} />
+      </button>
       <div className="auth-page__container">
         <Link to="/" className="auth-page__logo" style={{ textDecoration: 'none' }}>
           <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', margin: '0 auto', objectFit: 'contain' }} />
