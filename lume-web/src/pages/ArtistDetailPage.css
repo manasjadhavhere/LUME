@@ -1233,16 +1233,18 @@ body:has(.ap),
 .ap-chips button {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px 8px 10px;
-  border: 1px solid var(--ap-line-strong);
-  border-radius: var(--radius-md);
-  background: var(--white);
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--mid);
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid rgba(212, 94, 126, 0.2);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 242, 245, 0.75) 100%);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 550;
+  color: var(--dark);
   text-align: left;
-  transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
+  box-shadow: 0 2px 6px rgba(42, 26, 31, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   max-width: 100%;
 }
 
@@ -1256,16 +1258,27 @@ body:has(.ap),
 .ap-chips button em {
   font-style: normal;
   color: var(--text-soft);
+  transition: color 0.2s ease;
 }
 
 .ap-chips button:hover {
-  border-color: var(--rose);
+  background: linear-gradient(135deg, #ffffff, #fff0f3);
+  border-color: #d45e7e;
+  color: #c45f72;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212, 94, 126, 0.18);
 }
 
 .ap-chips button.is-on {
-  border-color: var(--rose-deep);
-  background: var(--rose-pale);
-  color: var(--rose-deep);
+  border-color: #c45f72;
+  background: linear-gradient(135deg, #d45e7e 0%, #c45f72 100%);
+  color: var(--white);
+  box-shadow: 0 4px 16px rgba(212, 94, 126, 0.35);
+  transform: translateY(-1px);
+}
+
+.ap-chips button.is-on em {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 /* Dates */
@@ -1365,9 +1378,10 @@ body:has(.ap),
 }
 
 .ap-times button.is-on {
-  border-color: var(--dark);
-  background: var(--dark);
+  border-color: var(--rose-deep);
+  background: var(--rose-deep);
   color: var(--white);
+  box-shadow: 0 4px 14px rgba(217, 122, 140, 0.35);
 }
 
 .ap-book__empty {

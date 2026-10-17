@@ -1,189 +1,200 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Search, User, Palette, Heart } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight, Heart, MapPin, Menu, Search, Sparkles, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
-const NAV_LINKS = [
-  { label: 'Artists',    path: '/#artists' },
-  { label: 'About',      path: '/#about' },
-  { label: 'Categories', path: '/#categories' },
-  { label: 'Follow',     path: '/#community' },
+const LANDING_LINKS = [
+  { label: 'Find an artist', path: '/discover' },
+  { label: 'Occasions', path: '/#categories' },
+  { label: 'Our story', path: '/about' },
+  { label: 'How it works', path: '/#how-it-works' },
 ];
-
-const APP_NAV = [
-  { label: 'Home',     path: '/home' },
+const APP_LINKS = [
+  { label: 'Home', path: '/home' },
   { label: 'Discover', path: '/discover' },
-  { label: 'Saved',    path: '/saved' },
-  { label: 'Profile',  path: '/profile' },
+  { label: 'Saved', path: '/saved' },
+  { label: 'My account', path: '/profile' },
 ];
 
-interface HeaderProps {
-  isLanding?: boolean;
-}
+const POPULAR_OCCASIONS = ['Bridal', 'Editorial', 'Glamour', 'Natural', 'Party', 'Festive', 'Fantasy', 'SFX'];
+const POPULAR_CITIES = ['Mumbai', 'Delhi NCR', 'Bangalore', 'Pune', 'Hyderabad', 'Chennai'];
 
-const Header: React.FC<HeaderProps> = ({ isLanding = false }) => {
+export default function Header({ isLanding = false }: { isLanding?: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [openPath, setOpenPath] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 24);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOccasion, setSearchOccasion] = useState('');
+  const [searchCity, setSearchCity] = useState('');
+
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const menuOpen = openPath === location.pathname;
+  const links = isLanding ? LANDING_LINKS : APP_LINKS;
+  const accountPath = user?.role === 'ARTIST' ? '/artist-dashboard' : user?.role === 'ADMIN' ? '/admin' : '/profile';
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => setMenuOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setOpenPath(null); menuButton.current?.focus(); }
+    };
+    document.addEventListener('keydown', onEscape);
+    return () => document.removeEventListener('keydown', onEscape);
+  }, [menuOpen]);
 
-
-
-  const handleHashLink = (path: string) => {
-    // Artists clicking on the Profile nav item should go to their dashboard
-    if (path === '/profile' && user?.role === 'ARTIST') {
-      navigate('/artist-dashboard');
-      setMenuOpen(false);
-      return;
+  useEffect(() => {
+    if (searchOpen) {
+      document.body.style.overflow = 'hidden';
+      const onEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setSearchOpen(false);
+      };
+      document.addEventListener('keydown', onEscape);
+      return () => {
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onEscape);
+      };
     }
-    if (path.startsWith('/#')) {
-      const id = path.slice(2);
-      if (location.pathname === '/' || location.pathname === '/home') {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        navigate('/');
-        setTimeout(() => {
-          const el = document.getElementById(id);
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 400);
+  }, [searchOpen]);
+
+  const followLink = (event: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    setOpenPath(null);
+    if (path.startsWith('/#') && isLanding) {
+      const section = document.getElementById(path.slice(2));
+      if (section) {
+        event.preventDefault();
+        section.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
       }
-    } else {
-      navigate(path);
+    } else if (path === '/profile' && user?.role === 'ARTIST') {
+      event.preventDefault();
+      navigate(accountPath);
     }
-    setMenuOpen(false);
   };
 
-  const links = isLanding ? NAV_LINKS : APP_NAV;
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchOpen(false);
+    const params = new URLSearchParams({
+      category: searchOccasion || 'All',
+      location: searchCity.trim(),
+      service: '',
+    });
+    navigate(`/discover?${params.toString()}`);
+  };
 
   return (
-    <header className={`lume-header ${scrolled ? 'lume-header--scrolled' : ''}`}>
+    <header className={`lume-header ${isLanding ? 'lume-header--landing' : ''} ${scrolled ? 'lume-header--scrolled' : ''} ${menuOpen ? 'lume-header--open' : ''}`}>
       <div className="lume-header__inner">
-
-        {/* Logo */}
-        <button className="lume-header__logo" onClick={() => navigate('/')} aria-label="Lume Home" style={{ background: 'transparent', border: 'none', padding: 0 }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', objectFit: 'contain' }} />
-        </button>
-
-        {/* Desktop Nav */}
-        <nav className="lume-header__nav" aria-label="Main navigation">
-          {links.map((link) => (
-            <button
-              key={link.label}
-              className={`lume-header__nav-link ${location.pathname === link.path ? 'active' : ''}`}
-              onClick={() => handleHashLink(link.path)}
-            >
-              {link.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Right actions */}
-        <div className="lume-header__cta-wrap">
-          <button className="lume-header__search" aria-label="Search artists" onClick={() => navigate('/discover')}>
-            <Search size={18} />
-          </button>
-          
-          <button className="lume-header__search" aria-label="Wishlist" onClick={() => navigate('/saved')}>
-            <Heart size={18} />
-          </button>
-
-          {!isAuthenticated ? (
-            <>
-              <button
-                className="lume-header__nav-link"
-                style={{ fontWeight: 600, padding: '6px 12px' }}
-                onClick={() => navigate('/login')}
-                aria-label="Sign In"
-              >
-                <User size={18} />
-              </button>
-              <button className="lume-header__cta lume-header__cta--primary" onClick={() => navigate('/discover')}>
-                Book Now ↗
-              </button>
-            </>
-          ) : user?.role === 'ARTIST' ? (
-            <button
-              className="lume-header__cta"
-              style={{ background: 'var(--gold)', borderColor: 'var(--gold)' }}
-              onClick={() => navigate('/artist-dashboard')}
-            >
-              <Palette size={14} style={{ marginRight: 6, display: 'inline' }} />
-              Artist Portal
-            </button>
-          ) : (
-            <button
-              className="lume-header__cta"
-              onClick={() => navigate('/profile')}
-              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <User size={14} />
-              {user?.name?.split(' ')[0] || 'Profile'}
-            </button>
-          )}
-
+        <Link to="/" className="lume-brand" aria-label="Lume home" onClick={() => setOpenPath(null)}><span className="lume-brand__mark"><img src="/Logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
+        <nav className="lume-header__nav" aria-label="Main navigation">{links.map(link => <Link key={link.label} to={link.path} className={`lume-header__nav-link ${location.pathname === link.path ? 'is-active' : ''}`} aria-current={location.pathname === link.path ? 'page' : undefined} onClick={event => followLink(event, link.path)}>{link.label}</Link>)}</nav>
+        <div className="lume-header__actions">
           <button
-            className="lume-header__hamburger"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
+            type="button"
+            className="lume-header__search-toggle"
+            aria-label="Search artists"
+            onClick={() => setSearchOpen(true)}
           >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            <Search size={19} strokeWidth={2.2} />
           </button>
+          <Link className="lume-header__saved" to="/saved" aria-label="Saved artists"><Heart size={21} strokeWidth={2} /></Link>
+          <Link className="lume-header__account" to={isAuthenticated ? accountPath : '/login'}>{isAuthenticated ? 'My account' : 'Sign in'}</Link>
+          <button className="lume-header__toggle" ref={menuButton} type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setOpenPath(menuOpen ? null : location.pathname)}>{menuOpen ? <X size={26} /> : <Menu size={26} />}</button>
         </div>
       </div>
+      {menuOpen && <><button className="lume-header__backdrop" aria-label="Close navigation" tabIndex={-1} onClick={() => setOpenPath(null)} /><nav id="mobile-navigation" className="lume-header__drawer" aria-label="Mobile navigation"><span className="lume-header__menu-label">A LITTLE BEAUTY, A LITTLE YOU</span>{links.map((link, index) => <Link key={link.label} to={link.path} onClick={event => followLink(event, link.path)}><span>0{index + 1}</span>{link.label}<ArrowUpRight size={18} /></Link>)}<div className="lume-header__drawer-bottom"><Link to="/saved" onClick={() => setOpenPath(null)}><Heart size={16} /> Saved artists</Link><Link to={isAuthenticated ? accountPath : '/login'} onClick={() => setOpenPath(null)}>{isAuthenticated ? 'My account' : 'Sign in'} <ArrowRightIcon /></Link></div><Link to={user?.role === 'ARTIST' ? '/artist-dashboard' : '/discover'} className="lume-header__drawer-cta" onClick={() => setOpenPath(null)}>{user?.role === 'ARTIST' ? 'Open artist portal' : 'Discover your artist'}<ArrowUpRight size={18} /></Link></nav></>}
 
-      {/* Mobile drawer */}
-      <div className={`lume-header__drawer ${menuOpen ? 'lume-header__drawer--open' : ''}`} aria-hidden={!menuOpen}>
-        {links.map((link) => (
-          <button
-            key={link.label}
-            className="lume-header__drawer-link"
-            onClick={() => handleHashLink(link.path)}
+      {/* Mobile Search Modal Popup with Blurred Backdrop */}
+      {searchOpen && (
+        <div className="lume-search-modal-backdrop" onClick={() => setSearchOpen(false)}>
+          <div
+            className="lume-search-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search makeup artists"
+            onClick={e => e.stopPropagation()}
           >
-            {link.label}
-          </button>
-        ))}
+            <div className="lume-search-modal__header">
+              <div>
+                <span className="lume-search-modal__kicker">LET’S FIND YOUR MATCH</span>
+                <h3>Find Your Artist</h3>
+              </div>
+              <button
+                type="button"
+                className="lume-search-modal__close"
+                onClick={() => setSearchOpen(false)}
+                aria-label="Close search"
+              >
+                <X size={19} strokeWidth={2.4} />
+              </button>
+            </div>
 
-        {!isAuthenticated ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 12 }}>
-            <button
-              className="lume-header__drawer-cta lume-header__drawer-cta--outline"
-              onClick={() => navigate('/login')}
-            >
-              Sign In
-            </button>
-            <button className="lume-header__drawer-cta lume-header__drawer-cta--primary" onClick={() => navigate('/discover')}>
-              Book Now →
-            </button>
+            <form onSubmit={handleSearchSubmit} className="lume-search-modal__form">
+              <div className="lume-search-modal__field-group">
+                <span className="lume-search-modal__label">
+                  <Sparkles size={14} /> SELECT OCCASION
+                </span>
+                <div className="lume-search-modal__chips">
+                  {POPULAR_OCCASIONS.map(occ => {
+                    const isSelected = searchOccasion === occ;
+                    return (
+                      <button
+                        key={occ}
+                        type="button"
+                        className={`lume-search-modal__chip ${isSelected ? 'is-active' : ''}`}
+                        onClick={() => setSearchOccasion(isSelected ? '' : occ)}
+                      >
+                        {occ}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="lume-search-modal__field-group">
+                <span className="lume-search-modal__label">
+                  <MapPin size={14} /> YOUR LOCATION
+                </span>
+                <div className="lume-search-modal__input-wrap">
+                  <MapPin size={17} />
+                  <input
+                    type="text"
+                    placeholder="Where shall we meet?"
+                    value={searchCity}
+                    onChange={e => setSearchCity(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <div className="lume-search-modal__chips lume-search-modal__chips--cities">
+                  {POPULAR_CITIES.map(c => (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`lume-search-modal__chip lume-search-modal__chip--city ${searchCity === c ? 'is-active' : ''}`}
+                      onClick={() => setSearchCity(searchCity === c ? '' : c)}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" className="lume-search-modal__submit">
+                <span>Find my artist</span>
+                <ArrowRight size={17} />
+              </button>
+            </form>
           </div>
-        ) : user?.role === 'ARTIST' ? (
-          <button
-            className="lume-header__drawer-cta"
-            style={{ background: 'var(--gold)', marginTop: 12 }}
-            onClick={() => navigate('/artist-dashboard')}
-          >
-            Go to Artist Portal ✨
-          </button>
-        ) : (
-          <button className="lume-header__drawer-cta" onClick={() => navigate('/profile')} style={{ marginTop: 12 }}>
-            My Profile →
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   );
-};
+}
 
-export default Header;
+function ArrowRightIcon() { return <ArrowUpRight size={16} />; }

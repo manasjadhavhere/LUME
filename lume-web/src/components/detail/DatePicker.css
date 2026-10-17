@@ -109,9 +109,9 @@
 }
 
 .date-picker__chip--selected {
-  background: #28141b;
-  border-color: #28141b;
-  box-shadow: 0 4px 14px rgba(40, 20, 27, 0.22);
+  background: var(--rose-deep);
+  border-color: var(--rose-deep);
+  box-shadow: 0 4px 14px rgba(217, 122, 140, 0.35);
   transform: translateY(-1px);
 }
 

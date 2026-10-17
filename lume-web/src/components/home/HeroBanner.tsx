@@ -13,60 +13,104 @@ interface HeroBannerProps {
 const SLIDES = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1512496015851-a908f2604245?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: '/slideshow/1.png',
     promo: 'Premium Beauty Artists',
     title: 'Elevate Your Look with LUME',
     ctaText: 'Explore Artists',
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: '/slideshow/2.png',
     promo: 'Exclusive Editorial',
     title: 'Book Top Industry Professionals',
     ctaText: 'Discover Editorial',
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    image: '/slideshow/3.png',
     promo: 'Bridal Perfection',
     title: 'Your Special Day, Perfected.',
     ctaText: 'View Bridal Specialists',
-  }
+  },
+  {
+    id: 4,
+    image: '/slideshow/4.png',
+    promo: 'Glamour & Grace',
+    title: 'Unleash Your Inner Radiance',
+    ctaText: 'Find Your Artist',
+  },
+  {
+    id: 5,
+    image: '/slideshow/5.png',
+    promo: 'Studio Perfection',
+    title: 'Crafted for Every Occasion',
+    ctaText: 'Book Now',
+  },
+  {
+    id: 6,
+    image: '/slideshow/6.png',
+    promo: 'Luxury Experience',
+    title: 'Beauty That Tells Your Story',
+    ctaText: 'Get Started',
+  },
+  {
+    id: 7,
+    image: '/slideshow/7.png',
+    promo: 'Unforgettable Looks',
+    title: 'Artistry in Every Detail',
+    ctaText: 'Explore Now',
+  },
 ];
 
-const HeroBanner: React.FC<HeroBannerProps> = ({ onCtaClick }) => {
+const HeroBanner: React.FC<HeroBannerProps> = ({ promo, title, ctaText, onCtaClick }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [prevSlideIdx, setPrevSlideIdx] = useState<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const goToSlide = (index: number) => {
+    if (isTransitioning || index === currentSlide) return;
+    setIsTransitioning(true);
+    setPrevSlideIdx(currentSlide);
+    setCurrentSlide(index);
+    setTimeout(() => {
+      setPrevSlideIdx(null);
+      setIsTransitioning(false);
+    }, 900);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
+      goToSlide((currentSlide + 1) % SLIDES.length);
+    }, 5500);
     return () => clearInterval(timer);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSlide, isTransitioning]);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? SLIDES.length - 1 : prev - 1));
+  const nextSlide = () => goToSlide((currentSlide + 1) % SLIDES.length);
+  const prevSlide = () => goToSlide(currentSlide === 0 ? SLIDES.length - 1 : currentSlide - 1);
 
   return (
     <div className="hero-banner-carousel">
       {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
-          className={`hero-slide ${index === currentSlide ? 'active' : ''}`}
+          className={`hero-slide ${index === currentSlide ? 'active' : ''} ${index === prevSlideIdx ? 'leaving' : ''}`}
           style={{ backgroundImage: `url('${slide.image}')` }}
+          aria-hidden={index !== currentSlide}
         >
           <div className="hero-slide__overlay"></div>
           <div className="hero-slide__content">
-            <span className="hero-slide__promo">{slide.promo}</span>
-            <h2 className="hero-slide__title">{slide.title}</h2>
+            <span className="hero-slide__promo">{index === 0 && promo ? promo : slide.promo}</span>
+            <h2 className="hero-slide__title">{index === 0 && title ? title : slide.title}</h2>
             <Button
               variant="primary"
               size="lg"
               onClick={onCtaClick}
-              ariaLabel={slide.ctaText}
+              ariaLabel={index === 0 && ctaText ? ctaText : slide.ctaText}
               className="hero-slide__cta"
+              tabIndex={index === currentSlide ? 0 : -1}
             >
-              {slide.ctaText}
+              {index === 0 && ctaText ? ctaText : slide.ctaText}
             </Button>
           </div>
         </div>
@@ -74,22 +118,29 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ onCtaClick }) => {
 
       {/* Navigation Controls */}
       <button className="hero-nav-btn prev" onClick={prevSlide} aria-label="Previous slide">
-        <ChevronLeft size={32} />
+        <ChevronLeft size={28} />
       </button>
       <button className="hero-nav-btn next" onClick={nextSlide} aria-label="Next slide">
-        <ChevronRight size={32} />
+        <ChevronRight size={28} />
       </button>
 
-      {/* Dots */}
-      <div className="hero-dots">
+      {/* Progress bar */}
+      <div className="hero-progress">
         {SLIDES.map((_, index) => (
           <button
             key={index}
-            className={`hero-dot ${index === currentSlide ? 'active' : ''}`}
-            onClick={() => setCurrentSlide(index)}
+            className={`hero-progress-bar ${index === currentSlide ? 'active' : ''}`}
+            onClick={() => goToSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
+      </div>
+
+      {/* Slide counter */}
+      <div className="hero-counter">
+        <span className="hero-counter__current">{String(currentSlide + 1).padStart(2, '0')}</span>
+        <span className="hero-counter__sep"> / </span>
+        <span className="hero-counter__total">{String(SLIDES.length).padStart(2, '0')}</span>
       </div>
     </div>
   );

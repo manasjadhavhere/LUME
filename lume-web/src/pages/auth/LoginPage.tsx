@@ -57,8 +57,11 @@ const LoginPage: React.FC = () => {
       </button>
       <div className="auth-page__container">
         {/* Brand Logo */}
-        <Link to="/" className="auth-page__logo" style={{ textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', margin: '0 auto', objectFit: 'contain' }} />
+        <Link to="/" className="lume-brand" aria-label="Lume home" style={{ margin: '0 auto', textDecoration: 'none' }}>
+          <span className="lume-brand__mark">
+            <img src="/Logo.png" alt="Lume logo" />
+          </span>
+          <span className="lume-brand__name">LUME</span>
         </Link>
 
         {/* Editorial Login Card */}
@@ -151,6 +154,39 @@ const LoginPage: React.FC = () => {
               )}
             </button>
           </form>
+
+          {/* Quick Demo Helper Pills */}
+          <div className="auth-page__quick-demo">
+            <span className="auth-page__quick-demo-title">Quick Demo Sign In</span>
+            <div className="auth-page__quick-demo-buttons">
+              <button
+                type="button"
+                className="auth-page__quick-pill"
+                onClick={() => {
+                  setSelectedRole('CLIENT');
+                  setEmail('priya@example.com');
+                  setPassword('password123');
+                  setError('');
+                }}
+              >
+                <User size={13} />
+                <span>Demo Client</span>
+              </button>
+              <button
+                type="button"
+                className="auth-page__quick-pill"
+                onClick={() => {
+                  setSelectedRole('ARTIST');
+                  setEmail('ananya@example.com');
+                  setPassword('password123');
+                  setError('');
+                }}
+              >
+                <Palette size={13} />
+                <span>Demo Artist</span>
+              </button>
+            </div>
+          </div>
 
           {/* Switch to Register */}
           <p className="auth-page__switch">

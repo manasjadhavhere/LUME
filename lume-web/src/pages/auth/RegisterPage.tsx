@@ -10,7 +10,9 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>('CLIENT');
+  const [selectedRole, setSelectedRole] = useState<UserRole>(() =>
+    new URLSearchParams(window.location.search).get('role') === 'ARTIST' ? 'ARTIST' : 'CLIENT'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -61,8 +63,11 @@ const RegisterPage: React.FC = () => {
         <ArrowLeft size={20} />
       </button>
       <div className="auth-page__container">
-        <Link to="/" className="auth-page__logo" style={{ textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Lume Logo" style={{ height: '64px', width: 'auto', display: 'block', margin: '0 auto', objectFit: 'contain' }} />
+        <Link to="/" className="lume-brand" aria-label="Lume home" style={{ margin: '0 auto', textDecoration: 'none' }}>
+          <span className="lume-brand__mark">
+            <img src="/Logo.png" alt="Lume logo" />
+          </span>
+          <span className="lume-brand__name">LUME</span>
         </Link>
 
         <div className="auth-page__card">

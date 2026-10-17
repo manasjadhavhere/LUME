@@ -46,7 +46,8 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
   const [imgError, setImgError] = React.useState(false);
   const fallbackImg = `https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80`;
   
-  const rawImg = artist.profileImageUrl || artist.user.avatarUrl;
+  const artistName = artist.user?.name || (artist as any).name || 'Artist';
+  const rawImg = artist.profileImageUrl || artist.user?.avatarUrl || (artist as any).avatarUrl;
   const processedImg = rawImg 
     ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg)
     : null;
@@ -60,10 +61,10 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      aria-label={`View ${artist.user.name}'s profile`}
+      aria-label={`View ${artistName}'s profile`}
     >
       <div className="artist-card__image-wrapper">
-        <img src={imgUrl} alt={artist.user.name} className="artist-card__image" onError={() => setImgError(true)} />
+        <img src={imgUrl} alt={artistName} className="artist-card__image" onError={() => setImgError(true)} />
         {artist.badge && (
           <div className="artist-card__badge">
             <Badge variant={getBadgeVariant(artist.badge)} text={artist.badge} />
@@ -74,7 +75,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
       <div className="artist-card__content">
         <div className="artist-card__header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <h3 className="artist-card__name">{artist.user.name}</h3>
+            <h3 className="artist-card__name">{artistName}</h3>
             {artist.isVerified && <BadgeCheck size={14} color="#16a34a" />}
           </div>
           <p className="artist-card__specialties">

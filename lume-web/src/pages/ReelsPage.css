@@ -121,10 +121,10 @@
 }
 
 .reels-filter__tab--active {
-  background: var(--dark);
+  background: var(--rose-deep);
   color: white;
-  border-color: var(--dark);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--rose-deep);
+  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.35);
 }
 
 /* Reels Grid */

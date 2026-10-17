@@ -168,7 +168,7 @@ const ArtistDashboard: React.FC = () => {
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
             </div>
-            <Link to="/artist-dashboard/calendar" className="artist-panel__action" style={{ background: 'var(--dark)', color: '#fff', padding: '8px 16px', borderRadius: 99, fontSize: '0.75rem' }}>
+            <Link to="/artist-dashboard/calendar" className="artist-panel__action" style={{ background: 'var(--rose-deep)', color: '#fff', padding: '8px 16px', borderRadius: 99, fontSize: '0.75rem', boxShadow: '0 2px 8px rgba(217, 122, 140, 0.3)' }}>
               <span>Open Calendar</span>
             </Link>
           </div>

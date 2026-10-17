@@ -4,6 +4,7 @@ import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ScrollToTop from './components/layout/ScrollToTop';
+import SmoothScroll from './components/layout/SmoothScroll';
 
 // Public & Client Pages
 import LandingPage from './pages/LandingPage';
@@ -12,6 +13,8 @@ import BookingConfirmPage from './pages/BookingConfirmPage';
 import DiscoverPage from './pages/DiscoverPage';
 import SavedPage from './pages/SavedPage';
 import ProfilePage from './pages/ProfilePage';
+import CategoriesPage from './pages/CategoriesPage';
+import AboutPage from './pages/AboutPage';
 import NotFound from './components/layout/NotFound';
 
 // Auth Pages
@@ -84,13 +87,12 @@ const ArtistGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 /* Landing page has its own header/footer baked in */
 const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="app-layout">
+    <div className="app-layout landing-layout">
       <Header isLanding />
       <main style={{ paddingTop: 0 }}>
         {children}
       </main>
       <Footer />
-      <BottomNav />
     </div>
   );
 };
@@ -100,6 +102,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
+          <SmoothScroll />
           <ScrollToTop />
           <ToastProvider>
             <div className="app">
@@ -114,6 +117,10 @@ const App: React.FC = () => {
                 <Route path="/" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/home" element={<LandingLayout><LandingPage /></LandingLayout>} />
                 <Route path="/discover" element={<AppLayoutWrapper><DiscoverPage /></AppLayoutWrapper>} />
+                <Route path="/categories" element={<AppLayoutWrapper><CategoriesPage /></AppLayoutWrapper>} />
+                <Route path="/about" element={<AppLayoutWrapper><AboutPage /></AppLayoutWrapper>} />
+                <Route path="/story" element={<Navigate to="/about" replace />} />
+                <Route path="/styles" element={<Navigate to="/categories" replace />} />
                 <Route path="/reels" element={<Navigate to="/discover" replace />} />
                 <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
                 <Route path="/profile" element={<AppLayoutWrapper><ClientGuard><ProfilePage /></ClientGuard></AppLayoutWrapper>} />

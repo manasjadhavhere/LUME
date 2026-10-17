@@ -378,12 +378,13 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--dark);
+  background: var(--rose-deep);
   color: #ffffff;
   border: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.35);
   flex-shrink: 0;
 }
 

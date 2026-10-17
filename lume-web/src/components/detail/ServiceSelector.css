@@ -65,12 +65,12 @@
 }
 
 .service-selector__card--selected .service-selector__icon-wrapper {
-  background: #28141b;
-  box-shadow: 0 4px 12px rgba(40, 20, 27, 0.2);
+  background: var(--rose-deep);
+  box-shadow: 0 4px 12px rgba(217, 122, 140, 0.35);
 }
 
 .service-selector__icon {
-  color: #28141b;
+  color: var(--rose-deep);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +115,7 @@
   position: absolute;
   top: -6px;
   right: -6px;
-  background: #28141b;
+  background: var(--rose-deep);
   color: white;
   border-radius: 50%;
   width: 22px;
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 8px rgba(40, 20, 27, 0.25);
+  box-shadow: 0 3px 8px rgba(217, 122, 140, 0.4);
   animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

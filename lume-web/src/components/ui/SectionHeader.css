@@ -37,25 +37,28 @@
 }
 
 .see-all-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
+  gap: 8px;
+  background: rgba(255, 240, 243, 0.65);
+  border: 1px solid rgba(217, 122, 140, 0.25);
   color: var(--rose-deep);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  padding: var(--spacing-md) var(--spacing-md);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-  min-height: 44px;
-  min-width: 44px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(217, 122, 140, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 38px;
 }
 
 .see-all-btn:hover {
-  background: var(--rose-pale);
-  color: var(--rose-deep);
+  background: var(--rose-deep);
+  color: #ffffff;
+  border-color: var(--rose-deep);
+  box-shadow: 0 4px 14px rgba(217, 122, 140, 0.32);
+  transform: translateY(-1px);
 }
 
 .see-all-btn:active {
@@ -63,11 +66,11 @@
 }
 
 .see-all-btn svg {
-  transition: transform var(--transition-fast);
+  transition: transform 0.25s ease;
 }
 
 .see-all-btn:hover svg {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
 .see-all-btn:focus-visible {

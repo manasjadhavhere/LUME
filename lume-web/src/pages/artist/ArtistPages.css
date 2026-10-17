@@ -448,20 +448,21 @@
   gap: 8px;
   padding: 12px 26px;
   border-radius: 12px;
-  background: var(--dark);
+  background: var(--rose-deep);
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
   border: none;
+  box-shadow: 0 4px 16px rgba(217, 122, 140, 0.35);
   transition: all 0.24s var(--ease-spring);
 }
 
 .artist-save-btn:hover:not(:disabled) {
-  background: #180e11;
+  background: #c45f72;
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(42, 26, 31, 0.25);
+  box-shadow: 0 8px 22px rgba(217, 122, 140, 0.45);
 }
 
 /* ── Service Menu Cards ── */

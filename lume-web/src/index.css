@@ -12,17 +12,17 @@
   --rose-pale: #fff0f3;
   --blush-surface: #fff6f8;
   --rose-wash: rgba(242, 164, 176, 0.03);
-  
+
   --gold: #c9a96e;
   --gold-light: #e8cfa0;
-  
+
   --dark: #2D3748;
   --mid: #4A5568;
   --text-soft: #718096;
-  
+
   --border-light: #e2e8f0;
   --border-blush: #f5e8eb;
-  
+
   --frost: #ffffff;
   --white: #ffffff;
 
@@ -65,10 +65,13 @@
 
   /* Transitions */
   --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --t-fast: 150ms var(--ease-out);
   --t-base: 280ms var(--ease-out);
-  --t-slow: 480ms var(--ease-out);
+  --t-slow: 520ms var(--ease-expo);
+  --t-reveal: 750ms var(--ease-expo);
 
   /* Layout */
   --container-max: 1280px;
@@ -105,7 +108,35 @@
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: var(--header-h);
   }
+}
+
+/* ── Luxury Editorial Scrollbar ── */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fbf8f9;
+  border-left: 1px solid rgba(212, 94, 126, 0.08);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(212, 94, 126, 0.35), rgba(217, 122, 140, 0.5));
+  border-radius: 999px;
+  border: 2px solid #fbf8f9;
+  transition: background 0.25s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d45e7e, #c45f72);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 94, 126, 0.42) #fbf8f9;
 }
 
 body,
@@ -179,16 +210,16 @@ ol {
    SCROLLBAR
 ══════════════════════════════════════ */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--rose-pale);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(217, 122, 140, 0.35);
+  background: linear-gradient(180deg, var(--rose-deep), var(--gold));
   border-radius: 99px;
 }
 
@@ -216,64 +247,95 @@ ol {
 }
 
 /* ══════════════════════════════════════
-   SCROLL REVEAL SYSTEM
+   SCROLL REVEAL SYSTEM  — Premium
 ══════════════════════════════════════ */
+
+/* Base hidden state */
 .reveal,
 .reveal-left,
 .reveal-right,
-.reveal-scale {
+.reveal-scale,
+.reveal-fade,
+.reveal-blur {
   opacity: 0;
-  transition: opacity 0.65s var(--ease-out), transform 0.65s var(--ease-out);
   will-change: opacity, transform;
 }
 
+/* Individual transition definitions */
 .reveal {
-  transform: translateY(36px);
+  transform: translateY(52px);
+  transition: opacity var(--t-reveal), transform var(--t-reveal);
 }
 
 .reveal-left {
-  transform: translateX(-48px);
+  transform: translateX(-64px);
+  transition: opacity var(--t-reveal), transform var(--t-reveal);
 }
 
 .reveal-right {
-  transform: translateX(48px);
+  transform: translateX(64px);
+  transition: opacity var(--t-reveal), transform var(--t-reveal);
 }
 
 .reveal-scale {
-  transform: scale(0.94) translateY(20px);
+  transform: scale(0.90) translateY(28px);
+  transition: opacity var(--t-reveal), transform var(--t-reveal);
 }
 
+/* Pure fade — no translate */
+.reveal-fade {
+  transition: opacity 0.9s var(--ease-expo);
+}
+
+/* Blur-in — frosted glass entrance */
+.reveal-blur {
+  transform: translateY(24px);
+  filter: blur(8px);
+  transition: opacity 0.85s var(--ease-expo),
+              transform 0.85s var(--ease-expo),
+              filter 0.85s var(--ease-expo);
+}
+
+/* ── Visible state (all variants) ── */
 .reveal.visible,
 .reveal-left.visible,
 .reveal-right.visible,
-.reveal-scale.visible {
+.reveal-scale.visible,
+.reveal-fade.visible {
   opacity: 1;
   transform: none;
 }
 
-/* Stagger children */
-.stagger>*:nth-child(1) {
-  transition-delay: 0.05s;
+.reveal-blur.visible {
+  opacity: 1;
+  transform: none;
+  filter: blur(0px);
 }
 
-.stagger>*:nth-child(2) {
-  transition-delay: 0.12s;
-}
+/* ── Stagger: auto-applied by useScrollReveal hook ── */
+/* Fallback CSS stagger for cases without the hook */
+.stagger > *:nth-child(1)  { transition-delay: 0.04s; }
+.stagger > *:nth-child(2)  { transition-delay: 0.11s; }
+.stagger > *:nth-child(3)  { transition-delay: 0.18s; }
+.stagger > *:nth-child(4)  { transition-delay: 0.25s; }
+.stagger > *:nth-child(5)  { transition-delay: 0.32s; }
+.stagger > *:nth-child(6)  { transition-delay: 0.39s; }
+.stagger > *:nth-child(7)  { transition-delay: 0.46s; }
+.stagger > *:nth-child(8)  { transition-delay: 0.53s; }
 
-.stagger>*:nth-child(3) {
-  transition-delay: 0.19s;
-}
-
-.stagger>*:nth-child(4) {
-  transition-delay: 0.26s;
-}
-
-.stagger>*:nth-child(5) {
-  transition-delay: 0.33s;
-}
-
-.stagger>*:nth-child(6) {
-  transition-delay: 0.40s;
+/* Reduced motion: respect preference */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale,
+  .reveal-fade,
+  .reveal-blur {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
 }
 
 /* ══════════════════════════════════════

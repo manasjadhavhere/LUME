@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Search, Heart, Shield, Clock, Sparkles, CheckCircle } from 'lucide-react';
 import useScrollPosition from '../hooks/useScrollPosition';
 import useFilterState from '../hooks/useFilterState';
+import useScrollReveal from '../hooks/useScrollReveal';
 import ArtistCard from '../components/home/ArtistCard';
 import ArtistCardSkeleton from '../components/home/ArtistCardSkeleton';
 import CategoryChips from '../components/home/CategoryChips';
@@ -35,6 +36,7 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useScrollPosition(true);
+  useScrollReveal([artists, isLoading]);
   const { activeCategory, setActiveCategory, searchQuery } = useFilterState();
 
   useEffect(() => {

@@ -1,948 +1,708 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  ArrowRight, Star, MapPin, Search,
-  CheckCircle,
-  ArrowUpRight, ChevronLeft, ChevronRight, Award, Heart
-} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Play, Search, Sparkles, Star } from 'lucide-react';
+import Instagram from '../components/ui/InstagramIcon';
 import { API_BASE, useAuth } from '../context/AuthContext';
 import useFavorites from '../hooks/useFavorites';
-import LocationAutocomplete from '../components/ui/LocationAutocomplete';
-import './LandingPage.css';
-
-import img1 from '../assets/images/1.png';
-import img2 from '../assets/images/2.png';
-import img3 from '../assets/images/3.png';
-import img4 from '../assets/images/4.png';
-import img5 from '../assets/images/5.png';
-import img6 from '../assets/images/6.png';
-import img7 from '../assets/images/7.png';
-
-const ASSET_IMAGES = [img1, img2, img3, img4, img5, img6, img7];
-
-const MOCK_ARTISTS = [
-  {
-    id: 'm1',
-    user: { name: 'Priya Sharma', avatarUrl: img1 },
-    specialties: ['Bridal', 'Airbrush'],
-    rating: 4.9,
-    experience: 5,
-    reviewCount: 120,
-    isVerified: true,
-    location: 'Mumbai, MH',
-    startingPrice: 15000,
-  },
-  {
-    id: 'm2',
-    user: { name: 'Rohan Gupta', avatarUrl: img2 },
-    specialties: ['Editorial', 'Fashion'],
-    rating: 4.8,
-    experience: 7,
-    reviewCount: 85,
-    isVerified: true,
-    location: 'Delhi, NCR',
-    startingPrice: 12000,
-  },
-  {
-    id: 'm3',
-    user: { name: 'Aisha Khan', avatarUrl: img3 },
-    specialties: ['Party', 'Natural'],
-    rating: 4.7,
-    experience: 3,
-    reviewCount: 45,
-    isVerified: false,
-    location: 'Bangalore, KA',
-    startingPrice: 8000,
-  },
-  {
-    id: 'm4',
-    user: { name: 'Sneha Reddy', avatarUrl: img4 },
-    specialties: ['Bridal', 'Festive'],
-    rating: 4.9,
-    experience: 6,
-    reviewCount: 200,
-    isVerified: true,
-    location: 'Hyderabad, TG',
-    startingPrice: 18000,
-  },
-  {
-    id: 'm5',
-    user: { name: 'Vikram Singh', avatarUrl: img5 },
-    specialties: ['SFX', 'Editorial'],
-    rating: 4.6,
-    experience: 4,
-    reviewCount: 30,
-    isVerified: true,
-    location: 'Pune, MH',
-    startingPrice: 10000,
-  },
-  {
-    id: 'm6',
-    user: { name: 'Ananya Patel', avatarUrl: img6 },
-    specialties: ['Glamour', 'Bridal'],
-    rating: 5.0,
-    experience: 8,
-    reviewCount: 310,
-    isVerified: true,
-    location: 'Ahmedabad, GJ',
-    startingPrice: 20000,
-  }
-];
+import detailImage from '../assets/images/1.png';
+import './HomeEditorial.css';
 
 const SLIDESHOW_IMAGES = [
-  '/slideshow/pexels-didsss-1830447.jpg',
-  '/slideshow/pexels-mart-production-7290670.jpg',
-  '/slideshow/pexels-mart-production-7290681.jpg',
-  '/slideshow/pexels-mart-production-7290687.jpg',
-  '/slideshow/pexels-n-voitkevich-8558532.jpg',
-  '/slideshow/pexels-towfiqu-barbhuiya-3440682-12449962.jpg'
+  '/slideshow/1.png',
+  '/slideshow/2.png',
+  '/slideshow/3.png',
+  '/slideshow/4.png',
+  '/slideshow/5.png',
 ];
 
-const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, index = 0) => {
-  const target = e.currentTarget;
-  const fallback = ASSET_IMAGES[index % ASSET_IMAGES.length];
-  if (target.src !== fallback) {
-    target.src = fallback;
-  }
-};
-
-
-
-const CATEGORIES = [
-  { name: 'Bridal', image: '/images/categories/bridal.jpg', desc: 'Find the perfect artists for your wedding ceremonies.' },
-  { name: 'Editorial', image: '/images/categories/editorial.jpg', desc: 'High-fashion and avant-garde looks for photoshoots.' },
-  { name: 'Natural', image: '/images/categories/natural.jpg', desc: 'Subtle and elegant makeup for a flawless no-makeup look.' },
-  { name: 'Fantasy', image: '/images/categories/fantasy.jpg', desc: 'Creative, bold, and imaginative transformative artistry.' },
-  { name: 'Festive', image: '/images/categories/festive.jpg', desc: 'Vibrant and traditional styling for your festive occasions.' },
-  { name: 'Glamour', image: '/images/categories/glamour.jpg', desc: 'Red-carpet ready looks with dramatic and striking details.' },
-  { name: 'SFX', image: '/images/categories/sfx.jpg', desc: 'Special effects and prosthetics for film, cosplay, or events.' },
-  { name: 'Party', image: '/images/categories/party.jpg', desc: 'Stunning evening glam to make you stand out in the crowd.' },
+const SLIDESHOW_MOBILE_IMAGES = [
+  '/slideshow_mobile/mob-1.png',
+  '/slideshow_mobile/Mob-2.png',
+  '/slideshow_mobile/Mob-3.png',
+  '/slideshow_mobile/Mob-4.png',
+  '/slideshow_mobile/Mob-5.png',
 ];
 
-/* ══════════════════════════════════════
-   Scroll Reveal Hook
-══════════════════════════════════════ */
-const useScrollReveal = (deps: React.DependencyList = []) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-            }
-          });
-        },
-        { threshold: 0.12, rootMargin: '0px 0px -60px 0px' }
-      );
-
-      const targets = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-up');
-      targets.forEach((el) => observer.observe(el));
-
-      return () => observer.disconnect();
-    }, 80);
-    return () => clearTimeout(timer);
-  }, deps);
-};
-
-/* ══════════════════════════════════════
-   Lume Intro Component
-══════════════════════════════════════ */
-const LumeIntro: React.FC<{ onBook: () => void }> = ({ onBook }) => (
-  <section className="lp-section lp-intro" id="about" aria-label="About Lume">
-    <div className="lp-container">
-      <div className="lp-section__header reveal">
-        <span className="lp-eyebrow">About Lume</span>
-        <h2 className="lp-heading">
-          Where Every Look<br />
-          Becomes a <em>Masterpiece.</em>
-        </h2>
-      </div>
-      <div className="lp-intro__grid">
-        <div className="lp-intro__content reveal-left">
-          <p className="lp-intro__body">
-            Lume is India's most curated beauty platform, dedicated to elevating your defining moments. We connect visionaries with <strong>verified, award-winning makeup artists</strong> for bridal ceremonies, high-fashion editorial shoots, and everyday glamour.
-          </p>
-          <p className="lp-intro__body" style={{ marginTop: '20px' }}>
-            We understand that finding the right artist is deeply personal. That's why every artist on Lume goes through a rigorous vetting process. From seamless bookings and secure payments to personalized consultations, our platform ensures a stress-free and premium experience. It's not just about booking an appointment; it's about stepping into your most luminous self.
-          </p>
-          <button className="lp-btn lp-btn--primary lp-intro__btn" style={{ marginTop: '32px' }} onClick={onBook}>
-            Book an Artist <ArrowRight size={16} />
-          </button>
-        </div>
-
-        <div className="lp-intro__video-placeholder reveal-right">
-          <img src={img3} alt="Lume Video Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-
-          {/* Play Button Overlay */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background 0.3s ease',
-            cursor: 'pointer'
-          }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.25)'}
-          >
-            <div style={{
-              width: '80px',
-              height: '80px',
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <div style={{
-                width: 0,
-                height: 0,
-                borderTop: '12px solid transparent',
-                borderBottom: '12px solid transparent',
-                borderLeft: '18px solid var(--rose-deep)',
-                marginLeft: '6px'
-              }}></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
-/* ══════════════════════════════════════
-   Instagram Icon
-══════════════════════════════════════ */
-const InstagramIcon = ({ size = 24 }: { size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-  </svg>
-);
-
-/* ══════════════════════════════════════
-   LandingPage Component
-══════════════════════════════════════ */
-const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const [activeFilter, setActiveFilter] = useState('All');
+const ABOUT_IMAGES = [
+  '/images/about/1.jpg',
+  '/images/about/2.jpg',
+  '/images/about/3.jpg',
+  '/images/about/4.jpg',
+];
 
 
-  const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [searchService, setSearchService] = useState('');
-  const [searchLocation, setSearchLocation] = useState('');
-  const [featured, setFeatured] = useState<any[]>([]);
+const OCCASIONS = [
+  { name: 'Bridal', caption: 'For your forever moment', image: '/images/categories/bridal.jpg' },
+  { name: 'Editorial', caption: 'A little unexpected. All you.', image: '/images/categories/editorial.jpg' },
+  { name: 'Glamour', caption: 'Make an entrance', image: '/images/categories/glamour.jpg' },
+  { name: 'Natural', caption: 'Beautifully, effortlessly you', image: '/images/categories/natural.jpg' },
+  { name: 'Party', caption: 'Vibrant, bold, ready to celebrate', image: '/images/categories/party.jpg' },
+  { name: 'Festive', caption: 'Tradition woven with modern elegance', image: '/images/categories/festive.jpg' },
+  { name: 'Fantasy', caption: 'Dreamlike, ethereal, otherworldly', image: '/images/categories/fantasy.jpg' },
+  { name: 'SFX', caption: 'Transformative character artistry', image: '/images/categories/sfx.jpg' },
+];
+const ALL_CATEGORIES = ['Bridal', 'Editorial', 'Glamour', 'Natural', 'Party', 'Festive', 'Fantasy', 'SFX'];
+const INSTAGRAM = 'https://www.instagram.com/_hello_lume_app/';
 
-  useScrollReveal([featured, upcomingBookings]);
+const PROCESS_STEPS = [
+  {
+    step: '01',
+    tag: 'Explore & Match',
+    title: 'Find your artist',
+    text: 'Explore portfolios, specialties, and verified reviews. Find the artist whose style speaks to your vision.',
+    video: '/videos/step-1.mp4',
+    altVideo: '/videos/step1.mp4',
+    poster: '/slideshow/1.png',
+    linkText: 'Explore artist directory',
+    linkTo: '/discover',
+  },
+  {
+    step: '02',
+    tag: 'Select & Customise',
+    title: 'Make it a date',
+    text: 'Choose your service, preferred date, and bespoke time slot. Send your tailored request with the details that matter.',
+    video: '/videos/step-2.mp4',
+    altVideo: '/videos/step2.mp4',
+    poster: '/slideshow/2.png',
+    linkText: 'Check available dates',
+    linkTo: '/discover',
+  },
+  {
+    step: '03',
+    tag: 'Confirm & Glow',
+    title: 'Look forward to it',
+    text: 'Once your artist accepts, pay an advance or in full with complete booking protection and get ready for your moment.',
+    video: '/videos/step-3.mp4',
+    altVideo: '/videos/step3.mp4',
+    poster: '/slideshow/3.png',
+    linkText: 'Book with confidence',
+    linkTo: '/discover',
+  },
+];
 
-  const handleHeroSearch = () => {
-    navigate(`/discover?service=${encodeURIComponent(searchService)}&location=${encodeURIComponent(searchLocation)}&category=${encodeURIComponent(activeFilter)}`);
-  };
+interface ProcessStepItem {
+  step: string;
+  tag: string;
+  title: string;
+  text: string;
+  video: string;
+  altVideo?: string;
+  poster: string;
+  linkText: string;
+  linkTo: string;
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+function ProcessStepCard({ item, index, total }: { item: ProcessStepItem; index: number; total: number }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Fetch upcoming bookings for client
-  useEffect(() => {
-    if (isAuthenticated && user?.role === 'CLIENT') {
-      const token = localStorage.getItem('lume_token');
-      fetch(`${API_BASE}/api/clients/me/bookings`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.data) {
-            const upcoming = data.data.filter((b: any) => b.status === 'ACCEPTED' || b.status === 'CONFIRMED');
-            setUpcomingBookings(upcoming.slice(0, 3)); // show top 3
-          }
-        })
-        .catch(err => console.error("Failed to fetch client bookings on landing", err));
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && !videoError) {
+      videoRef.current.currentTime = 0;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay policy or abort; fail gracefully
+        });
+      }
     }
-  }, [isAuthenticated, user]);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/artists?limit=12`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data.artists && data.data.artists.length > 0) {
-          setFeatured(data.data.artists);
-        } else {
-          setFeatured(MOCK_ARTISTS);
-        }
-      })
-      .catch(err => {
-        console.error('Failed to load featured artists', err);
-        setFeatured(MOCK_ARTISTS);
-      });
-  }, []);
-
-  /* ── Artists: infinite looping carousel ─────────────────────────────
-     The artist list is repeated (clones) on both sides of a "home" copy.
-     After every slide the position silently snaps back to the home copy,
-     so the strip never runs out and artists simply reappear. */
-  const getPerView = (w: number) =>
-    w >= 1360 ? 6 : w >= 1100 ? 5 : w >= 900 ? 4 : w >= 640 ? 3 : 2;
-
-  const [perView, setPerView] = useState(() =>
-    typeof window === 'undefined' ? 6 : getPerView(window.innerWidth)
-  );
-  const [slideIdx, setSlideIdx] = useState(0);
-  const [animate, setAnimate] = useState(false);
-  const slideLock = useRef(false);
-  const slideTimer = useRef<number | undefined>(undefined);
-  const touchStartX = useRef<number | null>(null);
-
-  useEffect(() => {
-    const onResize = () => setPerView(getPerView(window.innerWidth));
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  const artistCount = featured.length;
-  const slideStep = Math.max(1, Math.floor(perView / 3));
-  const sideCopies = artistCount ? Math.ceil((slideStep + perView) / artistCount) : 0;
-  const homeStart = sideCopies * artistCount;
-
-  const slides = useMemo(() => {
-    if (!artistCount) return [];
-    const total = (2 * sideCopies + 1) * artistCount;
-    return Array.from({ length: total }, (_, i) => ({
-      artist: featured[i % artistCount],
-      copy: Math.floor(i / artistCount),
-      key: `${featured[i % artistCount].id}-${i}`,
-    }));
-  }, [featured, artistCount, sideCopies]);
-
-  // (Re)start at the home copy whenever the list or layout changes
-  useEffect(() => {
-    window.clearTimeout(slideTimer.current);
-    slideLock.current = false;
-    setAnimate(false);
-    setSlideIdx(homeStart);
-  }, [homeStart, artistCount]);
-
-  // After an instant (non-animated) jump, re-enable the transition on the next frames
-  useEffect(() => {
-    if (animate) return;
-    let r2 = 0;
-    const r1 = requestAnimationFrame(() => {
-      r2 = requestAnimationFrame(() => setAnimate(true));
-    });
-    return () => {
-      cancelAnimationFrame(r1);
-      cancelAnimationFrame(r2);
-    };
-  }, [animate]);
-
-  const settleSlide = () => {
-    window.clearTimeout(slideTimer.current);
-    if (!artistCount) return;
-    setAnimate(false);
-    setSlideIdx((i) => homeStart + ((((i - homeStart) % artistCount) + artistCount) % artistCount));
-    slideLock.current = false;
   };
 
-  const slideArtists = (dir: 1 | -1) => {
-    if (slideLock.current || !artistCount) return;
-    slideLock.current = true;
-    setAnimate(true);
-    setSlideIdx((i) => i + dir * slideStep);
-    // safety net in case transitionend never fires (e.g. reduced motion)
-    slideTimer.current = window.setTimeout(settleSlide, 900);
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      try {
+        videoRef.current.currentTime = 0;
+      } catch {
+        // ignore
+      }
+    }
   };
-
-
-
 
   return (
-    <div className="lp">
-
-      {/* ══════════════════════════════
-          1. HERO EDITORIAL SECTION
-      ══════════════════════════════ */}
-      <section className="lp-hero" id="hero" aria-label="Hero section">
-        {/* Slideshow Background */}
-        <div className="lp-hero__bg-slider">
-          {SLIDESHOW_IMAGES.map((img, index) => (
-            <div
-              key={index}
-              className={`lp-hero__slide ${index === currentSlide ? 'lp-hero__slide--active' : ''}`}
-              style={{ backgroundImage: `url(${img})` }}
-            />
-          ))}
-          <div className="lp-hero__bg-overlay"></div>
+    <div
+      className={`home-step-card ${isHovered ? 'is-hovered' : ''}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="home-step-card__top">
+        <div className="home-step-card__num-wrap">
+          <span className="home-step-card__num">{item.step}</span>
+          <span className="home-step-card__tag">{item.tag}</span>
         </div>
+        {index < total - 1 && (
+          <div className="home-step-card__connector" aria-hidden="true">
+            <span className="home-step-card__connector-line" />
+            <ArrowRight size={15} className="home-step-card__connector-arrow" />
+          </div>
+        )}
+      </div>
 
-        <div className="lp-hero__content">
-          <span className="lp-hero__eyebrow">India's Premier Beauty Platform</span>
-          <h1 className="lp-hero__title">
-            <span className="nowrap-desktop ethereal-float-1">Curated Professional Artists for</span><br />
-            <em className="lp-hero__title-accent ethereal-float-2">Your Defining Moments.</em>
-          </h1>
-          <p className="lp-hero__sub">
-            Discover and book verified makeup artists for bridal ceremonies, editorial shoots, and everyday glam.
-          </p>
+      <div className="home-step-card__media">
+        <img
+          src={item.poster}
+          alt={item.title}
+          className={`home-step-card__poster ${isHovered && isVideoReady && !videoError ? 'is-faded' : ''}`}
+          loading="lazy"
+        />
 
-          <div className="lp-hero__search-container">
-            <div className="lp-search-box glass-panel">
-              <div className="lp-search-input">
-                <Search size={18} className="lp-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Service (e.g. Bridal HD, Airbrush)"
-                  value={searchService}
-                  onChange={(e) => setSearchService(e.target.value)}
+        {!videoError && (
+          <video
+            ref={videoRef}
+            className={`home-step-card__video ${isHovered && isVideoReady ? 'is-active' : ''}`}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onCanPlay={() => setIsVideoReady(true)}
+            onError={() => setVideoError(true)}
+          >
+            <source src={item.video} type="video/mp4" />
+            {item.altVideo && <source src={item.altVideo} type="video/mp4" />}
+          </video>
+        )}
+
+        <div className={`home-step-card__badge ${isHovered && isVideoReady ? 'is-playing' : ''}`}>
+          <Play size={11} fill="currentColor" />
+          <span>{isHovered && isVideoReady ? 'Previewing' : 'Hover to preview'}</span>
+        </div>
+      </div>
+
+      <div className="home-step-card__content">
+        <h3 className="home-step-card__title">{item.title}</h3>
+        <p className="home-step-card__text">{item.text}</p>
+        <Link to={item.linkTo} className="home-step-card__link">
+          <span>{item.linkText}</span>
+          <ArrowUpRight size={15} />
+        </Link>
+      </div>
+    </div>
+  );
+}
+const FAQS = [
+  { question: 'How do I choose the right makeup artist?', answer: 'Start with your occasion and location. Explore each artist’s portfolio, specialties, experience, and client reviews, then compare their services and pricing to find your match.' },
+  { question: 'When is my booking confirmed?', answer: 'First, send a booking request with your preferred date, time, and service. Once the artist accepts, you can make your payment from My Account to secure your booking.' },
+  { question: 'Can I pay an advance?', answer: 'Yes. After your artist accepts the request, you can pay a 50% advance or the full amount through Razorpay. Your account shows any remaining balance, and the payment screen shows the price and GST breakdown.' },
+  { question: 'How can I join Lume as an artist?', answer: 'Create an artist account, complete your profile, add your portfolio and services, and submit it for verification. Once approved, your profile can appear in the artist directory.' },
+];
+
+interface FeaturedArtist {
+  id: string;
+  user: { name: string; avatarUrl?: string };
+  profileImageUrl?: string;
+  specialties: string[];
+  location: string;
+  startingPrice: number;
+  rating: number;
+  reviewCount: number;
+  isVerified: boolean;
+}
+interface Appointment {
+  id: string;
+  date: string;
+  time: string;
+  status: string;
+  artist?: { user?: { name?: string } };
+}
+const mediaUrl = (url: string) => url.startsWith('/') ? `${API_BASE}${url}` : url;
+
+export default function LandingPage() {
+  const navigate = useNavigate();
+  const { user, token } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const [occasion, setOccasion] = useState('');
+  const [city, setCity] = useState('');
+  const [artists, setArtists] = useState<FeaturedArtist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [artistError, setArtistError] = useState(false);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [prevSlide, setPrevSlide] = useState<number | null>(null);
+
+  const [aboutSlide, setAboutSlide] = useState(0);
+  const [aboutPrevSlide, setAboutPrevSlide] = useState<number | null>(null);
+  const [aboutDirection, setAboutDirection] = useState<'next' | 'prev'>('next');
+  const [isAboutHovered, setIsAboutHovered] = useState(false);
+
+  const nextAboutSlide = () => {
+    setAboutDirection('next');
+    setAboutPrevSlide(aboutSlide);
+    setAboutSlide(prev => (prev + 1) % ABOUT_IMAGES.length);
+  };
+
+  const prevAboutSlide = () => {
+    setAboutDirection('prev');
+    setAboutPrevSlide(aboutSlide);
+    setAboutSlide(prev => (prev - 1 + ABOUT_IMAGES.length) % ABOUT_IMAGES.length);
+  };
+
+  const goToAboutSlide = (index: number) => {
+    if (index === aboutSlide) return;
+    setAboutDirection(index > aboutSlide ? 'next' : 'prev');
+    setAboutPrevSlide(aboutSlide);
+    setAboutSlide(index);
+  };
+
+  const artistsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollArtists = (direction: 'left' | 'right') => {
+    const el = artistsScrollRef.current;
+    if (!el) return;
+    const firstCard = el.querySelector<HTMLElement>('.home-artist');
+    const scrollStep = (firstCard ? firstCard.offsetWidth : 300) + 24;
+
+    if (direction === 'left') {
+      if (el.scrollLeft <= 10) {
+        el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+      }
+    } else {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 20) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      }
+    }
+  };
+
+  const occasionsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollOccasions = (direction: 'left' | 'right') => {
+    const el = occasionsScrollRef.current;
+    if (!el) return;
+    const firstCard = el.querySelector<HTMLElement>('.home-occasion');
+    const scrollStep = (firstCard ? firstCard.offsetWidth : 280) + 24;
+
+    if (direction === 'left') {
+      if (el.scrollLeft <= 10) {
+        el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+      }
+    } else {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 20) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      }
+    }
+  };
+
+  // Preload all slideshow and about images on mount for instant, flicker-free transitions
+  useEffect(() => {
+    SLIDESHOW_IMAGES.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+    ABOUT_IMAGES.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
+  // Auto-advance hero slideshow with smooth crossfade
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPrevSlide(currentSlide);
+      setCurrentSlide(prev => (prev + 1) % SLIDESHOW_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [currentSlide]);
+
+  // Auto-advance about slideshow in order (1 -> 2 -> 3 -> 4)
+  useEffect(() => {
+    if (isAboutHovered) return;
+    const timer = setInterval(() => {
+      setAboutDirection('next');
+      setAboutPrevSlide(aboutSlide);
+      setAboutSlide(prev => (prev + 1) % ABOUT_IMAGES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [aboutSlide, isAboutHovered]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE}/api/artists?limit=16`, { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error('Artists unavailable');
+        const result = await response.json();
+        if (!result.success) throw new Error('Artists unavailable');
+        setArtists(result.data?.artists ?? []);
+      })
+      .catch(() => { if (!controller.signal.aborted) setArtistError(true); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!token || user?.role !== 'CLIENT') return;
+    const controller = new AbortController();
+    fetch(`${API_BASE}/api/bookings`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success && Array.isArray(result.data)) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          setAppointments(result.data.filter((booking: Appointment) =>
+            ['ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED'].includes(booking.status) && new Date(booking.date) >= today
+          ).slice(0, 3));
+        }
+      }).catch(() => { /* The public landing page remains available offline. */ });
+    return () => controller.abort();
+  }, [token, user?.role]);
+
+  const search = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const params = new URLSearchParams({ category: occasion || 'All', location: city.trim(), service: '' });
+    navigate(`/discover?${params.toString()}`);
+  };
+
+  return (
+    <div className="lume-home">
+      <section className="home-hero" aria-label="Hero slideshow">
+        <div className="home-hero__image">
+          {SLIDESHOW_IMAGES.map((src, i) => {
+            const isCurrent = i === currentSlide;
+            const isPrev = i === prevSlide;
+            const statusClass = isCurrent ? 'hero-slide-img--current' : isPrev ? 'hero-slide-img--prev' : '';
+            return (
+              <picture key={src} className={`hero-slide-img ${statusClass}`}>
+                <source media="(max-width: 680px)" srcSet={SLIDESHOW_MOBILE_IMAGES[i]} />
+                <img
+                  src={src}
+                  alt={`Lume beauty artistry inspiration ${i + 1}`}
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  loading={i === 0 ? 'eager' : 'lazy'}
                 />
+              </picture>
+            );
+          })}
+        </div>
+        <div className="home-container home-search-wrap">
+          <form className="home-search" onSubmit={search} aria-label="Find a makeup artist">
+            <div className="home-search__intro">
+              <div className="home-search__intro-icon">
+                <Sparkles size={19} strokeWidth={1.8} />
               </div>
-              <div className="lp-search-divider" />
-              <div className="lp-search-input" style={{ padding: 0 }}>
-                <LocationAutocomplete
-                  value={searchLocation}
-                  onChange={setSearchLocation}
-                  icon={<MapPin size={18} className="lp-search-icon" />}
-                  className="lp-search-input--autocomplete"
-                />
+              <div className="home-search__intro-text">
+                <span className="home-search__intro-sub">Let’s make it</span>
+                <span className="home-search__intro-main">your moment.</span>
               </div>
-              <button className="lp-btn lp-btn--primary lp-search-btn" onClick={handleHeroSearch}>
-                Search <ArrowRight size={16} />
-              </button>
             </div>
-          </div>
 
-          <div className="lp-hero__filters">
-            {['All', 'Bridal', 'Engagement', 'Pre-Wedding', 'Editorial', 'Party'].map(filter => (
-              <button
-                key={filter}
-                className={`lp-filter-chip ${activeFilter === filter ? 'lp-filter-chip--active' : ''}`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </div>
+            <div className="home-search__divider" aria-hidden="true" />
 
-        {/* Moving Ribbon */}
-        <div className="lp-hero__marquee-wrapper">
-          <div className="lp-hero__marquee">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="lp-hero__marquee-track">
-                <span>BRIDAL MAKEUP</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>EDITORIAL</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>PRE-WEDDING</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>PARTY GLAM</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>AIRBRUSH</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>HAIRSTYLING</span>
-                <span className="lp-hero__marquee-dot">•</span>
-                <span>FASHION</span>
-                <span className="lp-hero__marquee-dot">•</span>
+            <label className="home-search__field home-search__field--occasion">
+              <span className="home-search__label">THE OCCASION</span>
+              <div className="home-search__input-row">
+                <Search size={17} className="home-search__icon-mobile" />
+                <select aria-label="Occasion" value={occasion} onChange={event => setOccasion(event.target.value)}>
+                  <option value="">What’s the occasion?</option>
+                  {ALL_CATEGORIES.map(category => <option key={category}>{category}</option>)}
+                </select>
+                <ChevronDown size={16} className="home-search__chevron" />
               </div>
-            ))}
-          </div>
+            </label>
+
+            <div className="home-search__divider" aria-hidden="true" />
+
+            <label className="home-search__field home-search__field--location">
+              <span className="home-search__label">YOUR LOCATION</span>
+              <div className="home-search__input-row">
+                <MapPin size={17} className="home-search__pin" />
+                <input aria-label="City" placeholder="Where shall we meet?" value={city} onChange={event => setCity(event.target.value)} list="home-cities" autoComplete="address-level2" />
+              </div>
+            </label>
+
+            <datalist id="home-cities">{['Mumbai', 'Delhi NCR', 'Bangalore', 'Pune', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad'].map(name => <option key={name} value={name} />)}</datalist>
+
+            <button className="home-button home-search__submit" type="submit">
+              <span>Find artist</span>
+              <span className="home-search__submit-arrow"><ArrowUpRight size={17} strokeWidth={2.4} /></span>
+            </button>
+          </form>
         </div>
       </section>
-      {/* ════════════════════════════
-          LUME INTRO
-      ════════════════════════════ */}
-      {upcomingBookings.length > 0 && (
-        <section className="lp-section lp-upcoming" style={{ background: 'var(--light)' }}>
-          <div className="lp-container">
-            <div className="lp-section__header reveal">
-              <span className="lp-eyebrow">Your Bookings</span>
-              <h2 className="lp-heading">Upcoming Appointments</h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }} className="stagger">
-              {upcomingBookings.map((booking: any) => (
-                <div key={booking.id} className="reveal-up" style={{ background: '#fff', borderRadius: '16px', padding: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '16px', border: '1px solid rgba(42,26,31,0.05)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--success-color, #10b981)', background: '#ecfdf5', padding: '4px 10px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{booking.status}</span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--rose-deep)' }}>₹{booking.totalPaid?.toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>{booking.artist?.user?.name || 'Artist'}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{new Date(booking.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })} • {booking.time}</p>
-                  </div>
-                  <button className="lp-btn lp-btn--primary" style={{ width: '100%', marginTop: '8px', padding: '12px' }} onClick={() => navigate('/profile')}>
-                    {booking.status === 'ACCEPTED' ? 'Pay Now' : 'View Details'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
+      {token && user?.role === 'CLIENT' && appointments.length > 0 && <section className="home-container home-appointments" aria-label="Your upcoming appointments">
+        <div><span className="home-eyebrow">SOMETHING TO LOOK FORWARD TO</span><h2>Your next moment</h2></div>
+        {appointments.map(booking => <Link key={booking.id} to="/profile" className="home-appointment"><CalendarDays size={24} /><div><strong>{booking.artist?.user?.name || 'Your artist'}</strong><span>{new Date(booking.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} · {booking.time}</span></div><span className="home-appointment__action">{booking.status === 'ACCEPTED' ? 'Complete payment' : 'View booking'} <ArrowUpRight size={16} /></span></Link>)}
+      </section>}
 
-
-      {/* ══════════════════════════════
-          2. OUR ARTISTS
-      ══════════════════════════════ */}
-      <section className="lp-section lp-artists" id="artists">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">Our Artists</span>
-            <h2 className="lp-heading">
-              Meet the Talent Behind<br />
-              <em className="shimmer-text" data-text="Every Transformation">Every Transformation</em>
-            </h2>
-            <p className="lp-section__lead">
-              Hand-vetted, portfolio-reviewed, and loved by thousands of clients across India.
-            </p>
-          </div>
+      <section className="home-section home-container" id="artists" aria-labelledby="artists-title">
+        <div className="home-section-head">
+          <div><span className="home-eyebrow">THE PEOPLE BEHIND THE GLOW</span><h2 id="artists-title">Good hands. <em>Beautiful possibilities.</em></h2></div>
+          <Link to="/discover" className="home-link">The artist directory <ArrowUpRight size={18} /></Link>
         </div>
-
-        <div className="lp-artists__scroller">
-          <button
-            type="button"
-            className="lp-artists__arrow lp-artists__arrow--prev"
-            onClick={() => slideArtists(-1)}
-            aria-label="Previous artists"
-          >
-            <ChevronLeft size={26} strokeWidth={1.75} />
-          </button>
-
-          <div
-            className="lp-artists__viewport"
-            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
-            onTouchEnd={(e) => {
-              if (touchStartX.current === null) return;
-              const dx = e.changedTouches[0].clientX - touchStartX.current;
-              touchStartX.current = null;
-              if (Math.abs(dx) > 40) slideArtists(dx < 0 ? 1 : -1);
-            }}
-          >
-            <div
-              className={`lp-artists__track${animate ? '' : ' is-instant'}`}
-              style={{ '--pv': perView, '--idx': slideIdx } as React.CSSProperties}
-              onTransitionEnd={(e) => {
-                if (e.target === e.currentTarget && e.propertyName === 'transform') settleSlide();
-              }}
+        {loading ? (
+          <div className="home-artists home-artists--scroller" aria-label="Loading artists" aria-busy="true">
+            {[0, 1, 2, 3].map(index => <div className="home-artist-skeleton" key={index} />)}
+          </div>
+        ) : artists.length > 0 ? (
+          <div className="home-artists-carousel-wrapper">
+            <button
+              type="button"
+              className="home-carousel-arrow home-carousel-arrow--left"
+              onClick={() => scrollArtists('left')}
+              aria-label="Previous artists"
             >
-              {slides.map(({ artist, copy, key }) => {
-                const isHome = copy === sideCopies;
-                const rawImg = artist.profileImageUrl || artist.user?.avatarUrl;
-                const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
-                const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Makeup Artist'];
-                const shownSpecialties = specialties.slice(0, 2);
-                const extraSpecialties = specialties.length - shownSpecialties.length;
-                const hasRating = artist.rating > 0;
-                const years = Number(artist.experience) || 0;
-                const reviews = Number(artist.reviewCount) || 0;
-                const highlight = years > 0
-                  ? `${years}+ yrs experience`
-                  : reviews > 0
-                    ? `${reviews} client review${reviews > 1 ? 's' : ''}`
-                    : artist.isVerified ? 'Verified professional' : 'Rising talent';
+              <ChevronLeft size={24} strokeWidth={2} />
+            </button>
+            <div
+              className="home-artists home-artists--scroller"
+              ref={artistsScrollRef}
+              tabIndex={0}
+              role="region"
+              aria-label="Featured artists scroller"
+            >
+              {artists.map(artist => {
+                const photo = artist.profileImageUrl || artist.user.avatarUrl;
                 return (
-                  <article
-                    key={key}
-                    className="lp-artist-card"
-                    onClick={() => navigate(`/artist/${artist.id}`)}
-                    role="button"
-                    tabIndex={isHome ? 0 : -1}
-                    aria-hidden={isHome ? undefined : true}
-                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/artist/${artist.id}`)}
-                  >
-                    <div className="lp-artist-card__img-wrap">
-                      <img
-                        src={imgUrl}
-                        alt={artist.user?.name || 'Artist'}
-                        className="lp-artist-card__img"
-                        loading="lazy"
-                        draggable={false}
-                        onError={(e) => handleImageFallback(e, 1)}
-                      />
-                      <div className="lp-artist-card__overlay" />
-
-                      {artist.isVerified && (
-                        <span className="lp-artist-card__badge">
-                          <CheckCircle size={12} /> Verified
-                        </span>
-                      )}
-                      <span className={`lp-artist-card__rating-chip${hasRating ? '' : ' is-new'}`}>
-                        <Star size={11} fill="currentColor" strokeWidth={0} />
-                        {hasRating ? artist.rating.toFixed(1) : 'New'}
-                      </span>
-
-                      <button
-                        type="button"
-                        className={`lp-artist-card__fav-btn ${isFavorite(artist.id) ? 'is-fav' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(artist.id);
-                        }}
-                        aria-label={isFavorite(artist.id) ? 'Remove from favorites' : 'Save to favorites'}
-                      >
-                        <Heart size={14} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
+                  <article className="home-artist" key={artist.id}>
+                    <div className="home-artist__media">
+                      <Link to={`/artist/${artist.id}`} className="home-artist__image" aria-label={`View ${artist.user.name}'s profile`}>
+                        {photo ? <img src={mediaUrl(photo)} alt={artist.user.name} loading="lazy" onError={event => { event.currentTarget.hidden = true; }} /> : <span className="home-artist__initial">{artist.user.name.charAt(0)}</span>}
+                        {artist.isVerified && <span className="home-artist__verified"><BadgeCheck size={14} /> Verified</span>}
+                      </Link>
+                      <button className={`home-artist__save ${isFavorite(artist.id) ? 'is-saved' : ''}`} type="button" aria-label={`${isFavorite(artist.id) ? 'Unsave' : 'Save'} ${artist.user.name}`} aria-pressed={isFavorite(artist.id)} onClick={() => toggleFavorite(artist.id)}>
+                        <Heart size={18} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
                       </button>
-
-                      <div className="lp-artist-card__cover">
-                        <h3 className="lp-artist-card__name">{artist.user?.name || 'Artist'}</h3>
-                        <span className="lp-artist-card__location">
-                          <MapPin size={12} /> <span>{artist.location || 'India'}</span>
-                        </span>
-                      </div>
                     </div>
-
-                    <div className="lp-artist-card__info">
-                      <div className="lp-artist-card__highlight">
-                        <Award size={14} />
-                        <span>{highlight}</span>
+                    <div className="home-artist__body">
+                      <div className="home-artist__title">
+                        <h3><Link to={`/artist/${artist.id}`}>{artist.user.name}</Link></h3>
+                        {artist.rating > 0 && <span className="home-artist__rating"><Star size={12} fill="currentColor" /> {artist.rating.toFixed(1)}</span>}
                       </div>
-                      <div className="lp-artist-card__tags">
-                        {shownSpecialties.map((s) => (
-                          <span key={s} className="lp-artist-card__tag">{s}</span>
-                        ))}
-                        {extraSpecialties > 0 && (
-                          <span className="lp-artist-card__tag lp-artist-card__tag--more">+{extraSpecialties}</span>
-                        )}
-                      </div>
-                      <div className="lp-artist-card__footer">
-                        <span className="lp-artist-card__price">
-                          <em>Starting from</em> <span style={{ fontFamily: 'var(--font-body)' }}>₹</span>{(artist.startingPrice || 0).toLocaleString()}
-                        </span>
-                        <span className="lp-artist-card__cta" aria-hidden="true">
-                          <ArrowUpRight size={15} />
-                        </span>
+                      <p className="home-artist__specialties">{artist.specialties.slice(0, 2).join(' · ') || 'Makeup artist'}</p>
+                      <span className="home-artist__location"><MapPin size={13} /> {artist.location}</span>
+                      <div className="home-artist__bottom">
+                        <div className="home-artist__price">
+                          <span className="home-artist__price-label">From</span>
+                          <strong className="home-artist__price-val">₹{artist.startingPrice.toLocaleString('en-IN')}</strong>
+                        </div>
+                        <Link to={`/artist/${artist.id}`} className="home-artist__action" aria-label={`Explore ${artist.user.name}`}>
+                          <ArrowUpRight size={18} strokeWidth={2.4} />
+                        </Link>
                       </div>
                     </div>
                   </article>
                 );
               })}
             </div>
-          </div>
-
-          <button
-            type="button"
-            className="lp-artists__arrow lp-artists__arrow--next"
-            onClick={() => slideArtists(1)}
-            aria-label="Next artists"
-          >
-            <ChevronRight size={26} strokeWidth={1.75} />
-          </button>
-        </div>
-
-        <div className="lp-container">
-          <div className="lp-section__more reveal">
-            <button className="lp-btn lp-btn--primary" onClick={() => navigate('/discover')}>
-              View All Artists <ArrowRight size={16} />
+            <button
+              type="button"
+              className="home-carousel-arrow home-carousel-arrow--right"
+              onClick={() => scrollArtists('right')}
+              aria-label="Next artists"
+            >
+              <ChevronRight size={24} strokeWidth={2} />
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="home-directory">
+            <div>
+              <span className="home-eyebrow">YOUR PERFECT MATCH STARTS HERE</span>
+              <h3>A style that speaks to you.<br />An artist who understands it.</h3>
+              <p>{artistError ? 'Featured profiles are taking a little longer to arrive. You can still explore the artist directory.' : 'Explore the directory to find artists by style, location, and occasion.'}</p>
+              <Link to="/discover" className="home-button">Explore the directory <ArrowUpRight size={18} /></Link>
+            </div>
+            <img src={detailImage} alt="The care and detail behind a finished makeup look" loading="lazy" />
+          </div>
+        )}
       </section>
 
-      {/* ══════════════════════════════
-          3. ABOUT US
-      ══════════════════════════════ */}
-      <LumeIntro onBook={() => navigate('/discover')} />
+      <section className="home-about" id="about" aria-labelledby="about-title">
+        <div className="home-container home-about__grid">
+          <div
+            className="home-about__visual"
+            onMouseEnter={() => setIsAboutHovered(true)}
+            onMouseLeave={() => setIsAboutHovered(false)}
+          >
+            <div className={`home-about__frame home-about__frame--${aboutDirection}`}>
+              {ABOUT_IMAGES.map((src, index) => {
+                const isCurrent = index === aboutSlide;
+                const isPrev = index === aboutPrevSlide;
+                if (!isCurrent && !isPrev) return null;
+                const dirClass = aboutPrevSlide !== null ? (aboutDirection === 'next' ? 'is-dir-next' : 'is-dir-prev') : 'is-initial';
+                return (
+                  <img
+                    key={src}
+                    src={src}
+                    alt={`Lume artistry studio 0${index + 1}`}
+                    className={`home-about__img ${isCurrent ? 'is-current' : 'is-prev'} ${dirClass}`}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                );
+              })}
 
-      {/* ══════════════════════════════
-          4. HOW IT WORKS — 3-Step Journey
-      ══════════════════════════════ */}
-      <section className="lp-section lp-how-it-works" id="how-it-works" aria-label="How Lume works">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">The Experience</span>
-            <h2 className="lp-heading">
-              Your Journey to <em>Effortless Glamour.</em>
-            </h2>
-            <p className="lp-section__lead">
-              Three seamless steps from initial inspiration to your defining celebration.
-            </p>
-          </div>
-
-          <div className="lp-how__grid stagger">
-            <div className="lp-how__card reveal-up">
-              <div className="lp-how__badge-num">01</div>
-              <div className="lp-how__icon-box">
-                <Search size={24} />
-              </div>
-              <h3 className="lp-how__card-title">Explore Verified Portfolios</h3>
-              <p className="lp-how__card-desc">
-                Browse hand-vetted artists across Mumbai, Delhi, and Bangalore. Filter by specialized occasion, portfolio high-res visuals, and verified ratings.
-              </p>
-            </div>
-
-            <div className="lp-how__card reveal-up">
-              <div className="lp-how__badge-num">02</div>
-              <div className="lp-how__icon-box">
-                <Award size={24} />
-              </div>
-              <h3 className="lp-how__card-title">Tailor Your Occasion & Date</h3>
-              <p className="lp-how__card-desc">
-                Choose bridal ceremonies, sangeet glam, editorial shoots, or hourly bookings. Lock in your exact calendar slot with transparent, upfront pricing.
-              </p>
-            </div>
-
-            <div className="lp-how__card reveal-up">
-              <div className="lp-how__badge-num">03</div>
-              <div className="lp-how__icon-box">
-                <CheckCircle size={24} />
-              </div>
-              <h3 className="lp-how__card-title">Transform with Peace of Mind</h3>
-              <p className="lp-how__card-desc">
-                Rest easy with Razorpay escrow protection. Your artist arrives punctually with luxury-grade kits to craft your radiant, unforgettable look.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════
-          4. CATEGORIES
-      ══════════════════════════════ */}
-      <section className="lp-section lp-categories" id="categories">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">Explore</span>
-            <h2 className="lp-heading">
-              Our <em>Categories</em>
-            </h2>
-            <p className="lp-section__lead">
-              Discover the perfect aesthetic for your next event.<br />
-              Browse through our specialized artists for every occasion.
-            </p>
-          </div>
-
-          <div className="lp-categories__grid stagger">
-            {CATEGORIES.map((cat, i) => (
-              <div
-                key={cat.name}
-                className="lp-cat-card reveal-up"
-                style={{ '--delay': `${i * 0.1}s` } as React.CSSProperties}
-                onClick={() => navigate(`/discover?category=${cat.name.toLowerCase()}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/discover?category=${cat.name.toLowerCase()}`)}
+              <button
+                type="button"
+                className="home-about__arrow home-about__arrow--left"
+                onClick={prevAboutSlide}
+                aria-label="Previous about photo"
               >
-                <div className="lp-cat-card__img-wrap">
-                  <img src={cat.image} alt={cat.name} className="lp-cat-card__img" loading="lazy" />
-                  <div className="lp-cat-card__overlay" />
-                  <span className="lp-cat-card__arrow"><ArrowUpRight size={20} /></span>
-                </div>
-                <h3 className="lp-cat-card__name">{cat.name}</h3>
-                <p className="lp-cat-card__desc">Explore Artists</p>
-                <p className="lp-cat-card__subtext">{cat.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <ChevronLeft size={22} strokeWidth={2} />
+              </button>
+              <button
+                type="button"
+                className="home-about__arrow home-about__arrow--right"
+                onClick={nextAboutSlide}
+                aria-label="Next about photo"
+              >
+                <ChevronRight size={22} strokeWidth={2} />
+              </button>
 
-      {/* ══════════════════════════════
-          5. THE HAUTE STANDARD — Trust Pillars
-      ══════════════════════════════ */}
-      <section className="lp-section lp-pillars" id="standards" aria-label="The Lume Standards">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">The Lume Standard</span>
-            <h2 className="lp-heading">
-              Curated for <em>Perfection.</em>
-            </h2>
-            <p className="lp-section__lead">
-              Every detail engineered to give you complete confidence on your most meaningful occasions.
-            </p>
-          </div>
-
-          <div className="lp-pillars__grid stagger">
-            <div className="lp-pillar-card reveal-up">
-              <div className="lp-pillar-card__icon-box">
-                <Award size={26} />
-              </div>
-              <h3 className="lp-pillar-card__title">Top 5% Vetted Artistry</h3>
-              <p className="lp-pillar-card__text">
-                Every makeup artist undergoes a thorough portfolio evaluation, hygiene audit, and background verification.
-              </p>
-            </div>
-
-            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.1s' }}>
-              <div className="lp-pillar-card__icon-box">
-                <CheckCircle size={26} />
-              </div>
-              <h3 className="lp-pillar-card__title">Zero Hidden Surcharges</h3>
-              <p className="lp-pillar-card__text">
-                Transparent upfront pricing including tax breakdowns and travel guidelines, with zero surprise charges on event day.
-              </p>
-            </div>
-
-            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.2s' }}>
-              <div className="lp-pillar-card__icon-box">
-                <Star size={26} />
-              </div>
-              <h3 className="lp-pillar-card__title">Escrow Payment Security</h3>
-              <p className="lp-pillar-card__text">
-                Your payment is securely held in escrow via Razorpay and released to the artist only after satisfactory service delivery.
-              </p>
-            </div>
-
-            <div className="lp-pillar-card reveal-up" style={{ animationDelay: '0.3s' }}>
-              <div className="lp-pillar-card__icon-box">
-                <ArrowRight size={26} />
-              </div>
-              <h3 className="lp-pillar-card__title">Dedicated Bridal Concierge</h3>
-              <p className="lp-pillar-card__text">
-                Need multiple artist coordination for destination weddings or multi-day celebrations? Our concierge assists 24/7.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════
-          6. DEFINING MOMENTS — Client Stories
-      ══════════════════════════════ */}
-      <section className="lp-section lp-stories" id="stories" aria-label="Client testimonials">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">Real Transformations</span>
-            <h2 className="lp-heading">
-              Loved by <em>Visionaries & Brides.</em>
-            </h2>
-            <p className="lp-section__lead">
-              Hear from clients who trusted Lume artists with their most precious moments.
-            </p>
-          </div>
-
-          <div className="lp-stories__grid stagger">
-            {[
-              {
-                quote: "Finding an artist who understood my heritage bridal vision was effortless on Lume. My artist arrived 30 minutes early, perfectly calm, and made me feel like royalty all night.",
-                author: "Rhea Singhania",
-                event: "Bridal Ceremony • Mumbai",
-                rating: 5,
-                image: img1
-              },
-              {
-                quote: "I needed high-definition makeup for our fashion magazine cover shoot on short notice. Lume's portfolio verification made choosing so easy—flawless skin work with zero touch-up delays.",
-                author: "Tanvi Deshmukh",
-                event: "Editorial Shoot • Pune",
-                rating: 5,
-                image: img2
-              },
-              {
-                quote: "The escrow payment feature gave me huge peace of mind for our multi-day destination wedding. Both the sangeet and wedding looks were breathtaking!",
-                author: "Ananya Mehra",
-                event: "Destination Wedding • Udaipur",
-                rating: 5,
-                image: img4
-              }
-            ].map((story, idx) => (
-              <div key={idx} className="lp-story-card reveal-up" style={{ animationDelay: `${idx * 0.12}s` }}>
-                <div className="lp-story-card__stars">
-                  {[...Array(story.rating)].map((_, s) => (
-                    <Star key={s} size={15} fill="var(--gold)" color="var(--gold)" />
-                  ))}
-                </div>
-                <p className="lp-story-card__quote">"{story.quote}"</p>
-                <div className="lp-story-card__author-wrap">
-                  <img src={story.image} alt={story.author} className="lp-story-card__avatar" />
-                  <div>
-                    <h4 className="lp-story-card__author">{story.author}</h4>
-                    <span className="lp-story-card__event">{story.event}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════
-          7. JOIN OUR COMMUNITY
-      ══════════════════════════════ */}
-      <section className="lp-section lp-community" id="community">
-        <div className="lp-container">
-          <div className="lp-section__header reveal">
-            <span className="lp-eyebrow">Join Our Community</span>
-            <h2 className="lp-heading">
-              Follow us on<br />
-              <em>Instagram</em>
-            </h2>
-            <p className="lp-section__lead" style={{ maxWidth: '600px', margin: '16px auto 0' }}>
-              Get inspired by daily bridal transformations, editorial looks, and behind-the-scenes magic from India's finest artists.
-            </p>
-          </div>
-
-          <div className="lp-community__grid">
-            {/* Info */}
-            <div className="lp-community__info reveal-left">
-              <div className="lp-community__social-card">
-                <div className="lp-community__social-header">
-                  <div className="lp-community__social-avatar">
-                    <img src={img1} alt="Lume Beauty" />
-                  </div>
-                  <div className="lp-community__social-meta">
-                    <h4>@_hello_lume_app</h4>
-                    <p>Lume Beauty Platform</p>
-                  </div>
-                </div>
-                <p className="lp-community__social-bio">
-                  India's premier beauty platform ✨<br />
-                  Discover & book verified makeup artists.<br />
-                  📍 Mumbai | Delhi | Bangalore
-                </p>
-                <div className="lp-community__social-stats">
-                  <div className="lp-community__stat"><strong>1.2k</strong><span>Posts</span></div>
-                  <div className="lp-community__stat"><strong>15k</strong><span>Followers</span></div>
-                  <div className="lp-community__stat"><strong>120</strong><span>Following</span></div>
-                </div>
-                <a href="https://www.instagram.com/_hello_lume_app/" target="_blank" rel="noopener noreferrer" className="lp-btn lp-btn--primary lp-community__follow-btn">
-                  <InstagramIcon size={18} /> Follow on Instagram
-                </a>
-              </div>
-            </div>
-
-            {/* Insta Grid Mock */}
-            <div className="lp-community__ig-wrap reveal-right">
-              <div className="lp-community__ig-grid">
-                {[img2, img3, img4, img5, img6, img7].map((img, idx) => (
-                  <a key={idx} href="https://www.instagram.com/_hello_lume_app/" target="_blank" rel="noopener noreferrer" className="lp-community__ig-post">
-                    <img src={img} alt={`Instagram Post ${idx + 1}`} />
-                    <div className="lp-community__ig-overlay">
-                      <InstagramIcon size={24} />
-                    </div>
-                  </a>
+              <div className="home-about__thumbs">
+                {ABOUT_IMAGES.map((src, index) => (
+                  <button
+                    key={src}
+                    type="button"
+                    className={`home-about__thumb ${index === aboutSlide ? 'is-active' : ''}`}
+                    onClick={() => goToAboutSlide(index)}
+                    aria-label={`View about photo 0${index + 1}`}
+                    aria-current={index === aboutSlide}
+                  >
+                    <img src={src} alt="" />
+                    <span>0{index + 1}</span>
+                  </button>
                 ))}
               </div>
             </div>
+
+            <div className="home-about__note">
+              <div className="home-about__note-icon" aria-hidden="true">
+                <Sparkles size={22} strokeWidth={1.5} />
+              </div>
+              <div className="home-about__note-text">
+                <span className="home-about__note-line1">Your canvas.</span>
+                <span className="home-about__note-line2">Our masterpiece.</span>
+              </div>
+            </div>
+          </div>
+          <div className="home-about__copy">
+            <span className="home-eyebrow">A MORE PERSONAL KIND OF BEAUTY</span>
+            <h2 id="about-title">You bring the vision.<br /><em>We bring the artistry.</em></h2>
+            <p>The best beauty experiences start with feeling understood. Lume connects you with professional makeup artists whose work speaks to your style.</p>
+            <p>Considered portfolios. Clear service details. A booking experience that gives you space to choose. Because feeling beautiful should feel like you.</p>
+            <div className="home-about__details">
+              <span><Check size={17} /> Explore the portfolio</span>
+              <span><Check size={17} /> Find your connection</span>
+            </div>
+            <div className="home-about__actions">
+              <Link to="/about" className="home-about__btn-story">
+                <span>The Lume Story</span>
+                <ArrowUpRight size={17} className="home-about__btn-story-arrow" />
+              </Link>
+              <Link to="/discover" className="home-link">
+                Meet your artist <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
+      <section className="home-section home-container" id="categories" aria-labelledby="occasions-title">
+        <div className="home-section-head">
+          <div>
+            <span className="home-eyebrow">EVERY VERSION OF YOU</span>
+            <h2 id="occasions-title">An occasion. <em>A feeling. A look.</em></h2>
+          </div>
+          <Link className="home-link" to="/categories">Explore all styles <ArrowUpRight size={18} /></Link>
+        </div>
+        <div className="home-occasions-carousel-wrapper">
+          <button
+            type="button"
+            className="home-carousel-arrow home-carousel-arrow--left"
+            onClick={() => scrollOccasions('left')}
+            aria-label="Previous styles"
+          >
+            <ChevronLeft size={24} strokeWidth={2} />
+          </button>
+          <div
+            className="home-occasions home-occasions--scroller"
+            ref={occasionsScrollRef}
+            tabIndex={0}
+            role="region"
+            aria-label="Featured style categories scroller"
+          >
+            {OCCASIONS.map((item, index) => (
+              <Link to={`/discover?category=${item.name}`} className="home-occasion" key={item.name}>
+                <div className="home-occasion__image">
+                  <img src={item.image} alt={`${item.name} beauty inspiration`} loading="lazy" />
+                  <span className="home-occasion__number">0{index + 1}</span>
+                  <span className="home-round-arrow"><ArrowUpRight size={20} /></span>
+                </div>
+                <h3>{item.name}</h3>
+                <p>{item.caption}</p>
+              </Link>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="home-carousel-arrow home-carousel-arrow--right"
+            onClick={() => scrollOccasions('right')}
+            aria-label="Next styles"
+          >
+            <ChevronRight size={24} strokeWidth={2} />
+          </button>
+        </div>
+        <div className="home-more-styles" role="navigation" aria-label="Alternative style options">
+          <div className="home-more-styles__intro">
+            <Sparkles size={16} className="home-more-styles__sparkle" />
+            <span className="home-more-styles__label">Something a little different?</span>
+          </div>
+          <div className="home-more-styles__pills">
+            {['Party', 'Festive', 'Fantasy', 'SFX'].map(category => (
+              <Link
+                to={`/discover?category=${category}`}
+                key={category}
+                className="home-sub-box"
+                aria-label={`Explore ${category} style`}
+              >
+                <span className="home-sub-box__text">{category}</span>
+                <span className="home-sub-box__arrow" aria-hidden="true">
+                  <ArrowUpRight size={13} strokeWidth={2.4} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="home-process" id="how-it-works" aria-labelledby="process-title">
+        <div className="home-container">
+          <div className="home-process__intro">
+            <span className="home-eyebrow">A LITTLE LESS PLANNING. A LITTLE MORE YOU.</span>
+            <h2 id="process-title">
+              Beautifully simple.<br />
+              <em>From first look to final touch.</em>
+            </h2>
+            <p className="home-process__subtitle">
+              Three effortless steps from discovering your style to your defining moment.
+            </p>
+          </div>
+
+          <div className="home-steps-flow">
+            {PROCESS_STEPS.map((item, index) => (
+              <ProcessStepCard
+                key={item.step}
+                item={item}
+                index={index}
+                total={PROCESS_STEPS.length}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section home-container home-faq" aria-labelledby="faq-title"><div><span className="home-eyebrow">BEFORE YOUR FIRST BOOKING</span><h2 id="faq-title">A few things<br /><em>you might wonder.</em></h2><p>Good experiences begin with clarity.</p></div><div className="home-faq__list">{FAQS.map(item => <details key={item.question}><summary>{item.question}<span><ChevronDown size={19} /></span></summary><p>{item.answer}</p></details>)}</div></section>
+
+      <section className="home-community" id="community" aria-labelledby="community-title"><div className="home-container"><div className="home-section-head"><div><span className="home-eyebrow">THE MOODBOARD</span><h2 id="community-title">A little inspiration <em>goes a long way.</em></h2></div><a className="home-link" href={INSTAGRAM} target="_blank" rel="noopener noreferrer"><Instagram size={18} /> Follow Lume <ArrowUpRight size={17} /></a></div><div className="home-moodboard">{[{ image: '/images/categories/bridal.jpg', caption: 'The bridal edit' }, { image: SLIDESHOW_IMAGES[0], caption: 'Soft-glam moments' }, { image: '/images/categories/editorial.jpg', caption: 'An editorial eye' }, { image: '/images/categories/natural.jpg', caption: 'Less, but luminous' }].map(item => <Link key={item.caption} to="/discover" className="home-mood"><img src={item.image} alt={item.caption} loading="lazy" /><span>{item.caption}<ArrowUpRight size={17} /></span></Link>)}</div></div></section>
     </div>
   );
-};
-
-export default LandingPage;
+}

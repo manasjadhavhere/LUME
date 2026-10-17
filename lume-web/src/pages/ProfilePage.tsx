@@ -548,7 +548,7 @@ const ProfilePage: React.FC = () => {
                             <button
                               onClick={() => handlePayRemaining(booking)}
                               disabled={payingRemainingId === booking.id}
-                              style={{ padding: '6px 16px', background: 'var(--dark)', color: '#fff', border: 'none', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                              style={{ padding: '6px 16px', background: 'var(--rose-deep)', color: '#fff', border: 'none', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 10px rgba(217,122,140,0.3)' }}
                             >
                               {payingRemainingId === booking.id
                                 ? <Loader2 size={14} className="spinner" />

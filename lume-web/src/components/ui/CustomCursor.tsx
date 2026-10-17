@@ -4,16 +4,17 @@ import './CustomCursor.css';
 const CustomCursor: React.FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
+  const trailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const inner = innerRef.current;
     const outer = outerRef.current;
+    const trail = trailRef.current;
     if (!inner || !outer) return;
 
-    let mouseX = -100;
-    let mouseY = -100;
-    let outerX = mouseX;
-    let outerY = mouseY;
+    let mouseX = -100, mouseY = -100;
+    let outerX = mouseX, outerY = mouseY;
+    let trailX = mouseX, trailY = mouseY;
     let rafId: number;
     let hasMoved = false;
 
@@ -23,23 +24,39 @@ const CustomCursor: React.FC = () => {
       if (!hasMoved) {
         hasMoved = true;
         inner.style.opacity = '1';
-        outer.style.opacity = '0.65';
+        outer.style.opacity = '1';
+        if (trail) trail.style.opacity = '0.45';
       }
-      inner.style.transform = `translate3d(${mouseX - 5}px, ${mouseY - 5}px, 0)`;
+      inner.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
     };
 
-    // Smooth outer ring with lerp
+    // Smooth lerp loop for outer ring + trail
     const loop = () => {
-      outerX += (mouseX - outerX) * 0.18;
-      outerY += (mouseY - outerY) * 0.18;
-      outer.style.transform = `translate3d(${outerX - 20}px, ${outerY - 20}px, 0)`;
+      // Outer ring: medium lag
+      outerX += (mouseX - outerX) * 0.14;
+      outerY += (mouseY - outerY) * 0.14;
+      outer.style.transform = `translate3d(${outerX - 21}px, ${outerY - 21}px, 0)`;
+
+      // Trail: slower lag
+      if (trail) {
+        trailX += (mouseX - trailX) * 0.06;
+        trailY += (mouseY - trailY) * 0.06;
+        trail.style.transform = `translate3d(${trailX - 3}px, ${trailY - 3}px, 0)`;
+      }
+
       rafId = requestAnimationFrame(loop);
     };
     rafId = requestAnimationFrame(loop);
 
-    // Expand on interactive elements
-    const onEnter = () => outer.classList.add('cursor-outer--expand');
-    const onLeave = () => outer.classList.remove('cursor-outer--expand');
+    // Expand / hover states
+    const onEnter = () => {
+      outer.classList.add('cursor-outer--expand');
+      inner.classList.add('cursor-inner--hover');
+    };
+    const onLeave = () => {
+      outer.classList.remove('cursor-outer--expand');
+      inner.classList.remove('cursor-inner--hover');
+    };
     const onDown = () => {
       inner.classList.add('cursor-inner--click');
       outer.classList.add('cursor-outer--click');
@@ -85,6 +102,7 @@ const CustomCursor: React.FC = () => {
 
   return (
     <>
+      <div ref={trailRef} className="cursor-trail" aria-hidden="true" style={{ opacity: 0 }} />
       <div ref={outerRef} className="cursor-outer" aria-hidden="true" style={{ opacity: 0 }} />
       <div ref={innerRef} className="cursor-inner" aria-hidden="true" style={{ opacity: 0 }} />
     </>

@@ -136,12 +136,12 @@
 
 .home-btn--outline {
   background: transparent;
-  color: var(--dark);
-  border: 1px solid var(--dark);
+  color: var(--rose-deep);
+  border: 1px solid var(--rose-deep);
 }
 
 .home-btn--outline::before {
-  background: var(--dark);
+  background: var(--rose-deep);
 }
 
 .home-btn--outline:hover {
@@ -373,9 +373,9 @@
 }
 
 .home-about__trust-item:hover .home-about__trust-icon {
-  background: var(--dark);
+  background: var(--rose-deep);
   color: white;
-  border-color: var(--dark);
+  border-color: var(--rose-deep);
 }
 
 /* ══════════════════════════════
@@ -538,9 +538,9 @@
 }
 
 .home-partner__perk:hover .home-partner__perk-icon {
-  background: var(--dark);
+  background: var(--rose-deep);
   color: white;
-  border-color: var(--dark);
+  border-color: var(--rose-deep);
 }
 
 .home-partner__cta {

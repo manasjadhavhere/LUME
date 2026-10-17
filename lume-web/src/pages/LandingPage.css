@@ -240,12 +240,12 @@
 
 .lp-btn--outline {
   background: transparent;
-  color: var(--dark);
-  border: 1px solid var(--dark);
+  color: var(--rose-deep);
+  border: 1px solid var(--rose-deep);
 }
 
 .lp-btn--outline::before {
-  background: var(--dark);
+  background: var(--rose-deep);
 }
 
 .lp-btn--outline:hover {
@@ -462,27 +462,36 @@
 }
 
 .lp-filter-chip {
-  background: transparent;
-  border: 1px solid var(--border-light);
-  color: var(--mid);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 240, 243, 0.7));
+  border: 1.5px solid rgba(212, 94, 126, 0.2);
+  color: var(--dark);
   padding: 8px 20px;
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.86rem;
+  font-weight: 550;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(42, 26, 31, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lp-filter-chip:hover {
-  border-color: var(--dark);
-  color: var(--dark);
+  border-color: #d45e7e;
+  color: #c45f72;
+  background: linear-gradient(135deg, #ffffff, #fff0f3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212, 94, 126, 0.18);
 }
 
 .lp-filter-chip--active {
-  background: var(--dark);
-  border-color: var(--dark);
+  background: linear-gradient(135deg, #d45e7e 0%, #c45f72 100%);
+  border-color: #c45f72;
   color: var(--white);
+  box-shadow: 0 4px 16px rgba(212, 94, 126, 0.35);
+  transform: translateY(-1px);
 }
 
 @keyframes fadeIn {
@@ -682,7 +691,7 @@
 }
 
 .lp-artists__arrow:hover {
-  background: var(--dark);
+  background: var(--rose-deep);
   color: var(--white);
   transform: translateY(-50%) scale(1.05);
 }
@@ -797,9 +806,9 @@
 
 .lp-artist-card__badge {
   left: 14px;
-  background: var(--dark);
+  background: var(--rose-deep);
   color: var(--white);
-  font-size: 0.62rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -813,7 +822,7 @@
   right: 14px;
   background: rgba(45, 55, 72, 0.5);
   color: var(--white);
-  font-size: 0.74rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -824,7 +833,7 @@
 .lp-artist-card__rating-chip.is-new {
   background: rgba(255, 255, 255, 0.92);
   color: var(--rose-deep);
-  font-size: 0.66rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -867,7 +876,7 @@
   gap: 5px;
   min-width: 0;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: rgba(255, 255, 255, 0.88);
 }
 
@@ -900,7 +909,7 @@
   background: var(--rose-pale);
   color: var(--dark);
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 500;
   line-height: 1;
 }
@@ -931,23 +940,39 @@
   flex: 0 1 auto;
   min-width: 0;
   height: 26px;
-  padding: 0 10px;
+  padding: 0 11px;
   border-radius: 999px;
-  background: var(--rose-pale);
-  color: var(--rose-deep);
+  background: linear-gradient(135deg, #fff5f7 0%, #ffedf1 100%);
+  border: 1px solid rgba(212, 94, 126, 0.2);
+  color: #a24b61;
   font-family: var(--font-body);
-  font-size: 0.68rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 550;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.lp-artist-card__tag:hover {
+  background: #ffffff;
+  border-color: #d45e7e;
+  color: #8c364c;
 }
 
 .lp-artist-card__tag--more {
   flex-shrink: 0;
-  background: rgba(42, 26, 31, 0.06);
+  background: rgba(42, 26, 31, 0.05);
+  border: 1px solid rgba(42, 26, 31, 0.08);
   color: var(--mid);
   padding: 0 9px;
+  border-radius: 999px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .lp-artist-card__footer {
@@ -980,7 +1005,7 @@
 
 .lp-artist-card__price em {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--text-soft);
   text-transform: none;
@@ -1113,7 +1138,7 @@
 }
 
 .lp-about__stat-pill span {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   color: var(--text-soft);
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -1193,9 +1218,9 @@
 }
 
 .lp-about__trust-item:hover .lp-about__trust-icon {
-  background: var(--dark);
+  background: var(--rose-deep);
   color: white;
-  border-color: var(--dark);
+  border-color: var(--rose-deep);
 }
 
 .lp-about__cta-row {

@@ -37,6 +37,44 @@
   letter-spacing: -0.01em;
 }
 
+.auth-page .lume-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.auth-page .lume-brand:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.auth-page .lume-brand__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.auth-page .lume-brand__mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 10px rgba(212, 94, 126, 0.22));
+}
+
+.auth-page .lume-brand__name {
+  font: 600 2.3rem/1 var(--font-display);
+  letter-spacing: -0.05em;
+  color: #d45e7e;
+  text-shadow: 0 1px 16px rgba(255, 255, 255, 0.9);
+}
+
 .auth-page__logo svg {
   color: var(--rose-deep);
 }
@@ -45,12 +83,12 @@
   width: 100%;
   background: #ffffff;
   border-radius: 20px;
-  border: 1px solid rgba(42, 26, 31, 0.09);
-  box-shadow: 0 10px 40px rgba(42, 26, 31, 0.05);
-  padding: 32px 36px;
+  border: 1px solid rgba(242, 164, 176, 0.4);
+  box-shadow: 0 16px 48px rgba(42, 26, 31, 0.07), 0 4px 16px rgba(217, 122, 140, 0.05);
+  padding: 34px 36px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
 }
 
 @media (max-width: 500px) {
@@ -187,46 +225,36 @@
   justify-content: center;
   gap: 12px;
   width: 100%;
-  padding: 16px;
-  border-radius: 4px;
-  background: white;
-  color: var(--dark);
+  padding: 15px 24px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--rose-deep) 0%, #c45f72 100%);
+  color: #ffffff;
   font-size: 0.95rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  box-shadow: 0 6px 20px rgba(217, 122, 140, 0.32);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
-  z-index: 1;
-}
-
-.auth-page__submit::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.05);
-  transform: scaleY(0);
-  transform-origin: bottom;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: -1;
-}
-
-.auth-page__submit:hover:not(:disabled)::before {
-  transform: scaleY(1);
 }
 
 .auth-page__submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #df6989 0%, #b84965 100%);
+  box-shadow: 0 10px 28px rgba(217, 122, 140, 0.45);
+  color: #ffffff;
+}
+
+.auth-page__submit:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .auth-page__submit:disabled {
-  opacity: 0.65;
+  opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ── Demo Switcher Banner ── */
