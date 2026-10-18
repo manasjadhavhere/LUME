@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="lume-footer__container">
         <div className="lume-footer__grid">
           <div className="lume-footer__brand">
-            <Link to="/" className="lume-brand" aria-label="Lume home"><span className="lume-brand__mark"><img src="/Logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
+            <Link to="/" className="lume-brand" aria-label="Lume home"><span className="lume-brand__mark"><img src="/logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
             <p className="lume-footer__tagline">Your canvas. Our masterpiece.</p>
             <p className="lume-footer__description">Thoughtfully connecting you with professional makeup artists for every version of you.</p>
             <a className="lume-footer__instagram" href="https://www.instagram.com/_hello_lume_app/" target="_blank" rel="noopener noreferrer"><Instagram size={17} /> Follow the inspiration <ArrowUpRight size={14} /></a>

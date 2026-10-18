@@ -105,7 +105,7 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
   return (
     <header className={`lume-header ${isLanding ? 'lume-header--landing' : ''} ${scrolled ? 'lume-header--scrolled' : ''} ${menuOpen ? 'lume-header--open' : ''}`}>
       <div className="lume-header__inner">
-        <Link to="/" className="lume-brand" aria-label="Lume home" onClick={() => setOpenPath(null)}><span className="lume-brand__mark"><img src="/Logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
+        <Link to="/" className="lume-brand" aria-label="Lume home" onClick={() => setOpenPath(null)}><span className="lume-brand__mark"><img src="/logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
         <nav className="lume-header__nav" aria-label="Main navigation">
           {NAV_LINKS.map(link => (
             <Link

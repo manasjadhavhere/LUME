@@ -65,7 +65,7 @@ const RegisterPage: React.FC = () => {
       <div className="auth-page__container">
         <Link to="/" className="lume-brand" aria-label="Lume home" style={{ margin: '0 auto', textDecoration: 'none' }}>
           <span className="lume-brand__mark">
-            <img src="/Logo.png" alt="Lume logo" />
+            <img src="/logo.png" alt="Lume logo" />
           </span>
           <span className="lume-brand__name">LUME</span>
         </Link>
