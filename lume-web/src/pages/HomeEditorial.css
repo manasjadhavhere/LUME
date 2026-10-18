@@ -96,7 +96,7 @@
   min-height: 100dvh;
   background: var(--white);
   isolation: isolate;
-  padding-top: 98px;
+  padding-top: 86px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
