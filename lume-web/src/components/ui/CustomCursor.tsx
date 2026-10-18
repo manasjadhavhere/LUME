@@ -2,109 +2,124 @@ import React, { useEffect, useRef } from 'react';
 import './CustomCursor.css';
 
 const CustomCursor: React.FC = () => {
-  const innerRef = useRef<HTMLDivElement>(null);
-  const outerRef = useRef<HTMLDivElement>(null);
-  const trailRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const inner = innerRef.current;
-    const outer = outerRef.current;
-    const trail = trailRef.current;
-    if (!inner || !outer) return;
+    // Only activate on pointer devices (mouse/trackpad), not touch
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    let mouseX = -100, mouseY = -100;
-    let outerX = mouseX, outerY = mouseY;
-    let trailX = mouseX, trailY = mouseY;
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    if (!dot || !ring) return;
+
+    let mouseX = -100;
+    let mouseY = -100;
+    let ringX = -100;
+    let ringY = -100;
     let rafId: number;
-    let hasMoved = false;
+    let isVisible = false;
 
-    const onMove = (e: MouseEvent) => {
+    const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (!hasMoved) {
-        hasMoved = true;
-        inner.style.opacity = '1';
-        outer.style.opacity = '1';
-        if (trail) trail.style.opacity = '0.45';
-      }
-      inner.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
-    };
 
-    // Smooth lerp loop for outer ring + trail
-    const loop = () => {
-      // Outer ring: medium lag
-      outerX += (mouseX - outerX) * 0.14;
-      outerY += (mouseY - outerY) * 0.14;
-      outer.style.transform = `translate3d(${outerX - 21}px, ${outerY - 21}px, 0)`;
-
-      // Trail: slower lag
-      if (trail) {
-        trailX += (mouseX - trailX) * 0.06;
-        trailY += (mouseY - trailY) * 0.06;
-        trail.style.transform = `translate3d(${trailX - 3}px, ${trailY - 3}px, 0)`;
+      if (!isVisible) {
+        isVisible = true;
+        ringX = mouseX;
+        ringY = mouseY;
+        dot.style.opacity = '1';
+        ring.style.opacity = '1';
       }
 
-      rafId = requestAnimationFrame(loop);
-    };
-    rafId = requestAnimationFrame(loop);
-
-    // Expand / hover states
-    const onEnter = () => {
-      outer.classList.add('cursor-outer--expand');
-      inner.classList.add('cursor-inner--hover');
-    };
-    const onLeave = () => {
-      outer.classList.remove('cursor-outer--expand');
-      inner.classList.remove('cursor-inner--hover');
-    };
-    const onDown = () => {
-      inner.classList.add('cursor-inner--click');
-      outer.classList.add('cursor-outer--click');
-    };
-    const onUp = () => {
-      inner.classList.remove('cursor-inner--click');
-      outer.classList.remove('cursor-outer--click');
+      // Dot tracks cursor with zero latency
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
     };
 
-    const attachListeners = () => {
-      const interactives = document.querySelectorAll(
-        'a, button, [role="button"], input, textarea, select, label, [tabindex]'
+    // Smooth physics loop for the trailing ring
+    const render = () => {
+      if (isVisible) {
+        // 0.16 interpolation factor: fluid glide without dragging or lag
+        ringX += (mouseX - ringX) * 0.16;
+        ringY += (mouseY - ringY) * 0.16;
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+      }
+      rafId = requestAnimationFrame(render);
+    };
+    rafId = requestAnimationFrame(render);
+
+    // Document-level event delegation: instant, responsive, and consistent across all pages and route changes
+    const onMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const isInput = !!target.closest(
+        'input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]'
       );
-      interactives.forEach((el) => {
-        el.addEventListener('mouseenter', onEnter);
-        el.addEventListener('mouseleave', onLeave);
-      });
-      return interactives;
+      const isInteractive = isInput || !!target.closest(
+        'a, button, [role="button"], select, summary, label, .home-carousel-arrow, .home-about__thumb, .home-artist, .home-step-card, [data-hover]'
+      );
+
+      if (isInput) {
+        dot.classList.add('cursor-dot--input');
+        ring.classList.add('cursor-ring--input');
+      } else {
+        dot.classList.remove('cursor-dot--input');
+        ring.classList.remove('cursor-ring--input');
+      }
+
+      if (isInteractive) {
+        dot.classList.add('cursor-dot--hover');
+        ring.classList.add('cursor-ring--hover');
+      } else {
+        dot.classList.remove('cursor-dot--hover');
+        ring.classList.remove('cursor-ring--hover');
+      }
     };
 
-    let interactives = attachListeners();
-    const observer = new MutationObserver(() => {
-      interactives = attachListeners();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+    const onMouseDown = () => {
+      dot.classList.add('cursor-dot--click');
+      ring.classList.add('cursor-ring--click');
+    };
 
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('mouseup', onUp);
+    const onMouseUp = () => {
+      dot.classList.remove('cursor-dot--click');
+      ring.classList.remove('cursor-ring--click');
+    };
+
+    const onMouseLeaveWindow = () => {
+      isVisible = false;
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    };
+
+    const onMouseEnterWindow = () => {
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('mouseover', onMouseOver, { passive: true });
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseleave', onMouseLeaveWindow);
+    document.addEventListener('mouseenter', onMouseEnterWindow);
 
     return () => {
       cancelAnimationFrame(rafId);
-      observer.disconnect();
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('mouseup', onUp);
-      interactives.forEach((el) => {
-        el.removeEventListener('mouseenter', onEnter);
-        el.removeEventListener('mouseleave', onLeave);
-      });
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseover', onMouseOver);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mouseleave', onMouseLeaveWindow);
+      document.removeEventListener('mouseenter', onMouseEnterWindow);
     };
   }, []);
 
   return (
     <>
-      <div ref={trailRef} className="cursor-trail" aria-hidden="true" style={{ opacity: 0 }} />
-      <div ref={outerRef} className="cursor-outer" aria-hidden="true" style={{ opacity: 0 }} />
-      <div ref={innerRef} className="cursor-inner" aria-hidden="true" style={{ opacity: 0 }} />
+      <div ref={ringRef} className="cursor-ring" aria-hidden="true" style={{ opacity: 0 }} />
+      <div ref={dotRef} className="cursor-dot" aria-hidden="true" style={{ opacity: 0 }} />
     </>
   );
 };

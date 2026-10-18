@@ -155,39 +155,6 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Demo Helper Pills */}
-          <div className="auth-page__quick-demo">
-            <span className="auth-page__quick-demo-title">Quick Demo Sign In</span>
-            <div className="auth-page__quick-demo-buttons">
-              <button
-                type="button"
-                className="auth-page__quick-pill"
-                onClick={() => {
-                  setSelectedRole('CLIENT');
-                  setEmail('priya@example.com');
-                  setPassword('password123');
-                  setError('');
-                }}
-              >
-                <User size={13} />
-                <span>Demo Client</span>
-              </button>
-              <button
-                type="button"
-                className="auth-page__quick-pill"
-                onClick={() => {
-                  setSelectedRole('ARTIST');
-                  setEmail('ananya@example.com');
-                  setPassword('password123');
-                  setError('');
-                }}
-              >
-                <Palette size={13} />
-                <span>Demo Artist</span>
-              </button>
-            </div>
-          </div>
-
           {/* Switch to Register */}
           <p className="auth-page__switch">
             New to Lume?{' '}

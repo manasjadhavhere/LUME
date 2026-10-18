@@ -2,6 +2,13 @@
    Category Circles Component
    =========================== */
 
+.category-circles-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .category-circles {
   width: 100%;
   overflow-x: auto;
@@ -24,10 +31,51 @@
   justify-content: center;
 }
 
-@media (max-width: 768px) {
-  .category-circles__container {
-    justify-content: flex-start;
-  }
+.category-scroll-arrow {
+  position: absolute;
+  top: 48px;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(217, 122, 140, 0.35);
+  color: var(--rose-deep);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(42, 26, 31, 0.12);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  pointer-events: none;
+  padding: 0;
+}
+
+.category-scroll-arrow.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.category-scroll-arrow:hover {
+  background: #ffffff;
+  color: var(--rose-deep);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 18px rgba(217, 122, 140, 0.3);
+}
+
+.category-scroll-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.category-scroll-arrow--left {
+  left: 6px;
+}
+
+.category-scroll-arrow--right {
+  right: 6px;
 }
 
 .category-circle-btn {
@@ -108,4 +156,56 @@
 
 .category-circle-btn:hover .category-circle-label {
   color: var(--rose-deep);
+}
+
+/* Mobile: tighter spacing and compact circle sizes */
+@media (max-width: 768px) {
+  .category-circles {
+    padding: 8px 0;
+  }
+
+  .category-circles__container {
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 36px;
+  }
+
+  .category-circle-btn {
+    width: auto;
+    min-width: 62px;
+    max-width: 72px;
+    gap: 6px;
+  }
+
+  .category-circle-img-wrapper {
+    width: 62px;
+    height: 62px;
+    border-width: 2px;
+  }
+
+  .category-circle-btn.active .category-circle-img-wrapper {
+    border-width: 2.5px;
+  }
+
+  .category-circle-label {
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70px;
+  }
+
+  .category-scroll-arrow {
+    width: 28px;
+    height: 28px;
+    top: 39px;
+  }
+
+  .category-scroll-arrow--left {
+    left: 4px;
+  }
+
+  .category-scroll-arrow--right {
+    right: 4px;
+  }
 }

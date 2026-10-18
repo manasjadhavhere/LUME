@@ -7,21 +7,59 @@ import useFavorites from '../hooks/useFavorites';
 import detailImage from '../assets/images/1.png';
 import './HomeEditorial.css';
 
-const SLIDESHOW_IMAGES = [
-  '/slideshow/1.png',
-  '/slideshow/2.png',
-  '/slideshow/3.png',
-  '/slideshow/4.png',
-  '/slideshow/5.png',
+interface HeroSlide {
+  id: number;
+  desktop: string;
+  tabletLandscape: string;
+  tabletPortrait: string;
+  mobileLandscape: string;
+  mobilePortrait: string;
+}
+
+const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: 1,
+    desktop: '/slideshow/1.png',
+    tabletLandscape: '/slideshow_tablet_landscape/1.webp',
+    tabletPortrait: '/slideshow_tablet_portrait/1.webp',
+    mobileLandscape: '/slideshow_mobile_landscape/1.webp',
+    mobilePortrait: '/slideshow_mobile/mob-1.png',
+  },
+  {
+    id: 2,
+    desktop: '/slideshow/2.png',
+    tabletLandscape: '/slideshow_tablet_landscape/2.webp',
+    tabletPortrait: '/slideshow_tablet_portrait/2.webp',
+    mobileLandscape: '/slideshow_mobile_landscape/2.webp',
+    mobilePortrait: '/slideshow_mobile/Mob-2.png',
+  },
+  {
+    id: 3,
+    desktop: '/slideshow/3.png',
+    tabletLandscape: '/slideshow_tablet_landscape/3.webp',
+    tabletPortrait: '/slideshow_tablet_portrait/3.webp',
+    mobileLandscape: '/slideshow_mobile_landscape/3.webp',
+    mobilePortrait: '/slideshow_mobile/Mob-3.png',
+  },
+  {
+    id: 4,
+    desktop: '/slideshow/4.png',
+    tabletLandscape: '/slideshow_tablet_landscape/4.webp',
+    tabletPortrait: '/slideshow_tablet_portrait/4.webp',
+    mobileLandscape: '/slideshow_mobile_landscape/4.webp',
+    mobilePortrait: '/slideshow_mobile/Mob-4.png',
+  },
+  {
+    id: 5,
+    desktop: '/slideshow/5.png',
+    tabletLandscape: '/slideshow_tablet_landscape/5.webp',
+    tabletPortrait: '/slideshow_tablet_portrait/5.webp',
+    mobileLandscape: '/slideshow_mobile_landscape/5.webp',
+    mobilePortrait: '/slideshow_mobile/Mob-5.png',
+  },
 ];
 
-const SLIDESHOW_MOBILE_IMAGES = [
-  '/slideshow_mobile/mob-1.png',
-  '/slideshow_mobile/Mob-2.png',
-  '/slideshow_mobile/Mob-3.png',
-  '/slideshow_mobile/Mob-4.png',
-  '/slideshow_mobile/Mob-5.png',
-];
+const SLIDESHOW_IMAGES = HERO_SLIDES.map(s => s.desktop);
 
 const ABOUT_IMAGES = [
   '/images/about/1.jpg',
@@ -228,23 +266,34 @@ export default function LandingPage() {
   const [aboutDirection, setAboutDirection] = useState<'next' | 'prev'>('next');
   const [isAboutHovered, setIsAboutHovered] = useState(false);
 
-  const nextAboutSlide = () => {
-    setAboutDirection('next');
-    setAboutPrevSlide(aboutSlide);
-    setAboutSlide(prev => (prev + 1) % ABOUT_IMAGES.length);
-  };
-
-  const prevAboutSlide = () => {
-    setAboutDirection('prev');
-    setAboutPrevSlide(aboutSlide);
-    setAboutSlide(prev => (prev - 1 + ABOUT_IMAGES.length) % ABOUT_IMAGES.length);
-  };
 
   const goToAboutSlide = (index: number) => {
     if (index === aboutSlide) return;
     setAboutDirection(index > aboutSlide ? 'next' : 'prev');
     setAboutPrevSlide(aboutSlide);
     setAboutSlide(index);
+  };
+
+  const [activeProcessStep, setActiveProcessStep] = useState(0);
+  const processTouchStartRef = useRef<number | null>(null);
+
+  const handleProcessTouchStart = (e: React.TouchEvent) => {
+    processTouchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleProcessTouchEnd = (e: React.TouchEvent) => {
+    if (processTouchStartRef.current === null) return;
+    const diff = e.changedTouches[0].clientX - processTouchStartRef.current;
+    if (Math.abs(diff) > 40) {
+      if (diff < 0) {
+        // Swipe left -> next
+        setActiveProcessStep((prev) => (prev + 1) % PROCESS_STEPS.length);
+      } else {
+        // Swipe right -> prev
+        setActiveProcessStep((prev) => (prev - 1 + PROCESS_STEPS.length) % PROCESS_STEPS.length);
+      }
+    }
+    processTouchStartRef.current = null;
   };
 
   const artistsScrollRef = useRef<HTMLDivElement>(null);
@@ -295,10 +344,21 @@ export default function LandingPage() {
 
   // Preload all slideshow and about images on mount for instant, flicker-free transitions
   useEffect(() => {
-    SLIDESHOW_IMAGES.forEach(src => {
+    const isMobile = window.matchMedia('(max-width: 680px)').matches;
+    const isTablet = window.matchMedia('(min-width: 681px) and (max-width: 1024px)').matches;
+    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+
+    HERO_SLIDES.forEach(slide => {
       const img = new Image();
-      img.src = src;
+      if (isMobile) {
+        img.src = isLandscape ? slide.mobileLandscape : slide.mobilePortrait;
+      } else if (isTablet) {
+        img.src = isLandscape ? slide.tabletLandscape : slide.tabletPortrait;
+      } else {
+        img.src = slide.desktop;
+      }
     });
+
     ABOUT_IMAGES.forEach(src => {
       const img = new Image();
       img.src = src;
@@ -309,7 +369,7 @@ export default function LandingPage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setPrevSlide(currentSlide);
-      setCurrentSlide(prev => (prev + 1) % SLIDESHOW_IMAGES.length);
+      setCurrentSlide(prev => (prev + 1) % HERO_SLIDES.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [currentSlide]);
@@ -366,16 +426,46 @@ export default function LandingPage() {
     <div className="lume-home">
       <section className="home-hero" aria-label="Hero slideshow">
         <div className="home-hero__image">
-          {SLIDESHOW_IMAGES.map((src, i) => {
+          {HERO_SLIDES.map((slide, i) => {
             const isCurrent = i === currentSlide;
             const isPrev = i === prevSlide;
             const statusClass = isCurrent ? 'hero-slide-img--current' : isPrev ? 'hero-slide-img--prev' : '';
             return (
-              <picture key={src} className={`hero-slide-img ${statusClass}`}>
-                <source media="(max-width: 680px)" srcSet={SLIDESHOW_MOBILE_IMAGES[i]} />
+              <picture key={slide.id} className={`hero-slide-img ${statusClass}`}>
+                {/* 1. Mobile Landscape: Phone rotated sideways (wide and short, height <= 520px) */}
+                <source
+                  media="(orientation: landscape) and (max-height: 520px)"
+                  srcSet={slide.mobileLandscape}
+                />
+
+                {/* 2. Mobile Portrait: Standard phone portrait (width <= 680px) */}
+                <source
+                  media="(max-width: 680px) and (orientation: portrait)"
+                  srcSet={slide.mobilePortrait}
+                />
+
+                {/* 3. Mobile Fallback (width <= 680px) */}
+                <source
+                  media="(max-width: 680px)"
+                  srcSet={slide.mobilePortrait}
+                />
+
+                {/* 4. Tablet Portrait: iPads & tablets in portrait mode (width 681px - 1024px, portrait) */}
+                <source
+                  media="(max-width: 1024px) and (orientation: portrait)"
+                  srcSet={slide.tabletPortrait}
+                />
+
+                {/* 5. Tablet Landscape: iPads & tablets in landscape mode (width 681px - 1200px, landscape) */}
+                <source
+                  media="(min-width: 681px) and (max-width: 1200px) and (orientation: landscape) and (min-height: 521px)"
+                  srcSet={slide.tabletLandscape}
+                />
+
+                {/* 6. Desktop / Large Screen Fallback */}
                 <img
-                  src={src}
-                  alt={`Lume beauty artistry inspiration ${i + 1}`}
+                  src={slide.desktop}
+                  alt={`Lume beauty artistry inspiration ${slide.id}`}
                   fetchPriority={i === 0 ? 'high' : 'low'}
                   loading={i === 0 ? 'eager' : 'lazy'}
                 />
@@ -476,10 +566,27 @@ export default function LandingPage() {
                     <div className="home-artist__body">
                       <div className="home-artist__title">
                         <h3><Link to={`/artist/${artist.id}`}>{artist.user.name}</Link></h3>
-                        {artist.rating > 0 && <span className="home-artist__rating"><Star size={12} fill="currentColor" /> {artist.rating.toFixed(1)}</span>}
+                        {artist.rating > 0 ? (
+                          <span className="home-artist__rating">
+                            <Star size={11} fill="currentColor" /> {artist.rating.toFixed(1)}
+                          </span>
+                        ) : (
+                          <span className="home-artist__rating home-artist__rating--new">
+                            <Sparkles size={11} strokeWidth={2} /> Pro
+                          </span>
+                        )}
                       </div>
-                      <p className="home-artist__specialties">{artist.specialties.slice(0, 2).join(' · ') || 'Makeup artist'}</p>
-                      <span className="home-artist__location"><MapPin size={13} /> {artist.location}</span>
+                      <div className="home-artist__specialties">
+                        {(artist.specialties && artist.specialties.length > 0 ? artist.specialties.slice(0, 2) : ['Artistry']).map(spec => (
+                          <span key={spec} className="home-artist__tag">{spec}</span>
+                        ))}
+                      </div>
+                      <div className="home-artist__location">
+                        <span className="home-artist__location-icon" aria-hidden="true">
+                          <MapPin size={11} strokeWidth={2.4} />
+                        </span>
+                        <span className="home-artist__location-text">{artist.location || 'Pan India'}</span>
+                      </div>
                       <div className="home-artist__bottom">
                         <div className="home-artist__price">
                           <span className="home-artist__price-label">From</span>
@@ -539,23 +646,6 @@ export default function LandingPage() {
                   />
                 );
               })}
-
-              <button
-                type="button"
-                className="home-about__arrow home-about__arrow--left"
-                onClick={prevAboutSlide}
-                aria-label="Previous about photo"
-              >
-                <ChevronLeft size={22} strokeWidth={2} />
-              </button>
-              <button
-                type="button"
-                className="home-about__arrow home-about__arrow--right"
-                onClick={nextAboutSlide}
-                aria-label="Next about photo"
-              >
-                <ChevronRight size={22} strokeWidth={2} />
-              </button>
 
               <div className="home-about__thumbs">
                 {ABOUT_IMAGES.map((src, index) => (
@@ -687,7 +777,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="home-steps-flow">
+          {/* Desktop 3-Column Flow */}
+          <div className="home-steps-flow home-steps-flow--desktop">
             {PROCESS_STEPS.map((item, index) => (
               <ProcessStepCard
                 key={item.step}
@@ -696,6 +787,83 @@ export default function LandingPage() {
                 total={PROCESS_STEPS.length}
               />
             ))}
+          </div>
+
+          {/* Mobile Swipeable Card Stack */}
+          <div className="home-process-mobile-stack-wrap">
+            <div className="home-process-mobile-nav" role="tablist" aria-label="Process steps">
+              {PROCESS_STEPS.map((step, idx) => (
+                <button
+                  key={step.step}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeProcessStep === idx}
+                  className={`home-process-mobile-pill ${activeProcessStep === idx ? 'is-active' : ''}`}
+                  onClick={() => setActiveProcessStep(idx)}
+                >
+                  <span className="home-process-mobile-pill-num">{step.step}</span>
+                  <span className="home-process-mobile-pill-tag">{step.title}</span>
+                </button>
+              ))}
+            </div>
+
+            <div
+              className="home-process-stack-deck"
+              onTouchStart={handleProcessTouchStart}
+              onTouchEnd={handleProcessTouchEnd}
+            >
+              {PROCESS_STEPS.map((item, index) => {
+                const diff = (index - activeProcessStep + PROCESS_STEPS.length) % PROCESS_STEPS.length;
+                return (
+                  <div
+                    key={item.step}
+                    className={`home-process-stack-slide ${diff === 0 ? 'is-active' : diff === 1 ? 'is-next' : 'is-prev'}`}
+                  >
+                    <ProcessStepCard
+                      item={item}
+                      index={index}
+                      total={PROCESS_STEPS.length}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="home-process-mobile-controls">
+              <button
+                type="button"
+                className="home-process-arrow-btn"
+                onClick={() => setActiveProcessStep((prev) => (prev - 1 + PROCESS_STEPS.length) % PROCESS_STEPS.length)}
+                aria-label="Previous step"
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              <div className="home-process-dots">
+                {PROCESS_STEPS.map((step, idx) => (
+                  <button
+                    key={step.step}
+                    type="button"
+                    className={`home-process-dot ${activeProcessStep === idx ? 'is-active' : ''}`}
+                    onClick={() => setActiveProcessStep(idx)}
+                    aria-label={`Go to step ${step.step}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="home-process-arrow-btn"
+                onClick={() => setActiveProcessStep((prev) => (prev + 1) % PROCESS_STEPS.length)}
+                aria-label="Next step"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+
+            <span className="home-process-swipe-hint">
+              Swipe left or right to see next step
+            </span>
           </div>
         </div>
       </section>

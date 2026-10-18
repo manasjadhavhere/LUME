@@ -1,16 +1,29 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, Search, MapPin, Filter, ArrowRight, CheckCircle, Star, Heart, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
+import {
+  AlertCircle,
+  Search,
+  MapPin,
+  BadgeCheck,
+  Star,
+  Heart,
+  RotateCcw,
+  SlidersHorizontal,
+  ArrowUpRight,
+  Sparkles,
+  ChevronRight,
+  X,
+  CheckCircle,
+} from 'lucide-react';
 import LocationAutocomplete from '../components/ui/LocationAutocomplete';
 import CategoryChips from '../components/home/CategoryChips';
-import ArtistCardSkeleton from '../components/home/ArtistCardSkeleton';
 import useFilterState from '../hooks/useFilterState';
 import useFavorites from '../hooks/useFavorites';
 import { API_BASE } from '../context/AuthContext';
 import type { ServiceCategory } from '../data/types';
 import useScrollReveal from '../hooks/useScrollReveal';
+import './HomeEditorial.css';
 import './DiscoverPage.css';
-import './LandingPage.css';
 
 import img1 from '../assets/images/1.png';
 import img2 from '../assets/images/2.png';
@@ -42,8 +55,13 @@ const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement, Event>, i
   }
 };
 
+const mediaUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${API_BASE}${path}`;
+};
+
 const DiscoverPage: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [artists, setArtists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,12 +69,38 @@ const DiscoverPage: React.FC = () => {
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filterTab, setFilterTab] = useState<'sort' | 'budget' | 'location' | 'experience'>('sort');
   const [priceFilter, setPriceFilter] = useState<'ALL' | 'UNDER_5K' | '5K_15K' | 'ABOVE_15K'>('ALL');
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [minExp, setMinExp] = useState(0);
   const [sortBy, setSortBy] = useState<'FEATURED' | 'RATING' | 'PRICE_ASC' | 'PRICE_DESC' | 'EXPERIENCE'>('FEATURED');
 
-  const { activeCategory, setActiveCategory, searchQuery, setSearchQuery, locationQuery, setLocationQuery, clearFilterState } = useFilterState();
+  useEffect(() => {
+    if (filterDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setFilterDrawerOpen(false);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [filterDrawerOpen]);
+
+  const {
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    locationQuery,
+    setLocationQuery,
+    clearFilterState,
+  } = useFilterState();
+
   useScrollReveal([artists, isLoading]);
 
   useEffect(() => {
@@ -81,8 +125,8 @@ const DiscoverPage: React.FC = () => {
     if (locationQuery.trim()) queryParams.append('location', locationQuery.trim());
 
     fetch(`${API_BASE}/api/artists?${queryParams.toString()}`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         if (data.success) setArtists(data.data.artists);
         else setError(data.message || 'Failed to load artists');
       })
@@ -90,24 +134,20 @@ const DiscoverPage: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, [activeCategory, searchQuery, locationQuery]);
 
-  const handleArtistClick = (id: string) => {
-    navigate(`/artist/${id}`);
-  };
-
   const filteredArtists = useMemo(() => {
     let result = [...artists];
     if (onlyVerified) {
-      result = result.filter(a => a.isVerified);
+      result = result.filter((a) => a.isVerified);
     }
     if (priceFilter === 'UNDER_5K') {
-      result = result.filter(a => (a.startingPrice || 0) <= 5000);
+      result = result.filter((a) => (a.startingPrice || 0) <= 5000);
     } else if (priceFilter === '5K_15K') {
-      result = result.filter(a => (a.startingPrice || 0) > 5000 && (a.startingPrice || 0) <= 15000);
+      result = result.filter((a) => (a.startingPrice || 0) > 5000 && (a.startingPrice || 0) <= 15000);
     } else if (priceFilter === 'ABOVE_15K') {
-      result = result.filter(a => (a.startingPrice || 0) > 15000);
+      result = result.filter((a) => (a.startingPrice || 0) > 15000);
     }
     if (minExp > 0) {
-      result = result.filter(a => (Number(a.experience) || 0) >= minExp);
+      result = result.filter((a) => (Number(a.experience) || 0) >= minExp);
     }
     if (sortBy === 'RATING') {
       result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -121,7 +161,21 @@ const DiscoverPage: React.FC = () => {
     return result;
   }, [artists, onlyVerified, priceFilter, minExp, sortBy]);
 
-  const activeFilterCount = (onlyVerified ? 1 : 0) + (priceFilter !== 'ALL' ? 1 : 0) + (minExp > 0 ? 1 : 0) + (sortBy !== 'FEATURED' ? 1 : 0);
+  const activeFilterCount =
+    (onlyVerified ? 1 : 0) +
+    (priceFilter !== 'ALL' ? 1 : 0) +
+    (minExp > 0 ? 1 : 0) +
+    (sortBy !== 'FEATURED' ? 1 : 0) +
+    (Boolean(locationQuery.trim()) ? 1 : 0);
+
+  const hasAnyFilterActive =
+    activeCategory !== 'All' ||
+    Boolean(searchQuery.trim()) ||
+    Boolean(locationQuery.trim()) ||
+    priceFilter !== 'ALL' ||
+    onlyVerified ||
+    minExp > 0 ||
+    sortBy !== 'FEATURED';
 
   const resetAllFilters = () => {
     setPriceFilter('ALL');
@@ -133,281 +187,571 @@ const DiscoverPage: React.FC = () => {
 
   return (
     <div className="discover-page">
-      <div className="lp-container">
-        {/* Header */}
-        <div className="lp-section__header reveal" style={{ marginTop: '0', marginBottom: '40px' }}>
-          <h1 className="lp-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', whiteSpace: 'nowrap' }}>
-            <span style={{ height: '1px', background: 'var(--text-soft)', flex: 1, maxWidth: '60px' }}></span>
-            Discover Artists
-            <span style={{ height: '1px', background: 'var(--text-soft)', flex: 1, maxWidth: '60px' }}></span>
+      {/* ── Editorial Hero ── */}
+      <section className="discover-hero">
+        <div className="discover-hero__inner">
+          <nav className="discover-breadcrumbs" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <ChevronRight size={14} />
+            <span>Discover Artists</span>
+          </nav>
+
+          <span className="discover-hero__eyebrow">
+            <Sparkles size={16} /> A More Personal Kind of Beauty
+          </span>
+
+          <h1>
+            Curated Artists. <em>Good hands, beautiful possibilities.</em>
           </h1>
-          <p className="discover-page__subtitle" style={{ marginTop: '16px' }}>
-            Find the perfect makeup artist for any occasion
+
+          <p>
+            Explore verified portfolios, compare specialties, and find the makeup artist tailored to your moment.
           </p>
-        </div>
 
-      {/* Search Bar */}
-      <div className="reveal-up" style={{ maxWidth: '740px', margin: '0 auto', transitionDelay: '0.1s' }}>
-        <div className="lp-search-box glass-panel" style={{ background: 'var(--white)' }}>
-          <div className="lp-search-input">
-            <Search size={18} className="lp-search-icon" />
-            <input 
-              type="text" 
-              placeholder="Service (e.g. Bridal HD, Airbrush)" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="discover-trust-badges">
+            <span className="discover-trust-badge">
+              <CheckCircle size={14} color="var(--rose-deep)" /> 100% Verified Profiles
+            </span>
+            <span className="discover-trust-badge">
+              <Star size={14} color="#f59e0b" fill="#f59e0b" /> Real Client Reviews
+            </span>
+            <span className="discover-trust-badge">
+              <Sparkles size={14} color="var(--rose-deep)" /> Transparent Pricing
+            </span>
           </div>
-          <div className="lp-search-divider" />
-          <div className="lp-search-input" style={{ padding: 0 }}>
-            <LocationAutocomplete 
-              value={locationQuery} 
-              onChange={setLocationQuery} 
-              icon={<MapPin size={18} className="lp-search-icon" />}
-              className="lp-search-input--autocomplete"
-            />
-          </div>
-          <button
-            className={`lp-btn lp-search-btn ${filterDrawerOpen ? 'lp-btn--dark' : 'lp-btn--primary'}`}
-            onClick={() => setFilterDrawerOpen(!filterDrawerOpen)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <Filter size={16} /> Filters
-            {activeFilterCount > 0 && (
-              <span className="discover-filter-badge">{activeFilterCount}</span>
-            )}
-          </button>
         </div>
+      </section>
 
-        {/* Expandable Luxury Filter Drawer */}
-        {filterDrawerOpen && (
-          <div className="discover-filter-drawer">
-            <div className="discover-filter-drawer__header">
-              <span className="discover-filter-drawer__title">
-                <SlidersHorizontal size={16} /> Refine Artists
-              </span>
-              {activeFilterCount > 0 && (
-                <button type="button" className="discover-filter-drawer__reset" onClick={resetAllFilters}>
-                  <RotateCcw size={13} /> Reset Filters
-                </button>
-              )}
-            </div>
-
-            <div className="discover-filter-drawer__grid">
-              {/* Sort By */}
-              <div className="discover-filter-group">
-                <label className="discover-filter-label">Sort By</label>
-                <div className="discover-filter-chips">
-                  {[
-                    { id: 'FEATURED', label: 'Curated' },
-                    { id: 'RATING', label: 'Top Rated ★' },
-                    { id: 'PRICE_ASC', label: 'Price: Low-High' },
-                    { id: 'PRICE_DESC', label: 'Price: High-Low' },
-                    { id: 'EXPERIENCE', label: 'Most Experience' },
-                  ].map(s => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className={`discover-chip ${sortBy === s.id ? 'is-active' : ''}`}
-                      onClick={() => setSortBy(s.id as any)}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="discover-filter-group">
-                <label className="discover-filter-label">Budget Range</label>
-                <div className="discover-filter-chips">
-                  {[
-                    { id: 'ALL', label: 'Any Budget' },
-                    { id: 'UNDER_5K', label: 'Under ₹5,000' },
-                    { id: '5K_15K', label: '₹5,000 – ₹15,000' },
-                    { id: 'ABOVE_15K', label: '₹15,000+' },
-                  ].map(p => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      className={`discover-chip ${priceFilter === p.id ? 'is-active' : ''}`}
-                      onClick={() => setPriceFilter(p.id as any)}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Verified & Experience */}
-              <div className="discover-filter-group">
-                <label className="discover-filter-label">Verification & Experience</label>
-                <div className="discover-filter-chips">
+      {/* ── Main Content Area ── */}
+      <div className="discover-content">
+        <div className="discover-content__inner">
+          {/* ── Search & Filter Suite ── */}
+          <div className="discover-search-suite reveal-up">
+            <div className="discover-search-bar">
+              <div className="discover-search-input">
+                <Search size={18} className="discover-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search by specialty, look, or artist..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search artists"
+                />
+                {searchQuery && (
                   <button
                     type="button"
-                    className={`discover-chip ${onlyVerified ? 'is-active' : ''}`}
-                    onClick={() => setOnlyVerified(!onlyVerified)}
+                    className="discover-search-clear"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
                   >
-                    ✓ Verified Artists Only
+                    <X size={15} />
                   </button>
-                  {[
-                    { exp: 0, label: 'Any Exp' },
-                    { exp: 3, label: '3+ Yrs' },
-                    { exp: 5, label: '5+ Yrs' },
-                  ].map(e => (
-                    <button
-                      key={e.exp}
-                      type="button"
-                      className={`discover-chip ${minExp === e.exp ? 'is-active' : ''}`}
-                      onClick={() => setMinExp(e.exp)}
-                    >
-                      {e.label}
-                    </button>
-                  ))}
-                </div>
+                )}
               </div>
-            </div>
-          </div>
-        )}
-      </div>
 
-      {/* Filter Categories */}
-      <div className="discover-page__filters reveal-up" style={{ transitionDelay: '0.1s' }}>
-        <CategoryChips
-          categories={DISCOVER_CATEGORIES}
-          activeCategory={activeCategory}
-          onCategorySelect={setActiveCategory}
-        />
-      </div>
+              <div className="discover-search-divider" />
 
-      {/* Results Count */}
-      <div className="discover-page__results-info">
-        <p className="discover-page__results-count">
-          {isLoading ? 'Loading...' : `${filteredArtists.length} ${filteredArtists.length === 1 ? 'artist' : 'artists'} available`}
-        </p>
-      </div>
+              <div className="discover-search-input discover-search-input--loc">
+                <LocationAutocomplete
+                  value={locationQuery}
+                  onChange={setLocationQuery}
+                  icon={<MapPin size={18} className="discover-search-icon" />}
+                  placeholder="Location (e.g. Mumbai, Delhi)"
+                  className="lp-search-input--autocomplete"
+                />
+                {locationQuery && (
+                  <button
+                    type="button"
+                    className="discover-search-clear"
+                    onClick={() => setLocationQuery('')}
+                    aria-label="Clear location"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
 
-      {/* Error State */}
-      {error && !isLoading && (
-        <div style={{ padding: '16px', background: 'rgba(239,68,68,0.1)', color: '#dc2626', borderRadius: 12, display: 'flex', gap: 8, alignItems: 'center', marginBottom: 24 }}>
-          <AlertCircle size={20} />
-          <span style={{ fontWeight: 600 }}>{error}</span>
-        </div>
-      )}
-
-      {/* Artists Grid */}
-      {isLoading ? (
-        <div className="discover-page__artists-grid stagger" style={{ marginTop: '32px' }}>
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div className="reveal-scale" key={`skeleton-${index}`}>
-              <ArtistCardSkeleton />
-            </div>
-          ))}
-        </div>
-      ) : filteredArtists.length > 0 ? (
-        <div className="discover-page__artists-grid stagger" style={{ marginTop: '32px' }}>
-          {filteredArtists.map((artist) => {
-            const rawImg = artist.profileImageUrl || artist.user?.avatarUrl;
-            const imgUrl = rawImg ? (rawImg.startsWith('/') ? `${API_BASE}${rawImg}` : rawImg) : ASSET_IMAGES[1];
-            
-            // Format data exactly like LandingPage
-            const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Makeup Artist'];
-            const shownSpecialties = specialties.slice(0, 2);
-            const extraSpecialties = specialties.length - shownSpecialties.length;
-            const hasRating = artist.rating > 0;
-            const years = Number(artist.experience) || 0;
-            const reviews = Number(artist.reviewCount) || 0;
-            const highlight = years > 0
-              ? `${years}+ yrs experience`
-              : reviews > 0
-                ? `${reviews} client review${reviews > 1 ? 's' : ''}`
-                : artist.isVerified ? 'Verified professional' : 'Rising talent';
-
-            return (
-              <article
-                key={artist.id}
-                className="lp-artist-card"
-                onClick={() => handleArtistClick(artist.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && handleArtistClick(artist.id)}
+              <button
+                type="button"
+                className={`discover-filter-trigger ${filterDrawerOpen ? 'is-open' : ''} ${activeFilterCount > 0 ? 'has-active' : ''}`}
+                onClick={() => setFilterDrawerOpen(!filterDrawerOpen)}
+                aria-expanded={filterDrawerOpen}
+                aria-label="Toggle filter drawer"
               >
-                <div className="lp-artist-card__img-wrap">
-                  <img src={imgUrl} alt={artist.user?.name || 'Artist'} className="lp-artist-card__img" loading="lazy" onError={(e) => handleImageFallback(e, 1)} />
-                  <div className="lp-artist-card__overlay" />
+                <SlidersHorizontal size={16} />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="discover-filter-count-badge">{activeFilterCount}</span>
+                )}
+              </button>
+            </div>
+          </div>
 
-                  {artist.isVerified && (
-                    <span className="lp-artist-card__badge">
-                      <CheckCircle size={12} /> Verified
-                    </span>
-                  )}
-                  <span className={`lp-artist-card__rating-chip${hasRating ? '' : ' is-new'}`}>
-                    <Star size={11} fill="currentColor" strokeWidth={0} />
-                    {hasRating ? artist.rating.toFixed(1) : 'New'}
-                  </span>
+          {/* ── Slide-Over Ecommerce Filter Drawer (Unfolds from right) ── */}
+          {filterDrawerOpen && (
+            <div className="discover-filter-modal" role="dialog" aria-modal="true" aria-label="Filters">
+              {/* Backdrop Overlay */}
+              <div
+                className="discover-filter-backdrop"
+                onClick={() => setFilterDrawerOpen(false)}
+                aria-hidden="true"
+              />
 
-                  <button
-                    type="button"
-                    className={`lp-artist-card__fav-btn ${isFavorite(artist.id) ? 'is-fav' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(artist.id);
-                    }}
-                    aria-label={isFavorite(artist.id) ? 'Remove from favorites' : 'Save to favorites'}
-                  >
-                    <Heart size={14} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
-                  </button>
-
-                  <div className="lp-artist-card__cover">
-                    <h3 className="lp-artist-card__name">{artist.user?.name || 'Artist'}</h3>
-                    <span className="lp-artist-card__location">
-                      <MapPin size={12} /> <span>{artist.location || 'India'}</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="lp-artist-card__info">
-                  <div className="lp-artist-card__highlight">
-                    <Star size={14} style={{ display: 'none' }} />
-                    <span>{highlight}</span>
-                  </div>
-                  <div className="lp-artist-card__tags">
-                    {shownSpecialties.map((s) => (
-                      <span key={s} className="lp-artist-card__tag">{s}</span>
-                    ))}
-                    {extraSpecialties > 0 && (
-                      <span className="lp-artist-card__tag lp-artist-card__tag--more">+{extraSpecialties}</span>
+              {/* Right Slide-in Panel */}
+              <aside className="discover-filter-panel">
+                {/* Header */}
+                <div className="discover-filter-panel__header">
+                  <div className="discover-filter-panel__title-wrap">
+                    <SlidersHorizontal size={18} className="discover-filter-panel__icon" />
+                    <h2 className="discover-filter-panel__title">Filter & Refine</h2>
+                    {activeFilterCount > 0 && (
+                      <span className="discover-filter-count-badge">{activeFilterCount}</span>
                     )}
                   </div>
-                  <div className="lp-artist-card__footer">
-                    <span className="lp-artist-card__price">
-                      <em>Starting from</em> <span style={{ fontFamily: 'var(--font-body)' }}>₹</span>{(artist.startingPrice || 0).toLocaleString()}
-                    </span>
-                    <span className="lp-artist-card__cta" aria-hidden="true">
-                      <ArrowRight size={15} />
-                    </span>
+                  <div className="discover-filter-panel__actions">
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        className="discover-filter-panel__reset-btn"
+                        onClick={resetAllFilters}
+                      >
+                        <RotateCcw size={13} />
+                        <span>Clear all</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="discover-filter-panel__close-btn"
+                      onClick={() => setFilterDrawerOpen(false)}
+                      aria-label="Close filters"
+                    >
+                      <X size={20} />
+                    </button>
                   </div>
                 </div>
-              </article>
-            );
-          })}
+
+                {/* Split Two-Pane Body */}
+                <div className="discover-filter-panel__body">
+                  {/* Left Navigation Column */}
+                  <nav className="discover-filter-tabs" aria-label="Filter categories">
+                    <button
+                      type="button"
+                      className={`discover-filter-tab-btn ${filterTab === 'sort' ? 'is-active' : ''}`}
+                      onClick={() => setFilterTab('sort')}
+                    >
+                      <span className="discover-filter-tab-text">Sort By</span>
+                      {sortBy !== 'FEATURED' && <span className="discover-filter-tab-dot" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`discover-filter-tab-btn ${filterTab === 'budget' ? 'is-active' : ''}`}
+                      onClick={() => setFilterTab('budget')}
+                    >
+                      <span className="discover-filter-tab-text">Budget</span>
+                      {priceFilter !== 'ALL' && <span className="discover-filter-tab-dot" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`discover-filter-tab-btn ${filterTab === 'location' ? 'is-active' : ''}`}
+                      onClick={() => setFilterTab('location')}
+                    >
+                      <span className="discover-filter-tab-text">Location</span>
+                      {Boolean(locationQuery.trim()) && <span className="discover-filter-tab-dot" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`discover-filter-tab-btn ${filterTab === 'experience' ? 'is-active' : ''}`}
+                      onClick={() => setFilterTab('experience')}
+                    >
+                      <span className="discover-filter-tab-text">Experience</span>
+                      {(onlyVerified || minExp > 0) && <span className="discover-filter-tab-dot" />}
+                    </button>
+                  </nav>
+
+                  {/* Right Content Pane - Unfolds options */}
+                  <div className="discover-filter-content">
+                    {/* 1. Sort By Tab */}
+                    {filterTab === 'sort' && (
+                      <div className="discover-filter-pane animate-fade-in">
+                        <h3 className="discover-filter-pane__heading">Sort Artists By</h3>
+                        <div className="discover-filter-options-list">
+                          {[
+                            { id: 'FEATURED', label: 'Curated (Recommended)', desc: 'Best match based on style & popularity' },
+                            { id: 'RATING', label: 'Top Rated ★', desc: 'Highest client ratings first' },
+                            { id: 'PRICE_ASC', label: 'Price: Low to High', desc: 'Starting price ascending' },
+                            { id: 'PRICE_DESC', label: 'Price: High to Low', desc: 'Starting price descending' },
+                            { id: 'EXPERIENCE', label: 'Most Experience', desc: 'Senior artists & specialists' },
+                          ].map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              className={`discover-filter-radio-row ${sortBy === s.id ? 'is-selected' : ''}`}
+                              onClick={() => setSortBy(s.id as any)}
+                            >
+                              <div className="discover-filter-radio-indicator">
+                                {sortBy === s.id && <span className="discover-filter-radio-dot" />}
+                              </div>
+                              <div className="discover-filter-radio-meta">
+                                <span className="discover-filter-radio-title">{s.label}</span>
+                                <span className="discover-filter-radio-desc">{s.desc}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 2. Budget Tab */}
+                    {filterTab === 'budget' && (
+                      <div className="discover-filter-pane animate-fade-in">
+                        <h3 className="discover-filter-pane__heading">Price Range</h3>
+                        <div className="discover-filter-options-list">
+                          {[
+                            { id: 'ALL', label: 'Any Budget', desc: 'Show all pricing tiers' },
+                            { id: 'UNDER_5K', label: 'Under ₹5,000', desc: 'Budget-friendly artistry' },
+                            { id: '5K_15K', label: '₹5,000 – ₹15,000', desc: 'Most popular range' },
+                            { id: 'ABOVE_15K', label: '₹15,000 & Above', desc: 'Bridal & luxury specialists' },
+                          ].map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              className={`discover-filter-radio-row ${priceFilter === p.id ? 'is-selected' : ''}`}
+                              onClick={() => setPriceFilter(p.id as any)}
+                            >
+                              <div className="discover-filter-radio-indicator">
+                                {priceFilter === p.id && <span className="discover-filter-radio-dot" />}
+                              </div>
+                              <div className="discover-filter-radio-meta">
+                                <span className="discover-filter-radio-title">{p.label}</span>
+                                <span className="discover-filter-radio-desc">{p.desc}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3. Location Tab */}
+                    {filterTab === 'location' && (
+                      <div className="discover-filter-pane animate-fade-in">
+                        <h3 className="discover-filter-pane__heading">City / Location</h3>
+                        <div className="discover-filter-loc-box">
+                          <LocationAutocomplete
+                            value={locationQuery}
+                            onChange={setLocationQuery}
+                            icon={<MapPin size={16} className="discover-search-icon" />}
+                            placeholder="Search city (e.g. Mumbai, Delhi, Bengaluru)"
+                            className="lp-search-input--autocomplete"
+                          />
+                          {locationQuery && (
+                            <button
+                              type="button"
+                              className="discover-search-clear"
+                              onClick={() => setLocationQuery('')}
+                              aria-label="Clear location"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="discover-filter-popular-cities">
+                          <span className="discover-filter-sublabel">Popular Cities</span>
+                          <div className="discover-filter-city-chips">
+                            {['Mumbai', 'Delhi', 'Bengaluru', 'Pune', 'Hyderabad', 'Jaipur', 'Goa'].map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                className={`discover-city-chip ${locationQuery.toLowerCase() === city.toLowerCase() ? 'is-selected' : ''}`}
+                                onClick={() => setLocationQuery(locationQuery.toLowerCase() === city.toLowerCase() ? '' : city)}
+                              >
+                                {city}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 4. Experience & Verification Tab */}
+                    {filterTab === 'experience' && (
+                      <div className="discover-filter-pane animate-fade-in">
+                        <h3 className="discover-filter-pane__heading">Verification</h3>
+                        <div
+                          className={`discover-filter-toggle-card ${onlyVerified ? 'is-active' : ''}`}
+                          onClick={() => setOnlyVerified(!onlyVerified)}
+                          role="checkbox"
+                          aria-checked={onlyVerified}
+                          tabIndex={0}
+                        >
+                          <div className="discover-filter-toggle-content">
+                            <span className="discover-filter-toggle-title">Verified Artists Only</span>
+                            <span className="discover-filter-toggle-sub">100% vetted portfolio & identity</span>
+                          </div>
+                          <div className={`discover-filter-switch ${onlyVerified ? 'is-on' : ''}`}>
+                            <div className="discover-filter-switch-thumb" />
+                          </div>
+                        </div>
+
+                        <h3 className="discover-filter-pane__heading" style={{ marginTop: '24px' }}>Years in Industry</h3>
+                        <div className="discover-filter-options-list">
+                          {[
+                            { exp: 0, label: 'Any Experience', desc: 'All certified artists' },
+                            { exp: 3, label: '3+ Years', desc: 'Established track record' },
+                            { exp: 5, label: '5+ Years', desc: 'Seasoned master artists' },
+                          ].map((e) => (
+                            <button
+                              key={e.exp}
+                              type="button"
+                              className={`discover-filter-radio-row ${minExp === e.exp ? 'is-selected' : ''}`}
+                              onClick={() => setMinExp(e.exp)}
+                            >
+                              <div className="discover-filter-radio-indicator">
+                                {minExp === e.exp && <span className="discover-filter-radio-dot" />}
+                              </div>
+                              <div className="discover-filter-radio-meta">
+                                <span className="discover-filter-radio-title">{e.label}</span>
+                                <span className="discover-filter-radio-desc">{e.desc}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sticky Bottom Footer */}
+                <div className="discover-filter-panel__footer">
+                  <button
+                    type="button"
+                    className="discover-filter-panel__footer-reset"
+                    onClick={resetAllFilters}
+                    disabled={!hasAnyFilterActive}
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    type="button"
+                    className="discover-filter-panel__apply-btn"
+                    onClick={() => setFilterDrawerOpen(false)}
+                  >
+                    Show {filteredArtists.length} {filteredArtists.length === 1 ? 'Artist' : 'Artists'}
+                  </button>
+                </div>
+              </aside>
+            </div>
+          )}
+
+          {/* ── Filter Categories Shelf ── */}
+          <div className="discover-categories-wrap reveal-up">
+            <CategoryChips
+              categories={DISCOVER_CATEGORIES}
+              activeCategory={activeCategory}
+              onCategorySelect={setActiveCategory}
+            />
+          </div>
+
+          {/* ── Results Info & Active Filter Badges ── */}
+          <div className="discover-results-bar">
+            <div className="discover-results-summary">
+              <p className="discover-results-count">
+                {isLoading ? (
+                  'Searching artists...'
+                ) : (
+                  <>
+                    Showing <strong>{filteredArtists.length}</strong> {filteredArtists.length === 1 ? 'artist' : 'artists'}
+                    {activeCategory !== 'All' && <span className="discover-results-sub"> in {activeCategory}</span>}
+                  </>
+                )}
+              </p>
+            </div>
+
+            {hasAnyFilterActive && (
+              <div className="discover-active-pills">
+                {activeCategory !== 'All' && (
+                  <span className="discover-active-pill">
+                    {activeCategory}
+                    <button type="button" onClick={() => setActiveCategory('All')} aria-label="Remove category filter">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {searchQuery.trim() && (
+                  <span className="discover-active-pill">
+                    "{searchQuery.trim()}"
+                    <button type="button" onClick={() => setSearchQuery('')} aria-label="Clear search">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {locationQuery.trim() && (
+                  <span className="discover-active-pill">
+                    📍 {locationQuery.trim()}
+                    <button type="button" onClick={() => setLocationQuery('')} aria-label="Clear location">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {priceFilter !== 'ALL' && (
+                  <span className="discover-active-pill">
+                    {priceFilter === 'UNDER_5K' ? 'Under ₹5k' : priceFilter === '5K_15K' ? '₹5k – ₹15k' : '₹15k+'}
+                    <button type="button" onClick={() => setPriceFilter('ALL')} aria-label="Clear price filter">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {onlyVerified && (
+                  <span className="discover-active-pill">
+                    Verified Only
+                    <button type="button" onClick={() => setOnlyVerified(false)} aria-label="Remove verified filter">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {minExp > 0 && (
+                  <span className="discover-active-pill">
+                    {minExp}+ Yrs Exp
+                    <button type="button" onClick={() => setMinExp(0)} aria-label="Clear exp filter">
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                <button type="button" className="discover-clear-all-btn" onClick={resetAllFilters}>
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="discover-error-banner">
+              <AlertCircle size={20} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Artists Grid */}
+          {isLoading ? (
+            <div className="discover-page__artists-grid">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div className="home-artist-skeleton" key={`skeleton-${index}`} />
+              ))}
+            </div>
+          ) : filteredArtists.length > 0 ? (
+            <div className="discover-page__artists-grid stagger">
+              {filteredArtists.map((artist, index) => {
+                const photo = artist.profileImageUrl || artist.user?.avatarUrl;
+                const imgUrl = photo ? mediaUrl(photo) : ASSET_IMAGES[index % ASSET_IMAGES.length];
+                const artistName = artist.user?.name || 'Artist';
+                const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Artistry'];
+                const startingPrice = Number(artist.startingPrice) || 0;
+
+                return (
+                  <article className="home-artist" key={artist.id}>
+                    <div className="home-artist__media">
+                      <Link
+                        to={`/artist/${artist.id}`}
+                        className="home-artist__image"
+                        aria-label={`View ${artistName}'s profile`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={artistName}
+                          loading="lazy"
+                          onError={(e) => handleImageFallback(e, index)}
+                        />
+                        {artist.isVerified && (
+                          <span className="home-artist__verified">
+                            <BadgeCheck size={14} /> Verified
+                          </span>
+                        )}
+                      </Link>
+                      <button
+                        className={`home-artist__save ${isFavorite(artist.id) ? 'is-saved' : ''}`}
+                        type="button"
+                        aria-label={`${isFavorite(artist.id) ? 'Unsave' : 'Save'} ${artistName}`}
+                        aria-pressed={isFavorite(artist.id)}
+                        onClick={() => toggleFavorite(artist.id)}
+                      >
+                        <Heart size={18} fill={isFavorite(artist.id) ? 'currentColor' : 'none'} />
+                      </button>
+                    </div>
+
+                    <div className="home-artist__body">
+                      <div className="home-artist__title">
+                        <h3>
+                          <Link to={`/artist/${artist.id}`}>{artistName}</Link>
+                        </h3>
+                        {artist.rating > 0 ? (
+                          <span className="home-artist__rating">
+                            <Star size={11} fill="currentColor" /> {artist.rating.toFixed(1)}
+                          </span>
+                        ) : (
+                          <span className="home-artist__rating home-artist__rating--new">
+                            <Sparkles size={11} strokeWidth={2} /> Pro
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="home-artist__specialties">
+                        {specialties.slice(0, 2).map((spec: string) => (
+                          <span key={spec} className="home-artist__tag">{spec}</span>
+                        ))}
+                        {specialties.length > 2 && (
+                          <span className="home-artist__tag home-artist__tag--more">+{specialties.length - 2}</span>
+                        )}
+                      </div>
+
+                      <div className="home-artist__location">
+                        <span className="home-artist__location-icon" aria-hidden="true">
+                          <MapPin size={11} strokeWidth={2.4} />
+                        </span>
+                        <span className="home-artist__location-text">{artist.location || 'Pan India'}</span>
+                      </div>
+
+                      <div className="home-artist__bottom">
+                        <div className="home-artist__price">
+                          <span className="home-artist__price-label">From</span>
+                          <strong className="home-artist__price-val">₹{startingPrice.toLocaleString('en-IN')}</strong>
+                        </div>
+                        <Link
+                          to={`/artist/${artist.id}`}
+                          className="home-artist__action"
+                          aria-label={`Explore ${artistName}`}
+                        >
+                          <ArrowUpRight size={18} strokeWidth={2.4} />
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : !error ? (
+            <div className="discover-page__empty-state">
+              <div className="discover-empty-icon-wrap">
+                <Sparkles size={28} />
+              </div>
+              <h3 className="discover-page__empty-title">No Artists Found</h3>
+              <p className="discover-page__empty-message">
+                We couldn't find any artists matching your active filters.<br />
+                Try clearing your search terms or choosing another category.
+              </p>
+              <button
+                type="button"
+                className="discover-page__reset-btn"
+                onClick={resetAllFilters}
+              >
+                <RotateCcw size={16} /> Reset All Filters
+              </button>
+            </div>
+          ) : null}
         </div>
-      ) : !error ? (
-        <div className="discover-page__empty-state">
-          <div className="discover-page__empty-icon">🔍</div>
-          <h3 className="discover-page__empty-title">No Artists Match Criteria</h3>
-          <p className="discover-page__empty-message">
-            No artists match your active filter settings.<br />
-            Try clearing filters or selecting another category.
-          </p>
-          <button
-            className="discover-page__reset-btn"
-            onClick={resetAllFilters}
-          >
-            Reset All Filters
-          </button>
-        </div>
-      ) : null}
       </div>
     </div>
   );

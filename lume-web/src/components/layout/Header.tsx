@@ -4,17 +4,12 @@ import { ArrowRight, ArrowUpRight, Heart, MapPin, Menu, Search, Sparkles, X } fr
 import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
-const LANDING_LINKS = [
-  { label: 'Find an artist', path: '/discover' },
-  { label: 'Occasions', path: '/#categories' },
-  { label: 'Our story', path: '/about' },
+const NAV_LINKS = [
+  { label: 'Home', path: '/' },
+  { label: 'Artists', path: '/discover' },
+  { label: 'Categories', path: '/categories' },
+  { label: 'About', path: '/about' },
   { label: 'How it works', path: '/#how-it-works' },
-];
-const APP_LINKS = [
-  { label: 'Home', path: '/home' },
-  { label: 'Discover', path: '/discover' },
-  { label: 'Saved', path: '/saved' },
-  { label: 'My account', path: '/profile' },
 ];
 
 const POPULAR_OCCASIONS = ['Bridal', 'Editorial', 'Glamour', 'Natural', 'Party', 'Festive', 'Fantasy', 'SFX'];
@@ -32,8 +27,17 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
 
   const menuButton = useRef<HTMLButtonElement>(null);
   const menuOpen = openPath === location.pathname;
-  const links = isLanding ? LANDING_LINKS : APP_LINKS;
   const accountPath = user?.role === 'ARTIST' ? '/artist-dashboard' : user?.role === 'ADMIN' ? '/admin' : '/profile';
+
+  const isLinkActive = (path: string) => {
+    if (path === '/') {
+      return (location.pathname === '/' || location.pathname === '/home') && !location.hash;
+    }
+    if (path.startsWith('/#')) {
+      return (location.pathname === '/' || location.pathname === '/home') && location.hash === path.slice(1);
+    }
+    return location.pathname === path;
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -66,11 +70,20 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
 
   const followLink = (event: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     setOpenPath(null);
-    if (path.startsWith('/#') && isLanding) {
+    if (path === '/' && (location.pathname === '/' || location.pathname === '/home')) {
+      event.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      });
+    } else if (path.startsWith('/#') && (location.pathname === '/' || location.pathname === '/home')) {
       const section = document.getElementById(path.slice(2));
       if (section) {
         event.preventDefault();
-        section.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        section.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'start',
+        });
       }
     } else if (path === '/profile' && user?.role === 'ARTIST') {
       event.preventDefault();
@@ -93,7 +106,19 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
     <header className={`lume-header ${isLanding ? 'lume-header--landing' : ''} ${scrolled ? 'lume-header--scrolled' : ''} ${menuOpen ? 'lume-header--open' : ''}`}>
       <div className="lume-header__inner">
         <Link to="/" className="lume-brand" aria-label="Lume home" onClick={() => setOpenPath(null)}><span className="lume-brand__mark"><img src="/Logo.png" alt="Lume logo" /></span><span className="lume-brand__name">LUME</span></Link>
-        <nav className="lume-header__nav" aria-label="Main navigation">{links.map(link => <Link key={link.label} to={link.path} className={`lume-header__nav-link ${location.pathname === link.path ? 'is-active' : ''}`} aria-current={location.pathname === link.path ? 'page' : undefined} onClick={event => followLink(event, link.path)}>{link.label}</Link>)}</nav>
+        <nav className="lume-header__nav" aria-label="Main navigation">
+          {NAV_LINKS.map(link => (
+            <Link
+              key={link.label}
+              to={link.path}
+              className={`lume-header__nav-link ${isLinkActive(link.path) ? 'is-active' : ''}`}
+              aria-current={isLinkActive(link.path) ? 'page' : undefined}
+              onClick={event => followLink(event, link.path)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
         <div className="lume-header__actions">
           <button
             type="button"
@@ -108,7 +133,43 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
           <button className="lume-header__toggle" ref={menuButton} type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setOpenPath(menuOpen ? null : location.pathname)}>{menuOpen ? <X size={26} /> : <Menu size={26} />}</button>
         </div>
       </div>
-      {menuOpen && <><button className="lume-header__backdrop" aria-label="Close navigation" tabIndex={-1} onClick={() => setOpenPath(null)} /><nav id="mobile-navigation" className="lume-header__drawer" aria-label="Mobile navigation"><span className="lume-header__menu-label">A LITTLE BEAUTY, A LITTLE YOU</span>{links.map((link, index) => <Link key={link.label} to={link.path} onClick={event => followLink(event, link.path)}><span>0{index + 1}</span>{link.label}<ArrowUpRight size={18} /></Link>)}<div className="lume-header__drawer-bottom"><Link to="/saved" onClick={() => setOpenPath(null)}><Heart size={16} /> Saved artists</Link><Link to={isAuthenticated ? accountPath : '/login'} onClick={() => setOpenPath(null)}>{isAuthenticated ? 'My account' : 'Sign in'} <ArrowRightIcon /></Link></div><Link to={user?.role === 'ARTIST' ? '/artist-dashboard' : '/discover'} className="lume-header__drawer-cta" onClick={() => setOpenPath(null)}>{user?.role === 'ARTIST' ? 'Open artist portal' : 'Discover your artist'}<ArrowUpRight size={18} /></Link></nav></>}
+      {menuOpen && (
+        <>
+          <button className="lume-header__backdrop" aria-label="Close navigation" tabIndex={-1} onClick={() => setOpenPath(null)} />
+          <nav id="mobile-navigation" className="lume-header__drawer" aria-label="Mobile navigation">
+            <span className="lume-header__menu-label">A LITTLE BEAUTY, A LITTLE YOU</span>
+            {NAV_LINKS.map((link, index) => (
+              <Link
+                key={link.label}
+                to={link.path}
+                className={isLinkActive(link.path) ? 'is-active' : ''}
+                aria-current={isLinkActive(link.path) ? 'page' : undefined}
+                onClick={event => followLink(event, link.path)}
+              >
+                <span>0{index + 1}</span>
+                {link.label}
+                <ArrowUpRight size={18} />
+              </Link>
+            ))}
+            <div className="lume-header__drawer-bottom">
+              <Link to="/saved" onClick={() => setOpenPath(null)}>
+                <Heart size={16} /> Saved artists
+              </Link>
+              <Link to={isAuthenticated ? accountPath : '/login'} onClick={() => setOpenPath(null)}>
+                {isAuthenticated ? 'My account' : 'Sign in'} <ArrowRightIcon />
+              </Link>
+            </div>
+            <Link
+              to={user?.role === 'ARTIST' ? '/artist-dashboard' : '/discover'}
+              className="lume-header__drawer-cta"
+              onClick={() => setOpenPath(null)}
+            >
+              {user?.role === 'ARTIST' ? 'Open artist portal' : 'Discover your artist'}
+              <ArrowUpRight size={18} />
+            </Link>
+          </nav>
+        </>
+      )}
 
       {/* Mobile Search Modal Popup with Blurred Backdrop */}
       {searchOpen && (

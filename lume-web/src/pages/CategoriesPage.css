@@ -484,8 +484,86 @@
     font-size: 0.84rem;
   }
   .categories-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .category-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(42, 26, 31, 0.06);
+    border: 1px solid rgba(226, 213, 216, 0.85);
+  }
+  .category-card__image-wrap {
+    aspect-ratio: 1 / 0.85;
+  }
+  .category-card__number {
+    top: 8px;
+    left: 8px;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 8px;
+  }
+  .category-card__quick-arrow {
+    right: 8px;
+    bottom: 8px;
+    width: 28px;
+    height: 28px;
+  }
+  .category-card__quick-arrow svg {
+    width: 14px;
+    height: 14px;
+  }
+  .category-card__body {
+    padding: 10px 10px 12px;
+    gap: 4px;
+  }
+  .category-card__header {
+    margin-bottom: 2px;
+  }
+  .category-card__title {
+    font-size: 1.1rem;
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+  .category-card__tagline {
+    font-size: 0.72rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .category-card__description {
+    display: none;
+  }
+  .category-card__tags {
+    margin-bottom: 8px;
+    gap: 4px;
+  }
+  .category-card__tag {
+    font-size: 0.64rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .category-card__tag:nth-child(n+3) {
+    display: none;
+  }
+  .category-card__action {
+    font-size: 0.74rem;
+    padding: 7px 8px;
+    border-radius: 8px;
+    margin-top: auto;
+    gap: 4px;
+    justify-content: center;
+  }
+  .category-card__action span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .category-card__action svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
   }
   .categories-banner {
     padding: 24px 20px;
@@ -498,5 +576,20 @@
   .categories-banner__button-secondary {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .categories-grid {
+    gap: 8px;
+  }
+  .category-card__body {
+    padding: 8px 8px 10px;
+  }
+  .category-card__title {
+    font-size: 1rem;
+  }
+  .category-card__tagline {
+    font-size: 0.68rem;
   }
 }

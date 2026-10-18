@@ -413,21 +413,16 @@
   transform: translateY(-1px);
 }
 
+/* ── Mobile Elements Default Hidden on Desktop ── */
+.about-story-mobile,
+.about-pillars-mobile {
+  display: none;
+}
+
 /* ── Mobile Responsive ── */
 @media (max-width: 980px) {
   .about-container {
     width: calc(100% - 48px);
-  }
-  .about-story-card {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-  .about-story-frame {
-    aspect-ratio: 16 / 10;
-  }
-  .about-pillars-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
   }
   .about-cta-inner {
     flex-direction: column;
@@ -446,7 +441,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .about-container {
     width: calc(100% - 32px);
   }
@@ -455,33 +450,256 @@
   }
   .about-hero__headline {
     font-size: 2.1rem;
+    line-height: 1.2;
   }
   .about-hero__sub {
-    font-size: 0.95rem;
+    font-size: 0.94rem;
+    line-height: 1.6;
+    margin-bottom: 18px;
   }
   .about-hero__tags {
     gap: 8px;
   }
   .about-hero__tags span {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     padding: 4px 10px;
   }
+
+  /* Hide Desktop Views */
+  .about-story-card--desktop,
+  .about-pillars-grid--desktop {
+    display: none !important;
+  }
+
+  /* Show Mobile Swipeable Views */
+  .about-story-mobile,
+  .about-pillars-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
   .about-story-section {
-    padding: 28px 0 16px;
+    padding: 20px 0 10px;
   }
-  .about-story-card__content h2 {
-    font-size: 1.7rem;
+  .about-pillars-section {
+    padding: 20px 0 16px;
   }
-  .about-story-p {
-    font-size: 0.92rem;
+  .about-section-head {
+    margin-bottom: 16px;
+    text-align: center;
   }
-  .about-story-quote p {
+  .about-section-head h2 {
+    font-size: 1.55rem;
+    line-height: 1.25;
+  }
+
+  /* Mobile Tabs Nav */
+  .about-mobile-nav {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+    justify-content: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 2px 6px;
+  }
+
+  .about-mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .about-mobile-pill {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: 9999px;
+    border: 1px solid rgba(212, 94, 126, 0.22);
+    background: #ffffff;
+    color: var(--dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(42, 26, 31, 0.04);
+  }
+
+  .about-mobile-pill.is-active {
+    background: var(--rose-deep);
+    color: #ffffff;
+    border-color: var(--rose-deep);
+    box-shadow: 0 4px 12px rgba(212, 94, 126, 0.25);
+  }
+
+  /* Mobile Deck Container */
+  .about-mobile-deck {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .about-mobile-slide {
+    width: 100%;
+  }
+
+  .about-mobile-slide.is-hidden {
+    display: none;
+  }
+
+  .about-mobile-slide.is-active {
+    display: block;
+    animation: aboutSlideFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes aboutSlideFade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Mobile Cards */
+  .about-mobile-card {
+    background: #ffffff;
+    border: 1.5px solid rgba(217, 122, 140, 0.22);
+    border-radius: 20px;
+    padding: 20px 18px;
+    box-shadow: 0 8px 24px rgba(42, 26, 31, 0.05);
+  }
+
+  .about-mobile-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 4px 0 10px;
+    color: var(--dark);
+  }
+
+  .about-mobile-card .about-story-p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--mid);
+    margin: 0 0 14px;
+  }
+
+  .about-mobile-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--rose-deep);
+  }
+
+  .about-mobile-card--media {
+    padding: 8px;
+  }
+
+  .about-mobile-card--media .about-story-frame {
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+  }
+
+  .about-mobile-card--founder {
+    padding: 22px 18px;
+  }
+
+  .about-mobile-card--founder .about-story-quote {
+    margin: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .about-mobile-card--founder .about-story-quote p {
     font-size: 0.95rem;
+    line-height: 1.6;
   }
-  .about-pillar-card {
-    padding: 18px 16px;
+
+  /* Mobile Controls */
+  .about-mobile-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 14px;
   }
+
+  .about-arrow-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 94, 126, 0.28);
+    background: #ffffff;
+    color: var(--dark);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(42, 26, 31, 0.04);
+    transition: all 0.2s ease;
+  }
+
+  .about-arrow-btn:active {
+    background: var(--rose-pale);
+    color: var(--rose-deep);
+    transform: scale(0.92);
+  }
+
+  .about-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .about-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(212, 94, 126, 0.28);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    padding: 0;
+  }
+
+  .about-dot.is-active {
+    width: 20px;
+    border-radius: 999px;
+    background: var(--rose-deep);
+  }
+
+  .about-swipe-hint {
+    font-size: 0.72rem;
+    color: var(--mid);
+    opacity: 0.75;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .about-pillars-mobile .about-pillar-card {
+    padding: 20px 18px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(217, 122, 140, 0.22);
+    box-shadow: 0 8px 24px rgba(42, 26, 31, 0.05);
+  }
+
   .about-cta-section {
     padding: 12px 0 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .about-mobile-pill {
+    padding: 6px 8px;
+    font-size: 0.68rem;
   }
 }

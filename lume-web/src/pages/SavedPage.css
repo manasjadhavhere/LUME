@@ -1,123 +1,306 @@
-/* ===========================
-   Saved Page — Glassmorphism UI
-   =========================== */
+/* ============================================================
+   LUME — Saved Artists Page (Luxury Editorial Shortlist)
+   ============================================================ */
 
 .saved-page {
   min-height: 100vh;
-  background: transparent;
-  padding: 30px var(--spacing-md) 7rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  background: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.saved-page__header {
+/* ── Editorial Hero ── */
+.saved-hero {
+  background: linear-gradient(180deg, #ffeef2 0%, #fff7f9 65%, #ffffff 100%);
+  padding: clamp(36px, 5vh, 54px) 0 clamp(36px, 5vh, 50px);
+  border-bottom: 1px solid rgba(226, 213, 216, 0.65);
+  position: relative;
+  overflow: hidden;
+}
+
+.saved-hero::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242, 164, 176, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.saved-hero__inner {
+  width: min(100% - 48px, 1280px);
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.saved-breadcrumbs {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-xl);
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--mid);
+  margin-bottom: 22px;
 }
 
-.saved-page__title {
+.saved-breadcrumbs a {
+  color: var(--mid);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.saved-breadcrumbs a:hover {
+  color: var(--rose-deep);
+}
+
+.saved-breadcrumbs span {
+  color: var(--text-soft);
+}
+
+.saved-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 0.82rem/1.6 var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rose-deep);
+  margin-bottom: 14px;
+}
+
+.saved-hero h1 {
+  font-size: clamp(2.4rem, 4.3vw, 4rem);
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 600;
+  font-weight: 400;
+  line-height: 1.15;
   color: var(--dark);
-  margin: 0;
-  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+  letter-spacing: -0.025em;
+  max-width: 820px;
 }
 
-.saved-page__count {
-  font-size: 0.8rem;
+.saved-hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--rose-deep);
+}
+
+.saved-hero p {
+  font-size: clamp(0.98rem, 1.6vw, 1.08rem);
+  line-height: 1.75;
+  color: var(--mid);
+  max-width: 680px;
+  margin: 0 0 24px;
+}
+
+.saved-hero__meta {
+  display: flex;
+  align-items: center;
+}
+
+.saved-count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(217, 122, 140, 0.3);
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--rose-deep);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(242, 164, 176, 0.3);
+  box-shadow: 0 2px 10px rgba(217, 122, 140, 0.1);
 }
 
-/* List */
-.saved-page__list {
+/* ── Content Section ── */
+.saved-content {
+  background: #ffffff;
+  padding: 36px 0 clamp(80px, 10vh, 120px);
+  width: 100%;
+}
+
+.saved-content__inner {
+  width: min(100% - 48px, 1280px);
+  margin-inline: auto;
+}
+
+/* ── Grid ── */
+.saved-artists-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
 }
 
-.saved-page__item {
-  opacity: 0;
-  animation: fadeUp 0.5s ease-out forwards;
+.saved-artists-grid .home-artist {
+  width: 100%;
 }
 
-@media (min-width: 481px) and (max-width: 768px) {
-  .saved-page__list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-lg);
-  }
-}
-
-@media (min-width: 769px) {
-  .saved-page {
-    padding: 40px var(--spacing-xl) var(--spacing-3xl);
-  }
-
-  .saved-page__list {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 28px;
-  }
-}
-
-@media (max-width: 380px) {
-  .saved-page {
-    padding-bottom: 5rem;
-  }
-  .saved-page__list {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Empty State */
-.saved-page__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* ── Empty State ── */
+.saved-page__empty-state {
   text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-lg);
-  margin-top: var(--spacing-xl);
-  min-height: 50vh;
-  background: rgba(255, 255, 255, 0.55);
+  padding: clamp(50px, 8vw, 84px) var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 248, 0.6) 100%);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  border: 1.5px solid rgba(242, 164, 176, 0.35);
+  box-shadow: 0 10px 30px rgba(42, 26, 31, 0.04);
 }
 
-.saved-page__empty-icon {
-  margin-bottom: var(--spacing-lg);
-  color: var(--rose-light);
-  opacity: 0.7;
+.saved-empty-icon-wrap {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: rgba(217, 122, 140, 0.12);
+  display: grid;
+  place-items: center;
+  color: var(--rose-deep);
 }
 
 .saved-page__empty-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
   font-weight: 600;
   color: var(--dark);
-  margin: 0 0 var(--spacing-sm);
-  letter-spacing: -0.01em;
+  margin: 0 0 10px;
 }
 
-.saved-page__empty-text {
-  font-size: 0.95rem;
+.saved-page__empty-message {
   color: var(--text-soft);
-  line-height: 1.6;
-  max-width: 320px;
-  margin: 0;
+  margin: 0 0 24px;
+  line-height: 1.7;
+  font-size: 0.96rem;
+  max-width: 480px;
+  margin-inline: auto;
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+.saved-page__discover-btn {
+  background: linear-gradient(135deg, #d45e7e 0%, #c45f72 100%);
+  color: #ffffff !important;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 0 32px;
+  height: 48px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(212, 94, 126, 0.3);
+}
+
+.saved-page__discover-btn:hover {
+  background: linear-gradient(135deg, #be4f6e 0%, #b04e60 100%);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212, 94, 126, 0.42);
+}
+
+/* ══════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════ */
+@media (max-width: 1100px) {
+  .saved-artists-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .saved-hero {
+    padding: 28px 0 36px;
+  }
+
+  .saved-hero__inner,
+  .saved-content__inner {
+    width: min(100% - 32px, 1280px);
+  }
+
+  .saved-artists-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .saved-artists-grid {
+    gap: 12px;
+  }
+
+  .saved-artists-grid .home-artist__body {
+    padding: 12px 10px 14px;
+  }
+
+  .saved-artists-grid .home-artist__title h3 {
+    font-size: 1.05rem;
+  }
+
+  .saved-artists-grid .home-artist__rating {
+    padding: 2px 6px;
+    font-size: 0.7rem;
+  }
+
+  .saved-artists-grid .home-artist__specialties {
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+
+  .saved-artists-grid .home-artist__tag {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+  }
+
+  .saved-artists-grid .home-artist__location {
+    font-size: 0.74rem;
+    margin-bottom: 10px;
+  }
+
+  .saved-artists-grid .home-artist__price-val {
+    font-size: 1.05rem;
+  }
+
+  .saved-artists-grid .home-artist__action {
+    width: 32px;
+    height: 32px;
+  }
+
+  .saved-artists-grid .home-artist__save {
+    width: 32px;
+    height: 32px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .saved-artists-grid .home-artist__verified {
+    bottom: 8px;
+    left: 8px;
+    font-size: 0.68rem;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .saved-hero__inner,
+  .saved-content__inner {
+    width: min(100% - 20px, 1280px);
+  }
+
+  .saved-artists-grid {
+    gap: 8px;
+  }
+
+  .saved-artists-grid .home-artist__body {
+    padding: 10px 8px 12px;
+  }
 }

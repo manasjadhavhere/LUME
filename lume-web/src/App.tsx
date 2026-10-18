@@ -33,7 +33,6 @@ import ArtistBookings from './pages/artist/ArtistBookings';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Layout components
-import BottomNav from './components/layout/BottomNav';
 import Footer from './components/layout/Footer';
 import Header from './components/layout/Header';
 import CustomCursor from './components/ui/CustomCursor';
@@ -48,7 +47,6 @@ const AppLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
         {children}
       </main>
       <Footer />
-      <BottomNav />
     </div>
   );
 };
