@@ -252,7 +252,7 @@ const DiscoverPage: React.FC = () => {
               <div className="discover-search-divider" />
 
               <div className="discover-search-input discover-search-input--loc">
-                <LocationAutocomplete
+                <LocationAutocomplete variant="filter"
                   value={locationQuery}
                   onChange={setLocationQuery}
                   icon={<MapPin size={18} className="discover-search-icon" />}
@@ -439,7 +439,7 @@ const DiscoverPage: React.FC = () => {
                       <div className="discover-filter-pane animate-fade-in">
                         <h3 className="discover-filter-pane__heading">City / Location</h3>
                         <div className="discover-filter-loc-box">
-                          <LocationAutocomplete
+                          <LocationAutocomplete variant="filter"
                             value={locationQuery}
                             onChange={setLocationQuery}
                             icon={<MapPin size={16} className="discover-search-icon" />}

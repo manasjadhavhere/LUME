@@ -1,3 +1,4 @@
+import GoogleAuthButton from '../../components/ui/GoogleAuthButton';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -9,16 +10,17 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>('CLIENT');
+  const [selectedRole, setSelectedRole] = useState<Exclude<UserRole, 'ADMIN'>>(() => new URLSearchParams(window.location.search).get('role') === 'ARTIST' ? 'ARTIST' : 'CLIENT');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password || googleBusy || isLoading) return;
 
     setIsLoading(true);
     setError('');
@@ -71,7 +73,7 @@ const LoginPage: React.FC = () => {
             <button
               type="button"
               className={`auth-page__role-tab ${selectedRole === 'CLIENT' ? 'auth-page__role-tab--active' : ''}`}
-              onClick={() => { setSelectedRole('CLIENT'); setError(''); }}
+              disabled={isLoading || googleBusy} onClick={() => { setSelectedRole('CLIENT'); setError(''); }}
             >
               <User size={15} />
               <span>Client Sign In</span>
@@ -80,7 +82,7 @@ const LoginPage: React.FC = () => {
             <button
               type="button"
               className={`auth-page__role-tab ${selectedRole === 'ARTIST' ? 'auth-page__role-tab--active' : ''}`}
-              onClick={() => { setSelectedRole('ARTIST'); setError(''); }}
+              disabled={isLoading || googleBusy} onClick={() => { setSelectedRole('ARTIST'); setError(''); }}
             >
               <Palette size={15} />
               <span>Artist Studio</span>
@@ -108,6 +110,8 @@ const LoginPage: React.FC = () => {
           )}
 
           {/* Form */}
+          <GoogleAuthButton key={selectedRole} role={selectedRole} disabled={isLoading || googleBusy} onBusyChange={setGoogleBusy} />
+
           <form className="auth-page__form" onSubmit={handleLogin}>
             <div className="auth-page__field">
               <label className="auth-page__label">Email Address</label>
@@ -118,7 +122,7 @@ const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoFocus
+                autoComplete="email"
               />
             </div>
 
@@ -132,6 +136,7 @@ const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -143,7 +148,7 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            <button type="submit" className="auth-page__submit" disabled={isLoading}>
+            <button type="submit" className="auth-page__submit" disabled={isLoading || googleBusy}>
               {isLoading ? (
                 <span>Signing in...</span>
               ) : (
@@ -158,7 +163,7 @@ const LoginPage: React.FC = () => {
           {/* Switch to Register */}
           <p className="auth-page__switch">
             New to Lume?{' '}
-            <Link to="/register" className="auth-page__link">
+            <Link to={`/register?role=${selectedRole}`} className="auth-page__link">
               Create an Account
             </Link>
           </p>

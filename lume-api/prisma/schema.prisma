@@ -11,7 +11,9 @@ datasource db {
 model User {
   id               String         @id @default(cuid())
   email            String         @unique
-  passwordHash     String
+  passwordHash     String?
+  googleId         String?        @unique
+  authProvider     String         @default("LOCAL")
   role             Role           @default(CLIENT)
   name             String
   phone            String?
@@ -58,6 +60,7 @@ model ArtistProfile {
   isVerified              Boolean            @default(false)
   verificationStatus      VerificationStatus @default(NOT_SUBMITTED)
   verificationSubmittedAt DateTime?
+  verificationReviewedAt  DateTime?
   isAvailable             Boolean            @default(true)
   rating                  Float              @default(0.0)
   reviewCount             Int                @default(0)
@@ -237,6 +240,18 @@ model PaymentRecord {
   booking            Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@map("payment_records")
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actorName  String
+  action     String
+  targetId   String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("admin_audit_logs")
 }
 
 enum Role {

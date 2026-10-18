@@ -70,6 +70,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ role: UserRole }>;
+  loginWithGoogle: (idToken: string, role: 'CLIENT' | 'ARTIST', password?: string) => Promise<{ role: UserRole }>;
   register: (data: RegisterData) => Promise<{ role: UserRole }>;
   logout: () => void;
   updateUser: (updates: Partial<AuthUser> | AuthUser) => void;
@@ -171,6 +172,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => clearSession();
 
+  const loginWithGoogle = async (idToken: string, role: 'CLIENT' | 'ARTIST', password?: string): Promise<{ role: UserRole }> => {
+    const res = await fetch(`${API_BASE}/api/auth/google`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken, role, password }),
+    });
+    const result = await res.json();
+    if (!res.ok) throw Object.assign(new Error(result.message || 'Google sign-in failed'), { code: result.code });
+    saveSession(result.data.token, result.data.user);
+    return { role: result.data.user.role };
+  };
+
   const updateUser = (updates: Partial<AuthUser> | AuthUser) => {
     if (!user) return;
     const updated = { ...user, ...updates };
@@ -183,7 +194,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         user, token, isLoading,
         isAuthenticated: !!user && !!token,
-        login, register, logout, updateUser, refreshUser,
+        login, loginWithGoogle, register, logout, updateUser, refreshUser,
       }}
     >
       {children}

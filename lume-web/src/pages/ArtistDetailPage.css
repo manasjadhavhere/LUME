@@ -345,8 +345,13 @@ body:has(.ap),
 }
 
 @keyframes ap-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.45); }
-  100% { box-shadow: 0 0 0 8px rgba(21, 128, 61, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.45);
+  }
+
+  100% {
+    box-shadow: 0 0 0 8px rgba(21, 128, 61, 0);
+  }
 }
 
 .ap-hero__tags {
@@ -388,7 +393,7 @@ body:has(.ap),
   min-width: 0;
 }
 
-.ap-metrics li + li {
+.ap-metrics li+li {
   border-left: 1px solid var(--ap-line);
 }
 
@@ -567,7 +572,7 @@ body:has(.ap),
 }
 
 
-.ap-tile > img:not(.ap-ico) {
+.ap-tile>img:not(.ap-ico) {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -758,7 +763,7 @@ body:has(.ap),
   margin: 24px 0 0;
 }
 
-.ap-facts > div {
+.ap-facts>div {
   padding: 14px 0;
   border-top: 1px solid var(--ap-line);
 }
@@ -889,13 +894,13 @@ body:has(.ap),
   color: var(--text-soft);
 }
 
-.ap-rbar > span {
+.ap-rbar>span {
   display: inline-flex;
   align-items: center;
   gap: 3px;
 }
 
-.ap-rbar > span:last-child {
+.ap-rbar>span:last-child {
   justify-content: flex-end;
 }
 
@@ -1026,7 +1031,7 @@ body:has(.ap),
   padding: 14px 0;
 }
 
-.ap-trust--card .ap-trust__item + .ap-trust__item {
+.ap-trust--card .ap-trust__item+.ap-trust__item {
   border-top: 1px solid var(--ap-line);
 }
 
@@ -1448,7 +1453,7 @@ body:has(.ap),
   background: var(--blush-surface);
 }
 
-.ap-sum > div {
+.ap-sum>div {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -1591,7 +1596,9 @@ body:has(.ap),
 }
 
 @keyframes ap-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ================================================================
@@ -1705,8 +1712,13 @@ body:has(.ap),
   transform: translateY(-50%);
 }
 
-.ap-lb__arr--l { left: 20px; }
-.ap-lb__arr--r { right: 20px; }
+.ap-lb__arr--l {
+  left: 20px;
+}
+
+.ap-lb__arr--r {
+  right: 20px;
+}
 
 .ap-lb__ct {
   position: absolute;
@@ -1767,21 +1779,77 @@ body:has(.ap),
 }
 
 @keyframes ap-shimmer {
-  to { background-position: -200% 0; }
+  to {
+    background-position: -200% 0;
+  }
 }
 
-.ap-skel--bar { height: 40px; width: 120px; margin: 18px 0 12px; border-radius: var(--radius-full); }
-.ap-skel-hero { display: flex; gap: 24px; align-items: center; padding: 14px 0 28px; }
-.ap-skel--avatar { width: 120px; height: 120px; border-radius: 50%; flex-shrink: 0; }
-.ap-skel-lines { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-.ap-skel--line { height: 16px; }
-.ap-skel--w60 { width: 60%; height: 28px; }
-.ap-skel--w40 { width: 40%; }
-.ap-skel--w50 { width: 50%; }
-.ap-skel-grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 56px; margin-top: 24px; }
-.ap-skel-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.ap-skel--photo { aspect-ratio: 3 / 4; }
-.ap-skel--card { height: 520px; border-radius: var(--radius-xl); }
+.ap-skel--bar {
+  height: 40px;
+  width: 120px;
+  margin: 18px 0 12px;
+  border-radius: var(--radius-full);
+}
+
+.ap-skel-hero {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 0 28px;
+}
+
+.ap-skel--avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ap-skel-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ap-skel--line {
+  height: 16px;
+}
+
+.ap-skel--w60 {
+  width: 60%;
+  height: 28px;
+}
+
+.ap-skel--w40 {
+  width: 40%;
+}
+
+.ap-skel--w50 {
+  width: 50%;
+}
+
+.ap-skel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 56px;
+  margin-top: 24px;
+}
+
+.ap-skel-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ap-skel--photo {
+  aspect-ratio: 3 / 4;
+}
+
+.ap-skel--card {
+  height: 520px;
+  border-radius: var(--radius-xl);
+}
 
 /* ================================================================
    RESPONSIVE
@@ -2075,7 +2143,7 @@ body:has(.ap),
     gap: 12px;
   }
 
-  .ap-metrics li + li {
+  .ap-metrics li+li {
     border-left: 0;
   }
 
@@ -2230,6 +2298,7 @@ body:has(.ap),
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .ap *,
   .ap *::before,
   .ap *::after {

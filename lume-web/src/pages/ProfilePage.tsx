@@ -1,3 +1,4 @@
+import GeoLocationInput from '../components/ui/GeoLocationInput';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -641,14 +642,7 @@ const ProfilePage: React.FC = () => {
                 {/* Location */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</label>
-                  <input 
-                    type="text" 
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    style={{ padding: '14px 16px', borderRadius: 12, border: '1.5px solid rgba(42,26,31,0.1)', outline: 'none', fontSize: '1rem', transition: 'all 0.2s', background: 'var(--light)' }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--rose-deep)'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(42,26,31,0.1)'}
-                  />
+                  <GeoLocationInput value={formData.location} onChange={location => setFormData({ ...formData, location })} />
                 </div>
 
                 {/* Bio */}

@@ -16,6 +16,7 @@ import availabilityRouter from './modules/availability/availability.router';
 import adminRouter from './modules/admin/admin.router';
 import paymentsRouter from './modules/payments/payments.router';
 import notificationsRouter from './modules/notifications/notifications.router';
+import geoRouter from './modules/geo/geo.router';
 
 const app = express();
 
@@ -51,7 +52,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later' },
@@ -66,14 +67,14 @@ const authLimiter = rateLimit({
 // Strict rate limit for admin endpoints
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 60,
+  max: 300,
   message: { success: false, message: 'Too many admin requests' },
 });
 
 // In production, restrict admin API to same-host (server) requests only.
 // In development, allow localhost browser access for convenience.
 const adminLocalhost = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (config.isDev) return next(); // Allow all in dev
+  if (process.env.ADMIN_LOCALHOST_ONLY !== 'true') return next(); // Optional extra restriction; ADMIN role remains mandatory.
   const ip = req.ip || req.socket.remoteAddress || '';
   const allowed = ['127.0.0.1', '::1', '::ffff:127.0.0.1'];
   if (!allowed.some(a => ip.includes(a))) {
@@ -104,6 +105,7 @@ app.use('/api/reviews', reviewsRouter);
 app.use('/api/admin', adminLocalhost, adminLimiter, adminRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/geo', geoRouter);
 
 // Nested availability under artists
 app.use('/api/artists/:artistId/availability', availabilityRouter);

@@ -1,3 +1,4 @@
+import GoogleAuthButton from '../../components/ui/GoogleAuthButton';
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -10,7 +11,7 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>(() =>
+  const [selectedRole, setSelectedRole] = useState<Exclude<UserRole, 'ADMIN'>>(() =>
     new URLSearchParams(window.location.search).get('role') === 'ARTIST' ? 'ARTIST' : 'CLIENT'
   );
   const [email, setEmail] = useState('');
@@ -24,10 +25,11 @@ const RegisterPage: React.FC = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password) return;
+    if (!name || !email || !password || googleBusy || isLoading) return;
     setIsLoading(true);
     setError('');
     try {
@@ -75,14 +77,14 @@ const RegisterPage: React.FC = () => {
             <button
               type="button"
               className={`auth-page__role-tab ${selectedRole === 'CLIENT' ? 'auth-page__role-tab--active' : ''}`}
-              onClick={() => { setSelectedRole('CLIENT'); setError(''); }}
+              disabled={isLoading || googleBusy} onClick={() => { setSelectedRole('CLIENT'); setError(''); }}
             >
               <User size={15} /><span>Client Account</span>
             </button>
             <button
               type="button"
               className={`auth-page__role-tab ${selectedRole === 'ARTIST' ? 'auth-page__role-tab--active' : ''}`}
-              onClick={() => { setSelectedRole('ARTIST'); setError(''); }}
+              disabled={isLoading || googleBusy} onClick={() => { setSelectedRole('ARTIST'); setError(''); }}
             >
               <Palette size={15} /><span>Artist Studio</span>
             </button>
@@ -105,35 +107,19 @@ const RegisterPage: React.FC = () => {
             </div>
           )}
 
+          <GoogleAuthButton key={selectedRole} role={selectedRole} disabled={isLoading || googleBusy} onBusyChange={setGoogleBusy} />
+
           <form className="auth-page__form" onSubmit={handleSubmit}>
             <div className="auth-page__field">
               <label className="auth-page__label">Full Name</label>
               <input type="text" className="auth-page__input" placeholder="Priya Sharma"
-                value={name} onChange={e => setName(e.target.value)} required autoFocus />
+                value={name} onChange={e => setName(e.target.value)} required autoComplete="name" />
             </div>
 
             <div className="auth-page__field">
               <label className="auth-page__label">Email Address</label>
               <input type="email" className="auth-page__input" placeholder="you@example.com"
                 value={email} onChange={e => setEmail(e.target.value)} required />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div className="auth-page__field">
-                <label className="auth-page__label">Date of Birth</label>
-                <input type="date" className="auth-page__input"
-                  value={dob} onChange={e => setDob(e.target.value)} />
-              </div>
-              <div className="auth-page__field">
-                <label className="auth-page__label">Gender</label>
-                <select className="auth-page__input" value={gender} onChange={e => setGender(e.target.value)}>
-                  <option value="">Prefer not to say</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
-                  <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-                </select>
-              </div>
             </div>
 
             {selectedRole === 'CLIENT' && (
@@ -157,9 +143,27 @@ const RegisterPage: React.FC = () => {
               <LocationAutocomplete
                 value={location}
                 onChange={setLocation}
-                placeholder="Select your city"
+                placeholder="City, neighbourhood or pincode"
                 className="auth-page__input"
               />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="auth-page__field">
+                <label className="auth-page__label">Date of Birth</label>
+                <input type="date" className="auth-page__input"
+                  value={dob} onChange={e => setDob(e.target.value)} />
+              </div>
+              <div className="auth-page__field">
+                <label className="auth-page__label">Gender</label>
+                <select className="auth-page__input" value={gender} onChange={e => setGender(e.target.value)}>
+                  <option value="">Select Gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                  <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+                </select>
+              </div>
             </div>
 
             <div className="auth-page__field">
@@ -173,6 +177,7 @@ const RegisterPage: React.FC = () => {
                   onChange={e => setPassword(e.target.value)}
                   required
                   minLength={8}
+                  autoComplete="new-password"
                 />
                 <button type="button" className="auth-page__toggle-pw" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -183,7 +188,7 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               className="auth-page__submit"
-              disabled={!name || !email || !password || password.length < 8 || isLoading}
+              disabled={!name || !email || !password || password.length < 8 || isLoading || googleBusy}
             >
               {isLoading
                 ? <span>Creating account...</span>
@@ -194,7 +199,7 @@ const RegisterPage: React.FC = () => {
 
           <p className="auth-page__switch">
             Already have an account?{' '}
-            <Link to="/login" className="auth-page__link">Sign In</Link>
+            <Link to={`/login?role=${selectedRole}`} className="auth-page__link">Sign In</Link>
           </p>
         </div>
       </div>

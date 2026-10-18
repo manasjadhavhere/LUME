@@ -138,8 +138,11 @@ const TrustList: React.FC<{ className?: string }> = ({ className = '' }) => (
 );
 
 const useMedia = (query: string) => {
-  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  const [matches, setMatches] = useState(() => 
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia(query).matches : false
+  );
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
     const mq = window.matchMedia(query);
     const onChange = () => setMatches(mq.matches);
     onChange();
@@ -451,58 +454,58 @@ const ArtistDetailPage: React.FC = () => {
         <div className="ap-grid">
           <main className="ap-main">
 
-        {/* ══════ Identity ══════ */}
-        <header className="ap-hero">
-          <button type="button" className="ap-hero__avatar" onClick={() => avatar && setLightboxIndex(-1)} aria-label={`View ${artist.user.name}'s photo`} disabled={!avatar}>
-            {avatar ? <img src={avatar} alt={artist.user.name} /> : <span>{artist.user.name.charAt(0).toUpperCase()}</span>}
-          </button>
+            {/* ══════ Identity ══════ */}
+            <header className="ap-hero">
+              <button type="button" className="ap-hero__avatar" onClick={() => avatar && setLightboxIndex(-1)} aria-label={`View ${artist.user.name}'s photo`} disabled={!avatar}>
+                {avatar ? <img src={avatar} alt={artist.user.name} /> : <span>{artist.user.name.charAt(0).toUpperCase()}</span>}
+              </button>
 
-          <div className="ap-hero__body">
-            <div className="ap-hero__title">
-              <h1>{artist.user.name}</h1>
-              {artist.isVerified && <span className="ap-hero__seal" title="Verified by Lume"><Ico n="seal-check-fill" c="rose" s={22} /><span className="ap-sr">Verified by Lume</span></span>}
-              {showBadge && <span className="ap-badge">{artist.badge}</span>}
-            </div>
+              <div className="ap-hero__body">
+                <div className="ap-hero__title">
+                  <h1>{artist.user.name}</h1>
+                  {artist.isVerified && <span className="ap-hero__seal" title="Verified by Lume"><Ico n="seal-check-fill" c="rose" s={22} /><span className="ap-sr">Verified by Lume</span></span>}
+                  {showBadge && <span className="ap-badge">{artist.badge}</span>}
+                </div>
 
-            {certification && (
-              <p className="ap-hero__cert"><Ico n="graduation-cap" c="soft" s={16} />{certification}</p>
-            )}
+                {certification && (
+                  <p className="ap-hero__cert"><Ico n="graduation-cap" c="soft" s={16} />{certification}</p>
+                )}
 
-            <ul className="ap-hero__meta">
-              <li><Ico n="map-pin" c="soft" s={16} />{artist.location}</li>
-              <li>
-                {hasReviews ? (
-                  <button type="button" className="ap-hero__rating" onClick={() => goTo('ap-reviews')}>
-                    <Ico n="star-fill" c="gold" s={16} /><strong>{artist.rating.toFixed(1)}</strong><span>({artist.reviewCount})</span>
-                  </button>
-                ) : <span className="ap-tag-new">New on Lume</span>}
-              </li>
-              <li><Ico n="briefcase" c="soft" s={16} />{artist.experience}+ yrs experience</li>
-            </ul>
+                <ul className="ap-hero__meta">
+                  <li><Ico n="map-pin" c="soft" s={16} />{artist.location}</li>
+                  <li>
+                    {hasReviews ? (
+                      <button type="button" className="ap-hero__rating" onClick={() => goTo('ap-reviews')}>
+                        <Ico n="star-fill" c="gold" s={16} /><strong>{artist.rating.toFixed(1)}</strong><span>({artist.reviewCount})</span>
+                      </button>
+                    ) : <span className="ap-tag-new">New on Lume</span>}
+                  </li>
+                  <li><Ico n="briefcase" c="soft" s={16} />{artist.experience}+ yrs experience</li>
+                </ul>
 
-            <div className="ap-hero__foot">
-              <span className={`ap-status ${takingBookings ? 'is-open' : 'is-closed'}`}>
-                <i aria-hidden="true" />{takingBookings ? 'Taking bookings' : 'Not taking bookings'}
-              </span>
-              {artist.specialties.length > 0 && (
-                <div className="ap-hero__tags">
-                  {artist.specialties.slice(0, 3).join(' · ')}
-                  {artist.specialties.length > 3 && (
-                    <button type="button" onClick={() => goTo('ap-about')}> +{artist.specialties.length - 3} more</button>
+                <div className="ap-hero__foot">
+                  <span className={`ap-status ${takingBookings ? 'is-open' : 'is-closed'}`}>
+                    <i aria-hidden="true" />{takingBookings ? 'Taking bookings' : 'Not taking bookings'}
+                  </span>
+                  {artist.specialties.length > 0 && (
+                    <div className="ap-hero__tags">
+                      {artist.specialties.slice(0, 3).join(' · ')}
+                      {artist.specialties.length > 3 && (
+                        <button type="button" onClick={() => goTo('ap-about')}> +{artist.specialties.length - 3} more</button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
-        </header>
+              </div>
+            </header>
 
-        {/* ══════ Metrics ══════ */}
-        <ul className="ap-metrics">
-          <li><Ico n="medal-duotone" c="rose" s={28} /><span><strong>{artist.experience}+</strong><small>Years experience</small></span></li>
-          <li><Ico n="calendar-check-duotone" c="rose" s={28} /><span><strong>{artist.bookingCount}{artist.bookingCount > 0 ? '+' : ''}</strong><small>Bookings</small></span></li>
-          <li><Ico n="star-duotone" c="rose" s={28} /><span><strong>{hasReviews ? artist.rating.toFixed(1) : 'New'}</strong><small>{hasReviews ? 'Average rating' : 'No reviews yet'}</small></span></li>
-          {artist.isVerified && <li><Ico n="seal-check-duotone" c="rose" s={28} /><span><strong>Verified</strong><small>by Lume</small></span></li>}
-        </ul>
+            {/* ══════ Metrics ══════ */}
+            <ul className="ap-metrics">
+              <li><Ico n="medal-duotone" c="rose" s={28} /><span><strong>{artist.experience}+</strong><small>Years experience</small></span></li>
+              <li><Ico n="calendar-check-duotone" c="rose" s={28} /><span><strong>{artist.bookingCount}{artist.bookingCount > 0 ? '+' : ''}</strong><small>Bookings</small></span></li>
+              <li><Ico n="star-duotone" c="rose" s={28} /><span><strong>{hasReviews ? artist.rating.toFixed(1) : 'New'}</strong><small>{hasReviews ? 'Average rating' : 'No reviews yet'}</small></span></li>
+              {artist.isVerified && <li><Ico n="seal-check-duotone" c="rose" s={28} /><span><strong>Verified</strong><small>by Lume</small></span></li>}
+            </ul>
 
             <nav className="ap-tabs" aria-label="Profile sections">
               {tabs.map(t => (
@@ -612,22 +615,22 @@ const ArtistDetailPage: React.FC = () => {
               )}
 
               {artist.reviews && artist.reviews.length > 0 && (
-                  <ul className="ap-rlist">
-                    {(showAllReviews ? artist.reviews : artist.reviews.slice(0, 3)).map(r => (
-                      <li key={r.id} className="ap-review">
-                        <div className="ap-review__top">
-                          <span className="ap-review__avatar">{(r.client?.name || 'A').charAt(0).toUpperCase()}</span>
-                          <div className="ap-review__who">
-                            <strong>{r.client?.name || 'Anonymous'}</strong>
-                            <time dateTime={r.createdAt}>{new Date(r.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</time>
-                          </div>
-                          <Stars value={r.rating} size={13} />
+                <ul className="ap-rlist">
+                  {(showAllReviews ? artist.reviews : artist.reviews.slice(0, 3)).map(r => (
+                    <li key={r.id} className="ap-review">
+                      <div className="ap-review__top">
+                        <span className="ap-review__avatar">{(r.client?.name || 'A').charAt(0).toUpperCase()}</span>
+                        <div className="ap-review__who">
+                          <strong>{r.client?.name || 'Anonymous'}</strong>
+                          <time dateTime={r.createdAt}>{new Date(r.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</time>
                         </div>
-                        <p>{r.comment}</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                        <Stars value={r.rating} size={13} />
+                      </div>
+                      <p>{r.comment}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
               {artist.reviews && artist.reviews.length > 3 && (
                 <button type="button" className="ap-more" onClick={() => setShowAllReviews(v => !v)}>
                   {showAllReviews ? 'Show fewer reviews' : `Show all ${artist.reviews.length} reviews`}

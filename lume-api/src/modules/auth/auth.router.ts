@@ -4,8 +4,14 @@ import { validate } from '../../middleware/validate';
 import { authenticate } from '../../middleware/auth';
 import { registerSchema, loginSchema, updateMeSchema } from './auth.service';
 import { uploadAvatar } from '../../middleware/upload';
+import { googleAuthSchema, authenticateGoogleUser } from './google.service';
 
 const router = Router();
+
+router.post('/google', validate(googleAuthSchema), async (req, res, next) => {
+  try { res.json({ success: true, data: await authenticateGoogleUser(req.body) }); }
+  catch (error) { next(error); }
+});
 
 // POST /api/auth/register
 router.post('/register', validate(registerSchema), register);

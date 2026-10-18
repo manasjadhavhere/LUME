@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
+import { locationSearchTerms } from '../geo/locationMatching';
 
 export const updateProfileSchema = z.object({
   bio: z.string().optional(),
@@ -52,7 +53,7 @@ export async function getAllArtists(query: {
   }
 
   if (location) {
-    where.location = { contains: location, mode: 'insensitive' };
+    where.AND = [{ OR: locationSearchTerms(location).map(term => ({ location: { contains: term, mode: 'insensitive' } })) }];
   }
 
   if (minPrice || maxPrice) {
@@ -262,7 +263,7 @@ export async function submitForVerification(userId: string) {
     where: { userId },
     data: {
       verificationStatus: 'PENDING',
-      verificationSubmittedAt: new Date(),
+      verificationSubmittedAt: new Date(), verificationReviewedAt: null,
     },
   });
 }
@@ -277,7 +278,7 @@ export async function requestEditAccess(userId: string) {
 
   const updated = await prisma.artistProfile.update({
     where: { userId },
-    data: { verificationStatus: 'EDIT_REQUESTED', verificationSubmittedAt: new Date() },
+    data: { verificationStatus: 'EDIT_REQUESTED', verificationSubmittedAt: new Date(), verificationReviewedAt: null },
   });
 
   // Notify Admins

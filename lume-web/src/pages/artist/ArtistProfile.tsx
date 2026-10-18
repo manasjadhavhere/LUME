@@ -1,3 +1,4 @@
+import GeoLocationInput from '../../components/ui/GeoLocationInput';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Trash2, CheckCircle, AlertCircle, Clock, Upload,
@@ -357,7 +358,7 @@ const ArtistProfile: React.FC = () => {
             <div className="artist-form__row">
               <div className="artist-field">
                 <label className="artist-label">Location</label>
-                <input type="text" className="artist-input" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Bandra, Mumbai" required disabled={isLocked} />
+                <GeoLocationInput value={location} onChange={setLocation} required disabled={isLocked} />
               </div>
               <div className="artist-field">
                 <label className="artist-label">Years of Experience</label>

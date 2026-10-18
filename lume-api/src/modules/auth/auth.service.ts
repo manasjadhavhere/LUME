@@ -5,7 +5,7 @@ import { signToken, signRefreshToken } from '../../lib/jwt';
 import { createError } from '../../middleware/errorHandler';
 
 export const registerSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().trim().email('Invalid email').transform(v => v.toLowerCase()),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   name: z.string().min(2, 'Name must be at least 2 characters'),
   role: z.enum(['CLIENT', 'ARTIST']).default('CLIENT'),
@@ -21,7 +21,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().trim().email('Invalid email').transform(v => v.toLowerCase()),
   password: z.string().min(1, 'Password required'),
 });
 
@@ -29,44 +29,20 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 
 export async function registerUser(data: RegisterInput) {
-  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  const existing = await prisma.user.findFirst({ where: { email: { equals: data.email, mode: 'insensitive' } } });
   if (existing) throw createError('Email already in use', 409);
 
   const passwordHash = await bcrypt.hash(data.password, 12);
 
   const user = await prisma.user.create({
     data: {
-      email: data.email,
-      passwordHash,
-      name: data.name,
-      role: data.role,
-      phone: data.phone,
-      gender: data.gender as any,
-      dob: data.dob ? new Date(data.dob) : undefined,
+      email: data.email, passwordHash, name: data.name, role: data.role,
+      phone: data.phone, gender: data.gender, dob: data.dob ? new Date(data.dob) : undefined,
+      ...(data.role === 'CLIENT'
+        ? { clientProfile: { create: { mobileNumber: data.mobileNumber || data.phone, dob: data.dob ? new Date(data.dob) : undefined, location: data.location } } }
+        : { artistProfile: { create: { location: data.location || '', bio: data.bio, specialties: data.specialties || [], experience: data.experience || 0 } } }),
     },
   });
-
-  // Create role-specific profile
-  if (data.role === 'CLIENT') {
-    await prisma.clientProfile.create({
-      data: {
-        userId: user.id,
-        mobileNumber: data.mobileNumber || data.phone,
-        dob: data.dob ? new Date(data.dob) : undefined,
-        location: data.location,
-      },
-    });
-  } else if (data.role === 'ARTIST') {
-    await prisma.artistProfile.create({
-      data: {
-        userId: user.id,
-        location: data.location || 'Mumbai',
-        bio: data.bio,
-        specialties: data.specialties || [],
-        experience: data.experience || 0,
-      },
-    });
-  }
 
   const payload = { userId: user.id, email: user.email, role: user.role };
   const token = signToken(payload);
@@ -90,15 +66,15 @@ export async function registerUser(data: RegisterInput) {
 }
 
 export async function loginUser(data: LoginInput) {
-  const user = await prisma.user.findUnique({
-    where: { email: data.email },
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: data.email, mode: 'insensitive' } },
     include: {
       artistProfile: { include: { services: { where: { isActive: true } } } },
       clientProfile: true,
     },
   });
 
-  if (!user || !user.isActive) throw createError('Invalid email or password', 401);
+  if (!user || !user.isActive || !user.passwordHash) throw createError('Invalid email or password. If you joined with Google, use Continue with Google.', 401);
 
   const isValidPassword = await bcrypt.compare(data.password, user.passwordHash);
   if (!isValidPassword) throw createError('Invalid email or password', 401);

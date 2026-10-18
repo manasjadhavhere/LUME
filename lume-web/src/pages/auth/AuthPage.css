@@ -349,3 +349,10 @@
     height: 40px;
   }
 }
+.auth-google { margin: 24px 0 10px; text-align: center; }
+.auth-google__button { display: flex; justify-content: center; min-height: 44px; }
+.auth-google__button.is-busy { opacity: .5; pointer-events: none; }
+.auth-google__divider { display: flex; align-items: center; gap: 12px; color: var(--mid); font-size: 11px; margin: 22px 0; }
+.auth-google__divider::before, .auth-google__divider::after { content: ''; flex: 1; height: 1px; background: rgba(217,122,140,.25); }
+.auth-google__link { display: grid; gap: 16px; text-align: left; padding: 16px; border-radius: 12px; background: var(--rose-pale); }
+.auth-page__role-tab:disabled { opacity: .6; cursor: wait; }

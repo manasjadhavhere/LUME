@@ -59,7 +59,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           <>
             <div className="search-bar__divider" style={{ width: '1px', height: '24px', background: 'var(--border-light)', margin: '0 8px' }} />
             <div className="search-bar__location-wrapper" style={{ flex: 1 }}>
-              <LocationAutocomplete 
+              <LocationAutocomplete variant="filter" 
                 value={locationValue}
                 onChange={onLocationChange}
                 icon={<MapPin className="search-bar__icon" size={20} />}

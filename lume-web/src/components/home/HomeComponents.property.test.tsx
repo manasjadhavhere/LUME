@@ -33,9 +33,9 @@ describe('Home Components - Data Completeness Properties', () => {
       const statsSection = container.querySelector('.artist-card__stats');
       expect(statsSection?.textContent).toContain(artist.reviewCount.toString());
 
-      // Check for distance
+      // Check for location
       const distanceElement = container.querySelector('.artist-card__distance');
-      expect(distanceElement?.textContent).toContain(artist.distance.toString());
+      expect(distanceElement?.textContent).toContain(artist.location || artist.distance.toString());
 
       // Check for price
       const priceElement = container.querySelector('.artist-card__price-value');

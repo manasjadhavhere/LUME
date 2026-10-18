@@ -47,6 +47,7 @@ export function errorHandler(
   res.status(statusCode).json({
     success: false,
     message,
+    ...(err.code === 'GOOGLE_LINK_REQUIRED' && { code: err.code }),
     ...(config.isDev && { stack: err.stack }),
   });
 }

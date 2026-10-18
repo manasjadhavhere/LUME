@@ -2762,3 +2762,11 @@
   .lume-home *, .lume-home *::before, .lume-home *::after { scroll-behavior: auto; animation: none !important; transition: none !important; }
 }
 
+.home-search:has(.geo-location__dropdown) { position: relative; z-index: 30; }
+.home-search .geo-location { outline: none; }
+@media (max-width: 767px) {
+  .home-search:has(.geo-location) { flex-wrap: wrap !important; border-radius: 22px !important; padding: 12px !important; }
+  .home-search .home-search__field--location { display: flex !important; flex: 1 0 100%; order: 3; padding: 12px 2px 2px; border-top: 1px solid rgba(217,122,140,.22); border-radius: 0; }
+  .home-search .home-search__field--location .home-search__label { font-size: 9px; margin-bottom: 4px; }
+  .home-search .geo-location__dropdown { left: -22px; width: calc(100% + 22px); }
+}

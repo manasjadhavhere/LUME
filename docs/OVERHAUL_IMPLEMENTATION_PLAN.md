@@ -1,0 +1,9 @@
+# Functionality overhaul implementation plan
+
+1. Replace every location field with an accessible shared combobox. Add debounced Indian locality/city/pincode search, GPS reverse lookup, recent selections, popular cities, keyboard navigation, mobile layouts, and offline city data. Use server-side Google Places when configured and Photon/OpenStreetMap as the live fallback; public Nominatim does not permit autocomplete. Keep provider keys on the server. Match canonical city aliases without broad state/country matches.
+2. Add official Google Identity Services buttons to login and registration, server-side token verification, safe linking, transactional profile creation, nullable passwords, role-preserving redirects, and a migration. Reduce the initial email registration form to essential fields with optional details disclosed separately. Never assign an invented city to a new artist.
+3. Align the entire admin workspace with the existing LUME logo, fonts, rose/cream palette and responsive navigation. Inspect and repair existing actions, loading/error states, validation, bank verification responses, payout labels, document previews, client information, and receipts. Add period-filtered financial metrics, geography, artist rankings, verification SLA, and a periodically refreshed activity feed with audit events for new admin actions.
+4. Validate both builds, meaningful location/auth/analytics tests, migration syntax, and browser flows with controlled test responses where live credentials are unavailable. Document real-service checks separately.
+5. Deliver `docs/OVERHAUL_SETUP_GUIDE.md` with exact Google Cloud configuration, environment variables, migration/deployment commands, metric definitions, and launch checks.
+
+Existing uncommitted changes in ArtistDetailPage.tsx/css are outside this work. The database will not be reset. Production credentials and cloud console configuration remain owner setup steps.

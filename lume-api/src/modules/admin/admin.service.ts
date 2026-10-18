@@ -1,6 +1,8 @@
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
 import crypto from 'crypto';
+import { z } from 'zod';
+import { artistEditSchema } from './admin.validation';
 
 // ── Safe bank account mask helper (no routes/imports needed) ─────
 const ALGORITHM = 'aes-256-cbc';
@@ -108,7 +110,11 @@ export async function getAllArtistsAdmin() {
 export async function getAllClients() {
   return prisma.user.findMany({
     where: { role: 'CLIENT' },
-    select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true },
+    select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true, phone: true, isActive: true,
+      clientProfile: { select: { location: true, mobileNumber: true } },
+      bookingsAsClient: { orderBy: { createdAt: 'desc' }, select: { id: true, date: true, status: true, priceType: true,
+        artist: { select: { user: { select: { name: true } } } }, paymentRecords: { select: { id: true, totalCharged: true } } } },
+    },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -124,6 +130,7 @@ export async function verifyArtist(artistId: string, remarks?: string) {
     data: {
       isVerified: true,
       verificationStatus: 'VERIFIED',
+      verificationReviewedAt: new Date(),
       badge: 'VERIFIED',
       verificationRemarks: remarks || null,
     },
@@ -154,6 +161,7 @@ export async function rejectArtist(artistId: string, reason?: string) {
     data: {
       isVerified: false,
       verificationStatus: 'REJECTED',
+      verificationReviewedAt: new Date(),
       verificationRemarks: reason || null,
     },
   });
@@ -196,7 +204,7 @@ export async function approveEditRequest(artistId: string) {
 }
 
 // Update artist fully (admin edit)
-export async function updateArtistAdmin(artistId: string, data: any) {
+export async function updateArtistAdmin(artistId: string, data: z.infer<typeof artistEditSchema>) {
   const artist = await prisma.artistProfile.findUnique({ where: { id: artistId }, include: { user: true } });
   if (!artist) throw createError('Artist not found', 404);
 
@@ -207,9 +215,13 @@ export async function updateArtistAdmin(artistId: string, data: any) {
       location: data.location,
       experience: data.experience,
       certification: data.certification,
-      badge: data.badge,
+      badge: data.badge === '' ? null : data.badge,
       verificationStatus: data.verificationStatus,
-      isVerified: data.verificationStatus === 'VERIFIED',
+      isVerified: data.verificationStatus ? data.verificationStatus === 'VERIFIED' : undefined,
+      verificationReviewedAt: data.verificationStatus && ['VERIFIED', 'REJECTED'].includes(data.verificationStatus) && data.verificationStatus !== artist.verificationStatus ? new Date() : undefined,
+      gender: data.gender === '' ? null : data.gender,
+      dob: data.dob === '' ? null : data.dob ? new Date(data.dob) : undefined,
+      instagramUrl: data.instagramUrl,
       startingPrice: data.startingPrice,
       weddingPrice: data.weddingPrice,
       occasionPrice: data.occasionPrice,
@@ -249,14 +261,14 @@ export async function removeArtistDocument(artistId: string, fileUrl: string, ty
     return prisma.artistProfile.update({
       where: { id: artistId },
       data: { certificationFiles: updatedFiles },
-      include: { user: true, bankAccount: true }
+      include: { user: { select: { id: true, name: true } } }
     });
   } else {
     const updatedUrls = artist.portfolioUrls.filter(u => u !== fileUrl);
     return prisma.artistProfile.update({
       where: { id: artistId },
       data: { portfolioUrls: updatedUrls },
-      include: { user: true, bankAccount: true }
+      include: { user: { select: { id: true, name: true } } }
     });
   }
 }
@@ -366,57 +378,14 @@ export async function getAdminStats() {
 }
 
 export async function deleteUser(userId: string) {
-  return prisma.$transaction(async (tx) => {
-    // 1. Delete notifications related to user
-    await tx.notification.deleteMany({
-      where: { userId },
-    });
-
-    const artistProfile = await tx.artistProfile.findUnique({
-      where: { userId },
-    });
-
-    if (artistProfile) {
-      // Delete bookings associated with artist services (artist is provider)
-      await tx.booking.deleteMany({
-        where: { artistId: artistProfile.id },
-      });
-
-      // Delete services provided by artist
-      await tx.service.deleteMany({
-        where: { artistId: artistProfile.id },
-      });
-
-      // Delete reviews received by artist
-      await tx.review.deleteMany({
-        where: { artistId: artistProfile.id },
-      });
-
-      // Delete artist profile
-      await tx.artistProfile.delete({
-        where: { userId },
-      });
-    }
-
-    // Delete bookings made by the user (as a client)
-    await tx.booking.deleteMany({
-      where: { clientId: userId },
-    });
-
-    // Delete reviews written by the user
-    await tx.review.deleteMany({
-      where: { clientId: userId },
-    });
-
-    // Delete client profile if exists
-    await tx.clientProfile.deleteMany({
-      where: { userId },
-    });
-
-    // Finally delete the user
-    return tx.user.delete({
-      where: { id: userId },
-    });
+  return prisma.$transaction(async tx => {
+    const user = await tx.user.findUnique({ where: { id: userId }, include: { artistProfile: true } });
+    if (!user) throw createError('User not found', 404);
+    if (user.role === 'ADMIN') throw createError('Administrator accounts cannot be deleted here.', 403);
+    const bookings = await tx.booking.count({ where: { OR: [{ clientId: userId }, ...(user.artistProfile ? [{ artistId: user.artistProfile.id }] : [])] } });
+    if (bookings) throw createError('This account has booking history. Its bookings and financial records must be retained; deletion is unavailable.', 409);
+    await tx.user.delete({ where: { id: userId } });
+    return { deleted: true };
   });
 }
 
@@ -468,9 +437,9 @@ export async function getArtistPaymentSummaries() {
   return artists.map(artist => {
     const allRecords = artist.bookings.flatMap(b => b.paymentRecords);
     const totalCharged     = allRecords.reduce((s, r) => s + r.totalCharged, 0);
-    const totalLume        = allRecords.reduce((s, r) => s + r.lumeTotal, 0);
+    const totalLume        = allRecords.reduce((s, r) => s + r.lumeCommission, 0);
     const totalArtist      = allRecords.reduce((s, r) => s + r.artistPayout, 0);
-    const pendingPayout    = allRecords.filter(r => r.payoutStatus === 'PENDING').reduce((s, r) => s + r.artistPayout, 0);
+    const pendingPayout    = allRecords.filter(r => r.payoutStatus !== 'COMPLETED').reduce((s, r) => s + r.artistPayout, 0);
     const completedPayout  = allRecords.filter(r => r.payoutStatus === 'COMPLETED').reduce((s, r) => s + r.artistPayout, 0);
     const bookingsWithPayment = artist.bookings.filter(b => b.paymentRecords.length > 0).length;
 
@@ -497,7 +466,7 @@ export async function getArtistPaymentDetail(artistId: string) {
     where: { id: artistId },
     include: {
       user: { select: { id: true, name: true, email: true, avatarUrl: true } },
-      bankAccount: true,
+      bankAccount: { select: { id: true, accountHolderName: true, ifscCode: true, bankName: true, accountType: true, isVerified: true, isLinkedToRazorpay: true, razorpayLinkedAccountId: true } },
       bookings: {
         orderBy: { createdAt: 'desc' },
         include: {
@@ -534,7 +503,7 @@ export async function getLumeEarnings() {
   const totalReceived  = allRecords.filter(r => r.payoutStatus === 'COMPLETED').reduce((s, r) => s + r.lumeTotal, 0);
   const totalPending   = allRecords.filter(r => r.payoutStatus === 'PENDING').reduce((s, r) => s + r.lumeTotal, 0);
 
-  return { totalEarned, totalReceived, totalPending, records: allRecords };
+  return { totalEarned, totalReceived, totalPending, totalCollections: allRecords.reduce((s, r) => s + r.totalCharged, 0), totalGst: allRecords.reduce((s, r) => s + r.gstAmount, 0), records: [] };
 }
 
 /**
@@ -543,6 +512,8 @@ export async function getLumeEarnings() {
 export async function markPayoutCompleted(paymentRecordId: string) {
   const record = await prisma.paymentRecord.findUnique({ where: { id: paymentRecordId } });
   if (!record) throw createError('Payment record not found', 404);
+  if (record.payoutStatus === 'COMPLETED') return record;
+  if (record.payoutStatus === 'INITIATED') throw createError('This payout is already in progress. Confirm its gateway status before marking it paid.', 409);
 
   return prisma.paymentRecord.update({
     where: { id: paymentRecordId },

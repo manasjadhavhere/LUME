@@ -1,3 +1,4 @@
+import GeoLocationInput from '../components/ui/GeoLocationInput';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Play, Search, Sparkles, Star } from 'lucide-react';
@@ -501,15 +502,13 @@ export default function LandingPage() {
 
             <div className="home-search__divider" aria-hidden="true" />
 
-            <label className="home-search__field home-search__field--location">
+            <div className="home-search__field home-search__field--location">
               <span className="home-search__label">YOUR LOCATION</span>
               <div className="home-search__input-row">
                 <MapPin size={17} className="home-search__pin" />
-                <input aria-label="City" placeholder="Where shall we meet?" value={city} onChange={event => setCity(event.target.value)} list="home-cities" autoComplete="address-level2" />
+                <GeoLocationInput value={city} onChange={setCity} variant="hero" placeholder="City or neighbourhood" />
               </div>
-            </label>
-
-            <datalist id="home-cities">{['Mumbai', 'Delhi NCR', 'Bangalore', 'Pune', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad'].map(name => <option key={name} value={name} />)}</datalist>
+            </div>
 
             <button className="home-button home-search__submit" type="submit">
               <span>Find artist</span>
