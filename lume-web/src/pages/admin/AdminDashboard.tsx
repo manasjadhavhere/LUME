@@ -3,7 +3,7 @@ import AdminInsights from './AdminInsights';
 import GeoLocationInput from '../../components/ui/GeoLocationInput';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Users, Calendar, BarChart2, Clock, X, Home, Briefcase, Settings, MapPin, Star, CreditCard, Download, CheckCircle, Activity, Search, RefreshCw, LogOut } from 'lucide-react';
+import { ShieldCheck, Users, BarChart2, Clock, X, Home, Briefcase, Settings, MapPin, Star, CreditCard, Download, CheckCircle, Activity, Search, RefreshCw, LogOut } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
@@ -394,7 +394,7 @@ const AdminDashboard: React.FC = () => {
             <Briefcase size={18} />
             <span>Artists & verifications</span>
             {pendingArtists.length > 0 && (
-              <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+              <span className="admin-nav-badge">
                 {pendingArtists.length}
               </span>
             )}
@@ -428,13 +428,17 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'payments' && 'Artist Payments & Revenue'}
             {activeTab === 'activity' && 'Operations & activity'}
           </h1>
-          <div className="admin-header__actions"><button className="admin-button" onClick={loadData} disabled={initialLoading || actioning} aria-label="Refresh workspace"><RefreshCw size={16} /></button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff9fa', padding: '6px 16px', borderRadius: 99, border: '1px solid #efdee3' }}>
-              <ShieldCheck size={16} color="#548572" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4e343e' }}>Admin Portal</span>
+          <div className="admin-header__actions">
+            <button className="admin-button" onClick={loadData} disabled={initialLoading || actioning} aria-label="Refresh workspace">
+              <RefreshCw size={15} />
+              <span>Sync</span>
+            </button>
+            <div className="admin-header-badge">
+              <ShieldCheck size={15} color="#059669" />
+              <span>Admin Portal</span>
             </div>
             {actionMsg && (
-              <div style={{ background: actionMsgType === 'error' ? '#b14657' : '#548572', color: '#fff', padding: '6px 16px', borderRadius: 99, fontSize: '0.85rem', fontWeight: 600, animation: 'fadeIn 0.3s', maxWidth: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ background: actionMsgType === 'error' ? '#ef4444' : '#10b981', color: '#fff', padding: '6px 16px', borderRadius: 99, fontSize: '0.85rem', fontWeight: 600, animation: 'fadeIn 0.3s', maxWidth: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {actionMsg}
               </div>
             )}
@@ -451,83 +455,48 @@ const AdminDashboard: React.FC = () => {
           ) : activeTab === 'dashboard' ? (
             <>
               <AdminInsights onArtist={showInsightArtist} onCity={showCity} revision={revision} />
-              {/* KPIs */}
-              <div className="admin-kpi-grid">
-                <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#fff0f3', color: '#b5687b' }}>
-                    <Users size={24} />
-                  </div>
-                  <div className="admin-kpi-info">
-                    <div className="admin-kpi-label">Total Users</div>
-                    <div className="admin-kpi-value">{stats.totalUsers}</div>
-                  </div>
-                </div>
-                <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#fef2f2', color: '#b14657' }}>
-                    <Briefcase size={24} />
-                  </div>
-                  <div className="admin-kpi-info">
-                    <div className="admin-kpi-label">Total Artists</div>
-                    <div className="admin-kpi-value">{stats.totalArtists}</div>
-                  </div>
-                </div>
-                <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#fffbeb', color: '#b48450' }}>
-                    <Clock size={24} />
-                  </div>
-                  <div className="admin-kpi-info">
-                    <div className="admin-kpi-label">Pending Verifications</div>
-                    <div className="admin-kpi-value">{stats.pendingVerifications}</div>
-                  </div>
-                </div>
-                <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#f0fdf4', color: '#548572' }}>
-                    <Calendar size={24} />
-                  </div>
-                  <div className="admin-kpi-info">
-                    <div className="admin-kpi-label">Total Bookings</div>
-                    <div className="admin-kpi-value">{stats.totalBookings}</div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Charts */}
+              {/* Growth & Verification Pipeline Charts */}
               {stats.charts && (
-                <div className="admin-charts-grid">
-                  {/* User Growth Chart */}
+                <div className="admin-charts-grid admin-charts-grid--dual" style={{ marginTop: '28px' }}>
                   <div className="admin-chart-card">
                     <div className="admin-chart-header">
-                      <h3 className="admin-chart-title">User Growth</h3>
+                      <div>
+                        <h3 className="admin-chart-title">User & Artist Growth</h3>
+                        <p className="admin-chart-subtitle">Monthly registration trajectory for clients and verified beauty artists</p>
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: 300 }}>
+                    <div style={{ width: '100%', height: 260 }}>
                       <ResponsiveContainer>
-                        <LineChart data={stats.charts.userGrowth} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#efdee3" />
-                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#856d75' }} dy={10} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#856d75' }} />
-                          <RechartsTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                          <Legend wrapperStyle={{ paddingTop: 20 }} />
-                          <Line type="monotone" name="Clients" dataKey="clients" stroke="#b5687b" strokeWidth={3} dot={{ r: 4, fill: '#b5687b', strokeWidth: 0 }} activeDot={{ r: 6 }} />
-                          <Line type="monotone" name="Artists" dataKey="artists" stroke="#b85f77" strokeWidth={3} dot={{ r: 4, fill: '#b85f77', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                        <LineChart data={stats.charts.userGrowth} margin={{ top: 10, right: 16, left: -20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis dataKey="month" axisLine={{ stroke: '#e2e8f0' }} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={8} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                          <RechartsTooltip contentStyle={{ background: '#ffffff', borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)', fontSize: '0.85rem' }} />
+                          <Legend wrapperStyle={{ paddingTop: 16 }} />
+                          <Line type="monotone" name="Clients" dataKey="clients" stroke="#0f172a" strokeWidth={2.4} dot={{ r: 4, fill: '#0f172a', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                          <Line type="monotone" name="Artists" dataKey="artists" stroke="#b85f77" strokeWidth={2.4} dot={{ r: 4, fill: '#b85f77', strokeWidth: 0 }} activeDot={{ r: 6 }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
-                  {/* Verification Distribution */}
                   <div className="admin-chart-card">
                     <div className="admin-chart-header">
-                      <h3 className="admin-chart-title">Artist Status</h3>
+                      <div>
+                        <h3 className="admin-chart-title">Artist Status Pipeline</h3>
+                        <p className="admin-chart-subtitle">Distribution of artist profiles across verification states</p>
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: 300 }}>
+                    <div style={{ width: '100%', height: 260 }}>
                       <ResponsiveContainer>
                         <PieChart>
                           <Pie
                             data={stats.charts.verificationDist}
                             cx="50%"
                             cy="50%"
-                            innerRadius={60}
-                            outerRadius={100}
+                            innerRadius={65}
+                            outerRadius={95}
                             paddingAngle={5}
                             dataKey="value"
                             stroke="none"
@@ -536,8 +505,8 @@ const AdminDashboard: React.FC = () => {
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
-                          <RechartsTooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                          <Legend wrapperStyle={{ paddingTop: 20 }} />
+                          <RechartsTooltip contentStyle={{ background: '#ffffff', borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08)', fontSize: '0.85rem' }} />
+                          <Legend wrapperStyle={{ paddingTop: 16 }} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -602,7 +571,7 @@ const AdminDashboard: React.FC = () => {
                               />
                               <span className="admin-switch-slider"></span>
                             </label>
-                            <span style={{ fontSize: '0.75rem', color: '#856d75' }}>{a.isTakingBookings ? 'ON' : 'OFF'}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{a.isTakingBookings ? 'ON' : 'OFF'}</span>
                           </div>
                         </td>
                         <td>
@@ -614,7 +583,7 @@ const AdminDashboard: React.FC = () => {
                     ))}
                     {filteredArtists.length === 0 && (
                       <tr>
-                        <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#856d75' }}>No artists found.</td>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No artists found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -659,7 +628,7 @@ const AdminDashboard: React.FC = () => {
                     ))}
                     {filteredClients.length === 0 && (
                       <tr>
-                        <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#856d75' }}>No clients found.</td>
+                        <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No clients found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -670,7 +639,7 @@ const AdminDashboard: React.FC = () => {
             <div className="admin-payments">
               <div className="admin-kpi-grid" style={{ marginBottom: 24 }}>
                 <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#fff0f3', color: '#b5687b' }}>
+                  <div className="admin-kpi-icon" style={{ background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }}>
                     <CreditCard size={24} />
                   </div>
                   <div className="admin-kpi-info">
@@ -679,7 +648,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#f0fdf4', color: '#548572' }}>
+                  <div className="admin-kpi-icon" style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>
                     <CheckCircle size={24} />
                   </div>
                   <div className="admin-kpi-info">
@@ -688,7 +657,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="admin-kpi-card">
-                  <div className="admin-kpi-icon" style={{ background: '#fffbeb', color: '#b48450' }}>
+                  <div className="admin-kpi-icon" style={{ background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a' }}>
                     <Clock size={24} />
                   </div>
                   <div className="admin-kpi-info">
@@ -729,27 +698,27 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </td>
                           <td><span style={{ fontWeight: 600 }}>₹{p.totalArtistDue.toLocaleString()}</span></td>
-                          <td><span style={{ color: p.pendingPayout > 0 ? '#b14657' : '#548572', fontWeight: 600 }}>₹{p.pendingPayout.toLocaleString()}</span></td>
+                          <td><span style={{ color: p.pendingPayout > 0 ? '#dc2626' : '#059669', fontWeight: 600 }}>₹{p.pendingPayout.toLocaleString()}</span></td>
                           <td>
                             {p.bankAccount?.isLinkedToRazorpay ? (
-                              <span style={{ background: '#f5e2e8', color: '#95465a', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⚡ Auto-Pay ON</span>
+                              <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 10px', borderRadius: 99, fontSize: '0.72rem', fontWeight: 700 }}>⚡ Auto-Pay ON</span>
                             ) : p.bankAccount?.isVerified ? (
-                              <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⚠ Not Linked</span>
+                              <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '3px 10px', borderRadius: 99, fontSize: '0.72rem', fontWeight: 700 }}>⚠ Not Linked</span>
                             ) : p.bankAccount ? (
-                              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>⏳ Unverified</span>
+                              <span style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '3px 10px', borderRadius: 99, fontSize: '0.72rem', fontWeight: 700 }}>⏳ Unverified</span>
                             ) : (
-                              <span style={{ background: '#faf0f3', color: '#856d75', padding: '3px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>No Bank</span>
+                              <span style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', padding: '3px 10px', borderRadius: 99, fontSize: '0.72rem', fontWeight: 700 }}>No Bank</span>
                             )}
                           </td>
                           <td>
-                            <button className="admin-btn-icon" onClick={() => fetchPaymentDetails(p.artistId)} title="View Payment Details" style={{ background: '#faf0f3', padding: '6px 12px', borderRadius: 6, width: 'auto' }}>
+                            <button className="admin-btn-icon" onClick={() => fetchPaymentDetails(p.artistId)} title="View Payment Details" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#0f172a', padding: '6px 14px', borderRadius: 8, width: 'auto', fontSize: '0.8rem', fontWeight: 600 }}>
                               View Details
                             </button>
                           </td>
                         </tr>
                       ))}
                       {filteredPayments.length === 0 && (
-                        <tr><td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: '#856d75' }}>No payments found.</td></tr>
+                        <tr><td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No payments found.</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -765,8 +734,8 @@ const AdminDashboard: React.FC = () => {
       {selectedArtist && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Manage account details">
           <div className="modal-content" style={{ maxWidth: 800, padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '24px 32px', borderBottom: '1px solid #efdee3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Manage Artist: {selectedArtist.user.name}</h2>
+            <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>Manage Artist: {selectedArtist.user.name}</h2>
               <button className="admin-btn-icon" aria-label="Close artist details" disabled={actioning} onClick={() => setSelectedArtist(null)}><X size={20} /></button>
             </div>
             
@@ -776,13 +745,13 @@ const AdminDashboard: React.FC = () => {
                 {/* Left Col */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <div>
-                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#856d75', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Profile Info</h3>
+                    <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Profile Info</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {isEditMode ? (
                         <>
-                          <input type="text" value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} placeholder="Name" style={{ padding: '10px 12px', border: '1px solid #efdee3', borderRadius: 8, outline: 'none' }} />
+                          <input type="text" value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} placeholder="Name" style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none' }} />
                           <GeoLocationInput value={editFormData.location} onChange={location => setEditFormData({ ...editFormData, location })} />
-                          <textarea value={editFormData.bio} onChange={e => setEditFormData({...editFormData, bio: e.target.value})} placeholder="Bio" style={{ padding: '10px 12px', border: '1px solid #efdee3', borderRadius: 8, outline: 'none', minHeight: 80 }} />
+                          <textarea value={editFormData.bio} onChange={e => setEditFormData({...editFormData, bio: e.target.value})} placeholder="Bio" style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', minHeight: 80 }} />
                           <div className="admin-edit-fields">
                             <label>Experience (years)<input type="number" min="0" max="80" value={editFormData.experience} onChange={e => setEditFormData({ ...editFormData, experience: Number(e.target.value) })} /></label>
                             <label>Certification<input value={editFormData.certification} onChange={e => setEditFormData({ ...editFormData, certification: e.target.value })} /></label>
@@ -795,25 +764,25 @@ const AdminDashboard: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <div style={{ fontSize: '1rem', fontWeight: 600 }}>{selectedArtist.user.name}</div>
-                          <div style={{ fontSize: '0.875rem', color: '#70535e', display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14}/> {selectedArtist.location || 'No location'}</div>
-                          <div style={{ fontSize: '0.875rem', color: '#70535e' }}>{selectedArtist.bio || 'No bio provided'}</div>
+                          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>{selectedArtist.user.name}</div>
+                          <div style={{ fontSize: '0.875rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={14}/> {selectedArtist.location || 'No location'}</div>
+                          <div style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.5 }}>{selectedArtist.bio || 'No bio provided'}</div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
                             <div>
-                              <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Experience</span>
-                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.experience || 0} years</div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Experience</span>
+                              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.experience || 0} years</div>
                             </div>
                             <div>
-                              <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Gender</span>
-                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.gender || 'Not specified'}</div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Gender</span>
+                              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.gender || 'Not specified'}</div>
                             </div>
                             <div>
-                              <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Certification</span>
-                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.certification || 'None'}</div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Certification</span>
+                              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.certification || 'None'}</div>
                             </div>
                             <div>
-                              <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Specialties</span>
-                              <div style={{ fontSize: '0.875rem' }}>{selectedArtist.specialties?.length ? selectedArtist.specialties.join(', ') : 'None'}</div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Specialties</span>
+                              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.specialties?.length ? selectedArtist.specialties.join(', ') : 'None'}</div>
                             </div>
                           </div>
                         </>
@@ -825,38 +794,38 @@ const AdminDashboard: React.FC = () => {
 
                   {selectedArtist.bankAccount && (
                     <div>
-                      <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#856d75', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Bank Details</h3>
-                      <div style={{ background: '#fff9fa', padding: 16, borderRadius: 8, border: '1px solid #efdee3', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Bank Details</h3>
+                      <div style={{ background: '#f8fafc', padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Account Holder</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.accountHolderName}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Holder</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.bankAccount.accountHolderName}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Account Number</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>{selectedArtist.bankAccount.maskedAccountNumber}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Number</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>{selectedArtist.bankAccount.maskedAccountNumber}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>IFSC Code</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>{selectedArtist.bankAccount.ifscCode}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>IFSC Code</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: 'monospace', color: '#0f172a' }}>{selectedArtist.bankAccount.ifscCode}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Bank Name</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.bankName}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Bank Name</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.bankAccount.bankName}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Account Type</span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{selectedArtist.bankAccount.accountType}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Account Type</span>
+                          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>{selectedArtist.bankAccount.accountType}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #efdee3' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Verification</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Verification</span>
                           <span className={`admin-badge admin-badge--${selectedArtist.bankAccount.isVerified ? 'success' : 'warning'}`}>
                             {selectedArtist.bankAccount.isVerified ? '✓ Verified' : '⏳ Pending Verification'}
                           </span>
                         </div>
                         {selectedArtist.bankAccount.isLinkedToRazorpay && (
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.75rem', color: '#856d75' }}>Razorpay Route</span>
-                            <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: 99, fontWeight: 600 }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Razorpay Route</span>
+                            <span style={{ fontSize: '0.75rem', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>
                               🔗 Linked ({selectedArtist.bankAccount.razorpayLinkedAccountId})
                             </span>
                           </div>
@@ -870,13 +839,13 @@ const AdminDashboard: React.FC = () => {
                 {/* Right Col */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <div>
-                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#856d75', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Status & Settings</h3>
+                    <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Status & Settings</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#fff9fa', borderRadius: 8 }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Verification</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>Verification</span>
                         {isEditMode ? (
-                          <select value={editFormData.verificationStatus} onChange={e => setEditFormData({...editFormData, verificationStatus: e.target.value})} style={{ padding: '6px', borderRadius: 4, border: '1px solid #efdee3' }}>
+                          <select value={editFormData.verificationStatus} onChange={e => setEditFormData({...editFormData, verificationStatus: e.target.value})} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#0f172a' }}>
                             <option value="PENDING">Pending</option>
                             <option value="VERIFIED">Verified</option>
                             <option value="REJECTED">Rejected</option>
@@ -889,10 +858,10 @@ const AdminDashboard: React.FC = () => {
                         )}
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#fff9fa', borderRadius: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
                         <div>
-                          <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Taking Bookings</div>
-                          <div style={{ fontSize: '0.75rem', color: '#856d75' }}>Admin Override</div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0f172a' }}>Taking Bookings</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Admin Override</div>
                         </div>
                         <label className="admin-switch">
                           <input 
@@ -909,7 +878,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#856d75', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Admin Actions</h3>
+                    <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Admin Actions</h3>
                     
                     {selectedArtist.verificationStatus === 'PENDING' && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
@@ -917,28 +886,28 @@ const AdminDashboard: React.FC = () => {
                           placeholder="Optional remarks for verification..." 
                           value={remarks} 
                           onChange={(e) => setRemarks(e.target.value)} 
-                          style={{ padding: '10px 12px', border: '1px solid #efdee3', borderRadius: 8, outline: 'none', fontSize: '0.875rem' }} 
+                          style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none', fontSize: '0.875rem' }} 
                         />
                         <div style={{ display: 'flex', gap: 12 }}>
-                          <button onClick={() => handleVerify(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#548572', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Verify Artist</button>
-                          <button onClick={() => handleReject(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#b14657', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Reject</button>
+                          <button onClick={() => handleVerify(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#059669', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Verify Artist</button>
+                          <button onClick={() => handleReject(selectedArtist.id)} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Reject</button>
                         </div>
                       </div>
                     )}
 
                     {selectedArtist.verificationStatus === 'EDIT_REQUESTED' && (
-                      <button onClick={() => handleApproveEdit(selectedArtist.id)} disabled={actioning} style={{ width: '100%', padding: '10px', background: '#b5687b', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginBottom: 16 }}>
+                      <button onClick={() => handleApproveEdit(selectedArtist.id)} disabled={actioning} style={{ width: '100%', padding: '10px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', marginBottom: 16 }}>
                         Approve Edit Request
                       </button>
                     )}
 
                     {isEditMode ? (
                       <div style={{ display: 'flex', gap: 12 }}>
-                        <button onClick={handleSaveEdit} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#2a1a1f', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Save Changes</button>
-                        <button onClick={() => setIsEditMode(false)} style={{ padding: '10px 16px', background: '#faf0f3', color: '#70535e', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                        <button onClick={handleSaveEdit} disabled={actioning} style={{ flex: 1, padding: '10px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save Changes</button>
+                        <button onClick={() => setIsEditMode(false)} style={{ padding: '10px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                       </div>
                     ) : (
-                      <button onClick={() => setIsEditMode(true)} style={{ width: '100%', padding: '10px', background: '#fff9fa', border: '1px solid #efdee3', color: '#2a1a1f', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={() => setIsEditMode(true)} style={{ width: '100%', padding: '10px', background: '#ffffff', border: '1px solid #e2e8f0', color: '#0f172a', borderRadius: 8, fontWeight: 600, cursor: 'pointer' }}>
                         Edit Profile Details
                       </button>
                     )}
@@ -946,7 +915,7 @@ const AdminDashboard: React.FC = () => {
                     <button 
                       onClick={() => handleDeleteUser(selectedArtist.user.id, 'artist')} 
                       disabled={actioning} 
-                      style={{ width: '100%', padding: '10px', background: 'transparent', color: '#b14657', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                      style={{ width: '100%', padding: '10px', background: 'transparent', color: '#dc2626', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                     >
                       <X size={16} /> Delete Artist
                     </button>
@@ -962,36 +931,36 @@ const AdminDashboard: React.FC = () => {
       {selectedPaymentArtist && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Manage account details">
           <div className="modal-content" style={{ maxWidth: 800, padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '24px 32px', borderBottom: '1px solid #efdee3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Payments: {selectedPaymentArtist.user.name}</h2>
+            <div style={{ padding: '24px 32px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>Payments: {selectedPaymentArtist.user.name}</h2>
               <button className="admin-btn-icon" aria-label="Close payment details" disabled={actioning} onClick={() => setSelectedPaymentArtist(null)}><X size={20} /></button>
             </div>
             
             <div style={{ padding: '32px', maxHeight: '70vh', overflowY: 'auto' }}>
               
-              <div style={{ marginBottom: 24, padding: '16px', background: '#fff9fa', borderRadius: 8, border: '1px solid #efdee3' }}>
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: '#856d75', textTransform: 'uppercase', marginBottom: 8 }}>Bank Account Details</h3>
+              <div style={{ marginBottom: 24, padding: '16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Bank Account Details</h3>
                 {selectedPaymentArtist.bankAccount ? (
                   <div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                      <div><span style={{ color: '#856d75', fontSize: '0.8rem' }}>Bank Name:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.bankName}</div></div>
-                      <div><span style={{ color: '#856d75', fontSize: '0.8rem' }}>Account Holder:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.accountHolderName}</div></div>
-                      <div><span style={{ color: '#856d75', fontSize: '0.8rem' }}>IFSC Code:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.ifscCode}</div></div>
-                      <div><span style={{ color: '#856d75', fontSize: '0.8rem' }}>Account Type:</span> <div style={{ fontWeight: 600 }}>{selectedPaymentArtist.bankAccount.accountType}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Bank Name:</span> <div style={{ fontWeight: 600, color: '#0f172a' }}>{selectedPaymentArtist.bankAccount.bankName}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Account Holder:</span> <div style={{ fontWeight: 600, color: '#0f172a' }}>{selectedPaymentArtist.bankAccount.accountHolderName}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>IFSC Code:</span> <div style={{ fontWeight: 600, color: '#0f172a', fontFamily: 'monospace' }}>{selectedPaymentArtist.bankAccount.ifscCode}</div></div>
+                      <div><span style={{ color: '#64748b', fontSize: '0.8rem' }}>Account Type:</span> <div style={{ fontWeight: 600, color: '#0f172a' }}>{selectedPaymentArtist.bankAccount.accountType}</div></div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       {selectedPaymentArtist.bankAccount.isVerified ? (
                         <>
-                          <span style={{ background: '#dcfce7', color: '#16a34a', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                             <CheckCircle size={12} /> Verified
                           </span>
                           {selectedPaymentArtist.bankAccount.isLinkedToRazorpay ? (
-                            <span style={{ background: '#f5e2e8', color: '#95465a', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                            <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
                               ⚡ On Razorpay Route (Auto-Pay Active)
                             </span>
                           ) : (
                             <>
-                              <span style={{ background: '#fef3c7', color: '#d97706', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
+                              <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700 }}>
                                 ⚠ Not on Razorpay Route
                               </span>
                               <button
@@ -1012,7 +981,7 @@ const AdminDashboard: React.FC = () => {
                                   setActioning(false);
                                 }}
                                 disabled={actioning}
-                                style={{ padding: '4px 10px', background: actioning ? '#ad939c' : '#b5687b', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: actioning ? 'not-allowed' : 'pointer' }}
+                                style={{ padding: '4px 10px', background: actioning ? '#94a3b8' : '#0f172a', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, cursor: actioning ? 'not-allowed' : 'pointer' }}
                               >
                                 {actioning ? '⏳...' : 'Retry Linking'}
                               </button>
@@ -1038,7 +1007,7 @@ const AdminDashboard: React.FC = () => {
                             setActioning(false);
                           }}
                           disabled={actioning}
-                          style={{ padding: '5px 14px', background: '#b5687b', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                          style={{ padding: '6px 14px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
                         >
                           {actioning ? '⏳ Processing...' : '✓ Verify & Enable Auto-Pay'}
                         </button>
@@ -1046,53 +1015,53 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ color: '#b14657', fontSize: '0.9rem' }}>No bank account added yet.</div>
+                  <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>No bank account added yet.</div>
                 )}
               </div>
 
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 12 }}>Booking Payments</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Booking Payments</h3>
               {selectedPaymentArtist.bookings.filter((b: any) => b.paymentRecords.length > 0).length === 0 ? (
-                <div style={{ padding: 20, textAlign: 'center', color: '#856d75', background: '#faf0f3', borderRadius: 8 }}>No payments recorded for this artist.</div>
+                <div style={{ padding: 24, textAlign: 'center', color: '#64748b', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8 }}>No payments recorded for this artist.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {selectedPaymentArtist.bookings.filter((b: any) => b.paymentRecords.length > 0).map((booking: any) => (
-                    <div key={booking.id} style={{ border: '1px solid #efdee3', borderRadius: 8, overflow: 'hidden' }}>
-                      <div style={{ padding: '12px 16px', background: '#fff9fa', borderBottom: '1px solid #efdee3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={booking.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+                      <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Booking #{booking.id.slice(-6).toUpperCase()}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#856d75' }}>Client: {booking.client.name} | Date: {new Date(booking.date).toLocaleDateString()}</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>Booking #{booking.id.slice(-6).toUpperCase()}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Client: {booking.client.name} | Date: {new Date(booking.date).toLocaleDateString()}</div>
                         </div>
                       </div>
                       
                       <div style={{ padding: '16px' }}>
                         {booking.paymentRecords.map((record: any) => (
-                          <div key={record.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #faf0f3' }}>
+                          <div key={record.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
                             <div>
-                              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>
                                 Total Charged: ₹{record.totalCharged.toLocaleString()}
                               </div>
-                              <div style={{ fontSize: '0.8rem', color: '#856d75' }}>
-                                Commission + collected GST: ₹{record.lumeTotal.toFixed(2)} | Artist Payout: <span style={{ color: '#548572', fontWeight: 600 }}>₹{record.artistPayout.toFixed(2)}</span>
+                              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                                Commission + collected GST: ₹{record.lumeTotal.toFixed(2)} | Artist Payout: <span style={{ color: '#059669', fontWeight: 700 }}>₹{record.artistPayout.toFixed(2)}</span>
                               </div>
                               {/* Transfer Status Badge */}
                               <div style={{ marginTop: 6 }}>
                                 {record.transferStatus === 'SUCCESS' && (
-                                  <span style={{ background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                  <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                                     <CheckCircle size={11} /> Auto-Paid via Razorpay Route
                                   </span>
                                 )}
                                 {record.transferStatus === 'FAILED' && (
-                                  <span style={{ background: '#fee2e2', color: '#dc2626', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                  <span style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
                                     ⚠ Auto-Transfer Failed — Manual Payout Needed
                                   </span>
                                 )}
                                 {record.transferStatus === 'NOT_LINKED' && (
-                                  <span style={{ background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                  <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
                                     ⚡ Artist Not on Razorpay Route — Verify Bank to Enable Auto-Pay
                                   </span>
                                 )}
                                 {record.transferStatus === 'PENDING' && (
-                                  <span style={{ background: '#faf0f3', color: '#856d75', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
+                                  <span style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', padding: '2px 8px', borderRadius: 99, fontSize: '0.7rem', fontWeight: 700 }}>
                                     Manual Payout Pending
                                   </span>
                                 )}
@@ -1102,12 +1071,12 @@ const AdminDashboard: React.FC = () => {
                               {['PENDING', 'FAILED'].includes(record.payoutStatus) ? (
                                 <button 
                                   disabled={actioning} onClick={() => handleMarkPayoutCompleted(record.id)}
-                                  style={{ padding: '6px 12px', background: '#b5687b', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                                  style={{ padding: '6px 14px', background: '#059669', color: '#fff', border: 'none', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
                                 >
                                   Mark Payout Done
                                 </button>
                               ) : (
-                                <span style={{ color: '#548572', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                                   <CheckCircle size={14} /> {record.payoutStatus === 'COMPLETED' ? 'Paid' : 'In progress'}
                                 </span>
                               )}
@@ -1117,7 +1086,7 @@ const AdminDashboard: React.FC = () => {
                                 disabled={actioning}
                                 style={{ 
                                   padding: '6px 12px', 
-                                  background: '#2a1a1f', 
+                                  background: '#0f172a', 
                                   color: '#fff', 
                                   border: 'none', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
                                   display: 'flex', alignItems: 'center', gap: 4

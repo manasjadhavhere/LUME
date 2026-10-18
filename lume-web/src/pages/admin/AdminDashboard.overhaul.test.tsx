@@ -9,7 +9,8 @@ beforeEach(() => { vi.stubGlobal('fetch', vi.fn(fixtureFetch)); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 function renderAdmin() { return render(<MemoryRouter><AuthContext.Provider value={{ user: adminUser, token: 'qa', isLoading: false, isAuthenticated: true, login: vi.fn(), loginWithGoogle: vi.fn(), register: vi.fn(), logout: vi.fn(), updateUser: vi.fn(), refreshUser: vi.fn() }}><AdminDashboard /></AuthContext.Provider></MemoryRouter>); }
 it('loads actual insights, filters artists and opens the management dialog', async () => {
-  renderAdmin(); expect(await screen.findByText('Service GMV')).toBeVisible();
+  renderAdmin();
+  expect(await screen.findByText('Service GMV')).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: /Artists & verifications/ }));
   fireEvent.change(screen.getByRole('textbox', { name: 'Search artists' }), { target: { value: 'Mira' } });
   expect(screen.getByText('Mira Kapoor')).toBeVisible(); expect(screen.queryByText('Ananya Mehra')).not.toBeInTheDocument();
