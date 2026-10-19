@@ -28,6 +28,7 @@ import ArtistProfile from './pages/artist/ArtistProfile';
 import ArtistCalendar from './pages/artist/ArtistCalendar';
 import ArtistRatings from './pages/artist/ArtistRatings';
 import ArtistBookings from './pages/artist/ArtistBookings';
+import ArtistSettings from './pages/artist/ArtistSettings';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -132,7 +133,7 @@ const App: React.FC = () => {
                   <Route path="calendar" element={<ArtistCalendar />} />
                   <Route path="ratings" element={<ArtistRatings />} />
                   <Route path="bookings" element={<ArtistBookings />} />
-                  <Route path="settings" element={<ArtistProfile />} />
+                  <Route path="settings" element={<ArtistSettings />} />
                 </Route>
 
                 {/* Admin Portal — protected, ADMIN role required */}

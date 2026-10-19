@@ -71,8 +71,12 @@ const ArtistDashboardLayout: React.FC = () => {
 
   const closeSidebar = () => setSidebarOpen(false);
 
-  const currentNav = navItems.find((n) =>
-    n.end ? location.pathname === n.to : location.pathname.startsWith(n.to)
+  const currentNav = [
+    ...navItems,
+    { to: '/artist-dashboard/bookings', label: 'Booking Requests' },
+    { to: '/artist-dashboard/settings', label: 'Studio Settings' },
+  ].find((n) =>
+    (n as any).end ? location.pathname === n.to : location.pathname.startsWith(n.to)
   );
 
   const [isTakingBookings, setIsTakingBookings] = useState(
@@ -183,9 +187,9 @@ const ArtistDashboardLayout: React.FC = () => {
           </NavLink>
 
           <NavLink
-            to="/artist-dashboard/profile"
+            to="/artist-dashboard/settings"
             className={({ isActive }) =>
-              `artist-sidebar__link ${isActive && location.pathname.includes('settings') ? 'artist-sidebar__link--active' : ''}`
+              `artist-sidebar__link ${isActive ? 'artist-sidebar__link--active' : ''}`
             }
             onClick={closeSidebar}
           >
