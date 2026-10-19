@@ -1054,15 +1054,12 @@
   }
 }
 @media (max-width: 560px) {
-  .home-artists--scroller .home-artist,
-  .home-artists--scroller .home-artist-skeleton,
   .home-occasions--scroller .home-occasion {
     flex: 0 0 84%;
     min-width: 210px;
   }
 }
 
-.home-artists { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; }
 .home-artists { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px; }
 
 /* ── Luxury Artist Card Container ── */
@@ -1426,6 +1423,11 @@
 @keyframes skeletonShimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+/* Mobile artists navigation hidden on desktop / tablet by default */
+.home-artists-mobile-nav {
+  display: none;
 }
 .home-directory { display: grid; grid-template-columns: 1fr .8fr; min-height: 330px; background: var(--rose-pale); border-radius: 5px; overflow: hidden; }
 .home-directory > div { padding: 42px; align-self: center; }
@@ -2175,104 +2177,202 @@
     padding: 5px;
   }
 
-  /* Section 2: Artist Scroller tuned for mobile prominence and height consistency */
+  /* Section 2: Artist Scroller tuned for mobile prominence, smooth snapping, and full-bleed feel */
+  .home-artists-carousel-wrapper {
+    position: relative;
+    width: 100%;
+  }
   .home-artists-carousel-wrapper .home-carousel-arrow,
   .home-occasions-carousel-wrapper .home-carousel-arrow {
     display: none !important;
   }
   .home-artists--scroller {
-    gap: 14px;
-    padding: 4px 0 16px;
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    gap: 16px !important;
+    /* Edge-to-edge full bleed scroll with padding matching container margin */
+    margin-inline: -14px !important;
+    padding: 6px 14px 16px 14px !important;
+    scroll-padding-inline: 14px !important;
+  }
+  .home-artists--scroller::-webkit-scrollbar {
+    display: none !important;
   }
   .home-artists--scroller .home-artist,
   .home-artists--scroller .home-artist-skeleton {
-    flex: 0 0 260px !important;
-    min-width: 250px !important;
-    max-width: 285px !important;
-    border-radius: 18px;
-    box-shadow: 0 4px 18px -2px rgba(42, 26, 31, 0.08);
+    flex: 0 0 calc(84vw - 12px) !important;
+    min-width: 280px !important;
+    max-width: 325px !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: normal !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px -4px rgba(42, 26, 31, 0.08), 0 2px 6px rgba(212, 94, 126, 0.04) !important;
+    border: 1px solid rgba(226, 213, 216, 0.75) !important;
+    background: #ffffff !important;
   }
   .home-artist__media {
-    aspect-ratio: 1 / 1.15;
+    aspect-ratio: 16 / 13 !important;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fbf5f7 0%, #f4e8eb 100%);
+  }
+  .home-artist__image img {
+    object-position: center 22% !important;
   }
   .home-artist__verified {
-    bottom: 8px;
-    left: 8px;
-    padding: 3px 8px;
-    font-size: 0.68rem;
-    gap: 4px;
-    border-radius: 9999px;
+    bottom: 10px !important;
+    left: 10px !important;
+    padding: 3.5px 9px !important;
+    font-size: 0.7rem !important;
+    gap: 4px !important;
+    border-radius: 9999px !important;
   }
   .home-artist__verified svg {
-    width: 11px;
-    height: 11px;
+    width: 12px !important;
+    height: 12px !important;
   }
   .home-artist__save {
-    top: 8px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
+    top: 10px !important;
+    right: 10px !important;
+    width: 34px !important;
+    height: 34px !important;
   }
   .home-artist__save svg {
-    width: 15px;
-    height: 15px;
+    width: 16px !important;
+    height: 16px !important;
   }
   .home-artist__body {
-    padding: 12px 14px 14px;
+    padding: 14px 16px 16px !important;
   }
   .home-artist__title {
-    margin-bottom: 3px;
+    margin-bottom: 5px !important;
   }
   .home-artist__title h3 {
-    font-size: 1.05rem;
-    line-height: 1.25;
+    font-size: 1.14rem !important;
+    line-height: 1.25 !important;
   }
   .home-artist__rating {
-    font-size: 0.72rem;
-    padding: 2px 6px;
-    gap: 3px;
+    font-size: 0.74rem !important;
+    padding: 2.5px 7px !important;
+    gap: 3.5px !important;
   }
   .home-artist__rating svg {
-    width: 10px;
-    height: 10px;
+    width: 11px !important;
+    height: 11px !important;
   }
   .home-artist__specialties {
-    gap: 4px;
-    margin: 0 0 8px;
+    gap: 5px !important;
+    margin: 0 0 9px !important;
   }
   .home-artist__tag {
-    font-size: 0.64rem;
-    padding: 2px 7px;
+    font-size: 0.66rem !important;
+    padding: 2.5px 8px !important;
   }
   .home-artist__location {
-    font-size: 0.76rem;
-    margin-bottom: 10px;
-    gap: 5px;
+    font-size: 0.78rem !important;
+    margin-bottom: 11px !important;
+    gap: 6px !important;
   }
   .home-artist__location-icon {
-    width: 16px;
-    height: 16px;
+    width: 17px !important;
+    height: 17px !important;
   }
   .home-artist__location-icon svg {
-    width: 9px;
-    height: 9px;
+    width: 10px !important;
+    height: 10px !important;
   }
   .home-artist__bottom {
-    padding-top: 10px;
+    padding-top: 11px !important;
   }
   .home-artist__price-label {
-    font-size: 0.65rem;
+    font-size: 0.68rem !important;
   }
   .home-artist__price-val {
-    font-size: 1.05rem;
+    font-size: 1.12rem !important;
   }
   .home-artist__action {
-    width: 32px;
-    height: 32px;
+    width: 36px !important;
+    height: 36px !important;
   }
   .home-artist__action svg {
-    width: 15px;
-    height: 15px;
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* Mobile Artist Scroller Navigation & Status Indicators */
+  .home-artists-mobile-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-top: 14px !important;
+    padding: 0 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .home-artists-mobile-dots {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+  }
+  .home-artists-mobile-dot {
+    width: 8px !important;
+    height: 8px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    border: none !important;
+    background: rgba(212, 94, 126, 0.22) !important;
+    cursor: pointer !important;
+    transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .home-artists-mobile-dot.is-active {
+    width: 26px !important;
+    background: linear-gradient(135deg, #d97a8c 0%, #c45f72 100%) !important;
+    box-shadow: 0 2px 8px rgba(212, 94, 126, 0.4) !important;
+  }
+  .home-artists-mobile-meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  .home-artists-mobile-counter {
+    font-family: var(--font-body) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: #8c7b83 !important;
+    letter-spacing: 0.04em !important;
+  }
+  .home-artists-mobile-counter strong {
+    color: var(--rose-deep) !important;
+    font-weight: 700 !important;
+  }
+  .home-artists-mobile-sep {
+    margin: 0 2px !important;
+    opacity: 0.5 !important;
+  }
+  .home-artists-mobile-hint {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    color: var(--rose-deep) !important;
+    background: rgba(212, 94, 126, 0.08) !important;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    letter-spacing: 0.02em !important;
+  }
+  .home-artists-mobile-hint-icon {
+    transform: rotate(45deg);
   }
 
   /* Section 3: Occasions Scroller (2 visible side-by-side, compact) */

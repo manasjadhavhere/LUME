@@ -298,6 +298,35 @@ export default function LandingPage() {
   };
 
   const artistsScrollRef = useRef<HTMLDivElement>(null);
+  const [activeArtistIndex, setActiveArtistIndex] = useState(0);
+
+  const handleArtistsScroll = () => {
+    const el = artistsScrollRef.current;
+    if (!el) return;
+    const cards = el.querySelectorAll<HTMLElement>('.home-artist');
+    if (!cards.length) return;
+    const scrollLeft = el.scrollLeft;
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    cards.forEach((card, idx) => {
+      const distance = Math.abs(card.offsetLeft - el.offsetLeft - scrollLeft);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = idx;
+      }
+    });
+    setActiveArtistIndex(closestIndex);
+  };
+
+  const scrollToArtistIndex = (index: number) => {
+    const el = artistsScrollRef.current;
+    if (!el) return;
+    const cards = el.querySelectorAll<HTMLElement>('.home-artist');
+    if (cards[index]) {
+      cards[index].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+    setActiveArtistIndex(index);
+  };
 
   const scrollArtists = (direction: 'left' | 'right') => {
     const el = artistsScrollRef.current;
@@ -545,6 +574,7 @@ export default function LandingPage() {
             <div
               className="home-artists home-artists--scroller"
               ref={artistsScrollRef}
+              onScroll={handleArtistsScroll}
               tabIndex={0}
               role="region"
               aria-label="Featured artists scroller"
@@ -608,6 +638,32 @@ export default function LandingPage() {
             >
               <ChevronRight size={24} strokeWidth={2} />
             </button>
+            {artists.length > 1 && (
+              <div className="home-artists-mobile-nav" aria-label="Featured artists navigation">
+                <div className="home-artists-mobile-dots">
+                  {artists.map((art, idx) => (
+                    <button
+                      key={art.id}
+                      type="button"
+                      className={`home-artists-mobile-dot ${idx === activeArtistIndex ? 'is-active' : ''}`}
+                      onClick={() => scrollToArtistIndex(idx)}
+                      aria-label={`Go to artist ${idx + 1} of ${artists.length}: ${art.user.name}`}
+                    />
+                  ))}
+                </div>
+                <div className="home-artists-mobile-meta">
+                  <span className="home-artists-mobile-counter">
+                    <strong>{String(activeArtistIndex + 1).padStart(2, '0')}</strong>
+                    <span className="home-artists-mobile-sep">/</span>
+                    {String(artists.length).padStart(2, '0')}
+                  </span>
+                  <span className="home-artists-mobile-hint">
+                    Swipe to explore
+                    <ArrowUpRight size={13} className="home-artists-mobile-hint-icon" />
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="home-directory">
