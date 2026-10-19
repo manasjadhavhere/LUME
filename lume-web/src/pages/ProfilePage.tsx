@@ -558,18 +558,18 @@ const ProfilePage: React.FC = () => {
     {
       id: 'addresses',
       icon: <Home size={18} />,
-      label: 'Saved Addresses',
+      label: 'Addresses & Venues',
       badge: addresses.length > 0 ? addresses.length : undefined,
     },
     {
       id: 'preferences',
       icon: <Palette size={18} />,
-      label: 'Beauty Preferences',
+      label: 'Beauty Profile',
     },
     {
       id: 'settings',
       icon: <Settings size={18} />,
-      label: 'Profile & Account',
+      label: 'Account Settings',
     },
     {
       id: 'help',
@@ -625,10 +625,81 @@ const ProfilePage: React.FC = () => {
     <div className="profile-dashboard">
       {/* ── Column 1: Client Sidebar ── */}
       <aside className="profile-dashboard__sidebar">
-        <div className="profile-sidebar-brand">
-          <span className="profile-sidebar-eyebrow">Client Portal</span>
-          <h2 className="profile-sidebar-title">My Account</h2>
+        {/* Client Identity Header Card in Sidebar */}
+        <div className="profile-sidebar-user">
+          <div className="profile-sidebar-user-top">
+            <div className="profile-avatar-wrapper">
+              <img
+                src={profileImage}
+                alt={user?.name}
+                className="profile-avatar-img"
+                style={{ opacity: isUploading ? 0.6 : 1 }}
+              />
+              <button
+                className="profile-avatar-edit"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                title="Upload profile picture"
+                aria-label="Upload profile picture"
+              >
+                <Camera size={12} />
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*"
+                onChange={handleAvatarUpload}
+              />
+            </div>
+
+            <div className="profile-user-summary">
+              <div className="profile-user-title-row">
+                <h2 className="profile-user-name">{user?.name}</h2>
+                <span className="profile-verified-badge" title="Identity Verified">
+                  <ShieldCheck size={12} /> Verified Client
+                </span>
+              </div>
+              <div className="profile-user-meta-sub">
+                <span className="profile-user-location" title={`${location} • "${bio}"`}>
+                  <MapPin size={11} /> {location}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Telemetry Pills inside Sidebar */}
+          <div className="profile-sidebar-telemetry">
+            <button
+              className={`profile-tele-mini ${activeTab === 'bookings' ? 'is-active' : ''}`}
+              onClick={() => setActiveTab('bookings')}
+              title="View bookings"
+            >
+              <span className="profile-tele-val">{bookings.length}</span>
+              <span className="profile-tele-lbl">Bookings</span>
+            </button>
+            <div className="profile-tele-divider" />
+            <button
+              className={`profile-tele-mini ${activeTab === 'favorites' ? 'is-active' : ''}`}
+              onClick={() => setActiveTab('favorites')}
+              title="View saved artists"
+            >
+              <span className="profile-tele-val">{favoritesCount}</span>
+              <span className="profile-tele-lbl">Saved Artists</span>
+            </button>
+            <div className="profile-tele-divider" />
+            <button
+              className={`profile-tele-mini ${activeTab === 'addresses' ? 'is-active' : ''}`}
+              onClick={() => setActiveTab('addresses')}
+              title="View saved addresses"
+            >
+              <span className="profile-tele-val">{addresses.length}</span>
+              <span className="profile-tele-lbl">Saved Addresses</span>
+            </button>
+          </div>
         </div>
+
+        <div className="profile-sidebar-divider" />
 
         <nav className="profile-dashboard__menu" aria-label="Account navigation">
           {menuItems.map((item) => {
@@ -649,133 +720,38 @@ const ProfilePage: React.FC = () => {
           })}
         </nav>
 
-        <div className="profile-sidebar-divider" />
+        <div className="profile-sidebar-spacer" />
 
-        {/* VIP Concierge Quick-Card in Sidebar */}
-        <div className="profile-concierge-card">
-          <div className="profile-concierge-icon">
-            <MessageCircle size={18} />
-          </div>
-          <div>
-            <strong>Lume Concierge</strong>
-            <p>Direct bridal & event booking assistance via WhatsApp</p>
-          </div>
+        {/* Compact Concierge & Logout Footer */}
+        <div className="profile-sidebar-footer">
           <a
             href="https://wa.me/919999999999?text=Hi%20Lume%20Concierge,%20I%20need%20assistance%20with%20a%20booking"
             target="_blank"
             rel="noopener noreferrer"
-            className="profile-concierge-btn"
+            className="profile-concierge-pill"
+            title="Chat directly with bridal booking desk on WhatsApp"
           >
-            Chat with Concierge
+            <div className="profile-concierge-pill-icon">
+              <MessageCircle size={15} />
+            </div>
+            <div className="profile-concierge-pill-info">
+              <strong>VIP Concierge</strong>
+              <span>24/7 WhatsApp Support</span>
+            </div>
+            <ExternalLink size={12} className="profile-concierge-pill-arrow" />
           </a>
-        </div>
 
-        <button className="profile-dashboard__menu-item logout" onClick={handleLogout}>
-          <span className="profile-dashboard__menu-icon">
-            <LogOut size={18} />
-          </span>
-          <span className="profile-dashboard__menu-label">Log Out</span>
-        </button>
+          <button className="profile-dashboard__menu-item logout" onClick={handleLogout}>
+            <span className="profile-dashboard__menu-icon">
+              <LogOut size={16} />
+            </span>
+            <span className="profile-dashboard__menu-label">Log Out</span>
+          </button>
+        </div>
       </aside>
 
       {/* ── Column 2: Main Dynamic Content ── */}
       <main className="profile-dashboard__main">
-        {/* Executive Luxury Client Header */}
-        <section className="profile-banner">
-          <div className="profile-banner__inner">
-            <div className="profile-user-group">
-              <div className="profile-avatar-wrapper">
-                <img
-                  src={profileImage}
-                  alt={user?.name}
-                  className="profile-avatar-img"
-                  style={{ opacity: isUploading ? 0.6 : 1 }}
-                />
-                <button
-                  className="profile-avatar-edit"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  title="Upload profile picture"
-                  aria-label="Upload profile picture"
-                >
-                  <Camera size={14} />
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                />
-              </div>
-
-              <div className="profile-user-info">
-                <div className="profile-name-row">
-                  <h1 className="profile-name">{user?.name}</h1>
-                  <span className="profile-verified-badge">
-                    <ShieldCheck size={14} /> Verified Client
-                  </span>
-                </div>
-                <div className="profile-meta-row">
-                  <span className="profile-meta-item">
-                    <Mail size={13} /> {user?.email}
-                  </span>
-                  <span className="profile-meta-bullet">•</span>
-                  <span className="profile-meta-item">
-                    <MapPin size={13} /> {location}
-                  </span>
-                </div>
-                <p className="profile-bio-text">"{bio}"</p>
-              </div>
-            </div>
-
-            {/* Interactive Metrics Bar */}
-            <div className="profile-telemetry-bar">
-              <button
-                className={`profile-telemetry-pill ${activeTab === 'bookings' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('bookings')}
-                title="View your bookings"
-              >
-                <div className="profile-telemetry-icon profile-telemetry-icon--calendar">
-                  <Calendar size={18} />
-                </div>
-                <div className="profile-telemetry-data">
-                  <span className="profile-telemetry-val">{bookings.length}</span>
-                  <span className="profile-telemetry-lbl">Bookings</span>
-                </div>
-              </button>
-
-              <button
-                className={`profile-telemetry-pill ${activeTab === 'favorites' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('favorites')}
-                title="View saved artists"
-              >
-                <div className="profile-telemetry-icon profile-telemetry-icon--heart">
-                  <Heart size={18} fill={favoritesCount > 0 ? '#d45e7e' : 'none'} />
-                </div>
-                <div className="profile-telemetry-data">
-                  <span className="profile-telemetry-val">{favoritesCount}</span>
-                  <span className="profile-telemetry-lbl">Saved Artists</span>
-                </div>
-              </button>
-
-              <button
-                className={`profile-telemetry-pill ${activeTab === 'addresses' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('addresses')}
-                title="View saved addresses"
-              >
-                <div className="profile-telemetry-icon profile-telemetry-icon--home">
-                  <Home size={18} />
-                </div>
-                <div className="profile-telemetry-data">
-                  <span className="profile-telemetry-val">{addresses.length}</span>
-                  <span className="profile-telemetry-lbl">Addresses</span>
-                </div>
-              </button>
-            </div>
-          </div>
-        </section>
-
         {/* ── Content Panes ── */}
         <div className="profile-content-area">
           {/* TAB 1: MY BOOKINGS */}

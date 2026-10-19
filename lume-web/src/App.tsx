@@ -39,14 +39,14 @@ import CustomCursor from './components/ui/CustomCursor';
 import Preloader from './components/ui/Preloader';
 import './App.css';
 
-const AppLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppLayoutWrapper: React.FC<{ children: React.ReactNode; hideFooter?: boolean }> = ({ children, hideFooter }) => {
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${hideFooter ? 'app-layout--no-footer' : ''}`}>
       <Header />
       <main className="app-main">
         {children}
       </main>
-      <Footer />
+      {!hideFooter && <Footer />}
     </div>
   );
 };
@@ -121,7 +121,7 @@ const App: React.FC = () => {
                 <Route path="/styles" element={<Navigate to="/categories" replace />} />
                 <Route path="/reels" element={<Navigate to="/discover" replace />} />
                 <Route path="/saved" element={<AppLayoutWrapper><SavedPage /></AppLayoutWrapper>} />
-                <Route path="/profile" element={<AppLayoutWrapper><ClientGuard><ProfilePage /></ClientGuard></AppLayoutWrapper>} />
+                <Route path="/profile" element={<AppLayoutWrapper hideFooter><ClientGuard><ProfilePage /></ClientGuard></AppLayoutWrapper>} />
                 <Route path="/artist/:id" element={<AppLayoutWrapper><ArtistDetailPage /></AppLayoutWrapper>} />
                 <Route path="/booking/confirm" element={<AppLayoutWrapper><BookingConfirmPage /></AppLayoutWrapper>} />
 
