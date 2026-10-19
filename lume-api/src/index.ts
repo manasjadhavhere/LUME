@@ -17,6 +17,7 @@ import adminRouter from './modules/admin/admin.router';
 import paymentsRouter from './modules/payments/payments.router';
 import notificationsRouter from './modules/notifications/notifications.router';
 import geoRouter from './modules/geo/geo.router';
+import whatsappRouter from './modules/whatsapp/whatsapp.router';
 
 const app = express();
 
@@ -106,6 +107,7 @@ app.use('/api/admin', adminLocalhost, adminLimiter, adminRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/geo', geoRouter);
+app.use('/api', whatsappRouter);
 
 // Nested availability under artists
 app.use('/api/artists/:artistId/availability', availabilityRouter);

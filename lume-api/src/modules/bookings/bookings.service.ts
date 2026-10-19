@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
+import {
+  notifyBookingCreated,
+  notifyBookingStatusChanged,
+} from '../whatsapp/whatsapp.service';
 
 export const createBookingSchema = z.object({
   artistId: z.string().min(1, 'Artist ID required'),
@@ -11,6 +15,7 @@ export const createBookingSchema = z.object({
   priceType: z.enum(['WEDDING', 'OCCASION', 'HOURLY']).default('OCCASION'),
   notes: z.string().optional(),
   address: z.string().optional(),
+  clientPhone: z.string().optional(),
 });
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
@@ -20,6 +25,18 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
   const artist = await prisma.artistProfile.findUnique({ where: { id: data.artistId } });
   if (!artist) throw createError('Artist not found', 404);
   if (!artist.isVerified) throw createError('Artist is not yet verified', 400);
+
+  // If client provided a phone number, update client profile/user if missing
+  if (data.clientPhone) {
+    try {
+      await prisma.user.update({
+        where: { id: clientId },
+        data: { phone: data.clientPhone },
+      });
+    } catch {
+      // Non-blocking if already set
+    }
+  }
 
   // Calculate price based on priceType
   let totalPaid = 0;
@@ -75,6 +92,11 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
       service: true,
       client: { select: { id: true, name: true, email: true, avatarUrl: true } },
     },
+  });
+
+  // Asynchronously trigger WhatsApp notifications to both Client & Artist
+  notifyBookingCreated(booking.id).catch(err => {
+    console.error('[WhatsApp Trigger Failed on createBooking]:', err);
   });
 
   return booking;
@@ -149,6 +171,11 @@ export async function updateBookingStatus(
     });
   }
 
+  // Asynchronously notify Client of status change via WhatsApp
+  notifyBookingStatusChanged(bookingId, status, cancelReason).catch(err => {
+    console.error('[WhatsApp Trigger Failed on updateBookingStatus]:', err);
+  });
+
   return updated;
 }
 
@@ -162,8 +189,16 @@ export async function cancelBookingAsClient(clientId: string, bookingId: string,
     throw createError('Cannot cancel a completed or already cancelled booking', 400);
   }
 
-  return prisma.booking.update({
+  const updated = await prisma.booking.update({
     where: { id: bookingId },
     data: { status: 'CANCELLED', cancelReason: reason },
   });
+
+  // Notify Artist of cancellation
+  notifyBookingStatusChanged(bookingId, 'CANCELLED', reason).catch(err => {
+    console.error('[WhatsApp Trigger Failed on cancelBookingAsClient]:', err);
+  });
+
+  return updated;
 }
+
