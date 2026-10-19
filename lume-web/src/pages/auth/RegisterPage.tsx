@@ -5,6 +5,7 @@ import { Eye, EyeOff, User, Palette, ArrowRight, AlertCircle, ArrowLeft } from '
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../context/AuthContext';
 import LocationAutocomplete from '../../components/ui/LocationAutocomplete';
+import PhoneInput from '../../components/ui/PhoneInput';
 import './AuthPage.css';
 
 const RegisterPage: React.FC = () => {
@@ -33,13 +34,16 @@ const RegisterPage: React.FC = () => {
     setIsLoading(true);
     setError('');
     try {
+      const formattedPhone = phone ? (phone.startsWith('+91') ? phone : `+91${phone}`) : undefined;
+      const formattedMobile = mobileNumber ? (mobileNumber.startsWith('+91') ? mobileNumber : `+91${mobileNumber}`) : undefined;
+
       const { role } = await register({
         email, password, name, role: selectedRole,
-        phone: phone || undefined,
+        phone: formattedPhone,
         gender: gender as any || undefined,
         dob: dob || undefined,
         location: location || undefined,
-        mobileNumber: mobileNumber || undefined,
+        mobileNumber: formattedMobile,
       });
 
       // Use the actual role returned from the server to guarantee correct redirection
@@ -125,16 +129,22 @@ const RegisterPage: React.FC = () => {
             {selectedRole === 'CLIENT' && (
               <div className="auth-page__field">
                 <label className="auth-page__label">Mobile Number</label>
-                <input type="tel" className="auth-page__input" placeholder="+91 98765 43210"
-                  value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} />
+                <PhoneInput
+                  value={mobileNumber}
+                  onChange={setMobileNumber}
+                  placeholder="98765 43210"
+                />
               </div>
             )}
 
             {selectedRole === 'ARTIST' && (
               <div className="auth-page__field">
                 <label className="auth-page__label">Phone Number</label>
-                <input type="tel" className="auth-page__input" placeholder="+91 98765 43210"
-                  value={phone} onChange={e => setPhone(e.target.value)} />
+                <PhoneInput
+                  value={phone}
+                  onChange={setPhone}
+                  placeholder="98765 43210"
+                />
               </div>
             )}
 

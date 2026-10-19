@@ -39,6 +39,7 @@ import { useAuth, API_BASE } from '../context/AuthContext';
 import useFavorites from '../hooks/useFavorites';
 import GeoLocationInput from '../components/ui/GeoLocationInput';
 import PaymentOptionsModal from '../components/payment/PaymentOptionsModal';
+import PhoneInput from '../components/ui/PhoneInput';
 import './ProfilePage.css';
 
 interface MenuItem {
@@ -1286,16 +1287,13 @@ const ProfilePage: React.FC = () => {
 
                   {/* Phone */}
                   <div className="profile-form-field">
-                    <label>Mobile Number (10 Digits)</label>
-                    <input
-                      type="tel"
+                    <label>Mobile Number</label>
+                    <PhoneInput
                       required
-                      maxLength={10}
-                      pattern="\d{10}"
-                      placeholder="10 digit mobile number"
+                      placeholder="98765 43210"
                       value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })
+                      onChange={(digits) =>
+                        setFormData({ ...formData, phone: digits })
                       }
                     />
                   </div>
@@ -1520,15 +1518,14 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <div className="profile-modal-field">
                   <label>Mobile Number</label>
-                  <input
-                    type="tel"
+                  <PhoneInput
                     required
-                    maxLength={10}
+                    placeholder="98765 43210"
                     value={addressForm.phone}
-                    onChange={(e) =>
+                    onChange={(digits) =>
                       setAddressForm({
                         ...addressForm,
-                        phone: e.target.value.replace(/\D/g, ''),
+                        phone: digits,
                       })
                     }
                   />

@@ -111,7 +111,7 @@ export async function getMe(userId: string) {
 
 export const updateMeSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits').optional().or(z.literal('')),
+  phone: z.string().regex(/^(\+91[\s-]?)?\d{10}$/, 'Phone number must be a valid 10-digit number').optional().or(z.literal('')),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
   dob: z.string().optional().or(z.literal('')), // Should ideally be .date() or proper string, keeping it simple
   // Profile fields

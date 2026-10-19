@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import useFavorites from '../hooks/useFavorites';
 import Button from '../components/ui/Button';
+import PhoneInput from '../components/ui/PhoneInput';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import './ArtistDetailPage.css';
 
@@ -172,6 +173,7 @@ const ArtistDetailPage: React.FC = () => {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
+  const [clientPhone, setClientPhone] = useState(user?.phone || '');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -202,6 +204,12 @@ const ArtistDetailPage: React.FC = () => {
     }).catch(() => setArtistError('Failed to load artist'))
       .finally(() => setLoadingArtist(false));
   }, [id]);
+
+  useEffect(() => {
+    if (user?.phone && !clientPhone) {
+      setClientPhone(user.phone);
+    }
+  }, [user?.phone]);
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'CLIENT' && artist?.id) {
@@ -256,7 +264,16 @@ const ArtistDetailPage: React.FC = () => {
       const res = await fetch(`${API_BASE}/api/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ artistId: artist.id, serviceId: selectedServiceId || undefined, date: selectedDate, time: selectedTimeSlots.join(', '), priceType: selectedPriceType, notes, address }),
+        body: JSON.stringify({
+          artistId: artist.id,
+          serviceId: selectedServiceId || undefined,
+          date: selectedDate,
+          time: selectedTimeSlots.join(', '),
+          priceType: selectedPriceType,
+          notes,
+          address,
+          clientPhone: clientPhone ? (clientPhone.startsWith('+91') ? clientPhone : `+91${clientPhone}`) : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Booking failed');
@@ -264,7 +281,7 @@ const ArtistDetailPage: React.FC = () => {
       setShowSuccessModal(true);
     } catch (err) { setBookingError(err instanceof Error ? err.message : 'Booking failed.'); }
     finally { setBookingLoading(false); }
-  }, [isAuthenticated, isBookingReady, artist, bookingLoading, showSuccessModal, token, selectedServiceId, selectedDate, selectedTimeSlots, selectedPriceType, notes, address, navigate]);
+  }, [isAuthenticated, isBookingReady, artist, bookingLoading, showSuccessModal, token, selectedServiceId, selectedDate, selectedTimeSlots, selectedPriceType, notes, address, clientPhone, navigate]);
 
   const ratingDistribution = useMemo(() => {
     if (!artist?.reviews?.length) return [0, 0, 0, 0, 0];
@@ -757,6 +774,16 @@ const ArtistDetailPage: React.FC = () => {
 
               {isBookingReady && (
                 <Step n={stepDetails} title="Details" hint="Optional">
+                  <div style={{ marginBottom: 10 }}>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--mid)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Phone / WhatsApp Number
+                    </label>
+                    <PhoneInput
+                      value={clientPhone}
+                      onChange={setClientPhone}
+                      placeholder="98765 43210"
+                    />
+                  </div>
                   <label className="ap-field">
                     <Ico n="map-pin" c="soft" s={18} />
                     <input type="text" placeholder="Event venue / address" value={address} onChange={e => setAddress(e.target.value)} />

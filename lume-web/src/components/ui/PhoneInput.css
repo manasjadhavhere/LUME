@@ -1,0 +1,79 @@
+/* ========================================================
+   LUME LUXURY PHONE INPUT — Country Code +91 Default
+   ======================================================== */
+
+.lume-phone-input-wrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(42, 26, 31, 0.18);
+  border-radius: 10px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.lume-phone-input-wrap.is-focused {
+  border-color: var(--rose-deep, #c95175);
+  box-shadow: 0 0 0 3px rgba(201, 81, 117, 0.15);
+  background: #ffffff;
+}
+
+.lume-phone-input-wrap.is-disabled {
+  background: #f8fafc;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ── Left Country Code Prefix Badge (+91) ── */
+.lume-phone-input__prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 0 0 14px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.lume-phone-input__code {
+  font-family: var(--font-body, inherit);
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--dark, #2b1f23);
+  letter-spacing: 0.02em;
+}
+
+.lume-phone-input__separator {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  background: rgba(42, 26, 31, 0.15);
+  margin-left: 10px;
+  margin-right: 4px;
+}
+
+/* ── Right Editable Phone Digits Field ── */
+.lume-phone-input__field {
+  flex: 1;
+  width: 100%;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 12px 14px 12px 6px !important;
+  font-family: var(--font-body, inherit) !important;
+  font-size: 0.94rem !important;
+  font-weight: 500 !important;
+  color: var(--dark, #0f172a) !important;
+  letter-spacing: 0.04em !important;
+}
+
+.lume-phone-input__field::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.lume-phone-input__field:disabled {
+  cursor: not-allowed;
+}

@@ -1,4 +1,5 @@
 import GeoLocationInput from '../../components/ui/GeoLocationInput';
+import PhoneInput from '../../components/ui/PhoneInput';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Trash2, CheckCircle, AlertCircle, Clock, Upload,
@@ -59,6 +60,7 @@ const ArtistProfile: React.FC = () => {
   const [bio, setBio] = useState(profile?.bio || '');
   const [location, setLocation] = useState(profile?.location || '');
   const [experience, setExperience] = useState(String(profile?.experience || 0));
+  const [phone, setPhone] = useState(user?.phone || '');
   const [certification, setCertification] = useState(profile?.certification || '');
   const [specialties, setSpecialties] = useState<string[]>(profile?.specialties || []);
   const [gender, setGender] = useState(profile?.gender || '');
@@ -178,6 +180,14 @@ const ArtistProfile: React.FC = () => {
         method: 'PUT',
         body: { bio, location, experience: parseInt(experience, 10) || 0, certification, specialties, gender: gender || undefined },
       });
+      if (phone !== user?.phone) {
+        const cleanDigits = phone.replace(/\D/g, '');
+        const formattedPhone = cleanDigits ? (cleanDigits.startsWith('91') && cleanDigits.length === 12 ? `+${cleanDigits}` : `+91${cleanDigits.slice(-10)}`) : '';
+        await apiExecute('/api/auth/me', {
+          method: 'PUT',
+          body: { phone: formattedPhone },
+        });
+      }
       if (!res) {
         setProfileError('Failed to save profile. Please check if all fields are valid.');
         return;
@@ -361,12 +371,16 @@ const ArtistProfile: React.FC = () => {
                 <GeoLocationInput value={location} onChange={setLocation} required disabled={isLocked} />
               </div>
               <div className="artist-field">
-                <label className="artist-label">Years of Experience</label>
-                <input type="number" className="artist-input" value={experience} onChange={e => setExperience(e.target.value)} min="0" max="50" disabled={isLocked} />
+                <label className="artist-label">WhatsApp / Phone Number</label>
+                <PhoneInput value={phone} onChange={setPhone} placeholder="98765 43210" disabled={isLocked} />
               </div>
             </div>
 
             <div className="artist-form__row">
+              <div className="artist-field">
+                <label className="artist-label">Years of Experience</label>
+                <input type="number" className="artist-input" value={experience} onChange={e => setExperience(e.target.value)} min="0" max="50" disabled={isLocked} />
+              </div>
               <div className="artist-field">
                 <label className="artist-label">Gender</label>
                 <select className="artist-input" value={gender} onChange={e => setGender(e.target.value)} disabled={isLocked}>
@@ -376,6 +390,9 @@ const ArtistProfile: React.FC = () => {
                   <option value="OTHER">Other</option>
                 </select>
               </div>
+            </div>
+
+            <div className="artist-form__row">
               <div className="artist-field">
                 <label className="artist-label">Certification / Academy</label>
                 <input type="text" className="artist-input" value={certification} onChange={e => setCertification(e.target.value)} placeholder="e.g. Certified Makeup Artist — VLCC" disabled={isLocked} />
