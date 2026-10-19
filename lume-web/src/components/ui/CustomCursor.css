@@ -2,25 +2,25 @@
    LUME LUXURY CUSTOM CURSOR — Smooth, Editorial, Unified
    ======================================================== */
 
-/* Hide native cursor globally on non-touch desktop */
+/* Hide native cursor globally on non-touch desktop to prevent double-cursor glitch */
 @media (hover: hover) and (pointer: fine) {
-  html,
-  body,
-  a,
-  button,
-  [role="button"],
-  select,
-  summary,
-  label,
-  input[type="button"],
-  input[type="submit"] {
+  *,
+  *::before,
+  *::after {
     cursor: none !important;
   }
 
-  /* Keep native text cursor on inputs and textareas for high-precision text editing */
-  input,
-  textarea {
+  /* Keep native text cursor exclusively on text input fields for high-precision text editing */
+  input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  [contenteditable="true"] {
     cursor: text !important;
+  }
+
+  /* Disabled state */
+  [disabled],
+  .disabled {
+    cursor: not-allowed !important;
   }
 }
 
@@ -33,15 +33,20 @@
   height: 6px;
   background: var(--rose-deep, #c95175);
   border-radius: 50%;
-  pointer-events: none;
-  z-index: 100000;
+  pointer-events: none !important;
+  z-index: 2147483647;
   will-change: transform;
   box-shadow: 0 0 8px rgba(201, 81, 117, 0.45);
+  opacity: 0;
   transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               background-color 0.2s ease,
-              opacity 0.2s ease,
+              opacity 0.15s ease,
               border-radius 0.2s ease;
+}
+
+.cursor-dot.cursor-visible {
+  opacity: 1;
 }
 
 /* Dot on interactive hover: stays crisp, elegant viewfinder target */
@@ -60,9 +65,10 @@
   box-shadow: 0 0 12px rgba(139, 32, 63, 0.7);
 }
 
-/* Dot when typing in text input: hide dot so native I-beam text cursor is clear */
+/* Dot when typing in text input: subtle fade so native I-beam text cursor is clear */
 .cursor-dot.cursor-dot--input {
-  opacity: 0 !important;
+  opacity: 0;
+  transform: scale(0.2);
 }
 
 /* ── Outer Follower Halo Ring ── */
@@ -73,8 +79,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  pointer-events: none;
-  z-index: 99999;
+  pointer-events: none !important;
+  z-index: 2147483646;
   will-change: transform;
 
   /* Frosted luxury glassmorphism ring */
@@ -83,13 +89,18 @@
   backdrop-filter: blur(1px);
   -webkit-backdrop-filter: blur(1px);
   box-shadow: 0 0 14px rgba(201, 81, 117, 0.08);
+  opacity: 0;
 
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.32s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.25s ease,
               background-color 0.25s ease,
               box-shadow 0.25s ease,
-              opacity 0.25s ease;
+              opacity 0.2s ease;
+}
+
+.cursor-ring.cursor-visible {
+  opacity: 1;
 }
 
 /* Outer ring on hover: expands smoothly with soft rose glow */
@@ -113,9 +124,9 @@
 
 /* Outer ring on input: fades out so text cursor is 100% unobscured */
 .cursor-ring.cursor-ring--input {
-  opacity: 0 !important;
-  width: 20px;
-  height: 20px;
+  opacity: 0;
+  width: 18px;
+  height: 18px;
 }
 
 /* ── Fallback: completely disabled on mobile & touch devices ── */
@@ -129,7 +140,7 @@
     cursor: auto !important;
   }
 
-  a, button, [role="button"], select, summary, label {
+  a, button, [role="button"], select, summary, label, [data-hover] {
     cursor: pointer !important;
   }
 
