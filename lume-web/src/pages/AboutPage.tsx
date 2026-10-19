@@ -11,6 +11,7 @@ import {
   Compass,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from 'lucide-react';
 import './AboutPage.css';
 
@@ -41,6 +42,7 @@ const PILLARS = [
 export default function AboutPage() {
   const [activeStoryTab, setActiveStoryTab] = useState(0);
   const [activePillarTab, setActivePillarTab] = useState(0);
+  const [isHeroInfoOpen, setIsHeroInfoOpen] = useState(false);
 
   const storyTouchStartRef = useRef<number | null>(null);
   const pillarTouchStartRef = useRef<number | null>(null);
@@ -80,33 +82,53 @@ export default function AboutPage() {
   return (
     <div className="about-page">
       {/* ── Compact Editorial Hero ── */}
-      <section className="about-hero">
+      <section className={`about-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="about-container">
-          <div className="about-breadcrumbs">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span className="current">About Lume</span>
+          <div className="about-hero__top-bar">
+            <div className="about-breadcrumbs">
+              <Link to="/">Home</Link>
+              <span>/</span>
+              <span className="current">About Lume</span>
+            </div>
+
+            <button
+              type="button"
+              className={`about-hero__mobile-toggle ${isHeroInfoOpen ? 'is-active' : ''}`}
+              onClick={() => setIsHeroInfoOpen(!isHeroInfoOpen)}
+              aria-expanded={isHeroInfoOpen}
+              aria-label={isHeroInfoOpen ? 'Hide manifesto details' : 'Show manifesto details'}
+            >
+              <Sparkles size={12} />
+              <span>{isHeroInfoOpen ? 'Hide info' : 'Manifesto'}</span>
+              <ChevronDown size={14} className="about-hero__toggle-chevron" />
+            </button>
           </div>
 
-          <div className="about-hero__badge">
-            <Sparkles size={14} />
-            <span>THE LUME MANIFESTO</span>
+          <div className="about-hero__header-row">
+            <h1 className="about-hero__compact-title">About Lume.</h1>
           </div>
 
-          <h1 className="about-hero__headline">
-            “Your canvas.<br />
-            <em>Our masterpiece.”</em>
-          </h1>
+          <div className={`about-hero__dropdown ${isHeroInfoOpen ? 'is-open' : ''}`}>
+            <div className="about-hero__badge">
+              <Sparkles size={14} />
+              <span>THE LUME MANIFESTO</span>
+            </div>
 
-          <p className="about-hero__sub">
-            Born in Mumbai, Lume was created as an antidote to impersonal booking apps—connecting clients with vetted,
-            certified makeup artists across India through transparent pricing and authentic style alignment.
-          </p>
+            <h2 className="about-hero__headline">
+              “Your canvas.<br />
+              <em>Our masterpiece.”</em>
+            </h2>
 
-          <div className="about-hero__tags">
-            <span><Check size={14} /> Vetted Master Artists</span>
-            <span><Check size={14} /> Upfront Pricing Transparency</span>
-            <span><Check size={14} /> Style Alignment Guaranteed</span>
+            <p className="about-hero__sub">
+              Born in Mumbai, Lume was created as an antidote to impersonal booking apps—connecting clients with vetted,
+              certified makeup artists across India through transparent pricing and authentic style alignment.
+            </p>
+
+            <div className="about-hero__tags">
+              <span><Check size={14} /> Vetted Master Artists</span>
+              <span><Check size={14} /> Upfront Pricing Transparency</span>
+              <span><Check size={14} /> Style Alignment Guaranteed</span>
+            </div>
           </div>
         </div>
       </section>

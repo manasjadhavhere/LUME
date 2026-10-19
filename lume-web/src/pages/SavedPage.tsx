@@ -4,6 +4,7 @@ import {
   Heart,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   BadgeCheck,
   Star,
   MapPin,
@@ -43,6 +44,7 @@ const SavedPage: React.FC = () => {
   const { getFavorites, toggleFavorite, isFavorite } = useFavorites();
   const [savedArtists, setSavedArtists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHeroInfoOpen, setIsHeroInfoOpen] = useState(false);
 
   useEffect(() => {
     const favoriteIds = getFavorites();
@@ -74,33 +76,51 @@ const SavedPage: React.FC = () => {
   return (
     <div className="saved-page">
       {/* ── Editorial Hero ── */}
-      <section className="saved-hero">
+      <section className={`saved-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="saved-hero__inner">
-          <nav className="saved-breadcrumbs" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <ChevronRight size={14} />
-            <span>Saved Artists</span>
-          </nav>
+          <div className="saved-hero__top-bar">
+            <nav className="saved-breadcrumbs" aria-label="Breadcrumb">
+              <Link to="/">Home</Link>
+              <ChevronRight size={14} />
+              <span>Saved Artists</span>
+            </nav>
 
-          <span className="saved-hero__eyebrow">
-            <Sparkles size={16} /> YOUR CURATED SHORTLIST
-          </span>
+            <button
+              type="button"
+              className={`saved-hero__mobile-toggle ${isHeroInfoOpen ? 'is-active' : ''}`}
+              onClick={() => setIsHeroInfoOpen(!isHeroInfoOpen)}
+              aria-expanded={isHeroInfoOpen}
+              aria-label={isHeroInfoOpen ? 'Hide shortlist details' : 'Show shortlist details'}
+            >
+              <Sparkles size={12} />
+              <span>{isHeroInfoOpen ? 'Hide info' : 'About shortlist'}</span>
+              <ChevronDown size={14} className="saved-hero__toggle-chevron" />
+            </button>
+          </div>
 
-          <h1>
-            Saved Artists. <em>Portfolios close to your heart.</em>
-          </h1>
+          <div className="saved-hero__header-row">
+            <h1 className="saved-hero__title">
+              Saved Artists. <em className="saved-hero__title-em">Portfolios close to your heart.</em>
+            </h1>
 
-          <p>
-            Review and compare your bookmarked makeup artists. Reach out directly or secure your date whenever you're ready.
-          </p>
-
-          <div className="saved-hero__meta">
-            <span className="saved-count-chip">
-              <Heart size={14} fill="currentColor" />
-              <span>
-                {savedArtists.length} {savedArtists.length === 1 ? 'artist shortlisted' : 'artists shortlisted'}
+            <div className="saved-hero__meta">
+              <span className="saved-count-chip">
+                <Heart size={13} fill="currentColor" />
+                <span>
+                  {savedArtists.length} {savedArtists.length === 1 ? 'shortlisted' : 'shortlisted'}
+                </span>
               </span>
+            </div>
+          </div>
+
+          <div className={`saved-hero__dropdown ${isHeroInfoOpen ? 'is-open' : ''}`}>
+            <span className="saved-hero__eyebrow">
+              <Sparkles size={15} /> YOUR CURATED SHORTLIST
             </span>
+
+            <p className="saved-hero__desc">
+              Review and compare your bookmarked makeup artists. Reach out directly or secure your date whenever you're ready.
+            </p>
           </div>
         </div>
       </section>

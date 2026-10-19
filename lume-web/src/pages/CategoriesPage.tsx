@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, ChevronRight, Sparkles, Search } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ChevronRight, ChevronDown, Sparkles, Search } from 'lucide-react';
 import './CategoriesPage.css';
 
 interface CategoryDetail {
@@ -100,6 +100,7 @@ const CATEGORIES_LIST: CategoryDetail[] = [
 export default function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('All');
+  const [isHeroInfoOpen, setIsHeroInfoOpen] = useState(false);
 
   const filteredCategories = useMemo(() => {
     return CATEGORIES_LIST.filter(category => {
@@ -121,25 +122,44 @@ export default function CategoriesPage() {
   return (
     <div className="categories-page">
       {/* ── Hero ── */}
-      <section className="categories-hero">
+      <section className={`categories-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="categories-hero__inner">
-          <nav className="categories-breadcrumbs" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <ChevronRight size={14} />
-            <span>All Styles & Categories</span>
-          </nav>
+          <div className="categories-hero__top-bar">
+            <nav className="categories-breadcrumbs" aria-label="Breadcrumb">
+              <Link to="/">Home</Link>
+              <ChevronRight size={14} />
+              <span>All Styles</span>
+            </nav>
 
-          <span className="categories-hero__eyebrow">
-            <Sparkles size={16} /> Lume Artistry · 08 Curated Styles
-          </span>
-          <h1>
-            An Occasion. <em>A Feeling. A Look.</em>
-          </h1>
-          <p>
-            Explore every signature beauty aesthetic curated across the Lume network. From understated,
-            radiant natural enhancement to high-fashion editorial and cinematic transformation, find the
-            exact specialty that mirrors your vision.
-          </p>
+            <button
+              type="button"
+              className={`categories-hero__mobile-toggle ${isHeroInfoOpen ? 'is-active' : ''}`}
+              onClick={() => setIsHeroInfoOpen(!isHeroInfoOpen)}
+              aria-expanded={isHeroInfoOpen}
+              aria-label={isHeroInfoOpen ? 'Hide style guide details' : 'Show style guide details'}
+            >
+              <Sparkles size={12} />
+              <span>{isHeroInfoOpen ? 'Hide info' : 'About styles'}</span>
+              <ChevronDown size={14} className="categories-hero__toggle-chevron" />
+            </button>
+          </div>
+
+          <div className="categories-hero__header-row">
+            <h1 className="categories-hero__title">
+              All Styles & Looks. <em className="categories-hero__title-em">An Occasion. A Feeling.</em>
+            </h1>
+          </div>
+
+          <div className={`categories-hero__dropdown ${isHeroInfoOpen ? 'is-open' : ''}`}>
+            <span className="categories-hero__eyebrow">
+              <Sparkles size={15} /> Lume Artistry · 08 Curated Styles
+            </span>
+            <p className="categories-hero__desc">
+              Explore every signature beauty aesthetic curated across the Lume network. From understated,
+              radiant natural enhancement to high-fashion editorial and cinematic transformation, find the
+              exact specialty that mirrors your vision.
+            </p>
+          </div>
         </div>
       </section>
 

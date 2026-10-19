@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   X,
   CheckCircle,
 } from 'lucide-react';
@@ -74,6 +75,7 @@ const DiscoverPage: React.FC = () => {
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [minExp, setMinExp] = useState(0);
   const [sortBy, setSortBy] = useState<'FEATURED' | 'RATING' | 'PRICE_ASC' | 'PRICE_DESC' | 'EXPERIENCE'>('FEATURED');
+  const [isHeroInfoOpen, setIsHeroInfoOpen] = useState(false);
 
   useEffect(() => {
     if (filterDrawerOpen) {
@@ -188,36 +190,54 @@ const DiscoverPage: React.FC = () => {
   return (
     <div className="discover-page">
       {/* ── Editorial Hero ── */}
-      <section className="discover-hero">
+      <section className={`discover-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="discover-hero__inner">
-          <nav className="discover-breadcrumbs" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <ChevronRight size={14} />
-            <span>Discover Artists</span>
-          </nav>
+          <div className="discover-hero__top-bar">
+            <nav className="discover-breadcrumbs" aria-label="Breadcrumb">
+              <Link to="/">Home</Link>
+              <ChevronRight size={14} />
+              <span>Discover Artists</span>
+            </nav>
 
-          <span className="discover-hero__eyebrow">
-            <Sparkles size={16} /> A More Personal Kind of Beauty
-          </span>
+            <button
+              type="button"
+              className={`discover-hero__mobile-toggle ${isHeroInfoOpen ? 'is-active' : ''}`}
+              onClick={() => setIsHeroInfoOpen(!isHeroInfoOpen)}
+              aria-expanded={isHeroInfoOpen}
+              aria-label={isHeroInfoOpen ? 'Hide directory details' : 'Show directory details'}
+            >
+              <Sparkles size={12} />
+              <span>{isHeroInfoOpen ? 'Hide info' : 'About directory'}</span>
+              <ChevronDown size={14} className="discover-hero__toggle-chevron" />
+            </button>
+          </div>
 
-          <h1>
-            Curated Artists. <em>Good hands, beautiful possibilities.</em>
-          </h1>
+          <div className="discover-hero__header-row">
+            <h1 className="discover-hero__title">
+              Curated Artists. <em className="discover-hero__title-em">Good hands, beautiful possibilities.</em>
+            </h1>
+          </div>
 
-          <p>
-            Explore verified portfolios, compare specialties, and find the makeup artist tailored to your moment.
-          </p>
-
-          <div className="discover-trust-badges">
-            <span className="discover-trust-badge">
-              <CheckCircle size={14} color="var(--rose-deep)" /> 100% Verified Profiles
+          <div className={`discover-hero__dropdown ${isHeroInfoOpen ? 'is-open' : ''}`}>
+            <span className="discover-hero__eyebrow">
+              <Sparkles size={15} /> A More Personal Kind of Beauty
             </span>
-            <span className="discover-trust-badge">
-              <Star size={14} color="#f59e0b" fill="#f59e0b" /> Real Client Reviews
-            </span>
-            <span className="discover-trust-badge">
-              <Sparkles size={14} color="var(--rose-deep)" /> Transparent Pricing
-            </span>
+
+            <p className="discover-hero__desc">
+              Explore verified portfolios, compare specialties, and find the makeup artist tailored to your moment.
+            </p>
+
+            <div className="discover-trust-badges">
+              <span className="discover-trust-badge">
+                <CheckCircle size={14} color="var(--rose-deep)" /> 100% Verified Profiles
+              </span>
+              <span className="discover-trust-badge">
+                <Star size={14} color="#f59e0b" fill="#f59e0b" /> Real Client Reviews
+              </span>
+              <span className="discover-trust-badge">
+                <Sparkles size={14} color="var(--rose-deep)" /> Transparent Pricing
+              </span>
+            </div>
           </div>
         </div>
       </section>
