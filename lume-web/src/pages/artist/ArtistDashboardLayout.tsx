@@ -227,57 +227,38 @@ const ArtistDashboardLayout: React.FC = () => {
             <span className="artist-topbar__title">
               {currentNav?.label || 'Studio Overview'}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }} title="Toggle to turn bookings on/off. (48-hour lock applies)">
+            <div className="artist-topbar__booking-status" title="Toggle to turn bookings on/off. (48-hour lock applies)">
               <button 
                 type="button"
                 onClick={toggleBookingStatus}
                 disabled={statusUpdating}
-                style={{ 
-                  width: '40px', 
-                  height: '22px', 
-                  borderRadius: '12px', 
-                  background: isTakingBookings ? '#10b981' : '#d1d5db', 
-                  border: 'none', 
-                  cursor: statusUpdating ? 'wait' : 'pointer', 
-                  position: 'relative', 
-                  transition: 'background 0.3s',
-                  opacity: statusUpdating ? 0.7 : 1,
-                  padding: 0
-                }}
+                className={`artist-topbar__toggle-switch ${isTakingBookings ? 'artist-topbar__toggle-switch--on' : ''}`}
+                aria-label={isTakingBookings ? 'Turn off bookings' : 'Turn on bookings'}
               >
-                <div style={{ 
-                  width: '18px', 
-                  height: '18px', 
-                  background: 'white', 
-                  borderRadius: '50%', 
-                  position: 'absolute', 
-                  top: '2px', 
-                  left: isTakingBookings ? '20px' : '2px', 
-                  transition: 'left 0.3s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)' 
-                }} />
+                <div className={`artist-topbar__toggle-knob ${isTakingBookings ? 'artist-topbar__toggle-knob--on' : ''}`} />
               </button>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: isTakingBookings ? '#10b981' : '#6b7280' }}>
-                {isTakingBookings ? 'Taking Bookings' : 'Not Taking Bookings'}
+              <span className={`artist-topbar__booking-label ${isTakingBookings ? 'artist-topbar__booking-label--on' : ''}`}>
+                {isTakingBookings ? 'Taking Bookings' : 'Offline'}
               </span>
             </div>
           </div>
 
           <div className="artist-topbar__right">
-            <Link to="/discover" className="artist-topbar__client-btn">
-              <span>View Directory</span>
-              <ExternalLink size={13} />
+            <Link to="/discover" className="artist-topbar__client-btn" title="View Public Directory">
+              <span className="artist-topbar__client-btn-text">View Directory</span>
+              <ExternalLink size={14} />
             </Link>
             
             <div style={{ position: 'relative' }} ref={notifRef}>
               <button 
                 type="button" 
                 onClick={() => setShowNotifications(!showNotifications)}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
+                className="artist-topbar__notif-btn"
+                aria-label="Notifications"
               >
                 <Bell size={18} color="var(--text-soft)" />
                 {unreadCount > 0 && (
-                  <span style={{ position: 'absolute', top: -4, right: -4, background: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 5px', borderRadius: 10, fontWeight: 'bold' }}>
+                  <span className="artist-topbar__notif-badge">
                     {unreadCount}
                   </span>
                 )}

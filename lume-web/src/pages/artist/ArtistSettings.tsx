@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Calendar, Bell, Lock, Building2, CheckCircle, AlertCircle,
   ShieldCheck, ArrowRight, ArrowLeft,
-  Smartphone, Mail
+  Smartphone, Mail, ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../hooks/useApi';
@@ -17,6 +17,17 @@ const ArtistSettings: React.FC = () => {
 
   const activeTab = searchParams.get('tab') || 'booking';
   const setTab = (t: string) => setSearchParams({ tab: t });
+  const tabsBarRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active tab into view when changed
+  useEffect(() => {
+    if (tabsBarRef.current) {
+      const activeBtn = tabsBarRef.current.querySelector('.artist-tab-btn--active') as HTMLElement;
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [activeTab]);
 
   // Booking availability state
   const [isTakingBookings, setIsTakingBookings] = useState(
@@ -215,48 +226,82 @@ const ArtistSettings: React.FC = () => {
         </p>
       </div>
 
+      {/* ── Mobile Section Quick Selector (Visible on <= 768px) ── */}
+      <div className="artist-mobile-tab-selector">
+        <div className="artist-mobile-tab-indicator">
+          <span className="artist-mobile-tab-step">
+            {activeTab === 'booking' && 'Section 1 of 4'}
+            {activeTab === 'notifications' && 'Section 2 of 4'}
+            {activeTab === 'security' && 'Section 3 of 4'}
+            {activeTab === 'business' && 'Section 4 of 4'}
+          </span>
+          <span className="artist-mobile-tab-title">
+            {activeTab === 'booking' && 'Availability & Rules'}
+            {activeTab === 'notifications' && 'Notifications & Alerts'}
+            {activeTab === 'security' && 'Account & Security'}
+            {activeTab === 'business' && 'Business & Policies'}
+          </span>
+        </div>
+        <div className="artist-mobile-select-wrapper">
+          <select
+            value={activeTab}
+            onChange={e => setTab(e.target.value)}
+            className="artist-mobile-tab-select"
+            aria-label="Select settings section"
+          >
+            <option value="booking">1. Availability & Rules</option>
+            <option value="notifications">2. Notifications & Alerts</option>
+            <option value="security">3. Account & Security</option>
+            <option value="business">4. Business & Policies</option>
+          </select>
+          <ChevronDown size={15} className="artist-mobile-select-arrow" />
+        </div>
+      </div>
+
       {/* ── Top Horizontal Tabs Bar (Zero Scroll Navigation) ── */}
-      <nav className="artist-tabs-bar" aria-label="Studio Settings Sections">
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'booking' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('booking')}
-        >
-          <Calendar size={16} />
-          <span>Availability & Rules</span>
-          <span className="artist-tab-btn__badge">1/4</span>
-        </button>
+      <div className="artist-tabs-wrapper">
+        <nav className="artist-tabs-bar" ref={tabsBarRef} aria-label="Studio Settings Sections">
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'booking' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('booking')}
+          >
+            <Calendar size={16} />
+            <span>Availability & Rules</span>
+            <span className="artist-tab-btn__badge">1/4</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'notifications' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('notifications')}
-        >
-          <Bell size={16} />
-          <span>Notifications & Alerts</span>
-          <span className="artist-tab-btn__badge">2/4</span>
-        </button>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'notifications' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('notifications')}
+          >
+            <Bell size={16} />
+            <span>Notifications & Alerts</span>
+            <span className="artist-tab-btn__badge">2/4</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'security' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('security')}
-        >
-          <Lock size={16} />
-          <span>Account & Security</span>
-          <span className="artist-tab-btn__badge">3/4</span>
-        </button>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'security' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('security')}
+          >
+            <Lock size={16} />
+            <span>Account & Security</span>
+            <span className="artist-tab-btn__badge">3/4</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'business' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('business')}
-        >
-          <Building2 size={16} />
-          <span>Business & Policies</span>
-          <span className="artist-tab-btn__badge">4/4</span>
-        </button>
-      </nav>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'business' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('business')}
+          >
+            <Building2 size={16} />
+            <span>Business & Policies</span>
+            <span className="artist-tab-btn__badge">4/4</span>
+          </button>
+        </nav>
+      </div>
 
       {/* ════════════════════════════════════════════════════════════════════
           TAB 1: AVAILABILITY & BOOKING RULES (Left-to-Right 2-Col Grid)
@@ -411,7 +456,7 @@ const ArtistSettings: React.FC = () => {
 
                   <div className="artist-field">
                     <label className="artist-label">Weekly Operating Days</label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                    <div className="artist-operating-days-grid">
                       {DAYS_OF_WEEK.map(day => {
                         const isSelected = operatingDays.includes(day);
                         return (
@@ -419,18 +464,7 @@ const ArtistSettings: React.FC = () => {
                             key={day}
                             type="button"
                             onClick={() => toggleOperatingDay(day)}
-                            style={{
-                              padding: '8px 16px',
-                              borderRadius: 10,
-                              fontSize: '0.84rem',
-                              fontWeight: 600,
-                              fontFamily: 'var(--font-body)',
-                              cursor: 'pointer',
-                              border: isSelected ? '1.5px solid var(--rose-deep)' : '1px solid rgba(226, 214, 217, 0.8)',
-                              background: isSelected ? 'linear-gradient(135deg, rgba(217,122,140,0.14) 0%, rgba(217,122,140,0.06) 100%)' : '#ffffff',
-                              color: isSelected ? 'var(--rose-deep)' : 'var(--mid)',
-                              transition: 'all 0.15s ease'
-                            }}
+                            className={`artist-day-btn ${isSelected ? 'artist-day-btn--selected' : ''}`}
                           >
                             {isSelected ? '✓ ' : ''}{day}
                           </button>
@@ -477,17 +511,13 @@ const ArtistSettings: React.FC = () => {
                   <Smartphone size={18} style={{ color: 'var(--rose-deep)' }} />
                   <h2 className="artist-panel__title">WhatsApp & Mobile Bot</h2>
                 </div>
-                <div className="artist-panel__body" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: 'rgba(255, 240, 243, 0.45)',
-                    border: '1px solid rgba(242, 164, 176, 0.4)'
-                  }}>
+                <div className="artist-panel__body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div
+                    className={`artist-notif-card ${notifWhatsAppBooking ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifWhatsAppBooking(!notifWhatsAppBooking)}
+                    role="checkbox"
+                    aria-checked={notifWhatsAppBooking}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         Instant WhatsApp Booking Bot
@@ -498,22 +528,18 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifWhatsAppBooking}
-                      onChange={e => setNotifWhatsAppBooking(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifWhatsAppBooking(e.target.checked); }}
                     />
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: '#ffffff',
-                    border: '1px solid rgba(226, 214, 217, 0.7)'
-                  }}>
+                  <div
+                    className={`artist-notif-card ${notifWhatsAppReminder ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifWhatsAppReminder(!notifWhatsAppReminder)}
+                    role="checkbox"
+                    aria-checked={notifWhatsAppReminder}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         2-Hour Appointment Reminder
@@ -524,22 +550,18 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifWhatsAppReminder}
-                      onChange={e => setNotifWhatsAppReminder(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifWhatsAppReminder(e.target.checked); }}
                     />
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: '#ffffff',
-                    border: '1px solid rgba(226, 214, 217, 0.7)'
-                  }}>
+                  <div
+                    className={`artist-notif-card ${notifSmsBackup ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifSmsBackup(!notifSmsBackup)}
+                    role="checkbox"
+                    aria-checked={notifSmsBackup}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         SMS Backup Notification
@@ -550,9 +572,9 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifSmsBackup}
-                      onChange={e => setNotifSmsBackup(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifSmsBackup(e.target.checked); }}
                     />
                   </div>
                 </div>
@@ -573,16 +595,12 @@ const ArtistSettings: React.FC = () => {
                     </div>
                   )}
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: '#ffffff',
-                    border: '1px solid rgba(226, 214, 217, 0.7)'
-                  }}>
+                  <div
+                    className={`artist-notif-card ${notifEmailBooking ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifEmailBooking(!notifEmailBooking)}
+                    role="checkbox"
+                    aria-checked={notifEmailBooking}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         New Booking Email Confirmation
@@ -593,22 +611,18 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifEmailBooking}
-                      onChange={e => setNotifEmailBooking(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifEmailBooking(e.target.checked); }}
                     />
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: '#ffffff',
-                    border: '1px solid rgba(226, 214, 217, 0.7)'
-                  }}>
+                  <div
+                    className={`artist-notif-card ${notifEmailDigest ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifEmailDigest(!notifEmailDigest)}
+                    role="checkbox"
+                    aria-checked={notifEmailDigest}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         Morning Schedule Digest
@@ -619,22 +633,18 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifEmailDigest}
-                      onChange={e => setNotifEmailDigest(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifEmailDigest(e.target.checked); }}
                     />
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 14,
-                    padding: 14,
-                    borderRadius: 10,
-                    background: '#ffffff',
-                    border: '1px solid rgba(226, 214, 217, 0.7)'
-                  }}>
+                  <div
+                    className={`artist-notif-card ${notifEmailReviews ? 'artist-notif-card--active' : ''}`}
+                    onClick={() => setNotifEmailReviews(!notifEmailReviews)}
+                    role="checkbox"
+                    aria-checked={notifEmailReviews}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--dark)' }}>
                         Client Reviews & Rating Alerts
@@ -645,9 +655,9 @@ const ArtistSettings: React.FC = () => {
                     </div>
                     <input
                       type="checkbox"
+                      className="artist-notif-checkbox"
                       checked={notifEmailReviews}
-                      onChange={e => setNotifEmailReviews(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: 'var(--rose-deep)', cursor: 'pointer', marginTop: 2 }}
+                      onChange={e => { e.stopPropagation(); setNotifEmailReviews(e.target.checked); }}
                     />
                   </div>
 

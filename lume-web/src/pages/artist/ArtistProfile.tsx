@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import {
   Plus, Trash2, CheckCircle, AlertCircle, Clock, Upload,
   Camera, Send, ShieldCheck, ShieldAlert, Shield, BadgeCheck, Sparkles,
-  Lock, Eye, EyeOff, Building2, X, User, ExternalLink, ArrowRight, ArrowLeft
+  Lock, Eye, EyeOff, Building2, X, User, ExternalLink, ArrowRight, ArrowLeft, ChevronDown
 } from 'lucide-react';
 import GeoLocationInput from '../../components/ui/GeoLocationInput';
 import PhoneInput from '../../components/ui/PhoneInput';
@@ -89,6 +89,17 @@ const ArtistProfile: React.FC = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
   const certInputRef = useRef<HTMLInputElement>(null);
+  const tabsBarRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll active tab into view when changed
+  useEffect(() => {
+    if (tabsBarRef.current) {
+      const activeBtn = tabsBarRef.current.querySelector('.artist-tab-btn--active') as HTMLElement;
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [activeTab]);
 
   // Profile Form
   const [bio, setBio] = useState(profile?.bio || '');
@@ -420,58 +431,95 @@ const ArtistProfile: React.FC = () => {
 
       <VerificationBanner status={verStatus} remarks={profile?.verificationRemarks} />
 
+      {/* ── Mobile Section Quick Selector (Visible on <= 768px) ── */}
+      <div className="artist-mobile-tab-selector">
+        <div className="artist-mobile-tab-indicator">
+          <span className="artist-mobile-tab-step">
+            {activeTab === 'general' && 'Step 1 of 5'}
+            {activeTab === 'services' && 'Step 2 of 5'}
+            {activeTab === 'portfolio' && 'Step 3 of 5'}
+            {activeTab === 'bank' && 'Step 4 of 5'}
+            {activeTab === 'verification' && 'Step 5 of 5'}
+          </span>
+          <span className="artist-mobile-tab-title">
+            {activeTab === 'general' && 'General & Bio'}
+            {activeTab === 'services' && 'Services & Pricing'}
+            {activeTab === 'portfolio' && 'Portfolio & Badges'}
+            {activeTab === 'bank' && 'Bank & Payouts'}
+            {activeTab === 'verification' && 'Verification Status'}
+          </span>
+        </div>
+        <div className="artist-mobile-select-wrapper">
+          <select
+            value={activeTab}
+            onChange={e => setTab(e.target.value)}
+            className="artist-mobile-tab-select"
+            aria-label="Select section"
+          >
+            <option value="general">1. General & Bio</option>
+            <option value="services">2. Services & Pricing</option>
+            <option value="portfolio">3. Portfolio & Badges</option>
+            <option value="bank">4. Bank & Payouts</option>
+            <option value="verification">5. Verification Status</option>
+          </select>
+          <ChevronDown size={15} className="artist-mobile-select-arrow" />
+        </div>
+      </div>
+
       {/* ── Top Horizontal Tabs Bar (Zero Scroll Navigation) ── */}
-      <nav className="artist-tabs-bar" aria-label="Profile Sections">
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'general' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('general')}
-        >
-          <User size={16} />
-          <span>General & Bio</span>
-          <span className="artist-tab-btn__badge">1/5</span>
-        </button>
+      <div className="artist-tabs-wrapper">
+        <nav className="artist-tabs-bar" ref={tabsBarRef} aria-label="Profile Sections">
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'general' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('general')}
+          >
+            <User size={16} />
+            <span>General & Bio</span>
+            <span className="artist-tab-btn__badge">1/5</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'services' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('services')}
-        >
-          <Sparkles size={16} />
-          <span>Services & Pricing</span>
-          <span className="artist-tab-btn__badge">2/5</span>
-        </button>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'services' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('services')}
+          >
+            <Sparkles size={16} />
+            <span>Services & Pricing</span>
+            <span className="artist-tab-btn__badge">2/5</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'portfolio' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('portfolio')}
-        >
-          <Upload size={16} />
-          <span>Portfolio & Badges</span>
-          <span className="artist-tab-btn__badge">3/5</span>
-        </button>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'portfolio' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('portfolio')}
+          >
+            <Upload size={16} />
+            <span>Portfolio & Badges</span>
+            <span className="artist-tab-btn__badge">3/5</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'bank' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('bank')}
-        >
-          <Building2 size={16} />
-          <span>Bank & Payouts</span>
-          <span className="artist-tab-btn__badge">4/5</span>
-        </button>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'bank' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('bank')}
+          >
+            <Building2 size={16} />
+            <span>Bank & Payouts</span>
+            <span className="artist-tab-btn__badge">4/5</span>
+          </button>
 
-        <button
-          type="button"
-          className={`artist-tab-btn ${activeTab === 'verification' ? 'artist-tab-btn--active' : ''}`}
-          onClick={() => setTab('verification')}
-        >
-          <ShieldCheck size={16} />
-          <span>Verification Status</span>
-          <span className="artist-tab-btn__badge">5/5</span>
-        </button>
-      </nav>
+          <button
+            type="button"
+            className={`artist-tab-btn ${activeTab === 'verification' ? 'artist-tab-btn--active' : ''}`}
+            onClick={() => setTab('verification')}
+          >
+            <ShieldCheck size={16} />
+            <span>Verification Status</span>
+            <span className="artist-tab-btn__badge">5/5</span>
+          </button>
+        </nav>
+      </div>
 
       {/* ════════════════════════════════════════════════════════════════════
           TAB 1: GENERAL INFORMATION & BIO (Ergonomic Left-to-Right 2-Col)
@@ -485,23 +533,12 @@ const ArtistProfile: React.FC = () => {
                 <div className="artist-panel__header">
                   <h2 className="artist-panel__title">Profile Portrait</h2>
                 </div>
-                <div className="artist-panel__body" style={{ textAlign: 'center', padding: '24px 20px' }}>
+                <div className="artist-portrait-card-body">
                   <div
-                    style={{
-                      position: 'relative',
-                      width: 110,
-                      height: 110,
-                      borderRadius: '50%',
-                      margin: '0 auto 16px',
-                      overflow: 'hidden',
-                      background: 'var(--rose-pale)',
-                      border: '3px solid var(--rose-light)',
-                      boxShadow: '0 6px 16px rgba(217, 122, 140, 0.15)',
-                      cursor: isLocked ? 'default' : 'pointer',
-                      opacity: isLocked ? 0.75 : 1
-                    }}
+                    className="artist-portrait-avatar-wrapper"
                     onClick={() => !isLocked && avatarInputRef.current?.click()}
                     title={isLocked ? 'Photo locked (Verified)' : 'Click to change photo'}
+                    style={{ opacity: isLocked ? 0.75 : 1 }}
                   >
                     {avatarPreview ? (
                       <img
@@ -527,21 +564,23 @@ const ArtistProfile: React.FC = () => {
                     )}
                   </div>
 
-                  <p style={{ fontSize: '0.84rem', color: 'var(--text-soft)', marginBottom: 14, lineHeight: 1.5 }}>
-                    Upload a high-definition portrait with good studio lighting. Square ratio recommended.
-                  </p>
+                  <div className="artist-portrait-info">
+                    <p style={{ fontSize: '0.84rem', color: 'var(--text-soft)', marginBottom: 12, lineHeight: 1.5 }}>
+                      Upload a high-definition portrait with good studio lighting. Square ratio recommended.
+                    </p>
 
-                  <button
-                    type="button"
-                    className="artist-secondary-btn"
-                    style={{ width: '100%', padding: '9px 16px' }}
-                    onClick={() => avatarInputRef.current?.click()}
-                    disabled={uploadingAvatar || isLocked}
-                  >
-                    <Camera size={15} />
-                    <span>{uploadingAvatar ? 'Uploading...' : 'Change Photo'}</span>
-                  </button>
-                  <input ref={avatarInputRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+                    <button
+                      type="button"
+                      className="artist-secondary-btn"
+                      style={{ width: '100%', padding: '9px 16px' }}
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={uploadingAvatar || isLocked}
+                    >
+                      <Camera size={15} />
+                      <span>{uploadingAvatar ? 'Uploading...' : 'Change Photo'}</span>
+                    </button>
+                    <input ref={avatarInputRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+                  </div>
                 </div>
               </div>
 
