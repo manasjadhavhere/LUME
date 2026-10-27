@@ -86,8 +86,7 @@ class PWAManager {
   isRunningStandalone(): boolean {
     return (
       window.matchMedia('(display-mode: standalone)').matches ||
-      // @ts-ignore - navigator.standalone is iOS specific
-      window.navigator?.standalone === true ||
+      (window.navigator as unknown as { standalone?: boolean })?.standalone === true ||
       document.referrer.includes('android-app://')
     );
   }

@@ -125,11 +125,6 @@ const AdminDashboard: React.FC = () => {
   const [actionMsgType, setActionMsgType] = useState<'success' | 'error'>('success');
   const [actioning, setActioning] = useState(false);
 
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') { navigate('/'); return; }
-    loadData();
-  }, [user]);
-
   const loadData = async () => {
     setInitialLoading(true); setLoadError('');
     const [statsRes, pendingRes, allRes, clientsRes, paymentSummariesRes, revenueRes] = await Promise.all([
@@ -149,6 +144,11 @@ const AdminDashboard: React.FC = () => {
     if ([statsRes, pendingRes, allRes, clientsRes, paymentSummariesRes, revenueRes].some(r => r === null)) setLoadError('Some workspace data could not be loaded. Please retry.');
     setInitialLoading(false); setRevision(v => v + 1);
   };
+
+  useEffect(() => {
+    if (!user || user.role !== 'ADMIN') { navigate('/'); return; }
+    loadData();
+  }, [user]);
 
   const displayMsg = (msg: string, type: 'success' | 'error' = 'success') => {
     setActionMsg(msg);

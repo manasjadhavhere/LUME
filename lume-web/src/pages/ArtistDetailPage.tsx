@@ -4,6 +4,7 @@ import useFavorites from '../hooks/useFavorites';
 import Button from '../components/ui/Button';
 import PhoneInput from '../components/ui/PhoneInput';
 import { useAuth, API_BASE } from '../context/AuthContext';
+import { getArtistSlug } from '../utils/slug';
 import './ArtistDetailPage.css';
 
 /* ───────────────────────── Types ───────────────────────── */
@@ -12,6 +13,7 @@ type PriceType = 'WEDDING' | 'OCCASION' | 'HOURLY';
 
 interface ApiArtist {
   id: string;
+  slug?: string;
   bio?: string;
   gender?: string;
   location: string;
@@ -198,8 +200,15 @@ const ArtistDetailPage: React.FC = () => {
       fetch(`${API_BASE}/api/artists/${id}`).then(r => r.json()),
       fetch(`${API_BASE}/api/artists/${id}/availability?fromDate=${new Date().toISOString().split('T')[0]}&toDate=${new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]}`).then(r => r.json()),
     ]).then(([artistRes, availRes]) => {
-      if (artistRes.success) setArtist(artistRes.data);
-      else setArtistError('Artist not found');
+      if (artistRes.success) {
+        setArtist(artistRes.data);
+        const targetSlug = artistRes.data.slug || getArtistSlug(artistRes.data.user?.name, artistRes.data.id);
+        if (targetSlug && id !== targetSlug) {
+          window.history.replaceState(null, '', `/artist/${targetSlug}`);
+        }
+      } else {
+        setArtistError('Artist not found');
+      }
       if (availRes.success) setAvailability(availRes.data);
     }).catch(() => setArtistError('Failed to load artist'))
       .finally(() => setLoadingArtist(false));
@@ -435,7 +444,7 @@ const ArtistDetailPage: React.FC = () => {
   const stepService = artist.services.length ? ++stepNo : 0;
   const stepDate = ++stepNo;
   const stepTime = ++stepNo;
-  const stepDetails = ++stepNo;
+  const stepDetails = stepNo + 1;
 
   const scrollDates = (dir: 1 | -1) => dateStripRef.current?.scrollBy({ left: dir * 240, behavior: 'smooth' });
 

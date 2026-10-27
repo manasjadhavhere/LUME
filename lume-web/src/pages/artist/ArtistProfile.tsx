@@ -1125,7 +1125,7 @@ const ArtistProfile: React.FC = () => {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {certFiles.map((url, idx) => {
-                      let finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
+                      const finalUrl = url.startsWith('/') ? `${API_BASE}${url}` : url;
                       return (
                         <div
                           key={idx}

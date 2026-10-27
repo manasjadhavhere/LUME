@@ -101,6 +101,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const clearSession = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('lume_token');
+    localStorage.removeItem('lume_user');
+  };
+
+  const fetchMe = async (authToken: string) => {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    if (!res.ok) throw new Error('Session expired');
+    const data = await res.json();
+    const freshUser = data.data;
+    setUser(freshUser);
+    localStorage.setItem('lume_user', JSON.stringify(freshUser));
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem('lume_token');
     const storedUser = localStorage.getItem('lume_user');
@@ -117,17 +135,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const fetchMe = async (authToken: string) => {
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
-      headers: { Authorization: `Bearer ${authToken}` },
-    });
-    if (!res.ok) throw new Error('Session expired');
-    const data = await res.json();
-    const freshUser = data.data;
-    setUser(freshUser);
-    localStorage.setItem('lume_user', JSON.stringify(freshUser));
-  };
-
   const refreshUser = async () => {
     if (token) await fetchMe(token);
   };
@@ -137,13 +144,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(authUser);
     localStorage.setItem('lume_token', authToken);
     localStorage.setItem('lume_user', JSON.stringify(authUser));
-  };
-
-  const clearSession = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('lume_token');
-    localStorage.removeItem('lume_user');
   };
 
   const login = async (email: string, password: string): Promise<{ role: UserRole }> => {

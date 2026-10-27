@@ -1,116 +1,81 @@
-import React, { useEffect, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import './Preloader.css';
 
 const Preloader: React.FC = () => {
-  const [fading, setFading] = useState(false);
-  const [gone, setGone] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [gone, setGone] = useState(() => sessionStorage.getItem('lume_preloaded') === 'true');
 
-  useEffect(() => {
-    if (sessionStorage.getItem('lume_preloaded')) {
+  useLayoutEffect(() => {
+    if (gone) return;
+
+    const overlay = overlayRef.current;
+    const brand = document.querySelector<HTMLElement>('[data-preloader-brand]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animations: Animation[] = [];
+    const root = document.documentElement;
+
+    const finish = () => {
+      // Return the same link to its normal navbar layout without fading the logo.
+      animations.forEach(animation => animation.cancel());
+      delete root.dataset.lumeIntro;
+      sessionStorage.setItem('lume_preloaded', 'true');
       setGone(true);
-      return;
+    };
+
+    if (brand && !reducedMotion) {
+      root.dataset.lumeIntro = 'docking';
+      const target = brand.getBoundingClientRect();
+      const scale = Math.min(1.8, window.innerWidth * 0.7 / target.width, window.innerHeight * 0.3 / target.height);
+      const x = window.innerWidth / 2 - (target.left + target.width / 2);
+      const y = window.innerHeight / 2 - (target.top + target.height / 2);
+      const centered = `translate(${x}px, ${y}px) scale(${scale})`;
+
+      // Animate the actual navbar link, so there is no duplicate logo or handoff.
+      animations.push(brand.animate([
+        { transform: `translate(${x}px, ${y + 8}px) scale(${scale * 0.92})`, opacity: 0, offset: 0 },
+        { transform: centered, opacity: 1, offset: 0.3 },
+        { transform: centered, opacity: 1, offset: 0.52, easing: 'cubic-bezier(.65, 0, .2, 1)' },
+        { transform: 'translate(0, 0) scale(1)', opacity: 1, offset: 1 },
+      ], { duration: 1500, fill: 'both', easing: 'ease-out' }));
+
+      if (overlay) animations.push(overlay.animate([
+        { opacity: 1, offset: 0 },
+        { opacity: 1, offset: 0.52 },
+        { opacity: 0, offset: 0.95 },
+        { opacity: 0, offset: 1 },
+      ], { duration: 1500, fill: 'forwards' }));
+    } else if (overlay) {
+      // Fullscreen routes have no navbar destination; retain the short intro.
+      animations.push(overlay.animate([{ opacity: 1 }, { opacity: 0 }], {
+        delay: 1200, duration: reducedMotion ? 1 : 300, fill: 'forwards',
+      }));
     }
-    sessionStorage.setItem('lume_preloaded', 'true');
-    const fadeTimer = setTimeout(() => setFading(true), 1200);
-    const goneTimer = setTimeout(() => setGone(true), 1800);
+
+    const goneTimer = window.setTimeout(finish, 1500);
+    // If the viewport changes during the flight, settle into the new layout.
+    window.addEventListener('resize', finish, { once: true });
 
     return () => {
-      clearTimeout(fadeTimer);
       clearTimeout(goneTimer);
+      window.removeEventListener('resize', finish);
+      animations.forEach(animation => animation.cancel());
+      delete root.dataset.lumeIntro;
     };
-  }, []);
+  }, [gone]);
 
   if (gone) return null;
 
   return (
-    <div className={`preloader ${fading ? 'preloader--fade' : ''}`} aria-hidden="true">
-      {/* Rich Warm Blush Rose Backdrop & Ethereal Glowing Orbs */}
-      <div className="preloader__backdrop">
-        <div className="preloader__glow-orb" />
-        <div className="preloader__ambient-glow preloader__ambient-glow--1" />
-        <div className="preloader__ambient-glow preloader__ambient-glow--2" />
-        
-        {/* Floating Sparkles in Background */}
-        <div className="preloader__floating-sparkles">
-          {/* Top-Right Cross Sparkle */}
-          <svg 
-            className="preloader__sparkle-float preloader__sparkle-float--tr" 
-            viewBox="0 0 40 40" 
-            fill="none"
-          >
-            <path d="M 20 6 L 20 34 M 6 20 L 34 20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-          </svg>
-
-          {/* Bottom-Right Diamond Sparkle */}
-          <svg 
-            className="preloader__sparkle-float preloader__sparkle-float--br" 
-            viewBox="0 0 40 40" 
-            fill="none"
-          >
-            <path d="M 20 4 C 20 15, 15 20, 4 20 C 15 20, 20 25, 20 36 C 20 25, 25 20, 36 20 C 25 20, 20 15, 20 4 Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-          </svg>
-
-          {/* Top-Left Subtle Dot */}
-          <span className="preloader__sparkle-float preloader__sparkle-float--tl-dot" />
-        </div>
-      </div>
-
-      {/* Main Architectural Showcase (Star Emblem + LUME + Institutional Subtitle) */}
-      <div className="preloader__content">
-        <div className="preloader__showcase">
-          {/* Metallic Shine Beam that sweeps across the logo */}
-          <div className="preloader__shimmer-sweep" />
-
-          {/* Horizontal Brand Row */}
-          <div className="preloader__brand-row">
-            {/* Left: Refined 4-Pointed Star Emblem with Plus & Circle Dot */}
-            <div className="preloader__emblem-wrapper">
-              <svg 
-                className="preloader__star-svg" 
-                viewBox="0 0 120 120" 
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Main 4-Pointed Star Outline */}
-                <path 
-                  className="preloader__path-star"
-                  d="M 55 18 C 55 42, 33 60, 15 60 C 33 60, 55 78, 55 102 C 55 78, 77 60, 95 60 C 77 60, 55 42, 55 18 Z" 
-                  stroke="currentColor" 
-                  strokeWidth="2.6" 
-                  strokeLinejoin="round" 
-                />
-                
-                {/* Small Plus Sparkle (Top-Right of Star) */}
-                <path 
-                  className="preloader__path-plus"
-                  d="M 80 24 L 96 24 M 88 16 L 88 32" 
-                  stroke="currentColor" 
-                  strokeWidth="2.2" 
-                  strokeLinecap="round" 
-                />
-                
-                {/* Solid Circle Dot (Bottom-Left of Star) */}
-                <circle 
-                  className="preloader__path-dot"
-                  cx="24" 
-                  cy="94" 
-                  r="5" 
-                  fill="currentColor" 
-                />
-              </svg>
-            </div>
-
-            {/* Right: LUME Serif Typography */}
-            <h1 className="preloader__brand-title">LUME</h1>
-          </div>
-
-          {/* Institutional Brand Subtitle */}
-          <div className="preloader__subtitle-row">
-            <span className="preloader__subtitle-line" />
-            <span className="preloader__subtitle-text">INDIA'S PREMIER BEAUTY PLATFORM</span>
-            <span className="preloader__subtitle-line" />
-          </div>
-        </div>
+    <div className="preloader" ref={overlayRef} aria-hidden="true">
+      <div className="preloader__brand">
+        <span className="preloader__mark">
+          <img className="preloader__logo" src="/logo.png" alt="" />
+        </span>
+        <span className="preloader__name">
+          {'LUME'.split('').map((letter) => (
+            <span className="preloader__letter" key={letter}>{letter}</span>
+          ))}
+        </span>
       </div>
     </div>
   );

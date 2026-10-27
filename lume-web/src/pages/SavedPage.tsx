@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import useFavorites from '../hooks/useFavorites';
 import { API_BASE } from '../context/AuthContext';
+import { getArtistSlug } from '../utils/slug';
 import './HomeEditorial.css';
 import './SavedPage.css';
 
@@ -140,6 +141,7 @@ const SavedPage: React.FC = () => {
                 const photo = artist.profileImageUrl || artist.user?.avatarUrl;
                 const imgUrl = photo ? mediaUrl(photo) : ASSET_IMAGES[index % ASSET_IMAGES.length];
                 const artistName = artist.user?.name || 'Artist';
+                const artistSlug = artist.slug || getArtistSlug(artistName, artist.id);
                 const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Artistry'];
                 const startingPrice = Number(artist.startingPrice) || 0;
 
@@ -147,7 +149,7 @@ const SavedPage: React.FC = () => {
                   <article className="home-artist" key={artist.id}>
                     <div className="home-artist__media">
                       <Link
-                        to={`/artist/${artist.id}`}
+                        to={`/artist/${artistSlug}`}
                         className="home-artist__image"
                         aria-label={`View ${artistName}'s profile`}
                       >
@@ -177,7 +179,7 @@ const SavedPage: React.FC = () => {
                     <div className="home-artist__body">
                       <div className="home-artist__title">
                         <h3>
-                          <Link to={`/artist/${artist.id}`}>{artistName}</Link>
+                          <Link to={`/artist/${artistSlug}`}>{artistName}</Link>
                         </h3>
                         {artist.rating > 0 ? (
                           <span className="home-artist__rating">
@@ -212,7 +214,7 @@ const SavedPage: React.FC = () => {
                           <strong className="home-artist__price-val">₹{startingPrice.toLocaleString('en-IN')}</strong>
                         </div>
                         <Link
-                          to={`/artist/${artist.id}`}
+                          to={`/artist/${artistSlug}`}
                           className="home-artist__action"
                           aria-label={`Explore ${artistName}`}
                         >

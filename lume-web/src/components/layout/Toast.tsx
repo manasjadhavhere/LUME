@@ -20,9 +20,9 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
 }) => {
   const [isExiting, setIsExiting] = useState(false);
+  const [dragX, setDragX] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startXRef = useRef(0);
-  const currentXRef = useRef(0);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -41,22 +41,22 @@ const Toast: React.FC<ToastProps> = ({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startXRef.current = e.touches[0].clientX;
-    currentXRef.current = 0;
+    setDragX(0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     const currentX = e.touches[0].clientX;
-    currentXRef.current = currentX - startXRef.current;
+    setDragX(currentX - startXRef.current);
   };
 
   const handleTouchEnd = () => {
-    if (currentXRef.current > 100 || currentXRef.current < -100) {
+    if (dragX > 100 || dragX < -100) {
       setIsExiting(true);
       setTimeout(() => {
         onClose(id);
       }, 300);
     }
-    currentXRef.current = 0;
+    setDragX(0);
   };
 
   const handleClose = () => {
@@ -87,7 +87,7 @@ const Toast: React.FC<ToastProps> = ({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{
-        transform: `translateX(${currentXRef.current}px)`,
+        transform: dragX ? `translateX(${dragX}px)` : undefined,
       }}
       role="alert"
       aria-live="polite"

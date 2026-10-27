@@ -10,6 +10,10 @@ export interface ToastMessage {
 const useToast = () => {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
+  const removeToast = useCallback((id: string) => {
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+  }, []);
+
   const addToast = useCallback(
     (message: string, variant: ToastVariant = 'info', duration?: number) => {
       const id = `toast-${Date.now()}-${Math.random()}`;
@@ -24,12 +28,8 @@ const useToast = () => {
 
       return () => clearTimeout(timeout);
     },
-    []
+    [removeToast]
   );
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-  }, []);
 
   const showError = useCallback(
     (message: string, duration?: number) => {

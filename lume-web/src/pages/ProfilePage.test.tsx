@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
 
 // Mock AuthContext
@@ -34,17 +34,32 @@ vi.mock('../hooks/useFavorites', () => ({
   }),
 }));
 
+vi.mock('../components/ui/GeoLocationInput', () => ({
+  default: () => <input data-testid="mock-geo-input" />,
+}));
+
+vi.mock('../components/payment/PaymentOptionsModal', () => ({
+  default: () => null,
+}));
+
 describe('ProfilePage (My Account Overhaul)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, data: [] }),
+      })
+    );
   });
 
   const renderProfile = () =>
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <ProfilePage />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
   it('renders client identity and executive telemetry badges', () => {

@@ -2,10 +2,12 @@ import React from 'react';
 import { Star, MapPin, BadgeCheck } from 'lucide-react';
 import Badge, { type BadgeVariant } from '../ui/Badge';
 import { API_BASE } from '../../context/AuthContext';
+import { getArtistSlug } from '../../utils/slug';
 import './ArtistCard.css';
 
 interface ApiArtist {
   id: string;
+  slug?: string;
   location: string;
   experience: number;
   profileImageUrl?: string;
@@ -25,7 +27,7 @@ interface ArtistCardProps {
 
 const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
   const handleClick = () => {
-    onClick(artist.id);
+    onClick(artist.slug || getArtistSlug(artist.user?.name, artist.id));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -23,6 +23,7 @@ import useFavorites from '../hooks/useFavorites';
 import { API_BASE } from '../context/AuthContext';
 import type { ServiceCategory } from '../data/types';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { getArtistSlug } from '../utils/slug';
 import './HomeEditorial.css';
 import './DiscoverPage.css';
 
@@ -168,7 +169,7 @@ const DiscoverPage: React.FC = () => {
     (priceFilter !== 'ALL' ? 1 : 0) +
     (minExp > 0 ? 1 : 0) +
     (sortBy !== 'FEATURED' ? 1 : 0) +
-    (Boolean(locationQuery.trim()) ? 1 : 0);
+    (locationQuery.trim() ? 1 : 0);
 
   const hasAnyFilterActive =
     activeCategory !== 'All' ||
@@ -668,6 +669,7 @@ const DiscoverPage: React.FC = () => {
                 const photo = artist.profileImageUrl || artist.user?.avatarUrl;
                 const imgUrl = photo ? mediaUrl(photo) : ASSET_IMAGES[index % ASSET_IMAGES.length];
                 const artistName = artist.user?.name || 'Artist';
+                const artistSlug = artist.slug || getArtistSlug(artistName, artist.id);
                 const specialties: string[] = artist.specialties?.length ? artist.specialties : ['Artistry'];
                 const startingPrice = Number(artist.startingPrice) || 0;
 
@@ -675,7 +677,7 @@ const DiscoverPage: React.FC = () => {
                   <article className="home-artist" key={artist.id}>
                     <div className="home-artist__media">
                       <Link
-                        to={`/artist/${artist.id}`}
+                        to={`/artist/${artistSlug}`}
                         className="home-artist__image"
                         aria-label={`View ${artistName}'s profile`}
                       >
@@ -705,7 +707,7 @@ const DiscoverPage: React.FC = () => {
                     <div className="home-artist__body">
                       <div className="home-artist__title">
                         <h3>
-                          <Link to={`/artist/${artist.id}`}>{artistName}</Link>
+                          <Link to={`/artist/${artistSlug}`}>{artistName}</Link>
                         </h3>
                         {artist.rating > 0 ? (
                           <span className="home-artist__rating">
@@ -740,7 +742,7 @@ const DiscoverPage: React.FC = () => {
                           <strong className="home-artist__price-val">₹{startingPrice.toLocaleString('en-IN')}</strong>
                         </div>
                         <Link
-                          to={`/artist/${artist.id}`}
+                          to={`/artist/${artistSlug}`}
                           className="home-artist__action"
                           aria-label={`Explore ${artistName}`}
                         >

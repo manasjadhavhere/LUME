@@ -40,6 +40,7 @@ import useFavorites from '../hooks/useFavorites';
 import GeoLocationInput from '../components/ui/GeoLocationInput';
 import PaymentOptionsModal from '../components/payment/PaymentOptionsModal';
 import PhoneInput from '../components/ui/PhoneInput';
+import { getArtistSlug } from '../utils/slug';
 import './ProfilePage.css';
 
 interface MenuItem {
@@ -216,6 +217,23 @@ const ProfilePage: React.FC = () => {
     }
   }, [user]);
 
+  const fetchBookings = async () => {
+    setIsLoadingBookings(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBookings(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      setIsLoadingBookings(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && token && user?.role !== 'ARTIST') {
       fetchBookings();
@@ -259,23 +277,6 @@ const ProfilePage: React.FC = () => {
       .catch(() => setSavedArtists([]))
       .finally(() => setIsLoadingFavorites(false));
   }, [activeTab]);
-
-  const fetchBookings = async () => {
-    setIsLoadingBookings(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/bookings`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setBookings(data.data || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch bookings:', error);
-    } finally {
-      setIsLoadingBookings(false);
-    }
-  };
 
   const handlePayNow = (booking: any) => {
     setSelectedBookingForPayment(booking);
@@ -848,7 +849,7 @@ const ProfilePage: React.FC = () => {
                             <img src={artistImg} alt={artistName} className="profile-artist-thumbnail" />
                             <div>
                               <div className="profile-artist-name-wrap">
-                                <Link to={`/artist/${b.artist?.id}`} className="profile-artist-link">
+                                <Link to={`/artist/${b.artist?.slug || getArtistSlug(artistName, b.artist?.id)}`} className="profile-artist-link">
                                   {artistName}
                                 </Link>
                                 <CheckCircle2 size={15} className="verified-check-icon" />
@@ -940,7 +941,7 @@ const ProfilePage: React.FC = () => {
                             )}
 
                             <Link
-                              to={`/artist/${b.artist?.id}`}
+                              to={`/artist/${b.artist?.slug || getArtistSlug(artistName, b.artist?.id)}`}
                               className="profile-action-btn profile-action-btn--outline"
                             >
                               <ExternalLink size={14} /> Profile
@@ -1040,7 +1041,7 @@ const ProfilePage: React.FC = () => {
                               <strong>₹{startingPrice.toLocaleString('en-IN')}</strong>
                             </div>
                             <Link
-                              to={`/artist/${artist.id}`}
+                              to={`/artist/${artist.slug || getArtistSlug(artist.user?.name, artist.id)}`}
                               className="profile-btn profile-btn--sm profile-btn--primary"
                             >
                               Book Now

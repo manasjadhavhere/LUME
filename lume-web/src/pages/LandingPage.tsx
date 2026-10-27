@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown,
 import Instagram from '../components/ui/InstagramIcon';
 import { API_BASE, useAuth } from '../context/AuthContext';
 import useFavorites from '../hooks/useFavorites';
+import { getArtistSlug } from '../utils/slug';
 import detailImage from '../assets/images/1.png';
 import './HomeEditorial.css';
 
@@ -231,6 +232,7 @@ const FAQS = [
 
 interface FeaturedArtist {
   id: string;
+  slug?: string;
   user: { name: string; avatarUrl?: string };
   profileImageUrl?: string;
   specialties: string[];
@@ -581,10 +583,11 @@ export default function LandingPage() {
             >
               {artists.map(artist => {
                 const photo = artist.profileImageUrl || artist.user.avatarUrl;
+                const artistSlug = artist.slug || getArtistSlug(artist.user.name, artist.id);
                 return (
                   <article className="home-artist" key={artist.id}>
                     <div className="home-artist__media">
-                      <Link to={`/artist/${artist.id}`} className="home-artist__image" aria-label={`View ${artist.user.name}'s profile`}>
+                      <Link to={`/artist/${artistSlug}`} className="home-artist__image" aria-label={`View ${artist.user.name}'s profile`}>
                         {photo ? <img src={mediaUrl(photo)} alt={artist.user.name} loading="lazy" onError={event => { event.currentTarget.hidden = true; }} /> : <span className="home-artist__initial">{artist.user.name.charAt(0)}</span>}
                         {artist.isVerified && <span className="home-artist__verified"><BadgeCheck size={14} /> Verified</span>}
                       </Link>
@@ -594,7 +597,7 @@ export default function LandingPage() {
                     </div>
                     <div className="home-artist__body">
                       <div className="home-artist__title">
-                        <h3><Link to={`/artist/${artist.id}`}>{artist.user.name}</Link></h3>
+                        <h3><Link to={`/artist/${artistSlug}`}>{artist.user.name}</Link></h3>
                         {artist.rating > 0 ? (
                           <span className="home-artist__rating">
                             <Star size={11} fill="currentColor" /> {artist.rating.toFixed(1)}
@@ -621,7 +624,7 @@ export default function LandingPage() {
                           <span className="home-artist__price-label">From</span>
                           <strong className="home-artist__price-val">₹{artist.startingPrice.toLocaleString('en-IN')}</strong>
                         </div>
-                        <Link to={`/artist/${artist.id}`} className="home-artist__action" aria-label={`Explore ${artist.user.name}`}>
+                        <Link to={`/artist/${artistSlug}`} className="home-artist__action" aria-label={`Explore ${artist.user.name}`}>
                           <ArrowUpRight size={18} strokeWidth={2.4} />
                         </Link>
                       </div>
