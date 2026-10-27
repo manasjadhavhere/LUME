@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../../lib/prisma';
+import { queueBookingEmail } from '../email/booking-email.service';
 import {
   verifyBookingActionToken,
   notifyBookingStatusChanged,
@@ -156,10 +157,11 @@ async function processArtistWhatsAppAction(
     }
 
     if (action === 'ACCEPT') {
-      await prisma.booking.update({
+      const updatedBooking = await prisma.booking.update({
         where: { id: booking.id },
         data: { status: 'ACCEPTED' },
       });
+      queueBookingEmail(updatedBooking, 'ACCEPTED');
 
       // Create in-app notification for the client
       await prisma.notification.create({
@@ -180,13 +182,14 @@ async function processArtistWhatsAppAction(
       // Notify Client on WhatsApp
       await notifyBookingStatusChanged(booking.id, 'ACCEPTED');
     } else {
-      await prisma.booking.update({
+      const updatedBooking = await prisma.booking.update({
         where: { id: booking.id },
         data: {
           status: 'CANCELLED',
           cancelReason: 'Declined by artist via WhatsApp',
         },
       });
+      queueBookingEmail(updatedBooking, 'DECLINED');
 
       // Create in-app notification for the client
       await prisma.notification.create({
@@ -266,10 +269,11 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
     }
 
     if (normalizedAction === 'accept') {
-      await prisma.booking.update({
+      const updatedBooking = await prisma.booking.update({
         where: { id },
         data: { status: 'ACCEPTED' },
       });
+      queueBookingEmail(updatedBooking, 'ACCEPTED');
 
       await prisma.notification.create({
         data: {
@@ -291,13 +295,14 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
         )
       );
     } else {
-      await prisma.booking.update({
+      const updatedBooking = await prisma.booking.update({
         where: { id },
         data: {
           status: 'CANCELLED',
           cancelReason: 'Declined by artist via WhatsApp quick link',
         },
       });
+      queueBookingEmail(updatedBooking, 'DECLINED');
 
       await prisma.notification.create({
         data: {

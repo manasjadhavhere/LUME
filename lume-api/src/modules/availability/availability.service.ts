@@ -6,11 +6,31 @@ const ALL_HOURS = Array.from({ length: 24 }, (_, i) => {
   return `${h}:00`;
 });
 
-export async function getAvailability(artistId: string, fromDate?: string, toDate?: string) {
-  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
+export async function getAvailability(artistIdOrSlug: string, fromDate?: string, toDate?: string) {
+  let artist = await prisma.artistProfile.findUnique({ where: { id: artistIdOrSlug } });
+  if (!artist) {
+    const all = await prisma.artistProfile.findMany({
+      include: { user: { select: { name: true } } },
+    });
+    const target = artistIdOrSlug.toLowerCase().trim();
+    const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+    const found = all.find(a => {
+      const s = (a.user?.name || '')
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      const c = (a.user?.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return s === target || c === cleanTarget || a.id.toLowerCase() === target;
+    });
+    if (found) artist = found;
+  }
+
   if (!artist) throw createError('Artist not found', 404);
 
-  const where: any = { artistId };
+  const realArtistId = artist.id;
+  const where: any = { artistId: realArtistId };
   if (fromDate || toDate) {
     where.date = {};
     if (fromDate) where.date.gte = new Date(fromDate);
@@ -19,8 +39,8 @@ export async function getAvailability(artistId: string, fromDate?: string, toDat
 
   const [availability, blockedDates, defaultSchedule] = await Promise.all([
     prisma.availability.findMany({ where, orderBy: { date: 'asc' } }),
-    prisma.blockedDate.findMany({ where: { artistId }, orderBy: { date: 'asc' } }),
-    prisma.defaultSchedule.findMany({ where: { artistId }, orderBy: { dayOfWeek: 'asc' } }),
+    prisma.blockedDate.findMany({ where: { artistId: realArtistId }, orderBy: { date: 'asc' } }),
+    prisma.defaultSchedule.findMany({ where: { artistId: realArtistId }, orderBy: { dayOfWeek: 'asc' } }),
   ]);
 
   return { availability, blockedDates, defaultSchedule };

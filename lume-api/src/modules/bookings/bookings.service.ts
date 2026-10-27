@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
+import { queueBookingEmail } from '../email/booking-email.service';
 import {
   notifyBookingCreated,
   notifyBookingStatusChanged,
@@ -94,6 +95,8 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
     },
   });
 
+  queueBookingEmail(booking, 'REQUESTED');
+
   // Asynchronously trigger WhatsApp notifications to both Client & Artist
   notifyBookingCreated(booking.id).catch(err => {
     console.error('[WhatsApp Trigger Failed on createBooking]:', err);
@@ -171,6 +174,14 @@ export async function updateBookingStatus(
     });
   }
 
+  if (booking.status !== updated.status) {
+    if (updated.status === 'ACCEPTED' || updated.status === 'CONFIRMED') {
+      queueBookingEmail(updated, updated.status);
+    } else if (updated.status === 'CANCELLED') {
+      queueBookingEmail(updated, booking.status === 'PENDING' ? 'DECLINED' : 'CANCELLED');
+    }
+  }
+
   // Asynchronously notify Client of status change via WhatsApp
   notifyBookingStatusChanged(bookingId, status, cancelReason).catch(err => {
     console.error('[WhatsApp Trigger Failed on updateBookingStatus]:', err);
@@ -193,6 +204,8 @@ export async function cancelBookingAsClient(clientId: string, bookingId: string,
     where: { id: bookingId },
     data: { status: 'CANCELLED', cancelReason: reason },
   });
+
+  queueBookingEmail(updated, 'CANCELLED');
 
   // Notify Artist of cancellation
   notifyBookingStatusChanged(bookingId, 'CANCELLED', reason).catch(err => {

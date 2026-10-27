@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { config } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
+import { configureBookingEmail } from './modules/email/email.service';
 
 // Routers
 import authRouter from './modules/auth/auth.router';
@@ -20,6 +21,14 @@ import geoRouter from './modules/geo/geo.router';
 import whatsappRouter from './modules/whatsapp/whatsapp.router';
 
 const app = express();
+
+try {
+  console.log(configureBookingEmail()
+    ? '[Email] Gmail SMTP configured for booking notifications'
+    : '[Email] Booking emails disabled; set EMAIL_ENABLED=true and Gmail credentials to enable');
+} catch {
+  console.error('[Email] Booking emails disabled: check SMTP_USER, SMTP_APP_PASSWORD, EMAIL_REPLY_TO and EMAIL_APP_URL');
+}
 
 // ── Security & Middleware ──────────────────────────────────────────────────────
 

@@ -3,6 +3,7 @@ import * as PaymentService from './payments.service';
 import * as RouteService from './razorpay-route.service';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
+import { queueBookingEmail } from '../email/booking-email.service';
 
 const GST_RATE = 0.18; // 18% GST
 
@@ -270,8 +271,9 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
     const artistPayout = basePortion * 0.95;             // 95% of base portion
 
     // ── Update booking status ─────────────────────────────────────
+    let updatedBooking;
     if (paymentType === 'ADVANCE') {
-      await prisma.booking.update({
+      updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data: {
           status: 'PARTIALLY_PAID',
@@ -281,7 +283,7 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
         },
       });
     } else if (paymentType === 'FULL') {
-      await prisma.booking.update({
+      updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data: {
           status: 'CONFIRMED',
@@ -291,7 +293,7 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
         },
       });
     } else if (paymentType === 'REMAINING') {
-      await prisma.booking.update({
+      updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data: {
           status: 'CONFIRMED',
@@ -320,6 +322,15 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
         transferStatus: 'PENDING',
       },
     });
+
+    if (booking.status !== updatedBooking.status) {
+      queueBookingEmail({
+        ...updatedBooking,
+        // advancePaid retains the original advance on remaining-balance payments.
+        // The receipt must show the full amount collected after this payment.
+        advancePaid: paymentType === 'REMAINING' ? booking.advancePaid + chargedAmount : updatedBooking.advancePaid,
+      }, paymentType === 'ADVANCE' ? 'ADVANCE_PAID' : 'CONFIRMED');
+    }
 
     // ── Auto-transfer to artist via Razorpay Route ────────────────
     // Only attempt if real Razorpay keys are set (not mock)
@@ -401,11 +412,15 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
 
     if (isValid) {
       if (bookingId) {
+        const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
         // Update booking status to CONFIRMED
-        await prisma.booking.update({
+        const updatedBooking = await prisma.booking.update({
           where: { id: bookingId },
           data: { status: 'CONFIRMED' }
         });
+        if (booking && booking.status !== updatedBooking.status) {
+          queueBookingEmail(updatedBooking, 'CONFIRMED');
+        }
       }
       res.json({ success: true, message: 'Payment verified successfully' });
     } else {

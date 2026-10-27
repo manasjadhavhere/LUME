@@ -15,6 +15,14 @@ export const config = {
   isDev: process.env.NODE_ENV !== 'production',
   databaseUrl: process.env.DATABASE_URL!,
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  email: {
+    enabled: process.env.EMAIL_ENABLED === 'true',
+    user: (process.env.SMTP_USER || '').trim(),
+    appPassword: (process.env.SMTP_APP_PASSWORD || '').replace(/\s/g, ''),
+    fromName: process.env.EMAIL_FROM_NAME || 'LUME Bookings',
+    replyTo: (process.env.EMAIL_REPLY_TO || '').trim(),
+    appUrl: process.env.EMAIL_APP_URL || (process.env.CLIENT_URL || 'http://localhost:5173').split(',')[0].trim(),
+  },
   jwt: {
     secret: process.env.JWT_SECRET!,
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',

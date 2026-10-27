@@ -33,6 +33,17 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type AddServiceInput = z.infer<typeof addServiceSchema>;
 export type PricingInput = z.infer<typeof pricingSchema>;
 
+export function toArtistSlug(name?: string, fallbackId?: string): string {
+  if (!name) return fallbackId || '';
+  const slug = name
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || fallbackId || '';
+}
+
 export async function getAllArtists(query: {
   specialty?: string;
   location?: string;
@@ -85,7 +96,10 @@ export async function getAllArtists(query: {
   ]);
 
   return {
-    artists,
+    artists: artists.map(artist => ({
+      ...artist,
+      slug: toArtistSlug(artist.user?.name, artist.id),
+    })),
     pagination: {
       page,
       limit,
@@ -95,24 +109,47 @@ export async function getAllArtists(query: {
   };
 }
 
-export async function getArtistById(artistId: string) {
-  const artist = await prisma.artistProfile.findFirst({
-    where: { id: artistId, isVerified: true },
+const artistDetailInclude = {
+  user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+  services: { where: { isActive: true }, orderBy: { price: 'asc' as const } },
+  reviews: {
     include: {
-      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
-      services: { where: { isActive: true }, orderBy: { price: 'asc' } },
-      reviews: {
-        include: {
-          client: { select: { id: true, name: true, avatarUrl: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      },
+      client: { select: { id: true, name: true, avatarUrl: true } },
     },
+    orderBy: { createdAt: 'desc' as const },
+    take: 20,
+  },
+};
+
+export async function getArtistById(artistIdOrSlug: string) {
+  // 1. Try finding by ID directly
+  let artist = await prisma.artistProfile.findFirst({
+    where: { id: artistIdOrSlug, isVerified: true },
+    include: artistDetailInclude,
   });
 
+  // 2. If not found by ID, try finding by slug or name
+  if (!artist) {
+    const allVerified = await prisma.artistProfile.findMany({
+      where: { isVerified: true },
+      include: artistDetailInclude,
+    });
+
+    const target = artistIdOrSlug.toLowerCase().trim();
+    const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+
+    artist = allVerified.find(a => {
+      const slug = toArtistSlug(a.user?.name, a.id);
+      const cleanName = (a.user?.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return slug === target || cleanName === cleanTarget || a.id.toLowerCase() === target;
+    }) || null;
+  }
+
   if (!artist) throw createError('Artist not found', 404);
-  return artist;
+  return {
+    ...artist,
+    slug: toArtistSlug(artist.user?.name, artist.id),
+  };
 }
 
 export async function getArtistByUserId(userId: string) {
