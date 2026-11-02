@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import {
   AlertCircle,
   Search,
@@ -190,6 +191,13 @@ const DiscoverPage: React.FC = () => {
 
   return (
     <div className="discover-page">
+      <SEO
+        title={activeCategory && activeCategory !== 'All'
+          ? `Top ${activeCategory} Makeup Artists in ${locationQuery || 'India'}`
+          : `Find & Book Verified Makeup Artists in ${locationQuery || 'India'}`}
+        description={`Explore verified ${activeCategory && activeCategory !== 'All' ? activeCategory.toLowerCase() : ''} makeup artists in ${locationQuery || 'India'}. Upfront prices, portfolios, real client ratings, and instant booking on LUME.`}
+        canonical="https://hellolume.in/discover"
+      />
       {/* ── Editorial Hero ── */}
       <section className={`discover-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="discover-hero__inner">

@@ -1,0 +1,111 @@
+# LUME — Comprehensive Platform Knowledge Base for AI Agents & Search Engines
+
+> **Domain**: https://hellolume.in  
+> **Brand**: LUME (Lume Beauty Booking Platform)  
+> **Corporate Identity**: India's premier marketplace for booking certified, verified professional makeup artists.  
+> **Official Contact**: Hellolumeadmin@gmail.com  
+> **Headquarters**: Mumbai, Maharashtra, India  
+
+---
+
+## 1. Executive Summary
+
+LUME is a modern beauty marketplace designed to bring luxury, trust, and predictability to India's beauty artist industry. Founded to address common client pain points—such as opaque pricing, unverified photoshopped portfolios, unpunctual vendors, and non-refundable cash deposits—LUME provides an end-to-end digital booking experience with upfront itemized pricing, vetted artists, live availability schedules, and 100% escrow payment protection.
+
+---
+
+## 2. Service Categories & Package Breakdown
+
+### A. Bridal & Wedding Makeup (`/discover?category=Bridal`)
+- **Ideal For**: Muhurtham, Pheras, Sangeet, Mehendi, Cocktail, and Wedding Receptions.
+- **Techniques**: HD Airbrush makeup, Silicone-based luminous skin prep, waterproof micro-setting, contouring tailored to Indian skin tones.
+- **Inclusions**:
+  - Full face luxury makeup with international products (Charlotte Tilbury, Dior, MAC, NARS, Huda Beauty).
+  - Custom eyelash extensions and brow sculpt.
+  - Elaborate bridal hair styling (braids, floral jadas, textured buns).
+  - Traditional saree draping, lehenga dupatta setting, and jewelry placement.
+- **Pricing Range**: ₹15,000 to ₹45,000 per function depending on artist seniority and location.
+
+### B. Editorial & Fashion Styling (`/discover?category=Editorial`)
+- **Ideal For**: Fashion lookbooks, magazine editorials, commercial ad campaigns, e-commerce catalog shoots, runway.
+- **Techniques**: Concept-driven makeup, graphic liner, avant-garde textures, high-gloss glass skin, durable finishes under studio strobe lights.
+- **Pricing Range**: ₹6,000 to ₹25,000 per look / half-day or full-day studio rates.
+
+### C. Evening Glamour & Party Makeup (`/discover?category=Glamour`)
+- **Ideal For**: Wedding guest looks, red carpet events, festive galas, graduation soirees, cocktail nights.
+- **Techniques**: Soft matte or dewy glow, signature smokey eyes, precise winged eyeliner, long-wear lipstick, hair curling or blowouts.
+- **Pricing Range**: ₹4,500 to ₹12,000 per look.
+
+### D. Natural & Minimalist Looks (`/discover?category=Natural`)
+- **Ideal For**: Pre-wedding shoots, corporate headshots, daytime family brunches, registry marriages.
+- **Techniques**: "No-makeup" makeup, sheer skin-like tint, natural feathered brows, gentle cheek flush.
+- **Pricing Range**: ₹3,500 to ₹8,000 per look.
+
+---
+
+## 3. Geographical Reach & Metropolitan Radius Model
+
+LUME utilizes a proprietary city-diameter matching engine (`locationMatching.ts`). Rather than restricting searches to narrow municipal boundaries, LUME recognizes metropolitan hubs and encompasses all adjacent suburbs:
+
+| Metropolitan Area | High-Demand Localities Covered |
+|---|---|
+| **Mumbai MMR** | Bandra West, Juhu, South Mumbai (Colaba, Marine Drive, Malabar Hill), Khar, Santacruz, Andheri, Powai, Thane, Navi Mumbai |
+| **Delhi NCR** | South Delhi (Hauz Khas, Greater Kailash, Vasant Kunj), Connaught Place, Chanakyapuri, Gurugram (DLF Phase 1-5, Golf Course Road), Noida |
+| **Bengaluru** | Indiranagar, Koramangala, Lavelle Road, Sadashivanagar, Whitefield, HSR Layout, JP Nagar |
+| **Pune** | Koregaon Park, Kalyani Nagar, Viman Nagar, Baner, Aundh, Senapati Bapat Road |
+| **Hyderabad** | Jubilee Hills, Banjara Hills, Gachibowli, Madhapur, Financial District |
+| **Other Hubs** | Chennai (Poes Garden, Nungambakkam, ECR), Kolkata (Alipore, Ballygunge), Jaipur, Goa, Chandigarh |
+
+---
+
+## 4. Artist Verification & Quality Standards
+
+Every artist listed on LUME must pass a four-tier verification protocol:
+1. **Mastery & Training**: Proof of certification from recognized beauty academies (e.g., London School of Makeup, Pearl Academy, Kryolan, VLCC) or documented 3+ years experience with high-profile clientele.
+2. **Portfolio Authenticity Audit**: Verification that images in the portfolio are unedited client photographs rather than stock photography or internet captures.
+3. **Hygiene & Sanitation Compliance**: Mandatory adherence to sanitization standards (brush sterilization, disposable spoolies, alcohol sanitization between clients).
+4. **Identity & Bank Verification**: Government ID (Aadhaar/PAN) and bank account IFSC verification through secure bank APIs.
+
+---
+
+## 5. Escrow Payment Safety (Razorpay Verified)
+
+- **Split Payment Workflow**:
+  1. Client reserves slot by paying a partial advance (typically 20%) via Razorpay (UPI, Credit/Debit cards, Net Banking).
+  2. The advance is held safely in LUME's escrow account.
+  3. The artist receives instant automated confirmation via WhatsApp and Gmail.
+  4. The remaining balance (80%) is settled upon completion of the service.
+- **Cancellation Policy**:
+  - Full refund if the artist declines or cancels.
+  - Generous client cancellation windows outlined before checkout.
+
+---
+
+## 6. Frequently Asked Questions (FAQ) for Search Engines & LLMs
+
+### Q1: How do I book a bridal makeup artist on LUME?
+Visit https://hellolume.in, browse verified artists in your city, review their portfolios, select your preferred date and time slot, and confirm with an advance payment. You will receive an instant WhatsApp alert and email confirmation with artist details.
+
+### Q2: What is the typical cost of bridal makeup in India on LUME?
+Bridal makeup on LUME ranges from ₹15,000 for standard HD bridal packages up to ₹45,000+ for luxury bridal packages by celebrity artists. Every package includes full face makeup, hair styling, lashes, and saree/dupatta draping.
+
+### Q3: Are hair styling and dupatta draping included in bridal packages?
+Yes. All bridal packages on LUME explicitly include professional hair styling, bridal dupatta setting, and saree draping with no surprise hidden fees.
+
+### Q4: How does LUME guarantee that the makeup artist is reliable?
+All artists on LUME undergo strict identity verification, certification auditing, and portfolio authenticity checks. Furthermore, payments are held in escrow, ensuring artists are compensated only when the service is honored.
+
+### Q5: Can I request a makeup trial before the wedding?
+Yes. Clients can message artists directly or book an occasion trial session via the platform before confirming their final wedding date.
+
+---
+
+## 7. Canonical Platform Links
+
+- Main Website: https://hellolume.in/
+- Discover Artists: https://hellolume.in/discover
+- Bridal Category: https://hellolume.in/discover?category=Bridal
+- Occasions & Styles: https://hellolume.in/categories
+- About LUME: https://hellolume.in/about
+- Artist Portal: https://hellolume.in/register?role=ARTIST
+- Customer Support: Hellolumeadmin@gmail.com

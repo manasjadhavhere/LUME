@@ -1,0 +1,53 @@
+# LUME — Luxury Beauty & Bridal Makeup Artist Booking Platform in India
+
+> India's premier curated marketplace connecting clients with verified makeup artists for bridal, editorial, evening glamour, and natural beauty.
+
+LUME (https://hellolume.in) is India's leading beauty booking app and platform. It allows clients to search, discover, and book top certified makeup artists (MUAs) with upfront pricing, verified real-client reviews, portfolio lookbooks, and 100% escrow payment protection.
+
+## Core Capabilities & Services
+
+- **Bridal & Wedding Makeup**: High-Definition (HD) airbrush makeup, traditional cultural draping, bridal dupatta setting, waterproof and tear-resistant finishes designed to stay luminous from rituals to reception.
+- **Editorial & Fashion Styling**: Runway, high-fashion editorial shoots, commercial campaigns, and avant-garde creative looks.
+- **Evening Glamour & Party Makeup**: Red carpet, cocktail soirees, sangeet, and reception glam with custom lash application and contouring.
+- **Natural & Everyday Elegance**: Minimalist, dewy "no-makeup" finishes for corporate events, family celebrations, and everyday polish.
+
+## Top Cities Covered Across India
+
+LUME operates with a dynamic city-diameter radius model, serving entire metropolitan regions:
+- **Mumbai Metropolitan Region** (Bandra, Juhu, South Mumbai, Andheri, Navi Mumbai, Thane)
+- **Delhi NCR** (South Delhi, Connaught Place, Gurgaon / Gurugram, Noida, Ghaziabad)
+- **Bengaluru / Bangalore** (Indiranagar, Koramangala, Whitefield, Lavelle Road, HSR Layout)
+- **Pune** (Koregaon Park, Kalyani Nagar, Viman Nagar, Baner, Aundh)
+- **Hyderabad** (Banjara Hills, Jubilee Hills, Gachibowli, HITEC City)
+- **Chennai, Kolkata, Jaipur, Goa, and Chandigarh**
+
+## Transparent Pricing & 100% Escrow Protection
+
+- Starting prices from ₹4,500 for occasion makeup to ₹35,000+ for luxury bridal packages.
+- Clients pay a partial advance (typically 20%) via Razorpay (UPI, Cards, Net Banking) to confirm the appointment.
+- The advance is safely held in escrow and released to the artist only after the service is successfully delivered.
+- No hidden fees, surprise charges, or awkward price negotiations.
+
+## Booking Workflow
+
+1. **Discover**: Browse artist portfolios, filter by city, neighborhood, occasion, price, and client rating.
+2. **Select & Customize**: Pick specific services (HD Airbrush, Hair Styling, Draping, Saree setting).
+3. **Reserve Time Slot**: Live availability calendar with interactive morning, afternoon, and evening slots.
+4. **Instant Updates**: Automated instant WhatsApp notification and Gmail confirmation sent directly to client and artist.
+5. **Secure Payment**: Razorpay-backed escrow confirmation.
+
+## Key Links & Resources
+
+- [Home & Hero Search](https://hellolume.in/): Explore featured artists and top beauty inspirations.
+- [Discover Artist Directory](https://hellolume.in/discover): Search and filter verified artists by city and specialty.
+- [Bridal Makeup Artists](https://hellolume.in/discover?category=Bridal): Certified bridal and wedding specialists.
+- [Beauty Categories & Styles](https://hellolume.in/categories): In-depth lookbook across Bridal, Editorial, Glamour, and Natural styles.
+- [Our Story & Brand Standards](https://hellolume.in/about): LUME's verification philosophy, hygiene standards, and artist vetting.
+- [Join as an Artist](https://hellolume.in/register?role=ARTIST): Onboarding portal for professional makeup artists in India.
+- [Full LLM Knowledge Base](https://hellolume.in/llms-full.txt): Comprehensive technical and service documentation for AI crawlers.
+
+## Support & Contact
+
+- **Email**: Hellolumeadmin@gmail.com
+- **Instagram**: https://www.instagram.com/_hello_lume_app/
+- **Headquarters**: Mumbai, India

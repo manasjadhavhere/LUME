@@ -1,4 +1,5 @@
 import GeoLocationInput from '../components/ui/GeoLocationInput';
+import SEO from '../components/common/SEO';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, Play, Search, Sparkles, Star } from 'lucide-react';
@@ -456,6 +457,11 @@ export default function LandingPage() {
 
   return (
     <div className="lume-home">
+      <SEO
+        title="Book Top Bridal & Wedding Makeup Artists in India"
+        description="Discover and book India's finest verified makeup artists for bridal, editorial, and occasion looks. Transparent pricing, authentic reviews, and 100% escrow protection."
+        canonical="https://hellolume.in/"
+      />
       <section className="home-hero" aria-label="Hero slideshow">
         <div className="home-hero__image">
           {HERO_SLIDES.map((slide, i) => {

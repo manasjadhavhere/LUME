@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useFavorites from '../hooks/useFavorites';
 import Button from '../components/ui/Button';
 import PhoneInput from '../components/ui/PhoneInput';
+import SEO from '../components/common/SEO';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import { getArtistSlug } from '../utils/slug';
 import './ArtistDetailPage.css';
@@ -472,6 +473,12 @@ const ArtistDetailPage: React.FC = () => {
 
   return (
     <div className="ap">
+      <SEO
+        title={`${artist.user.name} — ${artist.specialties?.[0] || 'Bridal'} Makeup Artist in ${artist.location}`}
+        description={artist.bio || `Book ${artist.user.name}, a certified ${artist.specialties?.join(', ')} makeup artist in ${artist.location}. ${artist.rating}★ rating, verified portfolio, transparent pricing on LUME.`}
+        canonical={`https://hellolume.in/artist/${id}`}
+        ogImage={artist.user.avatarUrl || artist.profileImageUrl}
+      />
       <div className="ap-wrap">
 
         {/* ══════ Top bar ══════ */}

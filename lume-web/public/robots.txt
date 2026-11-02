@@ -1,0 +1,89 @@
+# ==============================================================================
+# LUME Robots.txt
+# India's Premier Beauty & Bridal Makeup Artist Booking Platform
+# Website: https://hellolume.in
+# Contact: Hellolumeadmin@gmail.com
+# ==============================================================================
+
+# Search Engine Crawlers (Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex)
+User-agent: *
+Allow: /
+Allow: /discover
+Allow: /categories
+Allow: /about
+Allow: /artist/
+Allow: /images/
+Allow: /slideshow/
+Allow: /logo.png
+Allow: /favicon.png
+Allow: /sitemap.xml
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# Disallow private user accounts, dashboards, checkout and admin interfaces
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /artist-dashboard
+Disallow: /artist-dashboard/*
+Disallow: /profile
+Disallow: /profile/*
+Disallow: /booking/confirm
+Disallow: /api/
+Disallow: /api/*
+
+# AI and LLM Search Engine Crawlers (ChatGPT Search, Perplexity, Claude, Gemini)
+User-agent: GPTBot
+Allow: /
+Allow: /discover
+Allow: /categories
+Allow: /about
+Allow: /artist/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin/
+Disallow: /artist-dashboard/
+Disallow: /profile/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin/
+Disallow: /artist-dashboard/
+Disallow: /profile/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin/
+Disallow: /artist-dashboard/
+Disallow: /profile/
+
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: OAI-SearchBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# XML Sitemap Location
+Sitemap: https://hellolume.in/sitemap.xml

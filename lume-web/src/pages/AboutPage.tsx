@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/common/SEO';
 import {
   ArrowUpRight,
   Sparkles,
@@ -81,6 +82,11 @@ export default function AboutPage() {
 
   return (
     <div className="about-page">
+      <SEO
+        title="Our Story & Philosophy — Elevating Beauty Artistry in India"
+        description="Learn about LUME's mission to elevate India's beauty artist industry through certified mastery, aesthetic transparency, hygiene standards, and secure escrow payments."
+        canonical="https://hellolume.in/about"
+      />
       {/* ── Compact Editorial Hero ── */}
       <section className={`about-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="about-container">

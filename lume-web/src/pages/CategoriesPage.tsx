@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, ChevronRight, ChevronDown, Sparkles, Search } from 'lucide-react';
+import SEO from '../components/common/SEO';
 import './CategoriesPage.css';
 
 interface CategoryDetail {
@@ -121,6 +122,11 @@ export default function CategoriesPage() {
 
   return (
     <div className="categories-page">
+      <SEO
+        title="Makeup Styles & Beauty Occasions — Bridal, Editorial, Glamour"
+        description="Explore signature beauty aesthetics on LUME: Bridal HD Airbrush, Editorial Runway, Evening Glamour, and Minimalist Natural looks. Find the right artist for your defining moment."
+        canonical="https://hellolume.in/categories"
+      />
       {/* ── Hero ── */}
       <section className={`categories-hero ${isHeroInfoOpen ? 'is-info-open' : ''}`}>
         <div className="categories-hero__inner">
