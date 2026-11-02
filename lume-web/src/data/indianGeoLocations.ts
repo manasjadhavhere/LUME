@@ -1,6 +1,6 @@
 import cities from './indianCities.json';
 import type { GeoLocationResult } from '../utils/geoCoding';
-// country-state-city data (ODbL); attribution: docs/LOCATION_DATA.md.
+// country-state-city data (ODbL); attribution: README.md.
 const aliases: Record<string, string> = { bangalore: 'bengaluru', gurgaon: 'gurugram', bombay: 'mumbai', calcutta: 'kolkata', madras: 'chennai', 'delhi ncr': 'new delhi', pondicherry: 'puducherry' };
 export const normalizeLocation = (s: string) => {
   let text = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();

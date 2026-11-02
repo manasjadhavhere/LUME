@@ -1,15 +1,24 @@
 # Dependencies
 node_modules/
 lume-web/node_modules/
+lume-api/node_modules/
 
 # Build output
 dist/
 lume-web/dist/
+lume-api/dist/
 
 # Environment files
 .env
 .env.local
 .env.*.local
+*.env
+
+# Local uploads
+lume-api/uploads/avatars/*
+lume-api/uploads/certifications/*
+lume-api/uploads/portfolios/*
+!lume-api/uploads/**/.gitkeep
 
 # Logs
 *.log

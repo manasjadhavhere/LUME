@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--login">
       <button 
         className="auth-page__back-btn" 
         onClick={() => navigate(-1)}

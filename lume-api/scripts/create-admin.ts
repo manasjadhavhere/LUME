@@ -6,13 +6,15 @@ const prisma = new PrismaClient();
 async function main() {
   const passwordHash = await bcrypt.hash('password123', 12);
 
+  const adminEmail = process.env.ADMIN_EMAIL || 'Hellolumeadmin@gmail.com';
+
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@lume.in' },
+    where: { email: adminEmail },
     update: {
       role: 'ADMIN',
     },
     create: {
-      email: 'admin@lume.in',
+      email: adminEmail,
       passwordHash,
       role: 'ADMIN',
       name: 'Lume Administrator',

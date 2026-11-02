@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export type UserRole = 'CLIENT' | 'ARTIST' | 'ADMIN';
 
@@ -101,14 +101,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('lume_token');
     localStorage.removeItem('lume_user');
-  };
+  }, []);
 
-  const fetchMe = async (authToken: string) => {
+  const fetchMe = useCallback(async (authToken: string) => {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const freshUser = data.data;
     setUser(freshUser);
     localStorage.setItem('lume_user', JSON.stringify(freshUser));
-  };
+  }, []);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('lume_token');
@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [clearSession, fetchMe]);
 
   const refreshUser = async () => {
     if (token) await fetchMe(token);
@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { role: data.data.user.role };
   };
 
-  const logout = () => clearSession();
+  const logout = clearSession;
 
   const loginWithGoogle = async (idToken: string, role: 'CLIENT' | 'ARTIST', password?: string): Promise<{ role: UserRole }> => {
     const res = await fetch(`${API_BASE}/api/auth/google`, {

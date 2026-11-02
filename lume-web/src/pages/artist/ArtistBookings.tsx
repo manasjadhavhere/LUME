@@ -60,7 +60,7 @@ const ArtistBookings: React.FC = () => {
   const bookings = data || [];
 
   const pendingBookings = bookings.filter(b => b.status === 'PENDING');
-  const upcomingBookings = bookings.filter(b => (b.status === 'ACCEPTED' || b.status === 'CONFIRMED') && new Date(b.date) >= new Date(new Date().setHours(0,0,0,0)));
+  const upcomingBookings = bookings.filter(b => (b.status === 'ACCEPTED' || b.status === 'CONFIRMED' || b.status === 'PARTIALLY_PAID') && new Date(b.date) >= new Date(new Date().setHours(0,0,0,0)));
   const pastBookings = bookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED' || (new Date(b.date) < new Date(new Date().setHours(0,0,0,0)) && b.status !== 'PENDING'));
 
   const displayedBookings = activeTab === 'PENDING' ? pendingBookings : activeTab === 'UPCOMING' ? upcomingBookings : pastBookings;
@@ -69,6 +69,7 @@ const ArtistBookings: React.FC = () => {
     switch (status) {
       case 'PENDING': return <span className="status-badge status-badge--pending">Approval Pending</span>;
       case 'ACCEPTED': return <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706' }}>Awaiting Payment</span>;
+      case 'PARTIALLY_PAID': return <span className="status-badge" style={{ background: '#e0e7ff', color: '#4338ca' }}>Advance Paid</span>;
       case 'CONFIRMED': return <span className="status-badge status-badge--confirmed">Confirmed</span>;
       case 'COMPLETED': return <span className="status-badge status-badge--completed">Completed</span>;
       case 'CANCELLED': return <span className="status-badge status-badge--cancelled">Cancelled</span>;

@@ -33,6 +33,11 @@ interface DaySchedule {
 
 type WeekSchedule = Record<number, DaySchedule>;
 
+interface AvailabilityResponse {
+  defaultSchedule: Array<{ dayOfWeek: number; timeSlots: { time: string; available: boolean }[] }>;
+  availability: Array<{ date: string; timeSlots: { time: string; available: boolean }[] }>;
+}
+
 const DEFAULT_START = "09:00";
 const DEFAULT_END = "17:00";
 
@@ -77,7 +82,7 @@ const dayScheduleToSlots = (schedule: DaySchedule) => {
 
 const ArtistCalendar: React.FC = () => {
   const { user } = useAuth();
-  const { execute } = useApi();
+  const { execute, error } = useApi();
   const artistId = user?.artistProfile?.id;
 
   // State
@@ -101,12 +106,12 @@ const ArtistCalendar: React.FC = () => {
 
   const loadAvailability = useCallback(async () => {
     if (!artistId) return;
-    const res = await execute(`/api/artists/${artistId}/availability`, { method: 'GET' }) as { defaultSchedule: any[], availability: any[] };
+    const res = await execute(`/api/artists/${artistId}/availability`, { method: 'GET' }) as AvailabilityResponse | null;
     if (res) {
       // 1. Load defaults
       const schedule: WeekSchedule = {};
       if (res.defaultSchedule && res.defaultSchedule.length > 0) {
-        res.defaultSchedule.forEach((d: any) => {
+        res.defaultSchedule.forEach(d => {
           if (d.timeSlots && Array.isArray(d.timeSlots)) {
             schedule[d.dayOfWeek] = slotsToDaySchedule(d.timeSlots);
           }
@@ -120,7 +125,7 @@ const ArtistCalendar: React.FC = () => {
       // 2. Load overrides
       const overrides: Record<string, DaySchedule> = {};
       if (res.availability && res.availability.length > 0) {
-        res.availability.forEach((a: any) => {
+        res.availability.forEach(a => {
           // Prisma returns a Date string, extract YYYY-MM-DD
           const dStr = typeof a.date === 'string' ? a.date.split('T')[0] : new Date(a.date).toISOString().split('T')[0];
           if (a.timeSlots && Array.isArray(a.timeSlots)) {
@@ -138,26 +143,33 @@ const ArtistCalendar: React.FC = () => {
   const saveDefaultSchedule = async () => {
     if (!artistId) return;
     setSaving(true);
+    setSaved(false);
     const days = Object.entries(weekSchedule).map(([dow, schedule]) => ({
       dayOfWeek: parseInt(dow),
       timeSlots: dayScheduleToSlots(schedule),
     }));
-    await execute(`/api/artists/${artistId}/availability/default`, { method: 'PUT', body: { days } });
-    setSaved(true); setSaving(false);
+    const result = await execute(`/api/artists/${artistId}/availability/default`, { method: 'PUT', body: { days } });
+    setSaving(false);
+    if (result === null) return;
+    setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
   // Save override for a specific date
   const saveDayOverride = async (dateStr: string) => {
-    if (!artistId) return;
+    if (!artistId) return false;
     setSaving(true);
+    setSaved(false);
     const schedule = dayOverrides[dateStr] || weekSchedule[new Date(dateStr + 'T00:00:00').getDay()];
-    await execute(`/api/artists/${artistId}/availability`, {
+    const result = await execute(`/api/artists/${artistId}/availability`, {
       method: 'PUT',
       body: { date: dateStr, timeSlots: dayScheduleToSlots(schedule) },
     });
-    setSaved(true); setSaving(false);
+    setSaving(false);
+    if (result === null) return false;
+    setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+    return true;
   };
 
   const updateWeekDay = (dow: number, updates: Partial<DaySchedule>) => {
@@ -189,11 +201,12 @@ const ArtistCalendar: React.FC = () => {
         <p className="artist-page__subtitle">Set your regular weekly hours, or click on a calendar date to create exceptions.</p>
         {user?.artistProfile?.hourlyPrice && (
           <div style={{ marginTop: 12, padding: '8px 16px', background: 'rgba(217,122,140,0.08)', border: '1px solid rgba(217,122,140,0.2)', display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 8, color: 'var(--rose-deep)', fontWeight: 600, fontSize: '0.9rem' }}>
-            Current Rate: <span style={{ fontSize: '1rem' }}>${user.artistProfile.hourlyPrice} / hr</span>
+            Current Rate: <span style={{ fontSize: '1rem' }}>₹{user.artistProfile.hourlyPrice.toLocaleString('en-IN')} / hr</span>
           </div>
         )}
       </div>
 
+      {error && <p role="alert">{error}</p>}
       <div className="calendar-layout-grid">
         {/* Left Column: Weekly Schedule */}
         <div className="calendar-left-col">
@@ -378,8 +391,7 @@ const ArtistCalendar: React.FC = () => {
                     
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
                       <button type="button" className="artist-save-btn artist-save-btn--secondary" style={{ width: '100%', padding: '10px' }} onClick={async () => {
-                        await saveDayOverride(selectedDate);
-                        setSelectedDate(null);
+                        if (await saveDayOverride(selectedDate)) setSelectedDate(null);
                       }} disabled={saving}>
                         {saving ? 'Saving...' : 'Save Override'}
                       </button>

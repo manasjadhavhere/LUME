@@ -26,6 +26,7 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
   const artist = await prisma.artistProfile.findUnique({ where: { id: data.artistId } });
   if (!artist) throw createError('Artist not found', 404);
   if (!artist.isVerified) throw createError('Artist is not yet verified', 400);
+  if (artist.isTakingBookings === false) throw createError('Artist is not taking bookings', 400);
 
   // If client provided a phone number, update client profile/user if missing
   if (data.clientPhone) {
@@ -41,7 +42,13 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
 
   // Calculate price based on priceType
   let totalPaid = 0;
-  if (data.priceType === 'WEDDING') {
+  if (data.serviceId) {
+    const service = await prisma.service.findFirst({
+      where: { id: data.serviceId, artistId: data.artistId, isActive: true },
+    });
+    if (!service) throw createError('Service is not available for this artist', 400);
+    totalPaid = service.price;
+  } else if (data.priceType === 'WEDDING') {
     totalPaid = artist.weddingPrice || 0;
   } else if (data.priceType === 'OCCASION') {
     totalPaid = artist.occasionPrice || 0;
@@ -50,11 +57,9 @@ export async function createBooking(clientId: string, data: CreateBookingInput) 
     const slots = data.time.split(',').map(s => s.trim()).filter(Boolean);
     const hours = Math.max(1, slots.length);
     totalPaid = (artist.hourlyPrice || 0) * hours;
-  } else if (data.serviceId) {
-    const service = await prisma.service.findFirst({
-      where: { id: data.serviceId, artistId: data.artistId, isActive: true },
-    });
-    if (service) totalPaid = service.price;
+  }
+  if (!Number.isFinite(totalPaid) || totalPaid <= 0) {
+    throw createError('The selected booking option has no valid price', 400);
   }
 
   // Idempotency / duplicate check (prevent multiple clicks)
@@ -164,7 +169,7 @@ export async function updateBookingStatus(
   });
 
   // If completed, update artist earnings
-  if (status === 'COMPLETED') {
+  if (status === 'COMPLETED' && booking.status !== 'COMPLETED') {
     await prisma.artistProfile.update({
       where: { id: profile.id },
       data: {
@@ -196,7 +201,7 @@ export async function cancelBookingAsClient(clientId: string, bookingId: string,
   });
   if (!booking) throw createError('Booking not found', 404);
 
-  if (!['PENDING', 'CONFIRMED'].includes(booking.status)) {
+  if (!['PENDING', 'ACCEPTED', 'CONFIRMED'].includes(booking.status)) {
     throw createError('Cannot cancel a completed or already cancelled booking', 400);
   }
 

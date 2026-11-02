@@ -7,10 +7,10 @@ const router = Router({ mergeParams: true });
 // GET /api/artists/:artistId/availability  (public)
 router.get('/', getAvailability);
 
-// PUT /api/artists/:artistId/availability  (artist only — per-day override)
+// PUT /api/artists/:artistId/availability  (artist only â€” per-day override)
 router.put('/', authenticate, requireRole('ARTIST'), setAvailability);
 
-// GET/PUT /api/artists/:artistId/availability/default  (artist only — weekly template)
+// GET/PUT /api/artists/:artistId/availability/default  (artist only â€” weekly template)
 router.get('/default', authenticate, requireRole('ARTIST'), getDefaultSchedule);
 router.put('/default', authenticate, requireRole('ARTIST'), setDefaultSchedule);
 

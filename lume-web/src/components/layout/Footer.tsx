@@ -16,7 +16,7 @@ export default function Footer() {
           </div>
           <nav aria-label="Explore Lume"><h3>Explore Lume</h3><Link to="/about">Our story</Link><Link to="/discover">Find an artist</Link><Link to="/saved">Saved artists</Link><Link to="/profile">My account</Link><Link to="/register?role=ARTIST">Join as an artist <ArrowUpRight size={13} /></Link></nav>
           <nav aria-label="Beauty occasions"><h3>Your occasion</h3>{[{ label: 'Bridal beauty', category: 'Bridal' }, { label: 'Editorial & fashion', category: 'Editorial' }, { label: 'Evening glamour', category: 'Glamour' }, { label: 'Naturally you', category: 'Natural' }].map(item => <Link key={item.category} to={`/discover?category=${item.category}`}>{item.label}</Link>)}</nav>
-          <div className="lume-footer__contact"><h3>Say hello</h3><a href="mailto:hello@lume.beauty"><Mail size={16} /> hello@lume.beauty</a><span><MapPin size={16} /> Mumbai, India</span><p>A beautiful experience<br />starts with a conversation.</p></div>
+          <div className="lume-footer__contact"><h3>Say hello</h3><a href="mailto:Hellolumeadmin@gmail.com"><Mail size={16} /> Hellolumeadmin@gmail.com</a><span><MapPin size={16} /> Mumbai, India</span><p>A beautiful experience<br />starts with a conversation.</p></div>
         </div>
         <div className="lume-footer__bottom"><span>© {new Date().getFullYear()} Lume Beauty. All rights reserved.</span><span>Made for your defining moments.</span><a href="#" onClick={event => { event.preventDefault(); window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }}>Back to top <ArrowUpRight size={14} /></a></div>
       </div>

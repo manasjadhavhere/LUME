@@ -11,9 +11,11 @@ vi.mock('../context/AuthContext', () => ({
       name: 'Aria Sharma',
       email: 'aria@example.com',
       phone: '+91 98765 43210',
-      role: 'client',
-      location: 'South Mumbai',
-      bio: 'Fashion and bridal enthusiast',
+      role: 'CLIENT',
+      clientProfile: {
+        location: 'South Mumbai, India',
+        bio: 'Fashion and bridal enthusiast',
+      },
       avatarUrl: '',
     },
     token: 'fake-jwt-token',
@@ -68,7 +70,7 @@ describe('ProfilePage (My Account Overhaul)', () => {
     expect(screen.getByText('Aria Sharma')).toBeInTheDocument();
     expect(screen.getByText(/South Mumbai/i)).toBeInTheDocument();
     expect(screen.getByText('Verified Client')).toBeInTheDocument();
-    expect(screen.getByText('Saved Artists')).toBeInTheDocument();
+    expect(screen.getAllByText('Saved Artists').length).toBeGreaterThan(0);
     expect(screen.getByText('Saved Addresses')).toBeInTheDocument();
   });
 
@@ -76,7 +78,7 @@ describe('ProfilePage (My Account Overhaul)', () => {
     renderProfile();
 
     expect(screen.getByRole('button', { name: /My Bookings/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Saved Artists/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Saved Artists/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /Addresses & Venues/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Beauty Profile/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Account Settings/i })).toBeInTheDocument();
@@ -89,7 +91,7 @@ describe('ProfilePage (My Account Overhaul)', () => {
     const addressTabBtn = screen.getByRole('button', { name: /Addresses & Venues/i });
     fireEvent.click(addressTabBtn);
 
-    expect(screen.getByText('Saved Booking Venues & Addresses')).toBeInTheDocument();
+    expect(screen.getByText('Saved Locations & Venues')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Add New Address/i })).toBeInTheDocument();
   });
 
@@ -99,11 +101,11 @@ describe('ProfilePage (My Account Overhaul)', () => {
     const beautyTabBtn = screen.getByRole('button', { name: /Beauty Profile/i });
     fireEvent.click(beautyTabBtn);
 
-    expect(screen.getByText('Personalized Glam & Beauty Profile')).toBeInTheDocument();
-    expect(screen.getByText('Preferred Makeup Aesthetics')).toBeInTheDocument();
-    expect(screen.getByText('Bridal / Royal Traditional')).toBeInTheDocument();
+    expect(screen.getByText('Beauty & Style Profile')).toBeInTheDocument();
+    expect(screen.getByText(/Preferred Makeup/i)).toBeInTheDocument();
+    expect(screen.getByText('Bridal Artistry')).toBeInTheDocument();
     expect(screen.getByText('Skin Type')).toBeInTheDocument();
-    expect(screen.getByText('Complexion Undertone')).toBeInTheDocument();
+    expect(screen.getByText(/Undertone/i)).toBeInTheDocument();
   });
 
   it('switches to Concierge & Help tab and shows VIP support guarantees', () => {
@@ -112,8 +114,8 @@ describe('ProfilePage (My Account Overhaul)', () => {
     const helpTabBtn = screen.getByRole('button', { name: /Concierge & Help/i });
     fireEvent.click(helpTabBtn);
 
-    expect(screen.getByText('Client Concierge & VIP Support')).toBeInTheDocument();
-    expect(screen.getByText(/WhatsApp VIP Concierge/i)).toBeInTheDocument();
-    expect(screen.getByText(/100% Escrow Protection/i)).toBeInTheDocument();
+    expect(screen.getByText('VIP Concierge & Support')).toBeInTheDocument();
+    expect(screen.getByText(/WhatsApp Concierge/i)).toBeInTheDocument();
+    expect(screen.getByText(/Escrow Protection/i)).toBeInTheDocument();
   });
 });

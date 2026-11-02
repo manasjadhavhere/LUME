@@ -27,9 +27,16 @@ const RegisterPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
+  const [step, setStep] = useState(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (googleBusy || isLoading) return;
+    if (step < 3) {
+      setError('');
+      setStep(step + 1);
+      return;
+    }
     if (!name || !email || !password || googleBusy || isLoading) return;
     setIsLoading(true);
     setError('');
@@ -40,7 +47,7 @@ const RegisterPage: React.FC = () => {
       const { role } = await register({
         email, password, name, role: selectedRole,
         phone: formattedPhone,
-        gender: gender as any || undefined,
+        gender: gender || undefined,
         dob: dob || undefined,
         location: location || undefined,
         mobileNumber: formattedMobile,
@@ -60,7 +67,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--login auth-page--register">
       <button 
         className="auth-page__back-btn" 
         onClick={() => navigate(-1)}
@@ -96,13 +103,14 @@ const RegisterPage: React.FC = () => {
 
           <div className="auth-page__header">
             <h1 className="auth-page__title">
-              {selectedRole === 'ARTIST' ? 'Join as an Artist' : 'Create your Account'}
+              {step === 2 ? 'Your contact details' : step === 3 ? 'Personalize your profile' : selectedRole === 'ARTIST' ? 'Join as an Artist' : 'Create your Account'}
             </h1>
             <p className="auth-page__subtitle">
-              {selectedRole === 'ARTIST'
-                ? 'Start taking bookings and build your luxury beauty portfolio.'
-                : 'Discover and book premier makeup artists across India.'}
+              Step {step} of 3 · {step === 1 ? 'Account' : step === 2 ? 'Contact' : 'Profile'}
             </p>
+            <div className="auth-page__progress" aria-label={`Registration step ${step} of 3`}>
+              {[1, 2, 3].map(item => <span key={item} className={item <= step ? 'is-complete' : ''} />)}
+            </div>
           </div>
 
           {error && (
@@ -111,25 +119,26 @@ const RegisterPage: React.FC = () => {
             </div>
           )}
 
-          <GoogleAuthButton key={selectedRole} role={selectedRole} disabled={isLoading || googleBusy} onBusyChange={setGoogleBusy} />
+          {step === 1 && <GoogleAuthButton key={selectedRole} role={selectedRole} disabled={isLoading || googleBusy} onBusyChange={setGoogleBusy} />}
 
           <form className="auth-page__form" onSubmit={handleSubmit}>
-            <div className="auth-page__field">
-              <label className="auth-page__label">Full Name</label>
-              <input type="text" className="auth-page__input" placeholder="Priya Sharma"
+            {step === 2 && <div className="auth-page__field">
+              <label htmlFor="register-name" className="auth-page__label">Full Name</label>
+              <input id="register-name" type="text" className="auth-page__input" placeholder="Priya Sharma"
                 value={name} onChange={e => setName(e.target.value)} required autoComplete="name" />
-            </div>
+            </div>}
 
-            <div className="auth-page__field">
-              <label className="auth-page__label">Email Address</label>
-              <input type="email" className="auth-page__input" placeholder="you@example.com"
-                value={email} onChange={e => setEmail(e.target.value)} required />
-            </div>
+            {step === 1 && <div className="auth-page__field">
+              <label htmlFor="register-email" className="auth-page__label">Email Address</label>
+              <input id="register-email" type="email" className="auth-page__input" placeholder="you@example.com"
+                value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+            </div>}
 
-            {selectedRole === 'CLIENT' && (
+            {step === 2 && selectedRole === 'CLIENT' && (
               <div className="auth-page__field">
-                <label className="auth-page__label">Mobile Number</label>
+                <label htmlFor="register-mobile" className="auth-page__label">Mobile Number</label>
                 <PhoneInput
+                  id="register-mobile"
                   value={mobileNumber}
                   onChange={setMobileNumber}
                   placeholder="98765 43210"
@@ -137,10 +146,11 @@ const RegisterPage: React.FC = () => {
               </div>
             )}
 
-            {selectedRole === 'ARTIST' && (
+            {step === 2 && selectedRole === 'ARTIST' && (
               <div className="auth-page__field">
-                <label className="auth-page__label">Phone Number</label>
+                <label htmlFor="register-phone" className="auth-page__label">Phone Number</label>
                 <PhoneInput
+                  id="register-phone"
                   value={phone}
                   onChange={setPhone}
                   placeholder="98765 43210"
@@ -148,25 +158,26 @@ const RegisterPage: React.FC = () => {
               </div>
             )}
 
-            <div className="auth-page__field">
-              <label className="auth-page__label">Location</label>
+            {step === 3 && <div className="auth-page__field">
+              <label htmlFor="register-location" className="auth-page__label">Location</label>
               <LocationAutocomplete
+                id="register-location"
                 value={location}
                 onChange={setLocation}
                 placeholder="City, neighbourhood or pincode"
                 className="auth-page__input"
               />
-            </div>
+            </div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {step === 3 && <div className="auth-page__field-row">
               <div className="auth-page__field">
-                <label className="auth-page__label">Date of Birth</label>
-                <input type="date" className="auth-page__input"
+                <label htmlFor="register-dob" className="auth-page__label">Date of Birth</label>
+                <input id="register-dob" type="date" className="auth-page__input"
                   value={dob} onChange={e => setDob(e.target.value)} />
               </div>
               <div className="auth-page__field">
-                <label className="auth-page__label">Gender</label>
-                <select className="auth-page__input" value={gender} onChange={e => setGender(e.target.value)}>
+                <label htmlFor="register-gender" className="auth-page__label">Gender</label>
+                <select id="register-gender" className="auth-page__input" value={gender} onChange={e => setGender(e.target.value)}>
                   <option value="">Select Gender</option>
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
@@ -174,12 +185,13 @@ const RegisterPage: React.FC = () => {
                   <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
                 </select>
               </div>
-            </div>
+            </div>}
 
-            <div className="auth-page__field">
-              <label className="auth-page__label">Password</label>
+            {step === 1 && <div className="auth-page__field">
+              <label htmlFor="register-password" className="auth-page__label">Password</label>
               <div className="auth-page__input-wrap">
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   className="auth-page__input"
                   placeholder="Minimum 8 characters"
@@ -189,22 +201,29 @@ const RegisterPage: React.FC = () => {
                   minLength={8}
                   autoComplete="new-password"
                 />
-                <button type="button" className="auth-page__toggle-pw" onClick={() => setShowPassword(!showPassword)}>
+                <button type="button" className="auth-page__toggle-pw" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-            </div>
+            </div>}
 
+            <div className="auth-page__actions">
+            {step > 1 && <button type="button" className="auth-page__previous" disabled={isLoading || googleBusy}
+              onClick={() => { setStep(step - 1); setError(''); }}>
+              <ArrowLeft size={16} /> Back
+            </button>}
             <button
+              key={step}
               type="submit"
               className="auth-page__submit"
-              disabled={!name || !email || !password || password.length < 8 || isLoading || googleBusy}
+              disabled={isLoading || googleBusy || (step === 1 && (!email || password.length < 8)) || (step === 2 && !name)}
             >
               {isLoading
                 ? <span>Creating account...</span>
-                : <><span>{selectedRole === 'ARTIST' ? 'Create Artist Account' : 'Create Client Account'}</span> <ArrowRight size={16} /></>
+                : <><span>{step < 3 ? 'Continue' : selectedRole === 'ARTIST' ? 'Create Artist Account' : 'Create Client Account'}</span> <ArrowRight size={16} /></>
               }
             </button>
+            </div>
           </form>
 
           <p className="auth-page__switch">

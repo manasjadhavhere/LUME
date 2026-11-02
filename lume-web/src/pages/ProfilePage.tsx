@@ -215,9 +215,9 @@ const ProfilePage: React.FC = () => {
         dob: user.dob ? new Date(user.dob).toISOString().split('T')[0] : '',
       });
     }
-  }, [user]);
+  }, [user?.id, user?.name, user?.phone, user?.clientProfile?.mobileNumber, user?.clientProfile?.location, user?.clientProfile?.bio, user?.clientProfile?.aadharNumber, user?.dob]);
 
-  const fetchBookings = async () => {
+  const fetchBookings = React.useCallback(async () => {
     setIsLoadingBookings(true);
     try {
       const res = await fetch(`${API_BASE}/api/bookings`, {
@@ -232,13 +232,13 @@ const ProfilePage: React.FC = () => {
     } finally {
       setIsLoadingBookings(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (isAuthenticated && token && user?.role !== 'ARTIST') {
       fetchBookings();
     }
-  }, [isAuthenticated, token, user]);
+  }, [isAuthenticated, token, user?.role, fetchBookings]);
 
   // Sync addresses to localStorage
   useEffect(() => {
@@ -270,7 +270,7 @@ const ProfilePage: React.FC = () => {
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
-          const all: any[] = data.data.artists || [];
+          const all: any[] = Array.isArray(data.data) ? data.data : (data.data?.artists || []);
           setSavedArtists(all.filter((a) => favoriteIds.includes(a.id)));
         }
       })
@@ -1397,8 +1397,8 @@ const ProfilePage: React.FC = () => {
                   </div>
                   <h3>Email Support Desk</h3>
                   <p>Inquiries, custom invoicing, vendor onboarding and client safety assistance.</p>
-                  <a href="mailto:hello@hellolume.in" className="profile-help-card__link">
-                    hello@hellolume.in <ExternalLink size={14} />
+                  <a href="mailto:Hellolumeadmin@gmail.com" className="profile-help-card__link">
+                    Hellolumeadmin@gmail.com <ExternalLink size={14} />
                   </a>
                 </div>
 

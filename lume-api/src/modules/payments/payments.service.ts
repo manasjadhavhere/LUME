@@ -12,15 +12,28 @@ const razorpay = new Razorpay({
  * Create a Razorpay Order ID for a specific amount.
  * Amount should be in INR (we will multiply by 100 inside to convert to paise).
  */
-export async function createOrder(amountInINR: number, receiptId: string) {
+export async function createOrder(amountInINR: number, receiptId: string, notes?: Record<string, string>) {
   const options = {
     amount: Math.round(amountInINR * 100), // Razorpay expects amount in paise (smallest currency unit)
     currency: 'INR',
     receipt: receiptId,
+    notes,
   };
 
   const order = await razorpay.orders.create(options);
   return order;
+}
+
+/** Bind a verified signature to the server-created booking order and amount. */
+export async function verifyBookingOrder(
+  orderId: string, bookingId: string, clientId: string, paymentType: string, amountInINR: number,
+): Promise<boolean> {
+  const order = await razorpay.orders.fetch(orderId);
+  const amount = Math.round(amountInINR * 100);
+  return Number.isFinite(amount) && amount > 0 && order.status === 'paid'
+    && order.currency === 'INR' && Number(order.amount) === amount && order.amount_paid === amount
+    && order.notes?.bookingId === bookingId && order.notes?.clientId === clientId
+    && order.notes?.paymentType === paymentType;
 }
 
 /**

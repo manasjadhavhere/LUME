@@ -56,7 +56,9 @@ interface AvailabilityData {
   blockedDates: Array<{ date: string; }>;
 }
 
-interface AcceptedBooking { id: string; artistId: string; status: string; }
+interface AcceptedBooking { id: string; artistId: string; status: string; artist?: { id: string }; }
+
+const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 /* ───────────────────────── Static config ───────────────────────── */
 
@@ -193,15 +195,27 @@ const ArtistDetailPage: React.FC = () => {
   /* ── Data ── */
   useEffect(() => {
     if (!id) return;
+    let active = true;
     setLoadingArtist(true);
     setArtistError('');
+    setArtist(null);
+    setAvailability(null);
+    setAcceptedBooking(null);
+    setSelectedServiceId(null);
+    setSelectedDate(null);
+    setSelectedTimeSlots([]);
+    setBookingError('');
+    setShowSuccessModal(false);
     window.scrollTo(0, 0);
     Promise.all([
       fetch(`${API_BASE}/api/artists/${id}`).then(r => r.json()),
-      fetch(`${API_BASE}/api/artists/${id}/availability?fromDate=${new Date().toISOString().split('T')[0]}&toDate=${new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]}`).then(r => r.json()),
+      fetch(`${API_BASE}/api/artists/${id}/availability?fromDate=${dateKey(new Date())}&toDate=${dateKey(new Date(Date.now() + 30 * 86400000))}`).then(r => r.json()),
     ]).then(([artistRes, availRes]) => {
+      if (!active) return;
       if (artistRes.success) {
         setArtist(artistRes.data);
+        const profile: ApiArtist = artistRes.data;
+        setSelectedPriceType(profile.occasionPrice ? 'OCCASION' : profile.weddingPrice ? 'WEDDING' : 'HOURLY');
         const targetSlug = artistRes.data.slug || getArtistSlug(artistRes.data.user?.name, artistRes.data.id);
         if (targetSlug && id !== targetSlug) {
           window.history.replaceState(null, '', `/artist/${targetSlug}`);
@@ -210,28 +224,29 @@ const ArtistDetailPage: React.FC = () => {
         setArtistError('Artist not found');
       }
       if (availRes.success) setAvailability(availRes.data);
-    }).catch(() => setArtistError('Failed to load artist'))
-      .finally(() => setLoadingArtist(false));
+    }).catch(() => { if (active) setArtistError('Failed to load artist'); })
+      .finally(() => { if (active) setLoadingArtist(false); });
+    return () => { active = false; };
   }, [id]);
 
   useEffect(() => {
-    if (user?.phone && !clientPhone) {
-      setClientPhone(user.phone);
-    }
+    if (user?.phone) setClientPhone(current => current || user.phone || '');
   }, [user?.phone]);
 
   useEffect(() => {
+    let active = true;
     if (isAuthenticated && user?.role === 'CLIENT' && artist?.id) {
-      fetch(`${API_BASE}/api/clients/me/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+      fetch(`${API_BASE}/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
-          if (data.success && data.data) {
-            const b = data.data.find((x: AcceptedBooking) => x.artistId === artist.id && x.status === 'ACCEPTED');
-            if (b) setAcceptedBooking(b);
+          if (active && data.success && Array.isArray(data.data)) {
+            const b = data.data.find((x: AcceptedBooking) => (x.artistId === artist.id || x.artist?.id === artist.id) && x.status === 'ACCEPTED');
+            setAcceptedBooking(b || null);
           }
         }).catch(() => { });
     }
-  }, [isAuthenticated, user, artist?.id, token]);
+    return () => { active = false; };
+  }, [isAuthenticated, user?.role, artist?.id, token]);
 
   const portfolio = useMemo(() => (artist?.portfolioUrls ?? []).map(resolveUrl), [artist]);
 
@@ -250,20 +265,25 @@ const ArtistDetailPage: React.FC = () => {
     const today = new Date();
     for (let i = 1; i <= 30; i++) {
       const d = new Date(today); d.setDate(today.getDate() + i);
-      dates.push(d.toISOString().split('T')[0]);
+      dates.push(dateKey(d));
     }
     return dates;
   }, []);
 
   const calculatedPrice = useMemo(() => {
     if (!artist) return 0;
+    if (selectedServiceId) {
+      const s = artist.services?.find(srv => srv.id === selectedServiceId);
+      if (s) return s.price;
+    }
     if (selectedPriceType === 'WEDDING') return artist.weddingPrice || 0;
     if (selectedPriceType === 'OCCASION') return artist.occasionPrice || 0;
-    if (selectedPriceType === 'HOURLY' && selectedTimeSlots.length > 0) return (artist.hourlyPrice || 0) * selectedTimeSlots.length;
-    return artist.startingPrice || 0;
-  }, [artist, selectedPriceType, selectedTimeSlots]);
+    if (selectedPriceType === 'HOURLY') return (artist.hourlyPrice || 0) * Math.max(1, selectedTimeSlots.length);
+    return 0;
+  }, [artist, selectedServiceId, selectedPriceType, selectedTimeSlots]);
 
-  const isBookingReady = !!selectedDate && selectedTimeSlots.length > 0;
+  const isBookingReady = !!selectedDate && selectedTimeSlots.length > 0 && calculatedPrice > 0
+    && !!artist?.isVerified && artist.isTakingBookings !== false;
 
   const handleBookingConfirm = useCallback(async () => {
     if (!isAuthenticated) { navigate('/login'); return; }

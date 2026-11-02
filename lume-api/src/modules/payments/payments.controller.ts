@@ -4,8 +4,11 @@ import * as RouteService from './razorpay-route.service';
 import { prisma } from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
 import { queueBookingEmail } from '../email/booking-email.service';
+import { recordBookingPayment } from './booking-payment.service';
+import { randomUUID } from 'crypto';
 
 const GST_RATE = 0.18; // 18% GST
+const newReceipt = () => `rcpt_${randomUUID().replace(/-/g, '')}`;
 
 export async function payBooking(req: Request, res: Response, next: NextFunction) {
   try {
@@ -26,18 +29,23 @@ export async function payBooking(req: Request, res: Response, next: NextFunction
       return;
     }
 
+    if (booking.clientId !== req.user?.userId) {
+      res.status(403).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
     if (booking.status !== 'ACCEPTED') {
       res.status(400).json({ success: false, message: 'Booking is not ready for payment' });
       return;
     }
 
     const amount = booking.totalPaid;
-    if (amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       res.status(400).json({ success: false, message: 'Invalid booking amount' });
       return;
     }
 
-    const receipt = `rcpt_${booking.id}_${Date.now()}`;
+    const receipt = newReceipt();
     
     // MOCK RAZORPAY FOR DEV/TESTING IF DUMMY KEYS ARE USED
     if (process.env.RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') {
@@ -53,7 +61,7 @@ export async function payBooking(req: Request, res: Response, next: NextFunction
       });
     }
 
-    const order = await PaymentService.createOrder(amount, receipt);
+    const order = await PaymentService.createOrder(amount, receipt, { bookingId: booking.id, clientId: booking.clientId, paymentType: 'LEGACY' });
     res.json({ success: true, data: order });
   } catch (err: any) { 
     console.error('Razorpay Create Order Error:', err);
@@ -65,13 +73,17 @@ export async function createPaymentOrder(req: Request, res: Response, next: Next
   try {
     const { amount, receiptId } = req.body;
     
-    if (!amount || amount <= 0) {
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       res.status(400).json({ success: false, message: 'Invalid amount' });
       return;
     }
 
     // Default receipt ID if not provided
-    const receipt = receiptId || `rcpt_${Date.now()}`;
+    if (receiptId !== undefined && (typeof receiptId !== 'string' || !receiptId.length || receiptId.length > 40)) {
+      res.status(400).json({ success: false, message: 'Receipt must contain 1 to 40 characters' });
+      return;
+    }
+    const receipt = receiptId || newReceipt();
     
     // MOCK RAZORPAY FOR DEV/TESTING IF DUMMY KEYS ARE USED
     if (process.env.RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') {
@@ -124,6 +136,11 @@ export async function createBookingOrder(req: Request, res: Response, next: Next
       return;
     }
 
+    if (booking.clientId !== req.user?.userId) {
+      res.status(403).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
     // ADVANCE/FULL only allowed when booking is ACCEPTED
     if (paymentType !== 'REMAINING' && booking.status !== 'ACCEPTED') {
       res.status(400).json({ success: false, message: 'Booking is not in ACCEPTED state for payment' });
@@ -138,13 +155,13 @@ export async function createBookingOrder(req: Request, res: Response, next: Next
 
     const baseAmount = booking.totalPaid;
     const gstAmount = baseAmount * GST_RATE;
-    const totalWithGST = baseAmount + gstAmount;
+    const totalWithGST = Math.round((baseAmount + gstAmount) * 100) / 100;
 
     let chargeAmount: number;
     let breakdown: object;
 
     if (paymentType === 'ADVANCE') {
-      chargeAmount = totalWithGST / 2;
+      chargeAmount = Math.round(totalWithGST * 50) / 100;
       breakdown = {
         base: baseAmount,
         gst: gstAmount,
@@ -173,12 +190,12 @@ export async function createBookingOrder(req: Request, res: Response, next: Next
       };
     }
 
-    if (chargeAmount <= 0) {
+    if (!Number.isFinite(chargeAmount) || chargeAmount <= 0) {
       res.status(400).json({ success: false, message: 'No amount to charge' });
       return;
     }
 
-    const receipt = `rcpt_${bookingId}_${paymentType}_${Date.now()}`;
+    const receipt = newReceipt();
 
     // MOCK RAZORPAY FOR DEV/TESTING IF DUMMY KEYS ARE USED
     if (process.env.RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') {
@@ -195,7 +212,7 @@ export async function createBookingOrder(req: Request, res: Response, next: Next
       });
     }
 
-    const order = await PaymentService.createOrder(chargeAmount, receipt);
+    const order = await PaymentService.createOrder(chargeAmount, receipt, { bookingId: booking.id, clientId: booking.clientId, paymentType });
     res.json({ success: true, data: order, breakdown });
   } catch (err: any) {
     console.error('createBookingOrder Error:', err);
@@ -223,6 +240,11 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
       return;
     }
 
+    if (!['ADVANCE', 'FULL', 'REMAINING'].includes(paymentType)) {
+      res.status(400).json({ success: false, message: 'Invalid paymentType' });
+      return;
+    }
+
     // Verify signature (bypass for mock keys)
     let isValid = false;
     if (process.env.RAZORPAY_KEY_ID === 'rzp_test_YOUR_KEY_ID') {
@@ -236,101 +258,33 @@ export async function verifyBookingPayment(req: Request, res: Response, next: Ne
       return;
     }
 
-    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
-    if (!booking) {
+    const targetBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!targetBooking) {
       res.status(404).json({ success: false, message: 'Booking not found' });
       return;
     }
-
-    const baseAmount = booking.totalPaid;          // full base (e.g. ₹5,000)
-    const totalWithGST = baseAmount * (1 + GST_RATE);
-    const halfAmount = totalWithGST / 2;
-
-    // ── Commission split math ─────────────────────────────────────
-    // basePortion = the base amount for THIS payment (without GST)
-    // lumeTotal   = gstAmount + lumeCommission = 23% of basePortion
-    // artistPayout = 95% of basePortion
-    let chargedAmount: number;
-    let basePortion: number;
-
-    if (paymentType === 'ADVANCE') {
-      chargedAmount = halfAmount;               // e.g. ₹2,950
-      basePortion = baseAmount / 2;             // e.g. ₹2,500
-    } else if (paymentType === 'FULL') {
-      chargedAmount = totalWithGST;             // e.g. ₹5,900
-      basePortion = baseAmount;                 // e.g. ₹5,000
-    } else {
-      // REMAINING — the stored remaining amount
-      chargedAmount = booking.remainingAmount;  // e.g. ₹2,950
-      basePortion = baseAmount / 2;             // e.g. ₹2,500
+    if (targetBooking.clientId !== req.user?.userId) {
+      res.status(403).json({ success: false, message: 'Unauthorized' });
+      return;
     }
-
-    const gstAmt       = basePortion * GST_RATE;        // 18% of base portion
-    const lumeComm     = basePortion * 0.05;             // 5% commission
-    const lumeTotal    = gstAmt + lumeComm;              // 23% of base portion
-    const artistPayout = basePortion * 0.95;             // 95% of base portion
-
-    // ── Update booking status ─────────────────────────────────────
-    let updatedBooking;
-    if (paymentType === 'ADVANCE') {
-      updatedBooking = await prisma.booking.update({
-        where: { id: bookingId },
-        data: {
-          status: 'PARTIALLY_PAID',
-          paymentType: 'ADVANCE',
-          advancePaid: halfAmount,
-          remainingAmount: halfAmount,
-        },
-      });
-    } else if (paymentType === 'FULL') {
-      updatedBooking = await prisma.booking.update({
-        where: { id: bookingId },
-        data: {
-          status: 'CONFIRMED',
-          paymentType: 'FULL',
-          advancePaid: totalWithGST,
-          remainingAmount: 0,
-        },
-      });
-    } else if (paymentType === 'REMAINING') {
-      updatedBooking = await prisma.booking.update({
-        where: { id: bookingId },
-        data: {
-          status: 'CONFIRMED',
-          remainingAmount: 0,
-        },
-      });
-    } else {
-      res.status(400).json({ success: false, message: 'Invalid paymentType' });
+    const total = Math.round(targetBooking.totalPaid * 118) / 100;
+    const advance = Math.round(total * 50) / 100;
+    const expectedAmount = paymentType === 'FULL' ? total : paymentType === 'ADVANCE' ? advance : total - advance;
+    if (process.env.RAZORPAY_KEY_ID !== 'rzp_test_YOUR_KEY_ID'
+      && !await PaymentService.verifyBookingOrder(razorpay_order_id, bookingId, targetBooking.clientId, paymentType, expectedAmount)) {
+      res.status(400).json({ success: false, message: 'Payment order does not match this booking or is not paid' });
       return;
     }
 
-    // ── Create PaymentRecord (commission split tracking) ──────────
-    const paymentRecord = await prisma.paymentRecord.create({
-      data: {
-        bookingId,
-        paymentType,
-        razorpayOrderId: razorpay_order_id,
-        razorpayPaymentId: razorpay_payment_id,
-        totalCharged: chargedAmount,
-        basePortion,
-        gstAmount: gstAmt,
-        lumeCommission: lumeComm,
-        lumeTotal,
-        artistPayout,
-        payoutStatus: 'PENDING',
-        transferStatus: 'PENDING',
-      },
-    });
-
-    if (booking.status !== updatedBooking.status) {
-      queueBookingEmail({
-        ...updatedBooking,
-        // advancePaid retains the original advance on remaining-balance payments.
-        // The receipt must show the full amount collected after this payment.
-        advancePaid: paymentType === 'REMAINING' ? booking.advancePaid + chargedAmount : updatedBooking.advancePaid,
-      }, paymentType === 'ADVANCE' ? 'ADVANCE_PAID' : 'CONFIRMED');
+    const { booking, updatedBooking, paymentRecord, duplicate, artistPayout } = await recordBookingPayment(
+      req.user?.userId || '', { bookingId, paymentType, orderId: razorpay_order_id, paymentId: razorpay_payment_id },
+    );
+    if (duplicate) {
+      res.json({ success: true, message: 'Payment already verified' });
+      return;
     }
+
+    queueBookingEmail(updatedBooking, paymentType === 'ADVANCE' ? 'ADVANCE_PAID' : 'CONFIRMED');
 
     // ── Auto-transfer to artist via Razorpay Route ────────────────
     // Only attempt if real Razorpay keys are set (not mock)
@@ -413,6 +367,27 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
     if (isValid) {
       if (bookingId) {
         const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+        if (!booking) {
+          res.status(404).json({ success: false, message: 'Booking not found' });
+          return;
+        }
+        if (booking.clientId !== req.user?.userId) {
+          res.status(403).json({ success: false, message: 'Unauthorized' });
+          return;
+        }
+        if (process.env.RAZORPAY_KEY_ID !== 'rzp_test_YOUR_KEY_ID'
+          && !await PaymentService.verifyBookingOrder(razorpay_order_id, bookingId, booking.clientId, 'LEGACY', booking.totalPaid)) {
+          res.status(400).json({ success: false, message: 'Payment order does not match this booking or is not paid' });
+          return;
+        }
+        if (booking.status === 'CONFIRMED') {
+          res.json({ success: true, message: 'Payment already verified' });
+          return;
+        }
+        if (booking.status !== 'ACCEPTED') {
+          res.status(400).json({ success: false, message: 'Booking is not ready for payment' });
+          return;
+        }
         // Update booking status to CONFIRMED
         const updatedBooking = await prisma.booking.update({
           where: { id: bookingId },

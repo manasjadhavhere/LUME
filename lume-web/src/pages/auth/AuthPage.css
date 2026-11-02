@@ -356,3 +356,232 @@
 .auth-google__divider::before, .auth-google__divider::after { content: ''; flex: 1; height: 1px; background: rgba(217,122,140,.25); }
 .auth-google__link { display: grid; gap: 16px; text-align: left; padding: 16px; border-radius: 12px; background: var(--rose-pale); }
 .auth-page__role-tab:disabled { opacity: .6; cursor: wait; }
+
+/* Fit authentication screens to the viewport. */
+.app:has(> .auth-page--login) {
+  min-height: 100dvh;
+}
+
+.auth-page--login {
+  min-height: 100dvh;
+  padding: clamp(12px, 3svh, 32px) max(12px, env(safe-area-inset-right))
+           clamp(12px, 3svh, 32px) max(12px, env(safe-area-inset-left));
+}
+
+.auth-page--login .auth-page__container {
+  gap: clamp(8px, 2svh, 24px);
+  min-width: 0;
+}
+
+.auth-page--login .auth-page__card {
+  padding: clamp(16px, 3svh, 34px) clamp(16px, 4vw, 36px);
+  gap: clamp(10px, 2svh, 22px);
+  min-width: 0;
+}
+
+.auth-page--login p {
+  margin: 0;
+}
+
+.auth-page--login .auth-page__form {
+  gap: clamp(10px, 2svh, 18px);
+  min-width: 0;
+}
+
+.auth-page--login .auth-page__role-tab {
+  min-height: 44px;
+  padding: 8px;
+}
+
+.auth-page--login .auth-page__input {
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.auth-page--login .auth-page__input-wrap .auth-page__input {
+  padding-right: 40px;
+}
+
+.auth-page--login .auth-google {
+  min-width: 0;
+  margin: 0;
+}
+
+.auth-page--login .auth-google__divider {
+  margin: 10px 0 0;
+}
+
+@media (max-height: 740px) {
+  .auth-page--login .lume-brand__mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .auth-page--login .lume-brand__name {
+    font-size: 1.9rem;
+  }
+
+  .auth-page--login .auth-page__title {
+    font-size: 1.5rem;
+  }
+
+  .auth-page--login .auth-page__subtitle {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .auth-page--login .auth-page__label {
+    line-height: 1.4;
+  }
+
+  .auth-page--login .auth-page__field {
+    gap: 4px;
+  }
+
+  .auth-page--login .auth-page__input {
+    padding-block: 10px;
+  }
+
+  .auth-page--login .auth-page__submit {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .auth-page--login .auth-page__error {
+    padding: 8px 10px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 559px) and (max-height: 700px) {
+  .auth-page--login {
+    padding-block: 8px;
+  }
+
+  .auth-page--login .auth-page__container,
+  .auth-page--login .auth-page__card,
+  .auth-page--login .auth-page__form {
+    gap: 8px;
+  }
+
+  .auth-page--login .auth-page__card {
+    padding: 12px 16px;
+  }
+
+  .auth-page--login .lume-brand__mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .auth-page--login .lume-brand__name {
+    font-size: 1.6rem;
+  }
+
+  .auth-page--login .auth-page__title {
+    font-size: 1.35rem;
+  }
+
+  .auth-page--login .auth-page__card:has(> .auth-page__error),
+  .auth-page--login .auth-page__card:has(> .auth-page__error) .auth-page__form {
+    gap: 6px;
+  }
+
+  .auth-page--login .auth-page__back-btn {
+    top: 8px;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.auth-google__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 300px);
+  min-height: 44px;
+  margin-inline: auto;
+  padding: 8px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dark);
+  font-size: 0.875rem;
+}
+
+.auth-google__fallback:hover { background: #f8f9fa; }
+.auth-google__fallback:disabled { opacity: 0.6; cursor: wait; }
+.auth-google__notice { font-size: 0.75rem; line-height: 1.4; color: var(--mid); padding-top: 6px; }
+
+.auth-page__progress { display: flex; gap: 6px; margin-top: 4px; }
+.auth-page__progress span { flex: 1; height: 3px; border-radius: 4px; background: var(--rose-pale); }
+.auth-page__progress .is-complete { background: var(--rose-deep); }
+.auth-page__field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.auth-page__actions { display: flex; gap: 8px; align-items: center; }
+.auth-page__previous { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px; color: var(--mid); font-size: 0.85rem; }
+.auth-page__previous:disabled { opacity: 0.6; cursor: wait; }
+.auth-page--register .auth-page__field,
+.auth-page--register .auth-page__input { min-width: 0; }
+.auth-page--register .auth-page__actions .auth-page__submit { flex: 1; width: auto; min-height: 44px; padding: 10px 8px; gap: 6px; font-size: 0.85rem; letter-spacing: 0; }
+.auth-page--register .lume-phone-input-wrap { min-height: 44px; }
+.auth-page--register .lume-phone-input__field { min-width: 0; font-size: 1rem !important; }
+.auth-page--register .auth-page__subtitle { display: block; }
+.auth-page--register .auth-page__role-tab { gap: 6px; padding-inline: 6px; font-size: 0.8rem; white-space: nowrap; }
+.auth-page--register .geo-location__dropdown { max-height: min(260px, 40dvh); overflow-y: auto; }
+
+/* Use the available width on phones in landscape and short desktop windows. */
+@media (min-width: 560px) and (max-height: 540px) {
+  .auth-page--login {
+    padding-block: 8px;
+  }
+
+  .auth-page--login .auth-page__container {
+    max-width: 720px;
+    gap: 4px;
+  }
+
+  .auth-page--login .lume-brand__mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .auth-page--login .lume-brand__name {
+    font-size: 1.6rem;
+  }
+
+  .auth-page--login .auth-page__card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'tabs tabs'
+      'header form'
+      'error form'
+      'google form'
+      'switch form';
+    gap: 4px 16px;
+    padding: 8px 12px;
+    align-items: center;
+  }
+
+  .auth-page--login .auth-page__role-tabs { grid-area: tabs; }
+  .auth-page--login .auth-page__header { grid-area: header; }
+  .auth-page--login .auth-page__card > .auth-page__error { grid-area: error; }
+  .auth-page--login .auth-google { grid-area: google; }
+  .auth-page--login .auth-page__form { grid-area: form; }
+  .auth-page--login .auth-page__switch { grid-area: switch; }
+
+  .auth-page--login .auth-page__role-tab { min-height: 36px; }
+  .auth-page--login .auth-page__form { gap: 8px; }
+  .auth-page--login .auth-page__title { font-size: 1.25rem; }
+
+  .auth-page--login .auth-page__subtitle { display: none; }
+  .auth-page--register .auth-page__subtitle { display: block; }
+
+  .auth-page--login .auth-page__back-btn {
+    top: 8px;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+  }
+}

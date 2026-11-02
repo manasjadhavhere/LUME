@@ -1,0 +1,17 @@
+{
+  "name": "lume-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LUME Beauty Booking Platform — Fullstack Monorepo",
+  "scripts": {
+    "dev:api": "npm --prefix lume-api run dev",
+    "dev:web": "npm --prefix lume-web run dev",
+    "build:api": "npm --prefix lume-api run build",
+    "build:web": "npm --prefix lume-web run build",
+    "build": "npm run build:api && npm run build:web",
+    "test:api": "npm --prefix lume-api test",
+    "test:web": "npm --prefix lume-web test",
+    "test": "npm run test:api && npm run test:web"
+  }
+}
+

@@ -1,210 +1,109 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import ArtistDetailPage from './ArtistDetailPage';
-import { demoArtists } from '../data/demoData';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
+import {
+  bookingPanel, dateLabel, installArtistMocks, mountArtist,
+  renderArtist, reserveButton, testArtists, testDates,
+} from '../test/artistDetailFixtures';
 
-// Mock scrollIntoView since it's not available in JSDOM
-beforeEach(() => {
-  Element.prototype.scrollIntoView = vi.fn();
-  // Mock console.warn to avoid noisy output from validation warnings
-  console.warn = vi.fn();
-  // Clear localStorage before each test
-  localStorage.clear();
-  // Mock sessionStorage
-  Object.defineProperty(window, 'sessionStorage', {
-    value: {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-    },
-    writable: true,
+beforeEach(() => { localStorage.clear(); installArtistMocks(); });
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+const selectDate = (date = testDates[0]) => fireEvent.click(bookingPanel().getByRole('option', { name: dateLabel(date) }));
+const selectTime = () => fireEvent.click(bookingPanel().getByRole('button', { name: '09:00 – 10:00' }));
+
+describe('artist booking', () => {
+  it('requires a date and a time; services are optional with an occasion price', async () => {
+    await renderArtist();
+    expect(reserveButton()).toBeDisabled();
+    selectDate();
+    expect(reserveButton()).toBeDisabled();
+    selectTime();
+    expect(reserveButton()).toBeEnabled();
   });
-});
 
-afterEach(() => {
-  localStorage.clear();
-  vi.restoreAllMocks();
-});
+  it('does not submit an incomplete booking', async () => {
+    await renderArtist();
+    fireEvent.click(reserveButton());
+    expect(vi.mocked(fetch).mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(0);
+  });
 
-const renderWithRouter = (artistId: string) => {
-  return render(
-    <MemoryRouter initialEntries={[`/artist/${artistId}`]}>
-      <Routes>
-        <Route path="/artist/:id" element={<ArtistDetailPage />} />
-      </Routes>
-    </MemoryRouter>
-  );
-};
+  it('clears the selected times when the date changes and honors date overrides', async () => {
+    await renderArtist(); selectDate(); selectTime();
+    selectDate(testDates[1]);
+    expect(reserveButton()).toBeDisabled();
+    expect(bookingPanel().queryByRole('button', { name: '09:00 – 10:00' })).not.toBeInTheDocument();
+    expect(bookingPanel().getByRole('button', { name: '14:00 – 15:00' })).toBeVisible();
+    expect(bookingPanel().getByRole('option', { name: dateLabel(testDates[2]) })).toBeDisabled();
+  });
 
-describe('ArtistDetailPage Unit Tests', () => {
-  describe('Booking validation errors', () => {
-    test('should show disabled booking button when no service selected', () => {
-      const artistId = demoArtists[0].id;
-      renderWithRouter(artistId);
-
-      // Initially, no service should be selected and booking button should be disabled
-      const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-      expect(bookingButton).toBeDisabled();
-      
-      // Button should show generic text when no service selected
-      expect(bookingButton).toHaveTextContent(/confirm booking/i);
-      expect(bookingButton).not.toHaveTextContent(/₹/);
+  it('submits the selected service, time and occasion and displays success', async () => {
+    await renderArtist();
+    fireEvent.click(bookingPanel().getByRole('button', { name: /Natural makeup/ }));
+    selectDate(); selectTime(); fireEvent.click(reserveButton());
+    await screen.findByRole('dialog', { name: 'Booking requested' });
+    const call = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === 'POST');
+    expect(call?.[1]?.headers).toMatchObject({ Authorization: 'Bearer test-token' });
+    expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({
+      artistId: 'artist-1', serviceId: 'service-0-1', date: testDates[0], time: '09:00', priceType: 'OCCASION',
     });
+  });
 
-    test('should show disabled booking button when service selected but no date/time', () => {
-      const artistId = demoArtists[0].id;
-      const artist = demoArtists[0];
-      renderWithRouter(artistId);
+  it('shows a failed booking and allows retry', async () => {
+    const normalFetch = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation((input, options) => options?.method === 'POST'
+      ? Promise.resolve(new Response(JSON.stringify({ message: 'Slot unavailable' }), { status: 409 }))
+      : normalFetch(input, options));
+    await renderArtist(); selectDate(); selectTime(); fireEvent.click(reserveButton());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Slot unavailable');
+    expect(reserveButton()).toBeEnabled();
+    expect(screen.queryByRole('dialog', { name: 'Booking requested' })).not.toBeInTheDocument();
+  });
 
-      // Select a service
-      const firstService = artist.services[0];
-      const serviceButton = screen.getByRole('option', { 
-        name: new RegExp(firstService.name + '.*₹' + firstService.price, 'i') 
-      });
-      fireEvent.click(serviceButton);
+  it('defaults to a configured price when the artist only offers weddings', async () => {
+    const artist = { ...testArtists[0], occasionPrice: 0, hourlyPrice: 0 };
+    installArtistMocks([artist]); await renderArtist(artist);
+    expect(bookingPanel().getByRole('radio', { name: /Wedding/ })).toHaveAttribute('aria-checked', 'true');
+    selectDate(); selectTime(); fireEvent.click(reserveButton());
+    await screen.findByRole('dialog', { name: 'Booking requested' });
+    const call = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === 'POST');
+    expect(JSON.parse(String(call?.[1]?.body)).priceType).toBe('WEDDING');
+  });
 
-      // Button should still be disabled but now show the service price
-      const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-      expect(bookingButton).toBeDisabled();
-      expect(bookingButton).toHaveTextContent(new RegExp('₹' + firstService.price.toString()));
-    });
+  it('disables reservation when bookings are paused or no option has a price', async () => {
+    for (const artist of [
+      { ...testArtists[0], isTakingBookings: false },
+      { ...testArtists[0], occasionPrice: 0, weddingPrice: 0, hourlyPrice: 0, services: [] },
+    ]) {
+      installArtistMocks([artist]); await renderArtist(artist); selectDate(); selectTime();
+      expect(reserveButton()).toBeDisabled(); cleanup();
+    }
+  });
 
-    test('should show disabled booking button when service and date selected but no time', () => {
-      const artistId = demoArtists[0].id;
-      const artist = demoArtists[0];
-      renderWithRouter(artistId);
+  it('does not let a previous artist response overwrite a newly opened profile', async () => {
+    let resolveFirst!: (value: Response) => void;
+    const normalFetch = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation((input, options) => String(input).endsWith('/api/artists/artist-1')
+      ? new Promise(resolve => { resolveFirst = resolve; }) : normalFetch(input, options));
+    mountArtist('artist-1');
+    fireEvent.click(screen.getByRole('link', { name: 'Next artist' }));
+    await screen.findByRole('heading', { name: testArtists[1].user.name, level: 1 });
+    await act(async () => { resolveFirst(new Response(JSON.stringify({ success: true, data: testArtists[0] }))); });
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(testArtists[1].user.name);
+  });
 
-      // Select a service
-      const firstService = artist.services[0];
-      const serviceButton = screen.getByRole('option', { 
-        name: new RegExp(firstService.name + '.*₹' + firstService.price, 'i') 
-      });
-      fireEvent.click(serviceButton);
+  it('shows a recoverable state when the artist request fails', async () => {
+    vi.mocked(fetch).mockRejectedValue(new Error('offline'));
+    mountArtist('artist-1');
+    expect(await screen.findByRole('heading', { name: 'Artist not found' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Browse Artists' })).toBeVisible();
+  });
 
-      // Select a date - need to find date button more specifically
-      const firstDate = new Date(artist.availability.dates[0].date);
-      const allOptions = screen.getAllByRole('option');
-      const dateButton = allOptions.find(el => {
-        const label = el.getAttribute('aria-label') || '';
-        return label.includes(firstDate.getDate().toString()) && 
-               el.getAttribute('class')?.includes('date-picker__chip');
-      });
-      
-      if (dateButton) {
-        fireEvent.click(dateButton);
-      }
-
-      // Button should still be disabled even with service and date selected
-      const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-      expect(bookingButton).toBeDisabled();
-    });
-
-    test('should enable booking button when all selections are made', () => {
-      const artistId = demoArtists[0].id;
-      const artist = demoArtists[0];
-      renderWithRouter(artistId);
-
-      // Select a service
-      const firstService = artist.services[0];
-      const serviceButton = screen.getByRole('option', { 
-        name: new RegExp(firstService.name + '.*₹' + firstService.price, 'i') 
-      });
-      fireEvent.click(serviceButton);
-
-      // Select a date
-      const firstDate = new Date(artist.availability.dates[0].date);
-      const allOptions = screen.getAllByRole('option');
-      const dateButton = allOptions.find(el => {
-        const label = el.getAttribute('aria-label') || '';
-        return label.includes(firstDate.getDate().toString()) && 
-               el.getAttribute('class')?.includes('date-picker__chip');
-      });
-      
-      if (dateButton) {
-        fireEvent.click(dateButton);
-      }
-
-      // Select an available time slot
-      const availableSlot = artist.availability.dates[0].slots.find(s => s.available);
-      if (availableSlot) {
-        const timeSlotButton = screen.getByRole('option', {
-          name: `${availableSlot.time} - available`
-        });
-        fireEvent.click(timeSlotButton);
-
-        // Now button should be enabled
-        const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-        expect(bookingButton).not.toBeDisabled();
-      }
-    });
-
-    test('should handle booking attempt with incomplete form gracefully', () => {
-      const artistId = demoArtists[0].id;
-      renderWithRouter(artistId);
-
-      // Try to click booking button while it's disabled (should not do anything)
-      const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-      expect(bookingButton).toBeDisabled();
-      
-      // Clicking disabled button should not trigger navigation or errors
-      fireEvent.click(bookingButton);
-      
-      // Button should still be disabled
-      expect(bookingButton).toBeDisabled();
-      
-      // sessionStorage should not be called for incomplete booking
-      expect(sessionStorage.setItem).not.toHaveBeenCalled();
-    });
-
-    test('should maintain button state correctly when changing between complete selections', () => {
-      const artistId = demoArtists[0].id;
-      const artist = demoArtists[0];
-      if (artist.availability.dates.length < 2) {
-        // Skip test if not enough dates - this is expected behavior
-        expect(true).toBe(true); 
-        return;
-      }
-      
-      renderWithRouter(artistId);
-
-      // Make complete selection
-      const firstService = artist.services[0];
-      const serviceButton = screen.getByRole('option', { 
-        name: new RegExp(firstService.name + '.*₹' + firstService.price, 'i') 
-      });
-      fireEvent.click(serviceButton);
-
-      const firstDate = new Date(artist.availability.dates[0].date);
-      const allOptions = screen.getAllByRole('option');
-      const dateButton = allOptions.find(el => {
-        const label = el.getAttribute('aria-label') || '';
-        return label.includes(firstDate.getDate().toString()) && 
-               el.getAttribute('class')?.includes('date-picker__chip');
-      });
-      
-      if (dateButton) {
-        fireEvent.click(dateButton);
-      }
-
-      const availableSlot = artist.availability.dates[0].slots.find(s => s.available);
-      if (availableSlot) {
-        const timeSlotButton = screen.getByRole('option', {
-          name: `${availableSlot.time} - available`
-        });
-        fireEvent.click(timeSlotButton);
-
-        // Button should be enabled with complete selection
-        const bookingButton = screen.getByRole('button', { name: /confirm booking/i });
-        expect(bookingButton).not.toBeDisabled();
-
-        // Verify button shows the correct service price
-        expect(bookingButton).toHaveTextContent(new RegExp('₹' + firstService.price.toString()));
-      } else {
-        // Skip test if no available slots found - this is expected behavior
-        expect(true).toBe(true);
-      }
-    });
+  it('uses local calendar dates even when UTC is still on the previous day', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 5, 0, 15));
+    try {
+      await renderArtist();
+      expect(bookingPanel().getAllByRole('option')[0]).toHaveAccessibleName(dateLabel('2026-11-06'));
+    } finally { vi.useRealTimers(); }
   });
 });

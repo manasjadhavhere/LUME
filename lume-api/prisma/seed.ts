@@ -242,12 +242,13 @@ async function main() {
 
   // ── Create an Admin User ─────────────────────────────────────────
 
+  const adminEmail = process.env.ADMIN_EMAIL || 'Hellolumeadmin@gmail.com';
   const adminPasswordHash = await bcrypt.hash('password123', 12);
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@lume.in' },
+    where: { email: adminEmail },
     update: { role: 'ADMIN' },
     create: {
-      email: 'admin@lume.in',
+      email: adminEmail,
       passwordHash: adminPasswordHash,
       role: 'ADMIN',
       name: 'Lume Administrator',
@@ -258,7 +259,7 @@ async function main() {
 
   console.log('\n🎉 Seeding complete!');
   console.log('\n📋 Demo Credentials:');
-  console.log('   Admin:  admin@lume.in / password123');
+  console.log(`   Admin:  ${adminEmail} / password123`);
   console.log('   Client: priya@demo.com / password123');
   console.log('   Artist: aria@lume.in / password123');
 }
