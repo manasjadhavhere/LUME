@@ -37,3 +37,23 @@ it('exposes a retry when workspace requests fail rather than spinning indefinite
   renderAdmin(); expect(await screen.findByRole('alert')).toHaveTextContent('Some workspace data could not be loaded');
   expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled();
 });
+
+it('allows the admin to hide and unhide any artist from the directory', async () => {
+  renderAdmin();
+  expect(await screen.findByText('Service GMV')).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: /Artists & verifications/ }));
+  
+  const hideBtn = screen.getByRole('button', { name: 'Hide Ananya Mehra' });
+  expect(hideBtn).toBeVisible();
+  fireEvent.click(hideBtn);
+
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Unhide Ananya Mehra' })).toBeVisible();
+  });
+  expect(screen.getByText('HIDDEN')).toBeVisible();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Unhide Ananya Mehra' }));
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Hide Ananya Mehra' })).toBeVisible();
+  });
+});

@@ -8,10 +8,10 @@ import './GeoLocationInput.css';
 export type { GeoLocationResult } from '../../utils/geoCoding';
 export interface GeoLocationInputProps {
   value: string; onChange: (value: string, details?: GeoLocationResult) => void; onSelect?: (details: GeoLocationResult) => void;
-  placeholder?: string; className?: string; variant?: 'hero' | 'filter' | 'form'; showCurrentLocationBtn?: boolean;
+  placeholder?: string; className?: string; variant?: 'hero' | 'filter' | 'form'; showCurrentLocationBtn?: boolean; saveRecent?: boolean;
   disabled?: boolean; required?: boolean; icon?: ReactNode; id?: string; label?: string;
 }
-export default function GeoLocationInput({ value, onChange, onSelect, placeholder = 'Search city, neighbourhood or pincode', className = '', variant = 'form', showCurrentLocationBtn = true, disabled, required, icon, id, label = 'Location' }: GeoLocationInputProps) {
+export default function GeoLocationInput({ value, onChange, onSelect, placeholder = 'Search city, neighbourhood or pincode', className = '', variant = 'form', showCurrentLocationBtn = true, saveRecent = true, disabled, required, icon, id, label = 'Location' }: GeoLocationInputProps) {
   const uid = useId();
   const listId = `${uid}-locations`;
   const ref = useRef<HTMLDivElement>(null);
@@ -20,7 +20,7 @@ export default function GeoLocationInput({ value, onChange, onSelect, placeholde
   const requestVersion = useRef(0);
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<GeoLocationResult[]>([]);
-  const [recent, setRecent] = useState(readRecentLocations);
+  const [recent, setRecent] = useState(() => saveRecent ? readRecentLocations() : []);
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [message, setMessage] = useState('');
@@ -54,7 +54,8 @@ export default function GeoLocationInput({ value, onChange, onSelect, placeholde
   useEffect(() => () => { requestVersion.current++; }, []);
   const commit = (location: GeoLocationResult) => {
     onChange(location.formattedAddress, location); onSelect?.(location);
-    rememberLocation(location); setRecent(readRecentLocations()); session.current = crypto.randomUUID();
+    if (saveRecent) { rememberLocation(location); setRecent(readRecentLocations()); }
+    session.current = crypto.randomUUID();
     setMessage(''); setOpen(false); setActive(-1);
   };
   const select = async (location: GeoLocationResult) => {

@@ -1,7 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
-
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+import { useAuth, API_BASE } from '../context/AuthContext';
 
 interface UseApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

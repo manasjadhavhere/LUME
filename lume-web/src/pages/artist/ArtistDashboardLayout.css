@@ -10,7 +10,7 @@
   font-family: var(--font-body);
   color: var(--dark);
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ── Refined Luxury Porcelain Ambient Background ── */
@@ -261,7 +261,7 @@
   flex-direction: column;
   position: relative;
   z-index: 1;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ── Sleek Glass Top Navigation Bar ── */

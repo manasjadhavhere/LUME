@@ -91,7 +91,7 @@ const ArtistDashboard: React.FC = () => {
   };
 
   return (
-    <div className="artist-page" style={{ padding: '24px 32px', height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div className="artist-page artist-overview">
       
       {/* Editorial Header */}
       <div className="artist-page__header" style={{ marginBottom: 20, flexShrink: 0 }}>
@@ -104,39 +104,39 @@ const ArtistDashboard: React.FC = () => {
       </div>
 
       {/* Pro Tip Ribbon */}
-      <div style={{ background: 'linear-gradient(90deg, #312e81 0%, #4338ca 100%)', color: '#fff', padding: '12px 24px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexShrink: 0, boxShadow: '0 4px 12px rgba(67, 56, 202, 0.15)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: 6, borderRadius: '50%', display: 'flex' }}>
+      <div style={{ background: 'linear-gradient(90deg, #312e81 0%, #4338ca 100%)', color: '#fff', padding: '12px 20px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20, flexShrink: 0, boxShadow: '0 4px 12px rgba(67, 56, 202, 0.15)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: '1 1 240px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.2)', padding: 6, borderRadius: '50%', display: 'flex', flexShrink: 0 }}>
             <Star size={16} fill="#fff" />
           </div>
-          <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+          <span style={{ fontSize: '0.88rem', fontWeight: 500, lineHeight: 1.4 }}>
             <strong style={{ fontWeight: 700, marginRight: 6 }}>PRO TIP:</strong>
             Stand out with a stunning portfolio. Studios with high-quality lookbooks receive up to 3x more inquiries.
           </span>
         </div>
-        <Link to="/artist-dashboard/profile" style={{ background: '#fff', color: '#312e81', padding: '8px 16px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s' }}>
+        <Link to="/artist-dashboard/profile" style={{ background: '#fff', color: '#312e81', padding: '8px 16px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s', whiteSpace: 'nowrap', flexShrink: 0 }}>
           Update Portfolio
         </Link>
       </div>
 
       {/* Pending Requests Alert Banner */}
       {stats?.pendingBookings ? (
-        <div style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 24px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Clock size={20} />
-            <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+        <div style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 20px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: '1 1 240px' }}>
+            <Clock size={20} style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: '0.88rem', fontWeight: 500, lineHeight: 1.4 }}>
               <strong style={{ fontWeight: 700, marginRight: 6 }}>Action Required:</strong>
               You have {stats.pendingBookings} pending booking request{stats.pendingBookings > 1 ? 's' : ''}! Review them to secure your schedule.
             </span>
           </div>
-          <Link to="/artist-dashboard/bookings" style={{ background: '#dc2626', color: '#fff', padding: '8px 16px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s' }}>
+          <Link to="/artist-dashboard/bookings" style={{ background: '#dc2626', color: '#fff', padding: '8px 16px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', transition: 'transform 0.2s', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Review Requests
           </Link>
         </div>
       ) : null}
 
       {/* Metrics Strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 20, flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 20, marginBottom: 20, flexShrink: 0 }}>
         {metricCards.map((card, i) => (
           <div key={i} className="artist-metric-card" style={{ padding: '16px 20px', marginBottom: 0 }}>
             <div className="artist-metric-card__top">
@@ -158,7 +158,7 @@ const ArtistDashboard: React.FC = () => {
       </div>
 
       {/* Main Workspace Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, flex: 1, minHeight: 0 }}>
+      <div className="artist-overview__workspace">
         {/* Itinerary Panel */}
         <div className="artist-panel" style={{ background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.8)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div className="artist-panel__header" style={{ borderBottom: '1px solid rgba(42, 26, 31, 0.04)', padding: '16px 24px', flexShrink: 0 }}>
@@ -173,7 +173,7 @@ const ArtistDashboard: React.FC = () => {
             </Link>
           </div>
 
-          <div className="booking-list" style={{ padding: '12px 24px', overflowY: 'auto', flex: 1 }}>
+          <div className="booking-list" data-lenis-prevent="true" style={{ padding: '12px 24px', overflowY: 'auto', flex: 1, maxHeight: '480px' }}>
             {loading ? (
               <div className="artist-empty" style={{ minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <p className="artist-empty__text">Loading itinerary...</p>

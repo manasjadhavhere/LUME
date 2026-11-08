@@ -14,20 +14,28 @@ let failUpdate;
 let selectedService;
 let validOrder;
 const orders = [];
-const profile = { id: 'artist-profile', isVerified: true, occasionPrice: 5000 };
+const venue = { address: 'Flat 4, Hill Road, Mumbai - 400050', latitude: 19.05, longitude: 72.83 };
+const date = new Date(Date.now() + 86400000 * 7).toISOString().slice(0, 10);
+const inbox = [];
+const profile = { id: 'artist-profile', userId: 'artist-user', isVerified: true, occasionPrice: 5000 };
 const initial = () => ({
   id: 'booking_abc123', clientId: 'client-user', artistId: profile.id, status: 'PENDING',
-  date: new Date('2026-11-08T00:00:00Z'), time: '10:00 AM', endTime: null,
-  priceType: 'OCCASION', totalPaid: 5000, notes: null, address: 'Test venue',
+  date: new Date(date), time: '10:00', endTime: null, serviceId: null, createdAt: new Date(),
+  priceType: 'OCCASION', totalPaid: 5000, notes: null, ...venue,
   cancelReason: null, advancePaid: 0, remainingAmount: 0,
   client: { id: 'client-user', name: 'Rhea Shah', phone: '919876543210' },
   artist: { user: { id: 'artist-user', name: 'Mira Kapoor', phone: '919999999999' } },
 });
 const db = {
+  $queryRaw: async () => [profile],
+  blockedDate: { findUnique: async () => null },
+  availability: { findUnique: async () => null },
+  defaultSchedule: { findUnique: async () => ({ timeSlots: ['09:00', '10:00', '11:00'].map(time => ({ time, available: true })) }) },
   service: { findFirst: async ({ where }) => selectedService?.id === where.id && selectedService?.artistId === where.artistId && selectedService?.isActive ? selectedService : null },
-  artistProfile: { findUnique: async () => profile, update: async ({ data }) => { artistUpdates.push(data); return profile; } },
+  artistProfile: { findUniqueOrThrow: async () => profile, findUnique: async () => profile, update: async ({ data }) => { artistUpdates.push(data); return profile; } },
   user: { update: async () => ({}) },
   booking: {
+    findMany: async () => duplicate ? [current] : [],
     findUnique: async () => current && { ...current },
     findFirst: async ({ where }) => {
       if (where.createdAt) return duplicate ? { ...current } : null;
@@ -51,7 +59,8 @@ const db = {
     try { return await callback(db); }
     catch (error) { current = snapshot; paymentRecords.splice(0, paymentRecords.length, ...records); throw error; }
   },
-  notification: { create: async () => ({}) },
+  notification: { create: async ({ data }) => { inbox.push(data); return data; },
+    createMany: async ({ data }) => { inbox.push(...data); return { count: data.length }; } },
 };
 function stub(path, exports) {
   require.cache[require.resolve(path)] = { exports: { __esModule: true, ...exports } };
@@ -83,7 +92,7 @@ function response() {
   };
 }
 beforeEach(() => {
-  emails.length = 0; whatsapp.length = 0; current = initial(); duplicate = false;
+  inbox.length = 0; emails.length = 0; whatsapp.length = 0; current = initial(); duplicate = false;
   paymentRecords.length = 0; artistUpdates.length = 0;
   validOrder = true; orders.length = 0;
   validSignature = true; validToken = true; failPaymentRecord = false; failUpdate = false;
@@ -92,22 +101,24 @@ beforeEach(() => {
 });
 
 test('new request emits email and preserves the existing WhatsApp trigger', async () => {
-  await bookings.createBooking('client-user', { artistId: profile.id, date: '2026-11-08', time: '10:00 AM', priceType: 'OCCASION' });
+  await bookings.createBooking('client-user', { artistId: profile.id, ...venue, date, time: '10:00 AM', priceType: 'OCCASION' });
   assert.deepEqual(emails.map(m => m.event), ['REQUESTED']);
   assert.equal(emails[0].booking.status, 'PENDING');
   assert.deepEqual(whatsapp, [['created', current.id]]);
+  assert.deepEqual(inbox.map(n => n.userId).sort(), ['artist-user', 'client-user']);
 });
 
 test('duplicate booking creation does not emit another request email', async () => {
   duplicate = true;
-  await bookings.createBooking('client-user', { artistId: profile.id, date: '2026-11-08', time: '10:00 AM', priceType: 'OCCASION' });
+  await bookings.createBooking('client-user', { artistId: profile.id, ...venue, date, time: '10:00 AM', priceType: 'OCCASION' });
   assert.equal(emails.length, 0);
+  assert.equal(inbox.length, 0);
   assert.equal(whatsapp.length, 0);
 });
 
 test('selected service price takes precedence over the occasion package price', async () => {
   selectedService = { id: 'service-1', artistId: profile.id, isActive: true, price: 2500 };
-  const booking = await bookings.createBooking('client-user', { artistId: profile.id, serviceId: 'service-1', date: '2026-11-08', time: '09:00', priceType: 'OCCASION' });
+  const booking = await bookings.createBooking('client-user', { artistId: profile.id, serviceId: 'service-1', ...venue, date, time: '09:00', priceType: 'OCCASION' });
   assert.equal(booking.totalPaid, 2500);
   assert.equal(booking.serviceId, selectedService.id);
 });
@@ -118,13 +129,13 @@ test('unavailable services cannot silently use the package price', async () => {
     { id: 'service-1', artistId: profile.id, isActive: false, price: 2500 },
   ]) {
     selectedService = service;
-    await assert.rejects(bookings.createBooking('client-user', { artistId: profile.id, serviceId: 'service-1', date: '2026-11-08', time: '09:00', priceType: 'OCCASION' }), /Service is not available/);
+    await assert.rejects(bookings.createBooking('client-user', { artistId: profile.id, serviceId: 'service-1', ...venue, date, time: '09:00', priceType: 'OCCASION' }), /Service is not available/);
   }
   assert.equal(emails.length, 0);
 });
 
 test('paused artists and options without a configured price cannot create bookings', async () => {
-  const input = { artistId: profile.id, date: '2026-11-08', time: '09:00', priceType: 'OCCASION' };
+  const input = { artistId: profile.id, ...venue, date, time: '09:00', priceType: 'OCCASION' };
   profile.isTakingBookings = false;
   await assert.rejects(bookings.createBooking('client-user', input), /not taking bookings/);
   profile.isTakingBookings = true; profile.occasionPrice = 0;
@@ -142,7 +153,7 @@ test('dashboard accept, pending decline and later cancellation have distinct ema
   await bookings.updateBookingStatus('artist-user', current.id, 'CANCELLED', 'Unavailable');
   assert.equal(emails.at(-1).event, 'DECLINED');
   assert.equal(emails.at(-1).booking.cancelReason, 'Unavailable');
-  assert.equal(whatsapp.filter(call => call[0] === 'status').length, 4);
+  assert.equal(whatsapp.filter(call => call[0] === 'status').length, 3);
 });
 
 test('client cancellation is never described as the artist declining', async () => {
@@ -222,6 +233,7 @@ for (const paymentType of ['ADVANCE', 'FULL', 'REMAINING']) {
     await payments.verifyBookingPayment(paymentRequest(paymentBody(paymentType)), response(), error => { throw error; });
     assert.equal(emails.length, 1);
     assert.equal(paymentRecords.length, 1);
+    assert.deepEqual(inbox.map(n => n.userId).sort(), ['artist-user', 'client-user']);
   });
 }
 
@@ -336,4 +348,14 @@ test('invalid order amounts and oversized receipts return validation errors', as
     assert.equal(res.statusCode, 400);
   }
   assert.equal(orders.length, 0);
+});
+
+test('a second client cannot reserve an overlapping multi-hour session', async () => {
+  duplicate = true;
+  current.time = '09:00 AM, 10:00 AM';
+  await assert.rejects(bookings.createBooking('other-client', {
+    ...venue, date, artistId: profile.id, time: '10:00', priceType: 'OCCASION',
+  }), error => error.statusCode === 409);
+  assert.equal(inbox.length, 0);
+  assert.equal(emails.length, 0);
 });

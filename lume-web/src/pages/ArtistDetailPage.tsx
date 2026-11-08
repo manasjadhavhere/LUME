@@ -1,11 +1,14 @@
+import { useScrollLock } from '../hooks/useScrollLock';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useFavorites from '../hooks/useFavorites';
 import Button from '../components/ui/Button';
-import PhoneInput from '../components/ui/PhoneInput';
+import type { ClientSavedAddress } from '../context/AuthContext';
 import SEO from '../components/common/SEO';
 import { useAuth, API_BASE } from '../context/AuthContext';
 import { getArtistSlug } from '../utils/slug';
+import BookingLocationModal from '../components/booking/BookingLocationModal';
+import { bookingIntervals, formatSavedAddressLine, formatSlotMinutes, hasBookingDateTimePassed, hasExactGeoAddress, parseSlotMinutes } from '../utils/bookingTime';
 import './ArtistDetailPage.css';
 
 /* ───────────────────────── Types ───────────────────────── */
@@ -45,7 +48,7 @@ interface ServiceItem {
 }
 
 interface ReviewItem {
-  id: string; rating: number; comment: string; createdAt: string;
+  id: string; rating: number; text?: string; comment?: string; createdAt: string;
   client: { name: string; avatarUrl?: string; };
 }
 
@@ -54,10 +57,11 @@ interface TimeSlot { time: string; available: boolean; }
 interface AvailabilityData {
   availability: Array<{ date: string; timeSlots: TimeSlot[]; }>;
   defaultSchedule: Array<{ dayOfWeek: number; timeSlots: TimeSlot[]; }>;
+  bookedSlots?: Array<{ date: string; start: number; end: number }>;
   blockedDates: Array<{ date: string; }>;
 }
 
-interface AcceptedBooking { id: string; artistId: string; status: string; artist?: { id: string }; }
+interface ClientReservation { date: string; time: string; endTime?: string | null; id: string; artistId: string; status: string; artist?: { id: string }; }
 
 const dateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
@@ -176,15 +180,16 @@ const ArtistDetailPage: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
-  const [address, setAddress] = useState('');
+  const [venue, setVenue] = useState<ClientSavedAddress | null>(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
   const [notes, setNotes] = useState('');
-  const [clientPhone, setClientPhone] = useState(user?.phone || '');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [acceptedBooking, setAcceptedBooking] = useState<AcceptedBooking | null>(null);
+  const [reservations, setReservations] = useState<ClientReservation[]>([]);
+  const [revision, setRevision] = useState(0);
   const [bioExpanded, setBioExpanded] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('ap-portfolio');
@@ -201,7 +206,8 @@ const ArtistDetailPage: React.FC = () => {
     setArtistError('');
     setArtist(null);
     setAvailability(null);
-    setAcceptedBooking(null);
+    setReservations([]);
+    setVenue(null);
     setSelectedServiceId(null);
     setSelectedDate(null);
     setSelectedTimeSlots([]);
@@ -231,35 +237,80 @@ const ArtistDetailPage: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    if (user?.phone) setClientPhone(current => current || user.phone || '');
-  }, [user?.phone]);
+    setVenue(null);
+    setReservations([]);
+  }, [user?.id]);
 
   useEffect(() => {
-    let active = true;
-    if (isAuthenticated && user?.role === 'CLIENT' && artist?.id) {
-      fetch(`${API_BASE}/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => res.json())
-        .then(data => {
-          if (active && data.success && Array.isArray(data.data)) {
-            const b = data.data.find((x: AcceptedBooking) => (x.artistId === artist.id || x.artist?.id === artist.id) && x.status === 'ACCEPTED');
-            setAcceptedBooking(b || null);
-          }
-        }).catch(() => { });
-    }
-    return () => { active = false; };
-  }, [isAuthenticated, user?.role, artist?.id, token]);
+    if (!artist?.id) return;
+    const controller = new AbortController();
+    const refresh = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/artists/${artist.id}/availability?fromDate=${dateKey(new Date())}&toDate=${dateKey(new Date(Date.now() + 30 * 86400000))}`, { signal: controller.signal });
+        const json = await res.json();
+        if (!controller.signal.aborted && json.success) setAvailability(json.data);
+      } catch { /* Keep the last loaded calendar. The API rechecks every reservation. */ }
+    };
+    const refreshOwn = async () => {
+      if (user?.role !== 'CLIENT' || !token) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/bookings`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
+        const json = await res.json();
+        if (!controller.signal.aborted && json.success) setReservations(json.data.filter((b: ClientReservation) =>
+          (b.artistId === artist.id || b.artist?.id === artist.id) &&
+          ['PENDING', 'ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED'].includes(b.status) && !hasBookingDateTimePassed(b)));
+      } catch { /* Another refresh runs when the window regains focus. */ }
+    };
+    const refreshReviews = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/reviews/artist/${artist.id}`, { signal: controller.signal });
+        if (!response.ok) return;
+        const body = await response.json();
+        const reviews: ReviewItem[] = body.data?.reviews;
+        if (controller.signal.aborted || !Array.isArray(reviews)) return;
+        const rating = reviews.length ? reviews.reduce((total, r) => total + r.rating, 0) / reviews.length : 0;
+        setArtist(current => current?.id === artist.id ? { ...current, reviews, rating, reviewCount: reviews.length } : current);
+      } catch { /* The artist response already includes recent reviews. */ }
+    };
+    const reload = () => { if (!document.hidden) { void refresh(); void refreshOwn(); void refreshReviews(); } };
+    void refreshReviews();
+    if (revision) void refresh();
+    void refreshOwn();
+    const timer = window.setInterval(reload, 30000);
+    window.addEventListener('focus', reload);
+    return () => { controller.abort(); clearInterval(timer); window.removeEventListener('focus', reload); };
+  }, [artist?.id, user?.role, token, revision]);
 
   const portfolio = useMemo(() => (artist?.portfolioUrls ?? []).map(resolveUrl), [artist]);
+  const serviceDuration = artist?.services.find(s => s.id === selectedServiceId)?.duration ?? 60;
+  const slotsFor = (day: string) => {
+    const override = availability?.availability.find(a => a.date.startsWith(day));
+    const weekly = availability?.defaultSchedule.find(d => d.dayOfWeek === new Date(day + 'T00:00:00Z').getUTCDay());
+    const schedule = (override ?? weekly)?.timeSlots.filter(s => s.available) ?? [];
+    const occupied = availability?.bookedSlots?.filter(b => b.date === day) ?? [];
+    const mine = reservations.filter(b => b.date.startsWith(day)).flatMap(bookingIntervals);
+    const starts = new Set(schedule.map(s => parseSlotMinutes(s.time)));
+    const times = new Map(schedule.map(s => [parseSlotMinutes(s.time), s.time]));
+    for (const { start, end } of occupied) {
+      for (let t = start; t < end; t += 60) if (!times.has(t)) times.set(t, formatSlotMinutes(t));
+    }
+    return [...times.values()].sort((a, b) => (parseSlotMinutes(a) ?? 0) - (parseSlotMinutes(b) ?? 0)).map(time => {
+      const start = parseSlotMinutes(time) ?? 0;
+      const end = start + serviceDuration;
+      const overlaps = (b: { start: number; end: number }) => start < b.end && b.start < end;
+      const own = mine.some(overlaps);
+      const booked = occupied.some(overlaps) || own;
+      let available = !booked && end <= 1440 && !availability?.blockedDates.some(b => b.date.startsWith(day));
+      for (let t = start; t < end; t += 60) available = available && starts.has(t);
+      return { time, end, own, booked, available };
+    });
+  };
+  const daySlots = selectedDate ? slotsFor(selectedDate) : [];
 
-  const availableSlots = useMemo(() => {
-    if (!selectedDate || !availability) return [];
-    if (availability.blockedDates.some(b => b.date.startsWith(selectedDate))) return [];
-    const override = availability.availability.find(a => a.date.startsWith(selectedDate));
-    if (override) return override.timeSlots.filter(s => s.available).map(s => s.time);
-    const dow = new Date(selectedDate + 'T00:00:00').getDay();
-    const def = availability.defaultSchedule.find(d => d.dayOfWeek === dow);
-    return def ? def.timeSlots.filter(s => s.available).map(s => s.time) : [];
-  }, [selectedDate, availability]);
+  const invalidSelection = selectedTimeSlots.some(t => !daySlots.some(s => s.time === t && s.available));
+  useEffect(() => {
+    if (invalidSelection) setSelectedTimeSlots([]);
+  }, [invalidSelection]);
 
   const upcomingDates = useMemo(() => {
     const dates: string[] = [];
@@ -284,11 +335,13 @@ const ArtistDetailPage: React.FC = () => {
   }, [artist, selectedServiceId, selectedPriceType, selectedTimeSlots]);
 
   const isBookingReady = !!selectedDate && selectedTimeSlots.length > 0 && calculatedPrice > 0
+    && selectedTimeSlots.every(t => daySlots.some(s => s.time === t && s.available))
     && !!artist?.isVerified && artist.isTakingBookings !== false;
 
-  const handleBookingConfirm = useCallback(async () => {
+  const handleBookingConfirm = async () => {
     if (!isAuthenticated) { navigate('/login'); return; }
     if (!isBookingReady || !artist || bookingLoading || showSuccessModal) return;
+    if (!hasExactGeoAddress(venue)) { setShowLocationModal(true); return; }
     setBookingLoading(true); setBookingError('');
     try {
       const res = await fetch(`${API_BASE}/api/bookings`, {
@@ -301,17 +354,20 @@ const ArtistDetailPage: React.FC = () => {
           time: selectedTimeSlots.join(', '),
           priceType: selectedPriceType,
           notes,
-          address,
-          clientPhone: clientPhone ? (clientPhone.startsWith('+91') ? clientPhone : `+91${clientPhone}`) : undefined,
+          address: formatSavedAddressLine(venue),
+          latitude: venue.lat,
+          longitude: venue.lng,
         }),
       });
       const data = await res.json();
+      if (res.status === 409) setRevision(v => v + 1);
       if (!res.ok) throw new Error(data.message || 'Booking failed');
+      setRevision(v => v + 1);
       setSheetOpen(false);
       setShowSuccessModal(true);
     } catch (err) { setBookingError(err instanceof Error ? err.message : 'Booking failed.'); }
     finally { setBookingLoading(false); }
-  }, [isAuthenticated, isBookingReady, artist, bookingLoading, showSuccessModal, token, selectedServiceId, selectedDate, selectedTimeSlots, selectedPriceType, notes, address, clientPhone, navigate]);
+  };
 
   const ratingDistribution = useMemo(() => {
     if (!artist?.reviews?.length) return [0, 0, 0, 0, 0];
@@ -338,7 +394,7 @@ const ArtistDetailPage: React.FC = () => {
   const photoCount = portfolio.length;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setLightboxIndex(null); setSheetOpen(false); }
+      if (e.key === 'Escape' && !showLocationModal) { setLightboxIndex(null); setSheetOpen(false); }
       if (lightboxIndex !== null && lightboxIndex >= 0 && photoCount > 1) {
         if (e.key === 'ArrowRight') setLightboxIndex(p => (p === null ? p : (p + 1) % photoCount));
         if (e.key === 'ArrowLeft') setLightboxIndex(p => (p === null ? p : (p - 1 + photoCount) % photoCount));
@@ -346,16 +402,10 @@ const ArtistDetailPage: React.FC = () => {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [lightboxIndex, photoCount]);
+  }, [lightboxIndex, photoCount, showLocationModal]);
 
   /* ── Lock page scroll behind overlays ── */
-  const lockScroll = lightboxIndex !== null || (sheetOpen && isCompact);
-  useEffect(() => {
-    if (!lockScroll) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [lockScroll]);
+  useScrollLock(lightboxIndex !== null || (sheetOpen && isCompact) || showSuccessModal);
 
   /* ───────────── Render: loading / error ───────────── */
 
@@ -442,14 +492,6 @@ const ArtistDetailPage: React.FC = () => {
     } catch { /* share dismissed */ }
   };
 
-  const slotCountFor = (ds: string) => {
-    const d = new Date(ds + 'T00:00:00');
-    const ov = availability?.availability.find(a => a.date.startsWith(ds));
-    if (ov) return ov.timeSlots.filter(s => s.available).length;
-    const def = availability?.defaultSchedule.find(x => x.dayOfWeek === d.getDay());
-    return def ? def.timeSlots.filter(s => s.available).length : 0;
-  };
-
   const monthLabel = (() => {
     const a = new Date(upcomingDates[0] + 'T00:00:00');
     const b = new Date(upcomingDates[upcomingDates.length - 1] + 'T00:00:00');
@@ -469,7 +511,7 @@ const ArtistDetailPage: React.FC = () => {
 
   const scrollDates = (dir: 1 | -1) => dateStripRef.current?.scrollBy({ left: dir * 240, behavior: 'smooth' });
 
-  const ctaHint = !selectedDate ? 'Choose a date to continue' : selectedTimeSlots.length === 0 ? 'Pick at least one time slot' : '';
+  const ctaHint = !selectedDate ? 'Choose a date to continue' : selectedTimeSlots.length === 0 ? 'Pick a time slot' : !venue ? 'Choose your address and map pin to reserve' : '';
 
   return (
     <div className="ap">
@@ -503,6 +545,15 @@ const ArtistDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {reservations.length > 0 && (
+          <section className="ap-reservations" aria-label="Your upcoming bookings">
+            <strong>Your upcoming bookings with {firstName}</strong>
+            {reservations.map(b => <div key={b.id}>
+              <span>{new Date(b.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' })} · {b.time} IST</span>
+              <button type="button" onClick={() => navigate('/profile')}>{b.status === 'ACCEPTED' ? 'Pay now' : b.status === 'PENDING' ? 'View pending request' : 'View booking'}</button>
+            </div>)}
+          </section>
+        )}
         {/* ══════ Two-column layout: profile (left) · booking (right) ══════ */}
         <div className="ap-grid">
           <main className="ap-main">
@@ -679,7 +730,7 @@ const ArtistDetailPage: React.FC = () => {
                         </div>
                         <Stars value={r.rating} size={13} />
                       </div>
-                      <p>{r.comment}</p>
+                      <p>{r.text ?? r.comment}</p>
                     </li>
                   ))}
                 </ul>
@@ -734,7 +785,7 @@ const ArtistDetailPage: React.FC = () => {
                     {priceTypes.map(pt => (
                       <button key={pt} type="button" role="radio" aria-checked={selectedPriceType === pt}
                         className={selectedPriceType === pt ? 'is-on' : ''}
-                        onClick={() => { setSelectedPriceType(pt); setSelectedServiceId(null); }}>
+                        onClick={() => { setSelectedPriceType(pt); setSelectedServiceId(null); setSelectedTimeSlots([]); }}>
                         <Ico n={OCCASIONS[pt].icon} c="rose" s={26} />
                         <strong>{OCCASIONS[pt].label}</strong>
                         <span>{inr(priceOf[pt])}{pt === 'HOURLY' ? '/hr' : ''}</span>
@@ -750,7 +801,7 @@ const ArtistDetailPage: React.FC = () => {
                     {artist.services.map(s => (
                       <button key={s.id} type="button" aria-pressed={selectedServiceId === s.id}
                         className={selectedServiceId === s.id ? 'is-on' : ''}
-                        onClick={() => setSelectedServiceId(selectedServiceId === s.id ? null : s.id)}>
+                        onClick={() => { setSelectedServiceId(selectedServiceId === s.id ? null : s.id); setSelectedTimeSlots([]); }}>
                         <Ico n={serviceIcon(s.name)} c="rose" s={16} />
                         <span title={s.name.replace(/,\s*/g, ', ')}>{s.name.replace(/,\s*/g, ', ')}</span>
                         <em>{inr(s.price)}</em>
@@ -770,8 +821,9 @@ const ArtistDetailPage: React.FC = () => {
                   {upcomingDates.map(ds => {
                     const d = new Date(ds + 'T00:00:00');
                     const blocked = !!availability?.blockedDates.some(b => b.date.startsWith(ds));
-                    const slots = slotCountFor(ds);
-                    const off = blocked || slots === 0;
+                    const day = slotsFor(ds);
+                    const slots = day.filter(s => s.available).length;
+                    const off = blocked || day.length === 0;
                     return (
                       <button key={ds} type="button" role="option" aria-selected={selectedDate === ds} disabled={off}
                         aria-label={d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -779,7 +831,7 @@ const ArtistDetailPage: React.FC = () => {
                         onClick={() => { setSelectedDate(ds); setSelectedTimeSlots([]); }}>
                         <small>{d.toLocaleDateString('en-IN', { weekday: 'short' })}</small>
                         <strong>{d.getDate()}</strong>
-                        <em>{blocked ? 'Off' : slots > 0 ? `${slots} slot${slots > 1 ? 's' : ''}` : 'Full'}</em>
+                        <em>{blocked ? 'Off' : slots > 0 ? `${slots} slot${slots > 1 ? 's' : ''}` : day.some(s => s.booked) ? 'Booked' : 'Full'}</em>
                       </button>
                     );
                   })}
@@ -788,20 +840,19 @@ const ArtistDetailPage: React.FC = () => {
 
               {selectedDate && (
                 <Step n={stepTime} title="Time" hint={artist.hourlyPrice && selectedPriceType === 'HOURLY' ? 'Pick one or more hours' : 'Pick a slot'}>
-                  {availableSlots.length === 0
+                  {daySlots.length === 0
                     ? <p className="ap-book__empty">No slots available for this date.</p>
                     : (
                       <div className="ap-times">
-                        {availableSlots.map(slot => {
-                          const h = parseInt(slot.split(':')[0]);
-                          const end = `${(h + 1).toString().padStart(2, '0')}:00`;
-                          const on = selectedTimeSlots.includes(slot);
-                          return (
-                            <button key={slot} type="button" aria-pressed={on} className={on ? 'is-on' : ''}
-                              onClick={() => on ? setSelectedTimeSlots(selectedTimeSlots.filter(s => s !== slot)) : setSelectedTimeSlots([...selectedTimeSlots, slot])}>
-                              {slot} – {end}
-                            </button>
-                          );
+                        {daySlots.map(slot => {
+                          const on = selectedTimeSlots.includes(slot.time) && slot.available;
+                          return <button key={slot.time} type="button" disabled={!slot.available}
+                            aria-pressed={on} className={on ? 'is-on' : ''}
+                            onClick={() => setSelectedTimeSlots(current => on ? current.filter(t => t !== slot.time)
+                              : selectedServiceId || selectedPriceType !== 'HOURLY' ? [slot.time] : [...current, slot.time])}>
+                            {slot.time} – {formatSlotMinutes(slot.end)}
+                            {!slot.available && <small>{slot.own ? 'Your booking (upcoming)' : slot.booked ? 'Booked' : 'Unavailable'}</small>}
+                          </button>;
                         })}
                       </div>
                     )}
@@ -809,22 +860,13 @@ const ArtistDetailPage: React.FC = () => {
               )}
 
               {isBookingReady && (
-                <Step n={stepDetails} title="Details" hint="Optional">
-                  <div style={{ marginBottom: 10 }}>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--mid)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Phone / WhatsApp Number
-                    </label>
-                    <PhoneInput
-                      value={clientPhone}
-                      onChange={setClientPhone}
-                      placeholder="98765 43210"
-                    />
-                  </div>
-                  <label className="ap-field">
-                    <Ico n="map-pin" c="soft" s={18} />
-                    <input type="text" placeholder="Event venue / address" value={address} onChange={e => setAddress(e.target.value)} />
-                  </label>
-                  <textarea className="ap-field ap-field--area" placeholder="Special requests or notes…" value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
+                <Step n={stepDetails} title="Booking location" hint="Required">
+                  <button type="button" className="ap-venue" onClick={() => isAuthenticated ? setShowLocationModal(true) : navigate('/login')}>
+                    <Ico n="map-pin" c="rose" s={20} />
+                    <span><strong>{venue ? 'Change address' : 'Choose address'}</strong>
+                      {venue && <small>{formatSavedAddressLine(venue)}</small>}</span>
+                  </button>
+                  <textarea className="ap-field ap-field--area" aria-label="Optional booking notes" placeholder="Special requests or notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
                 </Step>
               )}
 
@@ -840,19 +882,10 @@ const ArtistDetailPage: React.FC = () => {
 
               {bookingError && <div className="ap-alert" role="alert"><Ico n="warning-circle" c="red" s={18} />{bookingError}</div>}
 
-              {acceptedBooking ? (
-                <div className="ap-paynow">
-                  <p>Your booking was approved!</p>
-                  <button type="button" className="ap-cta ap-cta--pay" onClick={() => navigate('/profile')}>Pay Now to Confirm</button>
-                </div>
-              ) : (
-                <>
-                  <button type="button" className="ap-cta" disabled={!isBookingReady || bookingLoading || showSuccessModal} onClick={handleBookingConfirm}>
-                    {bookingLoading ? <span className="ap-spinner" aria-label="Booking in progress" /> : 'Reserve'}
-                  </button>
-                  {ctaHint && <p className="ap-cta__hint">{ctaHint}</p>}
-                </>
-              )}
+              <button type="button" className="ap-cta" disabled={!isBookingReady || bookingLoading || showSuccessModal} onClick={handleBookingConfirm}>
+                {bookingLoading ? <span className="ap-spinner" aria-label="Booking in progress" /> : 'Reserve'}
+              </button>
+              {ctaHint && <p className="ap-cta__hint">{ctaHint}</p>}
               <p className="ap-book__note">
                 <Ico n="lock-key" c="soft" s={15} />
                 {isAuthenticated ? 'Secure booking · No payment now' : 'Create a free account to book'}
@@ -924,6 +957,15 @@ const ArtistDetailPage: React.FC = () => {
             </>
           ) : null}
         </div>
+      )}
+      {/* ── Booking Location & Map Pin Modal ── */}
+      {showLocationModal && (
+        <BookingLocationModal
+          isOpen={showLocationModal}
+          onClose={() => setShowLocationModal(false)}
+          selectedAddress={venue}
+          onSelectAddress={(addr) => setVenue(addr)}
+        />
       )}
     </div>
   );

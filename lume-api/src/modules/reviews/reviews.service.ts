@@ -1,55 +1,40 @@
+import { hasBookingDateTimePassed } from '../bookings/booking-time';
+export { hasBookingDateTimePassed } from '../bookings/booking-time';
 import { z } from 'zod';
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
 
 export const createReviewSchema = z.object({
   bookingId: z.string().min(1),
-  rating: z.number().min(1).max(5),
-  text: z.string().min(10, 'Review must be at least 10 characters'),
+  rating: z.number().int().min(1).max(5),
+  text: z.string().trim().min(10, 'Review must be at least 10 characters').max(5000),
 });
 
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
 
 export async function createReview(clientId: string, data: CreateReviewInput) {
-  // Verify booking belongs to client and is completed
-  const booking = await prisma.booking.findFirst({
-    where: { id: data.bookingId, clientId, status: 'COMPLETED' },
+  return prisma.$transaction(async tx => {
+    const booking = await tx.booking.findFirst({ where: { id: data.bookingId, clientId } });
+    if (!booking || !['ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED', 'COMPLETED'].includes(booking.status)
+      || !hasBookingDateTimePassed(booking)) {
+      throw createError('Reviews open after your appointment ends', 400);
+    }
+    await tx.$queryRaw`SELECT id FROM "artist_profiles" WHERE id = ${booking.artistId} FOR UPDATE`;
+    const existing = await tx.review.findUnique({ where: { bookingId: booking.id } });
+    if (existing) throw createError('Review already submitted for this booking', 409);
+    const review = await tx.review.create({
+      data: { ...data, clientId, artistId: booking.artistId },
+      include: { client: { select: { id: true, name: true, avatarUrl: true } } },
+    });
+    const stats = await tx.review.aggregate({ where: { artistId: booking.artistId }, _avg: { rating: true }, _count: true });
+    const artist = await tx.artistProfile.update({
+      where: { id: booking.artistId }, data: { rating: stats._avg.rating || 0, reviewCount: stats._count },
+    });
+    await tx.notification.create({ data: { userId: artist.userId, title: 'New client review',
+      message: review.client.name + ' rated their appointment ' + review.rating + '/5.',
+      type: 'REVIEW', link: '/artist-dashboard/ratings' } });
+    return review;
   });
-  if (!booking) throw createError('Booking not found or not completed', 400);
-
-  // Check if review already exists
-  const existing = await prisma.review.findUnique({ where: { bookingId: data.bookingId } });
-  if (existing) throw createError('Review already submitted for this booking', 409);
-
-  const review = await prisma.review.create({
-    data: {
-      bookingId: data.bookingId,
-      clientId,
-      artistId: booking.artistId,
-      rating: data.rating,
-      text: data.text,
-    },
-    include: {
-      client: { select: { id: true, name: true, avatarUrl: true } },
-    },
-  });
-
-  // Update artist rating
-  const allReviews = await prisma.review.aggregate({
-    where: { artistId: booking.artistId },
-    _avg: { rating: true },
-    _count: true,
-  });
-
-  await prisma.artistProfile.update({
-    where: { id: booking.artistId },
-    data: {
-      rating: allReviews._avg.rating || 0,
-      reviewCount: allReviews._count,
-    },
-  });
-
-  return review;
 }
 
 export async function getArtistReviews(artistId: string) {

@@ -105,7 +105,7 @@ describe('ProfilePage (My Account Overhaul)', () => {
     expect(screen.getByText(/Preferred Makeup/i)).toBeInTheDocument();
     expect(screen.getByText('Bridal Artistry')).toBeInTheDocument();
     expect(screen.getByText('Skin Type')).toBeInTheDocument();
-    expect(screen.getByText(/Undertone/i)).toBeInTheDocument();
+    expect(screen.getByText(/Complexion Undertone/i)).toBeInTheDocument();
   });
 
   it('switches to Concierge & Help tab and shows VIP support guarantees', () => {

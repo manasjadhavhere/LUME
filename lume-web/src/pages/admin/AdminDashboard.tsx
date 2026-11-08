@@ -1,9 +1,10 @@
+import NotificationBell from '../../components/layout/NotificationBell';
 import AdminDocuments from './AdminDocuments';
 import AdminInsights from './AdminInsights';
 import GeoLocationInput from '../../components/ui/GeoLocationInput';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Users, BarChart2, Clock, X, Home, Briefcase, Settings, MapPin, Star, CreditCard, Download, CheckCircle, Activity, Search, RefreshCw, LogOut } from 'lucide-react';
+import { ShieldCheck, Users, BarChart2, Clock, X, Home, Briefcase, Settings, MapPin, Star, CreditCard, Download, CheckCircle, Activity, Search, RefreshCw, LogOut, Eye, EyeOff } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useApi, apiFetch } from '../../hooks/useApi';
@@ -31,6 +32,7 @@ interface ArtistProfile {
   occasionPrice?: number;
   hourlyPrice?: number;
   isTakingBookings?: boolean;
+  isHidden?: boolean;
   gender?: string;
   dob?: string;
   instagramUrl?: string;
@@ -123,6 +125,21 @@ const AdminDashboard: React.FC = () => {
   
   const [actionMsg, setActionMsg] = useState('');
   const [actionMsgType, setActionMsgType] = useState<'success' | 'error'>('success');
+  const [announcementResult, setAnnouncementResult] = useState('');
+  const publishAnnouncement = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+    setActioning(true); setAnnouncementResult('');
+    try {
+      const result = await apiFetch<{ count: number }>('/api/admin/announcements', {
+        token: token || undefined, method: 'POST', body: { title: fields.get('title'), message: fields.get('message') },
+      });
+      setAnnouncementResult('Published to ' + result.count + ' accounts.');
+      form.reset();
+    } catch (error) { setAnnouncementResult(error instanceof Error ? error.message : 'Could not publish update.'); }
+    finally { setActioning(false); }
+  };
   const [actioning, setActioning] = useState(false);
 
   const loadData = async () => {
@@ -264,6 +281,31 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const toggleArtistHiddenAdmin = async (artistId: string, currentStatus: boolean) => {
+    if (actioning) return;
+    setActioning(true);
+    try {
+      const nextHidden = !currentStatus;
+      const res = await apiFetch(`/api/admin/artists/${artistId}/hidden`, {
+        method: 'PATCH',
+        body: { isHidden: nextHidden },
+        token: token || undefined
+      });
+      if (res) {
+        displayMsg(nextHidden ? '👁️ Artist is now hidden from the public directory.' : '✅ Artist is now visible in the public directory.');
+        setAllArtists(prev => prev.map(a => a.id === artistId ? { ...a, isHidden: nextHidden } : a));
+        if (selectedArtist && selectedArtist.id === artistId) {
+          setSelectedArtist({ ...selectedArtist, isHidden: nextHidden });
+        }
+        setEditFormData((prev: any) => ({ ...prev, isHidden: nextHidden }));
+      }
+    } catch (e: any) {
+      displayMsg('❌ ' + (e.message || 'Failed to update visibility'));
+    } finally {
+      setActioning(false);
+    }
+  };
+
   const openArtistModal = (artist: ArtistProfile) => {
     setSelectedArtist(artist);
     setRemarks('');
@@ -283,6 +325,7 @@ const AdminDashboard: React.FC = () => {
       gender: artist.gender || '',
       dob: artist.dob ? new Date(artist.dob).toISOString().split('T')[0] : '',
       instagramUrl: artist.instagramUrl || '',
+      isHidden: !!artist.isHidden,
     });
   };
 
@@ -352,7 +395,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const matches = (value: string) => value.toLowerCase().includes(search.toLowerCase().trim());
-  const filteredArtists = allArtists.filter(a => matches([a.user.name, a.user.email, a.location, ...a.specialties].join(' ')) && (statusFilter === 'all' || (statusFilter === 'queue' ? ['PENDING', 'EDIT_REQUESTED'].includes(a.verificationStatus) : a.verificationStatus === statusFilter)));
+  const filteredArtists = allArtists.filter(a => matches([a.user.name, a.user.email, a.location, ...a.specialties].join(' ')) && (statusFilter === 'all' || (statusFilter === 'queue' ? ['PENDING', 'EDIT_REQUESTED'].includes(a.verificationStatus) : statusFilter === 'hidden' ? !!a.isHidden : a.verificationStatus === statusFilter)));
   const filteredClients = clients.filter(c => matches([c.name, c.email, c.clientProfile?.location].join(' ')));
   const filteredPayments = paymentSummaries.filter(p => matches(p.user.name) && (statusFilter !== 'outstanding' || p.pendingPayout > 0));
   const showInsightArtist = (id: string) => { const artist = allArtists.find(a => a.id === id); if (artist) openArtistModal(artist); else displayMsg('Artist details are unavailable. Refresh the workspace.', 'error'); };
@@ -429,6 +472,7 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'activity' && 'Operations & activity'}
           </h1>
           <div className="admin-header__actions">
+            <NotificationBell />
             <button className="admin-button" onClick={loadData} disabled={initialLoading || actioning} aria-label="Refresh workspace">
               <RefreshCw size={15} />
               <span>Sync</span>
@@ -454,7 +498,15 @@ const AdminDashboard: React.FC = () => {
             </div>
           ) : activeTab === 'dashboard' ? (
             <>
-              <AdminInsights onArtist={showInsightArtist} onCity={showCity} revision={revision} />
+              <details className="admin-announcement"><summary>Publish a website update</summary>
+                  <form onSubmit={publishAnnouncement}>
+                    <label>Title<input name="title" maxLength={120} required /></label>
+                    <label>Update for all users<textarea name="message" rows={3} maxLength={2000} required /></label>
+                    <button className="admin-button" disabled={actioning}>Publish update</button>
+                    <p role="status">{announcementResult}</p>
+                  </form>
+                </details>
+                <AdminInsights onArtist={showInsightArtist} onCity={showCity} revision={revision} />
 
               {/* Growth & Verification Pipeline Charts */}
               {stats.charts && (
@@ -518,7 +570,7 @@ const AdminDashboard: React.FC = () => {
             <div className="admin-table-card">
               <div className="admin-table-header">
                 <div><h3 className="admin-table-title">Artist directory</h3><p className="admin-muted">{filteredArtists.length} artists · {pendingArtists.length} awaiting attention</p></div>
-                <div className="admin-toolbar"><label className="admin-search"><Search size={16} /><input aria-label="Search artists" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, city or specialty" /></label><select aria-label="Verification filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="queue">Needs review</option><option value="VERIFIED">Verified</option><option value="NOT_SUBMITTED">Not submitted</option><option value="EDIT_APPROVED">Edit approved</option><option value="PENDING">Pending</option><option value="REJECTED">Rejected</option><option value="NOT_SUBMITTED">Not submitted</option><option value="EDIT_REQUESTED">Edit requested</option><option value="EDIT_APPROVED">Edit approved</option></select></div>
+                <div className="admin-toolbar"><label className="admin-search"><Search size={16} /><input aria-label="Search artists" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, city or specialty" /></label><select aria-label="Verification filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="queue">Needs review</option><option value="hidden">Hidden from directory</option><option value="VERIFIED">Verified</option><option value="PENDING">Pending</option><option value="REJECTED">Rejected</option><option value="NOT_SUBMITTED">Not submitted</option><option value="EDIT_REQUESTED">Edit requested</option><option value="EDIT_APPROVED">Edit approved</option></select></div>
               </div>
               <div className="admin-table-container">
                 <table className="admin-table">
@@ -529,6 +581,7 @@ const AdminDashboard: React.FC = () => {
                       <th>Location</th>
                       <th>Rating</th>
                       <th>Bookings Toggle</th>
+                      <th>Directory Visibility</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -543,7 +596,14 @@ const AdminDashboard: React.FC = () => {
                               <div className="admin-user-avatar">{a.user.name.charAt(0)}</div>
                             )}
                             <div className="admin-user-details">
-                              <span className="admin-user-name">{a.user.name}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <span className="admin-user-name">{a.user.name}</span>
+                                {a.isHidden && (
+                                  <span className="admin-badge admin-badge--danger" style={{ fontSize: '0.65rem', padding: '1px 6px', fontWeight: 700 }}>
+                                    HIDDEN
+                                  </span>
+                                )}
+                              </div>
                               <span className="admin-user-email">{a.user.email}</span><div className="admin-specialties">{a.specialties.slice(0, 3).map(s => <span key={s}>{s}</span>)}</div>
                             </div>
                           </div>
@@ -575,6 +635,19 @@ const AdminDashboard: React.FC = () => {
                           </div>
                         </td>
                         <td>
+                          <button
+                            type="button"
+                            className={`admin-vis-pill ${a.isHidden ? 'admin-vis-pill--hidden' : 'admin-vis-pill--visible'}`}
+                            disabled={actioning}
+                            onClick={() => toggleArtistHiddenAdmin(a.id, !!a.isHidden)}
+                            title={a.isHidden ? 'Click to show this artist in public directory' : 'Click to hide this artist from public directory'}
+                            aria-label={a.isHidden ? `Unhide ${a.user.name}` : `Hide ${a.user.name}`}
+                          >
+                            {a.isHidden ? <EyeOff size={13} /> : <Eye size={13} />}
+                            <span>{a.isHidden ? 'Hidden' : 'Visible'}</span>
+                          </button>
+                        </td>
+                        <td>
                           <button className="admin-btn-icon" onClick={() => openArtistModal(a)} title="Manage Artist">
                             <Settings size={18} />
                           </button>
@@ -583,7 +656,7 @@ const AdminDashboard: React.FC = () => {
                     ))}
                     {filteredArtists.length === 0 && (
                       <tr>
-                        <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No artists found.</td>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>No artists found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -872,6 +945,37 @@ const AdminDashboard: React.FC = () => {
                           />
                           <span className="admin-switch-slider"></span>
                         </label>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: selectedArtist.isHidden ? '#fef2f2' : '#f8fafc', borderRadius: 10, border: selectedArtist.isHidden ? '1px solid #fecaca' : '1px solid #e2e8f0', transition: 'all 0.2s' }}>
+                        <div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: selectedArtist.isHidden ? '#991b1b' : '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {selectedArtist.isHidden ? <EyeOff size={16} color="#dc2626" /> : <Eye size={16} color="#15803d" />}
+                            <span>Directory Visibility</span>
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: selectedArtist.isHidden ? '#b91c1c' : '#64748b' }}>
+                            {selectedArtist.isHidden ? 'Hidden from search & client directory' : 'Visible in public client directory'}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleArtistHiddenAdmin(selectedArtist.id, !!selectedArtist.isHidden)}
+                          disabled={actioning}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: 6,
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: actioning ? 'not-allowed' : 'pointer',
+                            border: selectedArtist.isHidden ? '1px solid #f87171' : '1px solid #cbd5e1',
+                            background: selectedArtist.isHidden ? '#dc2626' : '#fff',
+                            color: selectedArtist.isHidden ? '#fff' : '#334155',
+                            transition: 'all 0.2s',
+                          }}
+                          aria-label={selectedArtist.isHidden ? 'Unhide artist' : 'Hide artist'}
+                        >
+                          {selectedArtist.isHidden ? 'Unhide' : 'Hide Artist'}
+                        </button>
                       </div>
 
                     </div>

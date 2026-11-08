@@ -42,6 +42,32 @@ export interface ServiceItem {
   isActive: boolean;
 }
 
+export interface ClientSavedAddress {
+  id: string;
+  label: 'Home' | 'Wedding Venue' | 'Hotel / Studio' | 'Other' | string;
+  recipientName?: string;
+  phone?: string;
+  street: string;
+  apartment?: string;
+  landmark?: string;
+  city: string;
+  pincode?: string;
+  formattedGeoAddress?: string;
+  lat?: number;
+  lng?: number;
+  googleMapsUrl?: string;
+  isDefault?: boolean;
+  createdAt?: string;
+}
+
+export interface ClientBeautyPreferences {
+  styles?: string[];
+  skinType?: string;
+  undertone?: string;
+  specialRequests?: string;
+  allergies?: string;
+}
+
 export interface ClientProfile {
   id?: string;
   location?: string;
@@ -49,6 +75,8 @@ export interface ClientProfile {
   dob?: string;
   bio?: string;
   aadharNumber?: string;
+  savedAddresses?: ClientSavedAddress[];
+  beautyPreferences?: ClientBeautyPreferences;
 }
 
 export interface AuthUser {
@@ -94,7 +122,16 @@ export interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+const normalizeApiUrl = (url?: string) => {
+  if (!url) return 'http://localhost:3001';
+  let clean = url.trim().replace(/\/$/, '');
+  if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+    clean = `https://${clean}`;
+  }
+  return clean;
+};
+
+export const API_BASE = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);

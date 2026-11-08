@@ -10,4 +10,5 @@ export const artistEditSchema = z.object({
   dob: z.string().refine(v => !v || /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v)), 'Invalid date').optional(),
   instagramUrl: z.string().url().refine(v => v.startsWith('https://'), 'Use an HTTPS link').or(z.literal('')).optional(),
   remarks: z.string().trim().max(2000).optional(),
+  isHidden: z.boolean().optional(),
 });

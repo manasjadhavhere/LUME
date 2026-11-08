@@ -1,3 +1,4 @@
+import { useScrollLock } from '../../hooks/useScrollLock';
 import React, { useState } from 'react';
 import { X, Zap, CheckCircle, Shield, Loader2, ChevronRight, Receipt } from 'lucide-react';
 import { useAuth, API_BASE } from '../../context/AuthContext';
@@ -40,6 +41,7 @@ const fmt = (n: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 
 const PaymentOptionsModal: React.FC<PaymentOptionsModalProps> = ({ booking, onClose, onSuccess }) => {
+  useScrollLock(true);
   const { user, token } = useAuth();
   const [selected, setSelected] = useState<PaymentType | null>(null);
   const [loading, setLoading] = useState(false);
@@ -109,7 +111,7 @@ const PaymentOptionsModal: React.FC<PaymentOptionsModalProps> = ({ booking, onCl
           paymentType: type,
         },
         theme: {
-          color: '#c4a97d',
+          color: '#9c365a',
         },
         modal: {
           ondismiss: () => {
@@ -129,7 +131,7 @@ const PaymentOptionsModal: React.FC<PaymentOptionsModalProps> = ({ booking, onCl
   return (
     <div className="pom-overlay" role="dialog" aria-modal="true" aria-label="Payment Options">
       <div className="pom-backdrop" onClick={!loading ? onClose : undefined} />
-      <div className="pom-modal">
+      <div className="pom-modal" data-lenis-prevent="true">
         {/* Header */}
         <div className="pom-header">
           <div className="pom-header__icon">
@@ -174,10 +176,6 @@ const PaymentOptionsModal: React.FC<PaymentOptionsModalProps> = ({ booking, onCl
             onClick={() => setSelected('ADVANCE')}
             disabled={loading}
           >
-            <div className="pom-option__badge pom-option__badge--advance">
-              <Zap size={14} />
-              Popular
-            </div>
             <div className="pom-option__top">
               <div className="pom-option__icon pom-option__icon--advance">
                 <Zap size={22} />

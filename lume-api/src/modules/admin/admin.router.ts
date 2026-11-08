@@ -1,7 +1,9 @@
+import { broadcastWebsiteUpdate } from '../notifications/notifications.service';
 import { Router } from 'express';
 import {
   getPendingArtists, getAllArtists, getAllClients, verifyArtist, rejectArtist,
   getStats, updateArtistAdmin, approveEditRequest, deleteUser, updateBookingStatus,
+  updateArtistHidden,
   getArtistPayments, getArtistPaymentDetails, getLumeRevenue, markPaymentPaid,
   adminVerifyBankAccount, removeArtistDocument,
 } from './admin.controller';
@@ -30,6 +32,15 @@ router.use(async (req, res, next) => {
       });
     }
     next();
+  } catch (error) { next(error); }
+});
+
+router.post('/announcements', validate(z.object({
+  title: z.string().trim().min(1).max(120),
+  message: z.string().trim().min(1).max(2000),
+})), async (req, res, next) => {
+  try {
+    res.status(201).json({ success: true, data: await broadcastWebsiteUpdate(req.body) });
   } catch (error) { next(error); }
 });
 
@@ -66,6 +77,9 @@ router.put('/artists/:id', validate(artistEditSchema), updateArtistAdmin);
 
 // PATCH /api/admin/artists/:id/booking-status
 router.patch('/artists/:id/booking-status', validate(z.object({ isTakingBookings: z.boolean() })), updateBookingStatus);
+
+// PATCH /api/admin/artists/:id/hidden
+router.patch('/artists/:id/hidden', validate(z.object({ isHidden: z.boolean() })), updateArtistHidden);
 
 // DELETE /api/admin/artists/:id/documents
 router.delete('/artists/:id/documents', validate(z.object({ fileUrl: z.string().min(1).max(2048), type: z.enum(['certification', 'portfolio']) })), removeArtistDocument);

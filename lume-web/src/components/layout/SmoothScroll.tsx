@@ -25,6 +25,39 @@ export default function SmoothScroll() {
       wheelMultiplier: 0.95,
       touchMultiplier: 1.2,
       infinite: false,
+      prevent: (node) => {
+        // Prevent Lenis from intercepting scroll on internal scrollable containers, modals, sheets, dialogs
+        let curr: HTMLElement | null = node as HTMLElement;
+        while (curr && curr !== document.body && curr !== document.documentElement) {
+          if (
+            curr.hasAttribute('data-lenis-prevent') ||
+            curr.classList.contains('lenis-prevent') ||
+            curr.getAttribute('role') === 'dialog' ||
+            curr.classList.contains('modal-content') ||
+            curr.classList.contains('pom-modal') ||
+            curr.classList.contains('booking-location-modal')
+          ) {
+            return true;
+          }
+          const style = window.getComputedStyle(curr);
+          const overflowY = style.overflowY;
+          if (
+            (overflowY === 'auto' || overflowY === 'scroll') &&
+            curr.scrollHeight > curr.clientHeight
+          ) {
+            return true;
+          }
+          const overflowX = style.overflowX;
+          if (
+            (overflowX === 'auto' || overflowX === 'scroll') &&
+            curr.scrollWidth > curr.clientWidth
+          ) {
+            return true;
+          }
+          curr = curr.parentElement;
+        }
+        return false;
+      },
     });
 
     // Expose globally for programmatic scrolling

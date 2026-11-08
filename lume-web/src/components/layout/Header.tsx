@@ -1,7 +1,9 @@
+import { useScrollLock } from '../../hooks/useScrollLock';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Heart, MapPin, Menu, Search, Sparkles, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from './NotificationBell';
 import './Header.css';
 
 const NAV_LINKS = [
@@ -54,15 +56,14 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
     return () => document.removeEventListener('keydown', onEscape);
   }, [menuOpen]);
 
+  useScrollLock(searchOpen);
   useEffect(() => {
     if (searchOpen) {
-      document.body.style.overflow = 'hidden';
       const onEscape = (e: KeyboardEvent) => {
         if (e.key === 'Escape') setSearchOpen(false);
       };
       document.addEventListener('keydown', onEscape);
       return () => {
-        document.body.style.overflow = '';
         document.removeEventListener('keydown', onEscape);
       };
     }
@@ -128,6 +129,7 @@ export default function Header({ isLanding = false }: { isLanding?: boolean }) {
           >
             <Search size={19} strokeWidth={2.2} />
           </button>
+          <NotificationBell />
           <Link className="lume-header__saved" to="/saved" aria-label="Saved artists"><Heart size={21} strokeWidth={2} /></Link>
           <Link className="lume-header__account" to={isAuthenticated ? accountPath : '/login'}>{isAuthenticated ? 'My account' : 'Sign in'}</Link>
           <button className="lume-header__toggle" ref={menuButton} type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setOpenPath(menuOpen ? null : location.pathname)}>{menuOpen ? <X size={26} /> : <Menu size={26} />}</button>

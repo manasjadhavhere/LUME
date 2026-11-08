@@ -1,8 +1,10 @@
+import { API_BASE } from '../context/AuthContext';
+
 export interface GeoLocationResult {
   formattedAddress: string; city: string; sublocality?: string; state?: string; pincode?: string;
   lat?: number; lng?: number; placeId?: string; source: 'google' | 'photon' | 'offline';
 }
-const base = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+const base = API_BASE;
 export async function geoRequest<T>(path: string, params: Record<string, string>, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`${base}/api/geo/${path}?${new URLSearchParams(params)}`, { signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(12000)]) : AbortSignal.timeout(12000) });
   const body = await response.json();

@@ -1542,3 +1542,31 @@
     grid-template-columns: 1fr;
   }
 }
+
+.artist-bookings__tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; max-width: 580px; margin: 0 0 20px; padding-bottom: 12px; border-bottom: 1px solid #e9dfe2; }
+.artist-bookings__tabs button { padding: 9px 6px; min-height: 44px; border: 0; border-radius: 24px; font: inherit; font-weight: 600; color: var(--mid); background: transparent; cursor: pointer; }
+.artist-bookings__tabs button[aria-pressed=true] { color: white; background: var(--dark); }
+.artist-bookings__card { min-width: 0; padding: clamp(14px, 3vw, 24px); overflow-wrap: anywhere; }
+.artist-bookings__card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.artist-bookings__client { display: flex; align-items: center; min-width: 0; gap: 12px; }
+.artist-bookings__price { text-align: right; flex-shrink: 0; }
+.artist-bookings__preferences summary { font-weight: 600; cursor: pointer; }
+.artist-bookings__preferences dl { display: grid; gap: 8px; margin: 12px 0 0; }
+.artist-bookings__preferences dt { font-size: .8rem; color: var(--mid); }
+.artist-bookings__preferences dd { margin: 0; }
+@media (max-width: 540px) {
+  .artist-bookings__card-head { flex-direction: column; align-items: stretch; }
+  .artist-bookings__price { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; text-align: left; }
+  .artist-bookings__tabs button { font-size: .85rem; }
+  .artist-bookings__actions button { flex: 1 1 130px; justify-content: center; }
+}
+
+.artist-overview__workspace { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
+@media (max-width: 760px) {
+  .artist-overview__workspace { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 540px) {
+  .artist-overview .itinerary-booked-hover { min-width: 0; flex-wrap: wrap; gap: 8px; overflow-wrap: anywhere; }
+  .artist-overview > div:has(> a) { flex-wrap: wrap; gap: 12px; }
+}

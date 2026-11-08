@@ -55,6 +55,13 @@ export async function recordBookingPayment(clientId: string, input: PaymentInput
       advancePaid: input.paymentType === 'REMAINING' ? booking.advancePaid + chargedAmount : chargedAmount,
       remainingAmount: input.paymentType === 'ADVANCE' ? total - chargedAmount : 0,
     } });
+    const artist = await tx.artistProfile.findUniqueOrThrow({ where: { id: booking.artistId }, select: { userId: true } });
+    const title = input.paymentType === 'ADVANCE' ? 'Advance payment received' : 'Booking paid in full';
+    const message = booking.date.toISOString().slice(0, 10) + ' at ' + booking.time + ' IST';
+    await tx.notification.createMany({ data: [
+      { userId: clientId, title, message, type: 'PAYMENT_SUCCESS', link: '/profile' },
+      { userId: artist.userId, title, message, type: 'PAYMENT_SUCCESS', link: '/artist-dashboard/bookings' },
+    ] });
     return { booking, updatedBooking, paymentRecord, duplicate: false, chargedAmount, artistPayout };
   }, { isolationLevel: 'Serializable' });
 }

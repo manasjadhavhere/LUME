@@ -1659,3 +1659,42 @@
     grid-template-columns: 1fr;
   }
 }
+
+.admin-announcement { padding: 14px 18px; margin-bottom: 16px; border-radius: 12px; background: white; border: 1px solid #e9dfe2; }
+.admin-announcement summary { cursor: pointer; font-weight: 600; }
+.admin-announcement form, .admin-announcement label { display: grid; gap: 8px; }
+.admin-announcement form { max-width: 38rem; margin-top: 14px; }
+.admin-announcement input, .admin-announcement textarea { font: inherit; border: 1px solid #cebfc3; border-radius: 8px; padding: 10px; width: 100%; }
+.admin-announcement button { justify-self: start; }
+
+/* ── Directory Visibility Controls ── */
+.admin-vis-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.admin-vis-pill--visible {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.admin-vis-pill--visible:hover:not(:disabled) {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.admin-vis-pill--hidden {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.admin-vis-pill--hidden:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+

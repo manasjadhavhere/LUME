@@ -53,7 +53,10 @@ export function installArtistMocks(profiles: TestArtist[] = testArtists) {
 export function mountArtist(artistId: string) {
   return render(
     <AuthContext.Provider value={{
-      user: { id: 'client-1', name: 'Test Client', email: 'client@example.test', role: 'CLIENT' },
+      user: { id: 'client-1', name: 'Test Client', email: 'client@example.test', role: 'CLIENT', clientProfile: { savedAddresses: [{
+        id: 'home', label: 'Home', apartment: 'Flat 4B', street: 'Hill Road', city: 'Mumbai',
+        pincode: '400050', lat: 19.05, lng: 72.83,
+      }] } },
       token: 'test-token', isAuthenticated: true, isLoading: false,
       login: vi.fn(), loginWithGoogle: vi.fn(), register: vi.fn(), logout: vi.fn(), updateUser: vi.fn(), refreshUser: vi.fn(),
     }}>

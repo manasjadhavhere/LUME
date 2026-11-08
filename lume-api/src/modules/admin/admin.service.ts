@@ -227,6 +227,7 @@ export async function updateArtistAdmin(artistId: string, data: z.infer<typeof a
       occasionPrice: data.occasionPrice,
       hourlyPrice: data.hourlyPrice,
       verificationRemarks: data.remarks || null,
+      isHidden: typeof data.isHidden === 'boolean' ? data.isHidden : undefined,
     },
   });
   
@@ -400,6 +401,17 @@ export async function updateBookingStatusAdmin(artistId: string, isTakingBooking
       isTakingBookings,
       lastBookingStatusChange: new Date(),
     },
+  });
+}
+
+// Update directory visibility directly (admin option to hide/unhide any artist)
+export async function updateArtistHiddenAdmin(artistId: string, isHidden: boolean) {
+  const artist = await prisma.artistProfile.findUnique({ where: { id: artistId } });
+  if (!artist) throw createError('Artist not found', 404);
+
+  return prisma.artistProfile.update({
+    where: { id: artistId },
+    data: { isHidden },
   });
 }
 

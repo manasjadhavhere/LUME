@@ -1,3 +1,4 @@
+import { useScrollLock } from '../hooks/useScrollLock';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import SEO from '../components/common/SEO';
@@ -79,19 +80,16 @@ const DiscoverPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'FEATURED' | 'RATING' | 'PRICE_ASC' | 'PRICE_DESC' | 'EXPERIENCE'>('FEATURED');
   const [isHeroInfoOpen, setIsHeroInfoOpen] = useState(false);
 
+  useScrollLock(filterDrawerOpen);
   useEffect(() => {
     if (filterDrawerOpen) {
-      document.body.style.overflow = 'hidden';
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') setFilterDrawerOpen(false);
       };
       window.addEventListener('keydown', handleKeyDown);
       return () => {
-        document.body.style.overflow = '';
         window.removeEventListener('keydown', handleKeyDown);
       };
-    } else {
-      document.body.style.overflow = '';
     }
   }, [filterDrawerOpen]);
 

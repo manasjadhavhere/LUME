@@ -32,13 +32,16 @@ const ArtistRatings: React.FC = () => {
   const { user } = useAuth();
   const { data, execute } = useApi<RatingsData>();
 
+  const artistId = user?.artistProfile?.id;
   useEffect(() => {
-    if (user?.artistProfile?.id) {
-      execute(`/api/reviews/artist/${user.artistProfile.id}`);
-    }
-  }, [user]);
+    if (!artistId) return;
+    const refresh = () => { void execute('/api/reviews/artist/' + artistId); };
+    refresh();
+    window.addEventListener('focus', refresh);
+    const timer = window.setInterval(refresh, 30000);
+    return () => { window.removeEventListener('focus', refresh); clearInterval(timer); };
+  }, [artistId, execute]);
 
-  const profile = user?.artistProfile;
   const reviews = data?.reviews || [];
 
   const distribution = data?.distribution || {};
@@ -54,12 +57,12 @@ const ArtistRatings: React.FC = () => {
       </div>
 
       {/* Score Overview Strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-xl)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-xl)' }}>
         <div className="artist-stat-card" style={{ '--gradient': 'linear-gradient(90deg, var(--gold), var(--gold-light))', '--icon-bg': 'rgba(201,149,106,0.15)', '--icon-color': 'var(--gold)' } as React.CSSProperties}>
           <div className="artist-stat-card__icon"><Star size={18} /></div>
           <div className="artist-stat-card__label">Overall Rating</div>
-          <div className="artist-stat-card__value">{profile?.rating ? profile.rating.toFixed(1) : '0.0'}</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>Based on {profile?.reviewCount || totalReviews} reviews</span>
+          <div className="artist-stat-card__value">{totalReviews ? (reviews.reduce((n, r) => n + r.rating, 0) / totalReviews).toFixed(1) : '0.0'}</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-soft)' }}>Based on {totalReviews} reviews</span>
         </div>
 
         <div className="artist-stat-card" style={{ '--gradient': 'linear-gradient(90deg, #16a34a, #4ade80)', '--icon-bg': 'rgba(34,197,94,0.12)', '--icon-color': '#16a34a' } as React.CSSProperties}>
@@ -77,7 +80,7 @@ const ArtistRatings: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--spacing-lg)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 290px), 1fr))', gap: 'var(--spacing-lg)' }}>
         {/* Rating Breakdown & Reviews List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
           <div className="artist-panel">

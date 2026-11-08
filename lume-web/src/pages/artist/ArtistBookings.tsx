@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useApi, apiFetch } from '../../hooks/useApi';
 import { CheckCircle2, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import type { ClientBeautyPreferences } from '../../context/AuthContext';
+import { hasBookingDateTimePassed, buildGoogleMapsUrl } from '../../utils/bookingTime';
 import './ArtistPages.css';
 
 interface Booking {
@@ -12,8 +14,11 @@ interface Booking {
   totalPaid: number;
   notes?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
+  endTime?: string;
   createdAt: string;
-  client: { name: string; email: string; phone?: string; avatarUrl?: string };
+  client: { name: string; email: string; phone?: string; avatarUrl?: string; clientProfile?: { beautyPreferences?: ClientBeautyPreferences } };
   service: { id: string; name: string; price: number; icon: string };
   review?: { rating: number };
 }
@@ -21,13 +26,13 @@ interface Booking {
 type TabType = 'PENDING' | 'UPCOMING' | 'PAST';
 
 const ArtistBookings: React.FC = () => {
-  const { data, loading, execute } = useApi<Booking[]>();
+  const { data, loading, error, execute } = useApi<Booking[]>();
   const [activeTab, setActiveTab] = useState<TabType>('PENDING');
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     execute('/api/artists/me/bookings');
-  }, []);
+  }, [execute]);
 
   const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
     if (newStatus === 'CANCELLED' && !window.confirm('Are you sure you want to decline this booking request?')) {
@@ -59,9 +64,9 @@ const ArtistBookings: React.FC = () => {
 
   const bookings = data || [];
 
-  const pendingBookings = bookings.filter(b => b.status === 'PENDING');
-  const upcomingBookings = bookings.filter(b => (b.status === 'ACCEPTED' || b.status === 'CONFIRMED' || b.status === 'PARTIALLY_PAID') && new Date(b.date) >= new Date(new Date().setHours(0,0,0,0)));
-  const pastBookings = bookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED' || (new Date(b.date) < new Date(new Date().setHours(0,0,0,0)) && b.status !== 'PENDING'));
+  const pendingBookings = bookings.filter(b => b.status === 'PENDING' && !hasBookingDateTimePassed(b));
+  const upcomingBookings = bookings.filter(b => ['ACCEPTED', 'CONFIRMED', 'PARTIALLY_PAID'].includes(b.status) && !hasBookingDateTimePassed(b));
+  const pastBookings = bookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status) || hasBookingDateTimePassed(b));
 
   const displayedBookings = activeTab === 'PENDING' ? pendingBookings : activeTab === 'UPCOMING' ? upcomingBookings : pastBookings;
 
@@ -78,25 +83,23 @@ const ArtistBookings: React.FC = () => {
   };
 
   return (
-    <div className="artist-page" style={{ padding: '24px 32px', height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div className="artist-page artist-bookings">
       <div className="artist-page__header" style={{ flexShrink: 0, marginBottom: 24 }}>
         <h1 className="artist-page__title">Booking Requests</h1>
         <p className="artist-page__subtitle">Manage your incoming requests and upcoming appointments.</p>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '1px solid rgba(42,26,31,0.1)', paddingBottom: 16 }}>
-        <button onClick={() => setActiveTab('PENDING')} style={{ padding: '8px 16px', borderRadius: 99, fontWeight: 600, border: 'none', cursor: 'pointer', background: activeTab === 'PENDING' ? 'var(--dark)' : 'transparent', color: activeTab === 'PENDING' ? '#fff' : 'var(--mid)', transition: 'all 0.2s' }}>
-          Pending Requests {pendingBookings.length > 0 && <span style={{ background: activeTab === 'PENDING' ? '#fff' : 'var(--rose-deep)', color: activeTab === 'PENDING' ? 'var(--dark)' : '#fff', padding: '2px 8px', borderRadius: 12, fontSize: '0.75rem', marginLeft: 8 }}>{pendingBookings.length}</span>}
-        </button>
-        <button onClick={() => setActiveTab('UPCOMING')} style={{ padding: '8px 16px', borderRadius: 99, fontWeight: 600, border: 'none', cursor: 'pointer', background: activeTab === 'UPCOMING' ? 'var(--dark)' : 'transparent', color: activeTab === 'UPCOMING' ? '#fff' : 'var(--mid)', transition: 'all 0.2s' }}>
-          Upcoming ({upcomingBookings.length})
-        </button>
-        <button onClick={() => setActiveTab('PAST')} style={{ padding: '8px 16px', borderRadius: 99, fontWeight: 600, border: 'none', cursor: 'pointer', background: activeTab === 'PAST' ? 'var(--dark)' : 'transparent', color: activeTab === 'PAST' ? '#fff' : 'var(--mid)', transition: 'all 0.2s' }}>
-          History ({pastBookings.length})
-        </button>
+      <div className="artist-bookings__tabs" role="group" aria-label="Booking status">
+        {([['PENDING', 'Pending requests', pendingBookings.length], ['UPCOMING', 'Upcoming', upcomingBookings.length],
+          ['PAST', 'History', pastBookings.length]] as const).map(([tab, label, count]) => (
+          <button type="button" key={tab} aria-pressed={activeTab === tab} onClick={() => setActiveTab(tab)}>
+            {label} ({count})
+          </button>
+        ))}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+      <div>
+        {error && <p role="alert">{error}</p>}
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 40, color: 'var(--mid)' }}>Loading bookings...</div>
         ) : displayedBookings.length === 0 ? (
@@ -108,10 +111,10 @@ const ArtistBookings: React.FC = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {displayedBookings.map((booking) => (
-              <div key={booking.id} style={{ background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 4px 20px rgba(42,26,31,0.06)', border: '1px solid rgba(42,26,31,0.04)', display: 'flex', gap: 24, flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 14, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--dark)' }}>
+              <div key={booking.id} className="artist-bookings__card" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 20px rgba(42,26,31,0.06)', border: '1px solid rgba(42,26,31,0.04)', display: 'flex', gap: 24, flexDirection: 'column' }}>
+                <div className="artist-bookings__card-head">
+                  <div className="artist-bookings__client">
+                    <div style={{ flexShrink: 0, width: 48, height: 48, borderRadius: 14, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, color: 'var(--dark)' }}>
                       {booking.client?.name?.charAt(0)?.toUpperCase() || 'C'}
                     </div>
                     <div>
@@ -119,13 +122,13 @@ const ArtistBookings: React.FC = () => {
                       <p style={{ fontSize: '0.85rem', color: 'var(--mid)', marginTop: 2 }}>{booking.client?.email} {booking.client?.phone ? `• ${booking.client.phone}` : ''}</p>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div className="artist-bookings__price">
                     <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>₹{booking.totalPaid.toLocaleString()}</div>
                     {getStatusBadge(booking.status)}
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, padding: '16px', background: 'rgba(42,26,31,0.02)', borderRadius: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, padding: '16px', background: 'rgba(42,26,31,0.02)', borderRadius: 12 }}>
                   <div>
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Service</span>
                     <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--dark)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -143,14 +146,27 @@ const ArtistBookings: React.FC = () => {
                       <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Details & Notes</span>
                       <div style={{ fontSize: '0.9rem', color: 'var(--dark)', marginTop: 4 }}>
                         {booking.address && <div style={{ marginBottom: 4 }}><strong>Location:</strong> {booking.address}</div>}
+                        {typeof booking.latitude === 'number' && typeof booking.longitude === 'number' && <a href={buildGoogleMapsUrl(booking.latitude, booking.longitude)} target="_blank" rel="noreferrer">Open venue in Google Maps</a>}
                         {booking.notes && <div><strong>Note:</strong> {booking.notes}</div>}
                       </div>
                     </div>
                   )}
                 </div>
 
-                {booking.status === 'PENDING' && (
-                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', paddingTop: 8, borderTop: '1px solid rgba(42,26,31,0.06)' }}>
+                {booking.client?.clientProfile?.beautyPreferences && (
+                  <details className="artist-bookings__preferences">
+                    <summary>Beauty &amp; Style Profile</summary>
+                    <dl>{Object.entries({
+                      'Preferred looks': booking.client.clientProfile.beautyPreferences.styles?.join(', '),
+                      'Skin type': booking.client.clientProfile.beautyPreferences.skinType,
+                      'Undertone': booking.client.clientProfile.beautyPreferences.undertone,
+                      'Product allergies & notes': booking.client.clientProfile.beautyPreferences.specialRequests,
+                    }).filter(([, value]) => value).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+                  </details>
+                )}
+
+                {booking.status === 'PENDING' && activeTab === 'PENDING' && (
+                  <div className="artist-bookings__actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'flex-end', paddingTop: 8, borderTop: '1px solid rgba(42,26,31,0.06)' }}>
                     <button 
                       onClick={() => handleStatusUpdate(booking.id, 'CANCELLED')}
                       disabled={updatingBookingId === booking.id}

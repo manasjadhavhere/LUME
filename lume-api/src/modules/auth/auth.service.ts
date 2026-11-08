@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import { z } from 'zod';
 import prisma from '../../lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -109,7 +110,30 @@ export async function getMe(userId: string) {
   return userWithoutPassword;
 }
 
+const savedAddress = z.object({
+  id: z.string().min(1).max(120),
+  label: z.string().trim().min(1).max(80),
+  apartment: z.string().max(240).optional(),
+  street: z.string().trim().min(1).max(500),
+  city: z.string().trim().min(1).max(120),
+  pincode: z.string().regex(/^\d{6}$/),
+  landmark: z.string().max(240).optional(),
+  recipientName: z.string().max(120).optional(),
+  isDefault: z.boolean().optional(),
+  formattedGeoAddress: z.string().max(1000).optional(),
+  lat: z.number().min(-90).max(90).optional(),
+  lng: z.number().min(-180).max(180).optional(),
+});
+
 export const updateMeSchema = z.object({
+  previousAddresses: z.array(savedAddress).max(100).optional(),
+  savedAddresses: z.array(savedAddress).max(100).optional(),
+  beautyPreferences: z.object({
+    styles: z.array(z.string().trim().min(1).max(100)).max(30),
+    skinType: z.string().max(100),
+    undertone: z.string().max(100),
+    specialRequests: z.string().max(3000),
+  }).optional(),
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   phone: z.string().regex(/^(\+91[\s-]?)?\d{10}$/, 'Phone number must be a valid 10-digit number').optional().or(z.literal('')),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
@@ -126,50 +150,62 @@ export async function updateMe(userId: string, data: UpdateMeInput) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw createError('User not found', 404);
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name: data.name,
-      phone: data.phone,
-      gender: data.gender as any,
-      dob: data.dob ? new Date(data.dob) : undefined,
-    },
-  });
+  await prisma.$transaction(async tx => {
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        name: data.name,
+        phone: data.phone,
+        gender: data.gender as any,
+        dob: data.dob ? new Date(data.dob) : undefined,
+      },
+    });
 
-  if (user.role === 'CLIENT') {
-    await prisma.clientProfile.upsert({
-      where: { userId },
-      update: {
-        location: data.location,
-        bio: data.bio,
-        aadharNumber: data.aadharNumber,
-        dob: data.dob ? new Date(data.dob) : undefined,
-        mobileNumber: data.phone,
-      },
-      create: {
-        userId,
-        location: data.location,
-        bio: data.bio,
-        aadharNumber: data.aadharNumber,
-        dob: data.dob ? new Date(data.dob) : undefined,
-        mobileNumber: data.phone,
-      },
-    });
-  } else if (user.role === 'ARTIST') {
-    await prisma.artistProfile.upsert({
-      where: { userId },
-      update: {
-        location: data.location,
-        bio: data.bio,
-      },
-      create: {
-        userId,
-        location: data.location || 'Mumbai',
-        bio: data.bio,
-        experience: 0,
-      },
-    });
-  }
+    if (user.role === 'CLIENT') {
+      if (data.savedAddresses && data.previousAddresses) {
+        const current = await tx.clientProfile.findUnique({ where: { userId }, select: { savedAddresses: true } });
+        if (!isDeepStrictEqual(current?.savedAddresses || [], data.previousAddresses)) {
+          throw createError('Your addresses changed on another device. Refresh the page and try again.', 409);
+        }
+      }
+      await tx.clientProfile.upsert({
+        where: { userId },
+        update: {
+          location: data.location,
+          bio: data.bio,
+          aadharNumber: data.aadharNumber,
+          dob: data.dob ? new Date(data.dob) : undefined,
+          mobileNumber: data.phone,
+          savedAddresses: data.savedAddresses,
+          beautyPreferences: data.beautyPreferences,
+        },
+        create: {
+          userId,
+          location: data.location,
+          bio: data.bio,
+          aadharNumber: data.aadharNumber,
+          dob: data.dob ? new Date(data.dob) : undefined,
+          mobileNumber: data.phone,
+          savedAddresses: data.savedAddresses,
+          beautyPreferences: data.beautyPreferences,
+        },
+      });
+    } else if (user.role === 'ARTIST') {
+      await tx.artistProfile.upsert({
+        where: { userId },
+        update: {
+          location: data.location,
+          bio: data.bio,
+        },
+        create: {
+          userId,
+          location: data.location || 'Mumbai',
+          bio: data.bio,
+          experience: 0,
+        },
+      });
+    }
+  });
 
   return getMe(userId);
 }

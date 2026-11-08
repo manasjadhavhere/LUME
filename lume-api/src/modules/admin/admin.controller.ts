@@ -58,6 +58,13 @@ export async function updateBookingStatus(req: Request, res: Response, next: Nex
   } catch (err) { next(err); }
 }
 
+export async function updateArtistHidden(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artist = await AdminService.updateArtistHiddenAdmin(req.params.id as string, !!req.body.isHidden);
+    res.json({ success: true, data: artist, message: 'Artist visibility updated successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function removeArtistDocument(req: Request, res: Response, next: NextFunction) {
   try {
     const { fileUrl, type } = req.body;

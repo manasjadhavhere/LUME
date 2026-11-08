@@ -1,3 +1,4 @@
+import { sessionIntervals } from '../bookings/booking-time';
 import prisma from '../../lib/prisma';
 import { createError } from '../../middleware/errorHandler';
 
@@ -37,13 +38,17 @@ export async function getAvailability(artistIdOrSlug: string, fromDate?: string,
     if (toDate) where.date.lte = new Date(toDate);
   }
 
-  const [availability, blockedDates, defaultSchedule] = await Promise.all([
+  const [availability, blockedDates, defaultSchedule, reservations] = await Promise.all([
     prisma.availability.findMany({ where, orderBy: { date: 'asc' } }),
     prisma.blockedDate.findMany({ where: { artistId: realArtistId }, orderBy: { date: 'asc' } }),
     prisma.defaultSchedule.findMany({ where: { artistId: realArtistId }, orderBy: { dayOfWeek: 'asc' } }),
+    prisma.booking.findMany({
+      where: { ...where, status: { not: 'CANCELLED' } },
+      select: { date: true, time: true, endTime: true },
+    }),
   ]);
-
-  return { availability, blockedDates, defaultSchedule };
+  const bookedSlots = reservations.flatMap(b => sessionIntervals(b).map(i => ({ date: b.date.toISOString().slice(0, 10), ...i })));
+  return { availability, blockedDates, defaultSchedule, bookedSlots };
 }
 
 export async function upsertAvailability(

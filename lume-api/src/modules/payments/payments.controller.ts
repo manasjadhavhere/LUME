@@ -388,14 +388,17 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
           res.status(400).json({ success: false, message: 'Booking is not ready for payment' });
           return;
         }
-        // Update booking status to CONFIRMED
-        const updatedBooking = await prisma.booking.update({
-          where: { id: bookingId },
-          data: { status: 'CONFIRMED' }
+        const updatedBooking = await prisma.$transaction(async tx => {
+          const result = await tx.booking.update({ where: { id: bookingId, status: 'ACCEPTED' }, data: { status: 'CONFIRMED' } });
+          const artist = await tx.artistProfile.findUniqueOrThrow({ where: { id: result.artistId }, select: { userId: true } });
+          const notice = { title: 'Booking payment confirmed', message: result.date.toISOString().slice(0, 10) + ' at ' + result.time + ' IST', type: 'PAYMENT_SUCCESS' };
+          await tx.notification.createMany({ data: [
+            { ...notice, userId: booking.clientId, link: '/profile' },
+            { ...notice, userId: artist.userId, link: '/artist-dashboard/bookings' },
+          ] });
+          return result;
         });
-        if (booking && booking.status !== updatedBooking.status) {
-          queueBookingEmail(updatedBooking, 'CONFIRMED');
-        }
+        queueBookingEmail(updatedBooking, 'CONFIRMED');
       }
       res.json({ success: true, message: 'Payment verified successfully' });
     } else {

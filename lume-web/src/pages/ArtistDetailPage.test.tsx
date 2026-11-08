@@ -11,6 +11,11 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 const selectDate = (date = testDates[0]) => fireEvent.click(bookingPanel().getByRole('option', { name: dateLabel(date) }));
 const selectTime = () => fireEvent.click(bookingPanel().getByRole('button', { name: '09:00 – 10:00' }));
 
+async function chooseVenue() {
+  fireEvent.click(bookingPanel().getByRole('button', { name: 'Choose address' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Deliver Service Here' }));
+}
+
 describe('artist booking', () => {
   it('requires a date and a time; services are optional with an occasion price', async () => {
     await renderArtist();
@@ -19,6 +24,9 @@ describe('artist booking', () => {
     expect(reserveButton()).toBeDisabled();
     selectTime();
     expect(reserveButton()).toBeEnabled();
+    fireEvent.click(reserveButton());
+    expect(await screen.findByRole('dialog', { name: 'Select Booking Location' })).toBeVisible();
+    expect(vi.mocked(fetch).mock.calls.some(([, opts]) => opts?.method === 'POST')).toBe(false);
   });
 
   it('does not submit an incomplete booking', async () => {
@@ -39,12 +47,13 @@ describe('artist booking', () => {
   it('submits the selected service, time and occasion and displays success', async () => {
     await renderArtist();
     fireEvent.click(bookingPanel().getByRole('button', { name: /Natural makeup/ }));
-    selectDate(); selectTime(); fireEvent.click(reserveButton());
+    selectDate(); selectTime(); await chooseVenue(); fireEvent.click(reserveButton());
     await screen.findByRole('dialog', { name: 'Booking requested' });
     const call = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === 'POST');
     expect(call?.[1]?.headers).toMatchObject({ Authorization: 'Bearer test-token' });
     expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({
       artistId: 'artist-1', serviceId: 'service-0-1', date: testDates[0], time: '09:00', priceType: 'OCCASION',
+      address: 'Flat 4B, Hill Road, Mumbai - 400050', latitude: 19.05, longitude: 72.83,
     });
   });
 
@@ -53,17 +62,53 @@ describe('artist booking', () => {
     vi.mocked(fetch).mockImplementation((input, options) => options?.method === 'POST'
       ? Promise.resolve(new Response(JSON.stringify({ message: 'Slot unavailable' }), { status: 409 }))
       : normalFetch(input, options));
-    await renderArtist(); selectDate(); selectTime(); fireEvent.click(reserveButton());
+    await renderArtist(); selectDate(); selectTime(); await chooseVenue(); fireEvent.click(reserveButton());
     expect(await screen.findByRole('alert')).toHaveTextContent('Slot unavailable');
     expect(reserveButton()).toBeEnabled();
     expect(screen.queryByRole('dialog', { name: 'Booking requested' })).not.toBeInTheDocument();
+  });
+
+  it('shows occupied hours to everyone and identifies the client’s own booking', async () => {
+    const basicFetch = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch).mockImplementation(async (input, init) => {
+      const path = new URL(String(input), 'http://localhost').pathname;
+      if (path.endsWith('/availability')) {
+        const res = await basicFetch(input, init);
+        const json = await res.json();
+        json.data.bookedSlots = [{ date: testDates[0], start: 540, end: 600 }, { date: testDates[0], start: 600, end: 660 }];
+        return Response.json(json);
+      }
+      if (path === '/api/bookings') return Response.json({ success: true, data: [
+        { id: 'mine', artistId: 'artist-1', date: testDates[0], time: '10:00 AM', status: 'PENDING' },
+      ] });
+      return basicFetch(input, init);
+    });
+    await renderArtist();
+    await screen.findByText(/Your upcoming bookings with/);
+    selectDate();
+    expect(bookingPanel().getByRole('button', { name: /09:00.*Booked/i })).toBeDisabled();
+    expect(bookingPanel().getByRole('button', { name: /10:00.*Your booking/i })).toBeDisabled();
+    expect(reserveButton()).toBeDisabled();
+  });
+
+  it('requires a fresh map pin after someone edits the coordinates', async () => {
+    await renderArtist(); selectDate(); selectTime();
+    fireEvent.click(bookingPanel().getByRole('button', { name: 'Choose address' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    const coords = screen.getByRole('textbox', { name: 'Google Maps link or coordinates' });
+    fireEvent.change(coords, { target: { value: '19.06, 72.83' } });
+    fireEvent.change(coords, { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm Location & Map Pin' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/select a Google Maps geo-location/i);
+    expect(screen.queryByRole('textbox', { name: /phone|mobile|whatsapp/i })).toBeNull();
+    expect(vi.mocked(fetch).mock.calls.some(([, opts]) => opts?.method === 'POST')).toBe(false);
   });
 
   it('defaults to a configured price when the artist only offers weddings', async () => {
     const artist = { ...testArtists[0], occasionPrice: 0, hourlyPrice: 0 };
     installArtistMocks([artist]); await renderArtist(artist);
     expect(bookingPanel().getByRole('radio', { name: /Wedding/ })).toHaveAttribute('aria-checked', 'true');
-    selectDate(); selectTime(); fireEvent.click(reserveButton());
+    selectDate(); selectTime(); await chooseVenue(); fireEvent.click(reserveButton());
     await screen.findByRole('dialog', { name: 'Booking requested' });
     const call = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === 'POST');
     expect(JSON.parse(String(call?.[1]?.body)).priceType).toBe('WEDDING');

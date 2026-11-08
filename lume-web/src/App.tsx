@@ -4,7 +4,6 @@ import ErrorBoundary from './components/layout/ErrorBoundary';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ScrollToTop from './components/layout/ScrollToTop';
-import SmoothScroll from './components/layout/SmoothScroll';
 
 // Public & Client Pages
 import LandingPage from './pages/LandingPage';
@@ -101,7 +100,6 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
-          <SmoothScroll />
           <ScrollToTop />
           <ToastProvider>
             <div className="app">

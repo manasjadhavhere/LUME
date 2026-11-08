@@ -57,6 +57,7 @@ export async function getAllArtists(query: {
 
   const where: any = {
     isVerified: true, // Only show verified artists to clients
+    isHidden: false,  // Do not show artists hidden by admin
   };
 
   if (specialty && specialty !== 'All') {
@@ -124,14 +125,14 @@ const artistDetailInclude = {
 export async function getArtistById(artistIdOrSlug: string) {
   // 1. Try finding by ID directly
   let artist = await prisma.artistProfile.findFirst({
-    where: { id: artistIdOrSlug, isVerified: true },
+    where: { id: artistIdOrSlug, isVerified: true, isHidden: false },
     include: artistDetailInclude,
   });
 
   // 2. If not found by ID, try finding by slug or name
   if (!artist) {
     const allVerified = await prisma.artistProfile.findMany({
-      where: { isVerified: true },
+      where: { isVerified: true, isHidden: false },
       include: artistDetailInclude,
     });
 
@@ -445,7 +446,7 @@ export async function getArtistBookings(userId: string) {
   return prisma.booking.findMany({
     where: { artistId: profile.id },
     include: {
-      client: { select: { name: true, email: true, phone: true, avatarUrl: true } },
+      client: { select: { name: true, email: true, phone: true, avatarUrl: true, clientProfile: { select: { beautyPreferences: true } } } },
       service: { select: { id: true, name: true, price: true, icon: true } },
       review: { select: { rating: true } }
     },

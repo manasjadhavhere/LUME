@@ -1,0 +1,221 @@
+.lume-notif {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lume-notif__trigger {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(42, 26, 31, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--dark, #2A1A1F);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.lume-notif__trigger:hover,
+.lume-notif__trigger.is-open {
+  background: #ffffff;
+  border-color: var(--rose-deep, #D97A8C);
+  color: var(--rose-deep, #D97A8C);
+}
+
+.lume-notif__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--rose-deep, #D97A8C);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  box-sizing: border-box;
+}
+
+.lume-notif__dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  background: #ffffff;
+  border: 1px solid var(--rose-light, #F3DDE2);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(42, 26, 31, 0.16);
+  z-index: 1100;
+  overflow: hidden;
+}
+
+.lume-notif__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(42, 26, 31, 0.07);
+  background: #FFF9FB;
+}
+
+.lume-notif__header h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--dark, #2A1A1F);
+}
+
+.lume-notif__header span {
+  font-size: 0.74rem;
+  color: var(--text-soft, #7B676E);
+}
+
+.lume-notif__mark-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--rose-deep, #D97A8C);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.lume-notif__mark-all:hover {
+  background: rgba(217, 122, 140, 0.1);
+}
+
+.lume-notif__list {
+  max-height: min(68dvh, 390px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.lume-notif__item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 16px;
+  border: none;
+  border-bottom: 1px solid rgba(42, 26, 31, 0.05);
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lume-notif__item:hover {
+  background: #FDF7F9;
+}
+
+.lume-notif__item.is-unread {
+  background: #FFF6F8;
+}
+
+.lume-notif__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #FCECF0;
+  color: var(--rose-deep, #D97A8C);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.lume-notif__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.lume-notif__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.lume-notif__title-row strong {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--dark, #2A1A1F);
+}
+
+.lume-notif__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rose-deep, #D97A8C);
+  flex-shrink: 0;
+}
+
+.lume-notif__body p {
+  margin: 0 0 5px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--mid, #59434A);
+  overflow-wrap: anywhere;
+}
+
+.lume-notif__time {
+  font-size: 0.71rem;
+  color: var(--text-soft, #7B676E);
+}
+
+.lume-notif__empty {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--text-soft, #7B676E);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.lume-notif__empty p {
+  margin: 4px 0 0;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--dark, #2A1A1F);
+}
+
+.lume-notif__empty span {
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .lume-notif__trigger {
+    width: 38px;
+    height: 38px;
+  }
+  .lume-notif__dropdown {
+    position: fixed;
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+

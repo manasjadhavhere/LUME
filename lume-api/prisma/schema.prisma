@@ -40,6 +40,8 @@ model ClientProfile {
   dob          DateTime?
   bio          String?
   aadharNumber String?
+  savedAddresses Json?
+  beautyPreferences Json?
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("client_profiles")
@@ -80,6 +82,7 @@ model ArtistProfile {
   verificationRemarks     String?
   isTakingBookings        Boolean            @default(true)
   lastBookingStatusChange DateTime?
+  isHidden                Boolean            @default(false)
   bankAccount             ArtistBankAccount?
   user                    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   availability            Availability[]
@@ -156,6 +159,9 @@ model Booking {
   totalPaid       Float           @default(0)
   notes           String?
   address         String?
+  latitude        Float?
+  longitude       Float?
+  googleMapsUrl   String?
   cancelReason    String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -168,6 +174,7 @@ model Booking {
   paymentRecords  PaymentRecord[]
   review          Review?
 
+  @@index([artistId, date])
   @@map("bookings")
 }
 
@@ -194,10 +201,12 @@ model Notification {
   title     String
   message   String
   type      String   @default("INFO")
+  link      String?
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, createdAt])
   @@map("notifications")
 }
 

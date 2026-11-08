@@ -1,3 +1,4 @@
+import { useScrollLock } from '../hooks/useScrollLock';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -40,6 +41,11 @@ import useFavorites from '../hooks/useFavorites';
 import GeoLocationInput from '../components/ui/GeoLocationInput';
 import PaymentOptionsModal from '../components/payment/PaymentOptionsModal';
 import PhoneInput from '../components/ui/PhoneInput';
+import ReviewModal from '../components/review/ReviewModal';
+import BookingLocationModal from '../components/booking/BookingLocationModal';
+import type { ClientSavedAddress as SavedAddress } from '../context/AuthContext';
+import { useSaveClientProfile } from '../hooks/useSaveClientProfile';
+import { hasBookingDateTimePassed, isBookingReviewEligible } from '../utils/bookingTime';
 import { getArtistSlug } from '../utils/slug';
 import './ProfilePage.css';
 
@@ -50,19 +56,6 @@ interface MenuItem {
   badge?: string | number;
 }
 
-export interface SavedAddress {
-  id: string;
-  label: 'Home' | 'Wedding Venue' | 'Hotel / Studio' | 'Other';
-  recipientName: string;
-  phone: string;
-  street: string;
-  apartment?: string;
-  city: string;
-  landmark?: string;
-  pincode: string;
-  isDefault: boolean;
-}
-
 export interface BeautyPreferences {
   styles: string[];
   skinType: string;
@@ -71,26 +64,11 @@ export interface BeautyPreferences {
 }
 
 const DEFAULT_PREFERENCES: BeautyPreferences = {
-  styles: ['Bridal Artistry', 'Reception Glam'],
-  skinType: 'Combination',
-  undertone: 'Warm Golden',
+  styles: [],
+  skinType: '',
+  undertone: '',
   specialRequests: '',
 };
-
-const DEFAULT_ADDRESSES: SavedAddress[] = [
-  {
-    id: 'addr-1',
-    label: 'Home',
-    recipientName: 'Lume Client',
-    phone: '9876543210',
-    street: 'Bandra West, Hill Road',
-    apartment: 'Apartment 4B, Silver Crest',
-    city: 'Mumbai',
-    landmark: 'Near St. Peter’s Church',
-    pincode: '400050',
-    isDefault: true,
-  },
-];
 
 const STYLE_OPTIONS = [
   'Bridal Artistry',
@@ -148,43 +126,25 @@ const ProfilePage: React.FC = () => {
 
   // Invoice modal state
   const [invoiceBooking, setInvoiceBooking] = useState<any | null>(null);
+  const [reviewingBooking, setReviewingBooking] = useState<any | null>(null);
   
+  useScrollLock(Boolean(invoiceBooking));
+
   // Saved Artists state
   const [savedArtists, setSavedArtists] = useState<any[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
 
   // Saved Addresses state
-  const [addresses, setAddresses] = useState<SavedAddress[]>(() => {
-    try {
-      const stored = localStorage.getItem('lume_client_addresses');
-      return stored ? JSON.parse(stored) : DEFAULT_ADDRESSES;
-    } catch {
-      return DEFAULT_ADDRESSES;
-    }
-  });
+  const saveProfile = useSaveClientProfile();
+  const addresses = user?.clientProfile?.savedAddresses ?? [];
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null);
-  const [addressForm, setAddressForm] = useState<Omit<SavedAddress, 'id'>>({
-    label: 'Home',
-    recipientName: user?.name || '',
-    phone: user?.clientProfile?.mobileNumber || user?.phone || '',
-    street: '',
-    apartment: '',
-    city: user?.clientProfile?.location || 'Mumbai',
-    landmark: '',
-    pincode: '',
-    isDefault: false,
-  });
-
-  // Beauty Preferences state
-  const [preferences, setPreferences] = useState<BeautyPreferences>(() => {
-    try {
-      const stored = localStorage.getItem('lume_beauty_preferences');
-      return stored ? JSON.parse(stored) : DEFAULT_PREFERENCES;
-    } catch {
-      return DEFAULT_PREFERENCES;
-    }
-  });
+  const [profileError, setProfileError] = useState('');
+  const [savingDetails, setSavingDetails] = useState(false);
+  const [preferences, setPreferences] = useState<BeautyPreferences>(DEFAULT_PREFERENCES);
+  useEffect(() => {
+    setPreferences({ ...DEFAULT_PREFERENCES, ...user?.clientProfile?.beautyPreferences });
+  }, [user?.id, user?.clientProfile?.beautyPreferences]);
   const [preferencesSaved, setPreferencesSaved] = useState(false);
 
   // Profile Form state
@@ -240,23 +200,11 @@ const ProfilePage: React.FC = () => {
     }
   }, [isAuthenticated, token, user?.role, fetchBookings]);
 
-  // Sync addresses to localStorage
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    try {
-      localStorage.setItem('lume_client_addresses', JSON.stringify(addresses));
-    } catch (err) {
-      console.error('Failed to save addresses:', err);
-    }
-  }, [addresses]);
-
-  // Sync preferences to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('lume_beauty_preferences', JSON.stringify(preferences));
-    } catch (err) {
-      console.error('Failed to save preferences:', err);
-    }
-  }, [preferences]);
+    const timer = window.setInterval(() => setNow(new Date()), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Load Saved Artists when tab is active or favorites change
   useEffect(() => {
@@ -414,82 +362,21 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // Address Handlers
-  const handleOpenAddAddress = () => {
-    setEditingAddress(null);
-    setAddressForm({
-      label: 'Home',
-      recipientName: user?.name || '',
-      phone: user?.clientProfile?.mobileNumber || user?.phone || '',
-      street: '',
-      apartment: '',
-      city: user?.clientProfile?.location || 'Mumbai',
-      landmark: '',
-      pincode: '',
-      isDefault: addresses.length === 0,
-    });
-    setShowAddressModal(true);
+  const handleOpenAddAddress = () => { setEditingAddress(null); setShowAddressModal(true); };
+  const handleOpenEditAddress = (addr: SavedAddress) => { setEditingAddress(addr); setShowAddressModal(true); };
+  const saveAddresses = async (savedAddresses: SavedAddress[]) => {
+    setProfileError(''); setSavingDetails(true);
+    try { await saveProfile({ savedAddresses }); }
+    catch (error) { setProfileError(error instanceof Error ? error.message : 'Could not save address changes.'); }
+    finally { setSavingDetails(false); }
   };
-
-  const handleOpenEditAddress = (addr: SavedAddress) => {
-    setEditingAddress(addr);
-    setAddressForm({
-      label: addr.label,
-      recipientName: addr.recipientName,
-      phone: addr.phone,
-      street: addr.street,
-      apartment: addr.apartment || '',
-      city: addr.city,
-      landmark: addr.landmark || '',
-      pincode: addr.pincode,
-      isDefault: addr.isDefault,
-    });
-    setShowAddressModal(true);
-  };
-
-  const handleSaveAddress = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingAddress) {
-      setAddresses((prev) =>
-        prev.map((a) => {
-          if (a.id === editingAddress.id) {
-            return { ...a, ...addressForm };
-          }
-          if (addressForm.isDefault) {
-            return { ...a, isDefault: false };
-          }
-          return a;
-        })
-      );
-    } else {
-      const newAddress: SavedAddress = {
-        id: `addr-${Date.now()}`,
-        ...addressForm,
-      };
-      setAddresses((prev) => {
-        if (newAddress.isDefault) {
-          return [...prev.map((a) => ({ ...a, isDefault: false })), newAddress];
-        }
-        return [...prev, newAddress];
-      });
-    }
-    setShowAddressModal(false);
-  };
-
   const handleDeleteAddress = (id: string) => {
-    if (window.confirm('Remove this saved address?')) {
-      setAddresses((prev) => prev.filter((a) => a.id !== id));
-    }
+    if (!window.confirm('Remove this saved address?')) return;
+    const next = addresses.filter(a => a.id !== id);
+    if (next.length && !next.some(a => a.isDefault)) next[0] = { ...next[0], isDefault: true };
+    void saveAddresses(next);
   };
-
-  const handleSetDefaultAddress = (id: string) => {
-    setAddresses((prev) =>
-      prev.map((a) => ({
-        ...a,
-        isDefault: a.id === id,
-      }))
-    );
-  };
+  const handleSetDefaultAddress = (id: string) => void saveAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })));
 
   // Preference Handlers
   const toggleStyle = (style: string) => {
@@ -501,9 +388,15 @@ const ProfilePage: React.FC = () => {
     }));
   };
 
-  const handleSavePreferences = () => {
-    setPreferencesSaved(true);
-    setTimeout(() => setPreferencesSaved(false), 3000);
+  const handleSavePreferences = async () => {
+    setProfileError(''); setPreferencesSaved(false); setSavingDetails(true);
+    try {
+      await saveProfile({ beautyPreferences: preferences });
+      setPreferencesSaved(true);
+      setTimeout(() => setPreferencesSaved(false), 3000);
+    } catch (error) {
+      setProfileError(error instanceof Error ? error.message : 'Could not save preferences.');
+    } finally { setSavingDetails(false); }
   };
 
   // Format Date Helper
@@ -521,11 +414,11 @@ const ProfilePage: React.FC = () => {
   const filteredBookings = bookings.filter((b: any) => {
     // Tab filter
     if (bookingTab === 'Upcoming') {
-      if (!['ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED'].includes(b.status)) return false;
+      if (!['PENDING', 'ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED'].includes(b.status) || hasBookingDateTimePassed(b, now)) return false;
     } else if (bookingTab === 'Action Needed') {
       if (!['ACCEPTED', 'PARTIALLY_PAID'].includes(b.status)) return false;
     } else if (bookingTab === 'Completed') {
-      if (b.status !== 'COMPLETED') return false;
+      if (b.status !== 'COMPLETED' && !(['ACCEPTED', 'PARTIALLY_PAID', 'CONFIRMED'].includes(b.status) && hasBookingDateTimePassed(b, now))) return false;
     } else if (bookingTab === 'Cancelled') {
       if (b.status !== 'CANCELLED') return false;
     }
@@ -946,6 +839,24 @@ const ProfilePage: React.FC = () => {
                             >
                               <ExternalLink size={14} /> Profile
                             </Link>
+
+                            {b.review ? (
+                              <span
+                                className="profile-action-btn profile-action-btn--ghost"
+                                style={{ cursor: 'default', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                title="Your review has been submitted"
+                              >
+                                <Star size={14} fill="#eab308" color="#eab308" /> {b.review.rating}/5 Rated
+                              </span>
+                            ) : isBookingReviewEligible(b, now) ? (
+                              <button
+                                className="profile-action-btn profile-action-btn--primary"
+                                style={{ background: '#d97a8c', borderColor: '#d97a8c', color: '#fff' }}
+                                onClick={() => setReviewingBooking(b)}
+                              >
+                                <Star size={14} /> Review Artist
+                              </button>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -1071,6 +982,8 @@ const ProfilePage: React.FC = () => {
                 </button>
               </div>
 
+              {profileError && <p role="alert">{profileError}</p>}
+              {!addresses.length && <p>Add your first venue and map pin to use it when booking.</p>}
               <div className="profile-addresses-grid">
                 {addresses.map((addr) => (
                   <div
@@ -1092,7 +1005,7 @@ const ProfilePage: React.FC = () => {
                       ) : (
                         <button
                           className="profile-set-default-btn"
-                          onClick={() => handleSetDefaultAddress(addr.id)}
+                          disabled={savingDetails} onClick={() => handleSetDefaultAddress(addr.id)}
                         >
                           Set Default
                         </button>
@@ -1102,7 +1015,7 @@ const ProfilePage: React.FC = () => {
                     <div className="profile-address-card__body">
                       <div className="profile-address-contact">
                         <strong>{addr.recipientName}</strong>
-                        <span>• {addr.phone}</span>
+
                       </div>
                       <p className="profile-address-street">
                         {addr.apartment && `${addr.apartment}, `}
@@ -1126,7 +1039,7 @@ const ProfilePage: React.FC = () => {
                       </button>
                       <button
                         className="profile-address-btn profile-address-btn--danger"
-                        onClick={() => handleDeleteAddress(addr.id)}
+                        disabled={savingDetails} onClick={() => handleDeleteAddress(addr.id)}
                         title="Delete address"
                       >
                         <Trash2 size={15} /> Delete
@@ -1145,14 +1058,13 @@ const ProfilePage: React.FC = () => {
                 <div>
                   <h2 className="profile-section-title">Beauty & Style Profile</h2>
                   <p className="profile-section-desc">
-                    Personalize your makeup, skin, and styling preferences so artists can tailor your look.
+                    Your booked artists can see these preferences when preparing for your appointment.
                   </p>
                 </div>
-                <button className="profile-btn profile-btn--primary" onClick={handleSavePreferences}>
-                  <Check size={16} /> Save Preferences
-                </button>
+
               </div>
 
+              {profileError && <p role="alert">{profileError}</p>}
               {preferencesSaved && (
                 <div className="profile-alert profile-alert--success">
                   <CheckCircle2 size={16} /> Your beauty preferences have been updated!
@@ -1160,13 +1072,66 @@ const ProfilePage: React.FC = () => {
               )}
 
               <div className="profile-preferences-container">
-                {/* Preferred Styles */}
+                {/* 1. Skin Profile & Tone */}
                 <div className="profile-pref-section">
                   <label className="profile-pref-label">
-                    <span>Preferred Makeup & Hair Aesthetics</span>
-                    <small>Select all looks that fit your personal style</small>
+                    <span>1. Skin Profile & Complexion</span>
+                    <small>Helps artists customize preparation and choose ideal foundation formulas</small>
                   </label>
-                  <div className="profile-chip-grid">
+                  <div className="profile-pref-dual-row" style={{ marginTop: 6 }}>
+                    <div>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--mid)', display: 'block', marginBottom: 6 }}>
+                        Skin Type
+                      </span>
+                      <div className="profile-chip-grid" style={{ marginBottom: 8 }}>
+                        {SKIN_TYPES.map((type) => {
+                          const isSel = preferences.skinType === type;
+                          return (
+                            <button
+                              key={type}
+                              type="button"
+                              className={`profile-pref-chip ${isSel ? 'is-selected' : ''}`}
+                              aria-pressed={isSel}
+                              onClick={() => setPreferences({ ...preferences, skinType: isSel ? '' : type })}
+                            >
+                              {isSel && <Check size={14} />} {type}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--mid)', display: 'block', marginBottom: 6 }}>
+                        Complexion Undertone
+                      </span>
+                      <div className="profile-chip-grid" style={{ marginBottom: 8 }}>
+                        {UNDERTONES.map((tone) => {
+                          const isSel = preferences.undertone === tone;
+                          return (
+                            <button
+                              key={tone}
+                              type="button"
+                              className={`profile-pref-chip ${isSel ? 'is-selected' : ''}`}
+                              aria-pressed={isSel}
+                              onClick={() => setPreferences({ ...preferences, undertone: isSel ? '' : tone })}
+                            >
+                              {isSel && <Check size={14} />} {tone}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Aesthetics & Look Preferences */}
+                <div className="profile-pref-section" style={{ borderTop: '1px solid rgba(42, 26, 31, 0.06)', paddingTop: 20 }}>
+                  <label className="profile-pref-label">
+                    <span>2. Preferred Makeup & Hair Aesthetics</span>
+                    <small>Select all styles that match your signature vibe and upcoming events</small>
+                  </label>
+                  <div className="profile-chip-grid" style={{ marginTop: 8 }}>
                     {STYLE_OPTIONS.map((style) => {
                       const isSelected = preferences.styles.includes(style);
                       return (
@@ -1174,6 +1139,7 @@ const ProfilePage: React.FC = () => {
                           key={style}
                           type="button"
                           className={`profile-pref-chip ${isSelected ? 'is-selected' : ''}`}
+                          aria-pressed={isSelected}
                           onClick={() => toggleStyle(style)}
                         >
                           {isSelected && <Check size={14} />} {style}
@@ -1183,64 +1149,63 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="profile-pref-dual-row">
-                  {/* Skin Type */}
-                  <div className="profile-pref-section">
-                    <label className="profile-pref-label">
-                      <span>Skin Type</span>
-                      <small>Helps artists select primers and setting sprays</small>
-                    </label>
-                    <div className="profile-chip-grid">
-                      {SKIN_TYPES.map((type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          className={`profile-pref-chip ${preferences.skinType === type ? 'is-selected' : ''}`}
-                          onClick={() => setPreferences({ ...preferences, skinType: type })}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Undertone */}
-                  <div className="profile-pref-section">
-                    <label className="profile-pref-label">
-                      <span>Complexion Undertone</span>
-                      <small>Ensures accurate foundation & contour matching</small>
-                    </label>
-                    <div className="profile-chip-grid">
-                      {UNDERTONES.map((tone) => (
-                        <button
-                          key={tone}
-                          type="button"
-                          className={`profile-pref-chip ${preferences.undertone === tone ? 'is-selected' : ''}`}
-                          onClick={() => setPreferences({ ...preferences, undertone: tone })}
-                        >
-                          {tone}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Notes & Allergies */}
-                <div className="profile-pref-section">
+                {/* 3. Sensitivities & Allergies */}
+                <div className="profile-pref-section" style={{ borderTop: '1px solid rgba(42, 26, 31, 0.06)', paddingTop: 20 }}>
                   <label className="profile-pref-label">
-                    <span>Product Allergies & Special Notes</span>
-                    <small>E.g., fragrance sensitive, cruelty-free only, latex lash glue allergy</small>
+                    <span>3. Product Allergies & Special Notes</span>
+                    <small>E.g., fragrance sensitive, cruelty-free only, latex lash glue allergy, prefer organic skincare</small>
                   </label>
                   <textarea
-                    rows={4}
+                    rows={3}
+                    maxLength={3000}
+                    aria-label="Product allergies and special notes"
                     className="profile-form-textarea"
                     placeholder="Tell your artists about any skin sensitivities, preferred luxury brands, or lash requirements…"
                     value={preferences.specialRequests}
                     onChange={(e) =>
                       setPreferences({ ...preferences, specialRequests: e.target.value })
                     }
+                    style={{ marginTop: 8 }}
                   />
                 </div>
+
+                {/* 4. Live Artist View Card */}
+                {(preferences.skinType || preferences.undertone || preferences.styles.length > 0 || preferences.specialRequests) && (
+                  <div style={{ background: '#FAF7F5', border: '1px solid rgba(217, 122, 140, 0.2)', borderRadius: 16, padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <Sparkles size={16} color="var(--rose-deep)" />
+                      <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--dark)' }}>
+                        How Your Artist Views This Profile
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {preferences.skinType && (
+                        <span style={{ background: '#fff', border: '1px solid rgba(42, 26, 31, 0.08)', borderRadius: 99, padding: '4px 10px', fontSize: '0.78rem', color: 'var(--dark)' }}>
+                          <strong>Skin:</strong> {preferences.skinType}
+                        </span>
+                      )}
+                      {preferences.undertone && (
+                        <span style={{ background: '#fff', border: '1px solid rgba(42, 26, 31, 0.08)', borderRadius: 99, padding: '4px 10px', fontSize: '0.78rem', color: 'var(--dark)' }}>
+                          <strong>Undertone:</strong> {preferences.undertone}
+                        </span>
+                      )}
+                      {preferences.styles.map(s => (
+                        <span key={s} style={{ background: 'rgba(217, 122, 140, 0.1)', color: 'var(--rose-deep)', borderRadius: 99, padding: '4px 10px', fontSize: '0.78rem', fontWeight: 600 }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                    {preferences.specialRequests && (
+                      <p style={{ fontSize: '0.82rem', color: 'var(--mid)', marginTop: 10, marginBottom: 0, fontStyle: 'italic' }}>
+                        "{preferences.specialRequests}"
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <button className="profile-btn profile-btn--primary" disabled={savingDetails} onClick={handleSavePreferences}>
+                  <Check size={16} /> {savingDetails ? 'Saving…' : 'Save Preferences'}
+                </button>
               </div>
             </div>
           )}
@@ -1471,154 +1436,9 @@ const ProfilePage: React.FC = () => {
         </div>
       </main>
 
-      {/* ── Modal: Add / Edit Saved Address ── */}
-      {showAddressModal && (
-        <div className="profile-modal-overlay" role="dialog" aria-modal="true">
-          <div className="profile-modal-card">
-            <div className="profile-modal-header">
-              <h3>{editingAddress ? 'Edit Saved Address' : 'Add New Booking Address'}</h3>
-              <button
-                className="profile-modal-close"
-                onClick={() => setShowAddressModal(false)}
-                aria-label="Close dialog"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveAddress} className="profile-modal-form">
-              <div className="profile-modal-field">
-                <label>Address Label</label>
-                <select
-                  value={addressForm.label}
-                  onChange={(e) =>
-                    setAddressForm({
-                      ...addressForm,
-                      label: e.target.value as SavedAddress['label'],
-                    })
-                  }
-                >
-                  <option value="Home">Home</option>
-                  <option value="Wedding Venue">Wedding Venue</option>
-                  <option value="Hotel / Studio">Hotel / Studio</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="profile-modal-dual">
-                <div className="profile-modal-field">
-                  <label>Recipient Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={addressForm.recipientName}
-                    onChange={(e) =>
-                      setAddressForm({ ...addressForm, recipientName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="profile-modal-field">
-                  <label>Mobile Number</label>
-                  <PhoneInput
-                    required
-                    placeholder="98765 43210"
-                    value={addressForm.phone}
-                    onChange={(digits) =>
-                      setAddressForm({
-                        ...addressForm,
-                        phone: digits,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="profile-modal-field">
-                <label>Flat / Apartment / Villa No.</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Flat 402, Signature Towers"
-                  value={addressForm.apartment}
-                  onChange={(e) => setAddressForm({ ...addressForm, apartment: e.target.value })}
-                />
-              </div>
-
-              <div className="profile-modal-field">
-                <label>Street Address & Area</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Hill Road, Bandra West"
-                  value={addressForm.street}
-                  onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
-                />
-              </div>
-
-              <div className="profile-modal-dual">
-                <div className="profile-modal-field">
-                  <label>City</label>
-                  <input
-                    type="text"
-                    required
-                    value={addressForm.city}
-                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                  />
-                </div>
-                <div className="profile-modal-field">
-                  <label>Pincode</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    placeholder="e.g. 400050"
-                    value={addressForm.pincode}
-                    onChange={(e) =>
-                      setAddressForm({
-                        ...addressForm,
-                        pincode: e.target.value.replace(/\D/g, ''),
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="profile-modal-field">
-                <label>Landmark (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="Near landmark…"
-                  value={addressForm.landmark}
-                  onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })}
-                />
-              </div>
-
-              <label className="profile-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={addressForm.isDefault}
-                  onChange={(e) =>
-                    setAddressForm({ ...addressForm, isDefault: e.target.checked })
-                  }
-                />
-                <span>Set as default booking address</span>
-              </label>
-
-              <div className="profile-modal-actions">
-                <button
-                  type="button"
-                  className="profile-btn profile-btn--secondary"
-                  onClick={() => setShowAddressModal(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="profile-btn profile-btn--primary">
-                  {editingAddress ? 'Update Address' : 'Save Address'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {showAddressModal && <BookingLocationModal isOpen initialMode="form" editingAddress={editingAddress}
+        title={editingAddress ? 'Edit saved address' : 'Add new address'} confirmButtonLabel="Save address"
+        onSelectAddress={() => setProfileError('')} onClose={() => setShowAddressModal(false)} />}
 
       {/* ── Modal: Official Booking Receipt / Invoice ── */}
       {invoiceBooking && (
@@ -1760,6 +1580,25 @@ const ProfilePage: React.FC = () => {
             setShowPaymentModal(false);
             setSelectedBookingForPayment(null);
             fetchBookings();
+          }}
+        />
+      )}
+      {/* ── Review Modal ── */}
+      {reviewingBooking && (
+        <ReviewModal
+          isOpen={Boolean(reviewingBooking)}
+          bookingId={reviewingBooking.id}
+          artistName={reviewingBooking.artist?.user?.name || 'Artist'}
+          serviceName={reviewingBooking.service?.name}
+          bookingDateLabel={formatDate(reviewingBooking.date)}
+          onClose={() => setReviewingBooking(null)}
+          onSuccess={(review) => {
+            setBookings((prev) =>
+              prev.map((item) =>
+                item.id === reviewingBooking.id ? { ...item, review } : item
+              )
+            );
+            void fetchBookings();
           }}
         />
       )}

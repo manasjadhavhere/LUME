@@ -158,7 +158,7 @@ async function processArtistWhatsAppAction(
 
     if (action === 'ACCEPT') {
       const updatedBooking = await prisma.booking.update({
-        where: { id: booking.id },
+        where: { id: booking.id, status: 'PENDING' },
         data: { status: 'ACCEPTED' },
       });
       queueBookingEmail(updatedBooking, 'ACCEPTED');
@@ -168,8 +168,9 @@ async function processArtistWhatsAppAction(
         data: {
           userId: booking.clientId,
           title: 'Booking Accepted! ✨',
-          message: `${booking.artist.user.name} has confirmed your appointment.`,
+          message: `${booking.artist.user.name} approved your booking request. Open your bookings to pay.`,
           type: 'BOOKING_ACCEPTED',
+          link: '/profile',
         },
       });
 
@@ -183,7 +184,7 @@ async function processArtistWhatsAppAction(
       await notifyBookingStatusChanged(booking.id, 'ACCEPTED');
     } else {
       const updatedBooking = await prisma.booking.update({
-        where: { id: booking.id },
+        where: { id: booking.id, status: 'PENDING' },
         data: {
           status: 'CANCELLED',
           cancelReason: 'Declined by artist via WhatsApp',
@@ -198,6 +199,7 @@ async function processArtistWhatsAppAction(
           title: 'Booking Request Declined',
           message: `${booking.artist.user.name} was unavailable for the requested slot.`,
           type: 'BOOKING_DECLINED',
+          link: '/profile',
         },
       });
 
@@ -270,7 +272,7 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
 
     if (normalizedAction === 'accept') {
       const updatedBooking = await prisma.booking.update({
-        where: { id },
+        where: { id, status: 'PENDING' },
         data: { status: 'ACCEPTED' },
       });
       queueBookingEmail(updatedBooking, 'ACCEPTED');
@@ -279,8 +281,9 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
         data: {
           userId: booking.clientId,
           title: 'Booking Accepted! ✨',
-          message: `${booking.artist.user.name} has confirmed your appointment.`,
+          message: `${booking.artist.user.name} approved your booking request. Open your bookings to pay.`,
           type: 'BOOKING_ACCEPTED',
+          link: '/profile',
         },
       });
 
@@ -296,7 +299,7 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
       );
     } else {
       const updatedBooking = await prisma.booking.update({
-        where: { id },
+        where: { id, status: 'PENDING' },
         data: {
           status: 'CANCELLED',
           cancelReason: 'Declined by artist via WhatsApp quick link',
@@ -310,6 +313,7 @@ export async function handleOneClickWhatsAppAction(req: Request, res: Response) 
           title: 'Booking Request Declined',
           message: `${booking.artist.user.name} was unavailable for the requested slot.`,
           type: 'BOOKING_DECLINED',
+          link: '/profile',
         },
       });
 

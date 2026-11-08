@@ -1047,7 +1047,7 @@ body:has(.ap),
   top: calc(var(--ap-sticky-top) + 20px);
   max-height: calc(100vh - var(--ap-sticky-top) - 36px);
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--rose-light) transparent;
   padding: 2px 2px 4px;
@@ -2307,3 +2307,12 @@ body:has(.ap),
   }
 }
 
+
+.ap-reservations, .ap-venue { padding: 14px 16px; border: 1px solid var(--rose-deep); border-radius: 12px; background: #fff7f9; color: var(--dark); }
+.ap-reservations { margin-block: 12px 20px; }
+.ap-reservations div, .ap-venue { display: flex; align-items: center; gap: 10px; }
+.ap-reservations div { justify-content: space-between; flex-wrap: wrap; margin-top: 6px; }
+.ap-reservations button { background: transparent; border: 0; text-decoration: underline; cursor: pointer; }
+.ap-venue { width: 100%; text-align: left; margin-bottom: 8px; cursor: pointer; }
+.ap-venue small, .ap-times button small { display: block; }
+.ap-times button:disabled { background: #f3eff1; color: #6d6166; cursor: not-allowed; }
