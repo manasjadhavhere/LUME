@@ -133,21 +133,16 @@ app.use(errorHandler);
 
 // ── Start Server ──────────────────────────────────────────────────────────────
 
-async function startServer() {
-  try {
-    await ensureSchemaColumns();
-    console.log('[Database] Additive columns verified and self-reconciled');
-  } catch (err) {
-    console.warn('[Database] Column verification non-fatal warning:', err);
-  }
-
-  app.listen(config.port, () => {
-    console.log(`\n🌟 LUME API running on http://localhost:${config.port}`);
-    console.log(`📦 Environment: ${config.nodeEnv}`);
-    console.log(`🔗 Health: http://localhost:${config.port}/api/health\n`);
+// Reconcile additive columns (e.g. artist_profiles.isHidden) BEFORE accepting traffic,
+// so a deploy without `prisma migrate deploy` never serves queries against missing columns.
+ensureSchemaColumns()
+  .catch(err => console.error('[Schema] ensureSchemaColumns failed:', err))
+  .finally(() => {
+    app.listen(config.port, () => {
+      console.log(`\n🌟 LUME API running on http://localhost:${config.port}`);
+      console.log(`📦 Environment: ${config.nodeEnv}`);
+      console.log(`🔗 Health: http://localhost:${config.port}/api/health\n`);
+    });
   });
-}
-
-startServer();
 
 export default app;
