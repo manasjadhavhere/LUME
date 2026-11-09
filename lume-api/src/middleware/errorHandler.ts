@@ -44,6 +44,15 @@ export function errorHandler(
     return;
   }
 
+  if (err.code === 'P2021' || err.code === 'P2022') {
+    res.status(500).json({
+      success: false,
+      message: 'Database schema synchronization is in progress. Please retry in a moment.',
+      code: 'SCHEMA_SYNC_IN_PROGRESS',
+    });
+    return;
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

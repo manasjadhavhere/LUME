@@ -82,19 +82,42 @@ export async function getAllArtists(query: {
     ];
   }
 
-  const [artists, total] = await Promise.all([
-    prisma.artistProfile.findMany({
-      where,
-      include: {
-        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
-        services: { where: { isActive: true }, orderBy: { price: 'asc' } },
-      },
-      orderBy: [{ rating: 'desc' }, { reviewCount: 'desc' }],
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.artistProfile.count({ where }),
-  ]);
+  let artists: any[];
+  let total: number;
+  try {
+    [artists, total] = await Promise.all([
+      prisma.artistProfile.findMany({
+        where,
+        include: {
+          user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+          services: { where: { isActive: true }, orderBy: { price: 'asc' } },
+        },
+        orderBy: [{ rating: 'desc' }, { reviewCount: 'desc' }],
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.artistProfile.count({ where }),
+    ]);
+  } catch (err: any) {
+    if (err?.code === 'P2022' || (typeof err?.message === 'string' && err.message.includes('isHidden'))) {
+      delete where.isHidden;
+      [artists, total] = await Promise.all([
+        prisma.artistProfile.findMany({
+          where,
+          include: {
+            user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+            services: { where: { isActive: true }, orderBy: { price: 'asc' } },
+          },
+          orderBy: [{ rating: 'desc' }, { reviewCount: 'desc' }],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        prisma.artistProfile.count({ where }),
+      ]);
+    } else {
+      throw err;
+    }
+  }
 
   return {
     artists: artists.map(artist => ({
@@ -124,17 +147,41 @@ const artistDetailInclude = {
 
 export async function getArtistById(artistIdOrSlug: string) {
   // 1. Try finding by ID directly
-  let artist = await prisma.artistProfile.findFirst({
-    where: { id: artistIdOrSlug, isVerified: true, isHidden: false },
-    include: artistDetailInclude,
-  });
+  let artist: any;
+  try {
+    artist = await prisma.artistProfile.findFirst({
+      where: { id: artistIdOrSlug, isVerified: true, isHidden: false },
+      include: artistDetailInclude,
+    });
+  } catch (err: any) {
+    if (err?.code === 'P2022' || (typeof err?.message === 'string' && err.message.includes('isHidden'))) {
+      artist = await prisma.artistProfile.findFirst({
+        where: { id: artistIdOrSlug, isVerified: true },
+        include: artistDetailInclude,
+      });
+    } else {
+      throw err;
+    }
+  }
 
   // 2. If not found by ID, try finding by slug or name
   if (!artist) {
-    const allVerified = await prisma.artistProfile.findMany({
-      where: { isVerified: true, isHidden: false },
-      include: artistDetailInclude,
-    });
+    let allVerified: any[] = [];
+    try {
+      allVerified = await prisma.artistProfile.findMany({
+        where: { isVerified: true, isHidden: false },
+        include: artistDetailInclude,
+      });
+    } catch (err: any) {
+      if (err?.code === 'P2022' || (typeof err?.message === 'string' && err.message.includes('isHidden'))) {
+        allVerified = await prisma.artistProfile.findMany({
+          where: { isVerified: true },
+          include: artistDetailInclude,
+        });
+      } else {
+        throw err;
+      }
+    }
 
     const target = artistIdOrSlug.toLowerCase().trim();
     const cleanTarget = target.replace(/[^a-z0-9]/g, '');

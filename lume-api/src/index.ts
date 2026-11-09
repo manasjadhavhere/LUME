@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { configureBookingEmail } from './modules/email/email.service';
+import { ensureSchemaColumns } from './lib/ensureSchema';
 
 // Routers
 import authRouter from './modules/auth/auth.router';
@@ -132,10 +133,21 @@ app.use(errorHandler);
 
 // ── Start Server ──────────────────────────────────────────────────────────────
 
-app.listen(config.port, () => {
-  console.log(`\n🌟 LUME API running on http://localhost:${config.port}`);
-  console.log(`📦 Environment: ${config.nodeEnv}`);
-  console.log(`🔗 Health: http://localhost:${config.port}/api/health\n`);
-});
+async function startServer() {
+  try {
+    await ensureSchemaColumns();
+    console.log('[Database] Additive columns verified and self-reconciled');
+  } catch (err) {
+    console.warn('[Database] Column verification non-fatal warning:', err);
+  }
+
+  app.listen(config.port, () => {
+    console.log(`\n🌟 LUME API running on http://localhost:${config.port}`);
+    console.log(`📦 Environment: ${config.nodeEnv}`);
+    console.log(`🔗 Health: http://localhost:${config.port}/api/health\n`);
+  });
+}
+
+startServer();
 
 export default app;
